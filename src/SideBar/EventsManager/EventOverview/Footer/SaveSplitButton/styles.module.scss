@@ -29,7 +29,7 @@
     }
 
     &[aria-expanded='true'] {
-      background-color: colors.shade(var(--er-ui-cta-primary), 34%);
+      background-color: colors.shade(var(--er-ui-cta-primary), colors.$active-shade);
     }
   }
 

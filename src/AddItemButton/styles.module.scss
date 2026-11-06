@@ -74,11 +74,11 @@
   }
 
   &:hover:not(:disabled, :focus-visible) svg {
-    background-color: colors.shade(var(--er-ui-cta-primary), 17%);
+    background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
 
     path {
-      fill: colors.shade(var(--er-ui-cta-primary), 17%);
-      stroke: colors.shade(var(--er-ui-cta-primary), 17%);
+      fill: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
+      stroke: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
     }
   }
 

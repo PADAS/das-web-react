@@ -31,8 +31,8 @@
         color: var(--er-ui-text-primary-text-reversed);
 
         &:hover {
-          background-color: colors.shade(var(--er-ui-cta-primary), 17%);
-          border-color: colors.shade(var(--er-ui-cta-primary), 17%);
+          background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
+          border-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
         }
 
         &:focus-visible:not(:disabled) {

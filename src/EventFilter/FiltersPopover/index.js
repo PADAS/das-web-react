@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { EVENT_STATE_CHOICES, REPORT_PRIORITIES } from '../../constants';
 import { getGlobalSchemaReportedBy } from '../../selectors';
 import { INITIAL_FILTER_STATE, updateEventFilter } from '../../ducks/event-filter';
-import { PRIORITY_COLOR_MAP } from '../../utils/events';
+import { PRIORITY_COLOR_MAP, tokenVar } from '../../utils/colors';
 import { TrackerContext } from '../../utils/analytics';
 import useModalPopover from '../../hooks/useModalPopover';
 
@@ -23,7 +23,7 @@ const ALL_STATE_KEY = 'all';
 
 const renderPriorityIcon = (priority) => <span
   className={styles.optionDot}
-  style={{ backgroundColor: PRIORITY_COLOR_MAP[priority.value].base }}
+  style={{ backgroundColor: tokenVar(PRIORITY_COLOR_MAP[priority.value].baseToken) }}
 />;
 
 const renderStateIcon = (state) => <span className={`${styles.optionDot} ${styles[state.value]}`} />;

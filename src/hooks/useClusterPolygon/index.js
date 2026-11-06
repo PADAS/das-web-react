@@ -67,7 +67,7 @@ const useClusterPolygon = () => {
           id: LAYER_IDS.CLUSTER_POLYGON_LAYER_ID,
           maxzoom: CLUSTERS_MAX_ZOOM - 1,
           paint: {
-            'fill-color': withOpacity(COLOR_TOKENS['green-9'], 0.4),
+            'fill-color': withOpacity(COLOR_TOKENS['green-9'], 40),
             'fill-outline-color': COLOR_TOKENS['green-1'],
           },
           source: SOURCE_IDS.CLUSTER_POLYGON_SOURCE_ID,

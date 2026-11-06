@@ -98,13 +98,6 @@ h6 {
   padding: 1rem;
 }
 
-.modal-backdrop {
-  &.show {
-    background: colors.with-opacity(var(--er-greyscale-0), 50%);
-    opacity: 1;
-  }
-}
-
 .modal[role="dialog"] {
   align-items: center;
   display: flex !important;

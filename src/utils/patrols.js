@@ -18,7 +18,7 @@ import uniq from 'lodash/uniq';
 import uniqBy from 'lodash/uniqBy';
 
 import { calcTitleAndSubtitle } from './titles';
-import { COLOR_TOKENS, tint } from './colors';
+import { COLOR_STEPS, COLOR_TOKENS, tint, tokenVar } from './colors';
 import { format, getCurrentLocale, SHORT_TIME_FORMAT } from './datetime';
 import { PATROL_UI_STATES, PATROL_API_STATES } from '../constants';
 
@@ -31,45 +31,26 @@ import { getReporterById } from './events';
 
 
 const DEFAULT_STROKE = COLOR_TOKENS['ui-data-tracks-track-1'];
-const PATROL_THEME_BACKGROUND_TINT = 0.95;
 export const DELTA_FOR_OVERDUE = 30; //minutes till we say something is overdue
 export const READY_TO_START_WINDOW_HOURS = 1; // hours before its start a patrol counts as ready to start
 
+const PATROL_DISABLED_TEXT_COLOR = 'var(--er-ui-text-disabled)';
+
+const createPatrolTheme = (tokenName, fontColor) => ({
+  background: tint(tokenVar(tokenName), COLOR_STEPS.rowTint),
+  base: tokenVar(tokenName),
+  fontColor,
+});
+
 const PATROL_STATUS_THEME_COLOR_MAP = {
-  [PATROL_UI_STATES.SCHEDULED.key]: {
-    base: COLOR_TOKENS['ui-patrol-status-scheduled'],
-    background: tint(COLOR_TOKENS['ui-patrol-status-scheduled'], PATROL_THEME_BACKGROUND_TINT),
-  },
-  [PATROL_UI_STATES.READY_TO_START.key]: {
-    base: COLOR_TOKENS['ui-patrol-status-scheduled'],
-    background: tint(COLOR_TOKENS['ui-patrol-status-scheduled'], PATROL_THEME_BACKGROUND_TINT),
-  },
-  [PATROL_UI_STATES.ACTIVE.key]: {
-    base: COLOR_TOKENS['ui-patrol-status-active'],
-    background: tint(COLOR_TOKENS['ui-patrol-status-active'], PATROL_THEME_BACKGROUND_TINT),
-  },
-  [PATROL_UI_STATES.PAUSED.key]: {
-    base: COLOR_TOKENS['yellow-2'],
-    background: tint(COLOR_TOKENS['yellow-2'], PATROL_THEME_BACKGROUND_TINT),
-  },
-  [PATROL_UI_STATES.DONE.key]: {
-    base: COLOR_TOKENS['greyscale-7'],
-    background: tint(COLOR_TOKENS['greyscale-7'], PATROL_THEME_BACKGROUND_TINT),
-  },
-  [PATROL_UI_STATES.START_OVERDUE.key]: {
-    base: COLOR_TOKENS['ui-patrol-status-overdue'],
-    background: tint(COLOR_TOKENS['ui-patrol-status-overdue'], PATROL_THEME_BACKGROUND_TINT),
-  },
-  [PATROL_UI_STATES.CANCELLED.key]: {
-    base: COLOR_TOKENS['greyscale-9'],
-    background: tint(COLOR_TOKENS['greyscale-9'], PATROL_THEME_BACKGROUND_TINT),
-    fontColor: COLOR_TOKENS['ui-text-disabled'],
-  },
-  [PATROL_UI_STATES.INVALID.key]: {
-    base: COLOR_TOKENS['greyscale-9'],
-    background: tint(COLOR_TOKENS['greyscale-9'], PATROL_THEME_BACKGROUND_TINT),
-    fontColor: COLOR_TOKENS['ui-text-disabled'],
-  },
+  [PATROL_UI_STATES.SCHEDULED.key]: createPatrolTheme('ui-patrol-status-scheduled'),
+  [PATROL_UI_STATES.READY_TO_START.key]: createPatrolTheme('ui-patrol-status-scheduled'),
+  [PATROL_UI_STATES.ACTIVE.key]: createPatrolTheme('ui-patrol-status-active'),
+  [PATROL_UI_STATES.PAUSED.key]: createPatrolTheme('yellow-2'),
+  [PATROL_UI_STATES.DONE.key]: createPatrolTheme('greyscale-7'),
+  [PATROL_UI_STATES.START_OVERDUE.key]: createPatrolTheme('ui-patrol-status-overdue'),
+  [PATROL_UI_STATES.CANCELLED.key]: createPatrolTheme('greyscale-9', PATROL_DISABLED_TEXT_COLOR),
+  [PATROL_UI_STATES.INVALID.key]: createPatrolTheme('greyscale-9', PATROL_DISABLED_TEXT_COLOR),
 };
 
 export const calcColorThemeForPatrolState = (patrolState) => {

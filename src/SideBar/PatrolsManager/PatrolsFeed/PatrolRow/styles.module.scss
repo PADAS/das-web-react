@@ -4,7 +4,7 @@
 @mixin patrol-row-theme($theme) {
   $theme-color: map.get($theme, 'font-color') or map.get($theme, 'base');
 
-  --patrol-row-hover-background: #{colors.tint($theme-color, colors.$patrol-row-tint)};
+  --patrol-row-hover-background: #{colors.tint($theme-color, colors.$row-tint)};
 
   .icon {
     background-color: map.get($theme, 'base');

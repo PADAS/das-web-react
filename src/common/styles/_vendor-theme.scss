@@ -1,8 +1,7 @@
 @use 'colors';
 
-// Libraries other than Bootstrap that ship their own colors, themed with the
-// tokens. Only src/index.scss uses this partial, which emits rules. Most of
-// these stylesheets load later, with lazy chunks, so :root outranks them.
+// Only src/index.scss uses this partial. Most of these libraries load their
+// stylesheets later, with lazy chunks, so :root outranks them.
 
 :root {
   --toastify-color-error: var(--er-ui-status-error-destructive);
@@ -30,6 +29,52 @@
   .mapboxgl-ctrl button:not(:disabled):hover,
   .mapboxgl-popup-close-button:hover {
     background-color: var(--er-ui-background-tertiary-background);
+  }
+
+  .react-datepicker__header {
+    background: var(--er-ui-background-primary-background);
+  }
+
+  .react-datepicker__day,
+  .react-datepicker__month-text {
+    &:hover:not([aria-disabled="true"]) {
+      background-color: var(--er-ui-background-selected-background);
+      color: var(--er-ui-text-primary-text);
+    }
+
+    &[aria-selected="true"] {
+      background-color: var(--er-ui-cta-primary);
+      color: var(--er-ui-text-primary-text-reversed);
+    }
+
+    &[class*="--keyboard-selected"] {
+      background-color: var(--er-ui-background-selected-background);
+    }
+  }
+
+  .react-datepicker__month-text[class*="--keyboard-selected"] {
+    color: var(--er-ui-text-primary-text);
+  }
+
+  .react-datepicker__day {
+    &[class*="--outside-month"] {
+      color: var(--er-ui-text-secondary-text);
+    }
+
+    &[class*="--in-selecting-range"]:not([aria-selected="true"]) {
+      background-color: var(--er-ui-background-selected-background);
+      color: var(--er-ui-text-primary-text);
+    }
+
+    &[class*="--in-selecting-range"], &[class*="--in-range"] {
+      &[class*="--keyboard-selected"] {
+        color: var(--er-ui-text-primary-text);
+      }
+
+      &[class*="--outside-month"][aria-selected="true"]:not(:hover) {
+        color: var(--er-ui-text-primary-text-reversed);
+      }
+    }
   }
 
   .mapboxgl-boxzoom {

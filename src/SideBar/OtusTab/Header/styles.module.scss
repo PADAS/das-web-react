@@ -23,7 +23,7 @@
     width: 1.75rem;
 
     &:hover {
-      background-color: colors.shade(var(--er-ui-cta-primary), 21%);
+      background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
     }
 
     &:focus-visible {
@@ -77,7 +77,7 @@
       padding: 0 0.75rem;
 
       &:hover {
-        background-color: colors.shade(var(--er-ui-background-primary-background), 5%);
+        background-color: colors.shade(var(--er-ui-background-primary-background), colors.$surface-hover-shade);
       }
 
       &:focus-visible {

@@ -70,7 +70,7 @@ import {
   patrolWithUpdateApplied,
   sortPatrolList,
 } from './patrols';
-import { COLOR_TOKENS, tint } from './colors';
+import { COLOR_TOKENS } from './colors';
 import { PATROL_UI_STATES } from '../constants';
 import {
   newPatrol,
@@ -3049,8 +3049,8 @@ describe('Patrols utils', () => {
 
     test('gives a paused patrol the paused theme', () => {
       expect(calcColorThemeForPatrolState(PAUSED)).toEqual({
-        background: tint(COLOR_TOKENS['yellow-2'], 0.95),
-        base: COLOR_TOKENS['yellow-2'],
+        background: 'color-mix(in srgb, var(--er-yellow-2), white 95%)',
+        base: 'var(--er-yellow-2)',
       });
     });
   });

@@ -1,7 +1,6 @@
 import { memo } from 'react';
 import { connect } from 'react-redux';
 
-import { COLOR_TOKENS } from '../../../utils/colors';
 import { showFeatures } from '../../../ducks/map-layer-filter';
 import { showPopup } from '../../../ducks/popup';
 import { clearActiveAnalyzerFeatures, setAnalyzerFeatureActiveStateForIDs, getAnalyzerAdminPoint, fitMapBoundsForAnalyzer } from '../../../utils/analyzers';
@@ -13,6 +12,8 @@ import LocationJumpButton from '../../../LocationJumpButton';
 
 import * as styles from '../styles.module.scss';
 
+const ANALYZER_ICON_STYLE = { height: '1.5rem', stroke: 'var(--er-ui-icons)', width: '1.5rem' };
+
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 // eslint-disable-next-line react/display-name
@@ -21,8 +22,8 @@ const AnalyzerListItem = memo((props) => {
   const { properties } = features[0];
 
   const iconForCategory = category => {
-    if (category === 'geofence') return <GeofenceIcon stroke={COLOR_TOKENS['ui-icons']} style={{ height: '1.5rem', width: '1.5rem' }} />;
-    if (category === 'proximity') return <ProximityIcon stroke={COLOR_TOKENS['ui-icons']} style={{ height: '1.5rem', width: '1.5rem' }} />;
+    if (category === 'geofence') return <GeofenceIcon style={ANALYZER_ICON_STYLE} />;
+    if (category === 'proximity') return <ProximityIcon style={ANALYZER_ICON_STYLE} />;
     return null;
   };
 

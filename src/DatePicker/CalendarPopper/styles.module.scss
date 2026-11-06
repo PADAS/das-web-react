@@ -7,7 +7,6 @@
   font-weight: 400;
 
   [class*="react-datepicker__header"] {
-    background: var(--er-ui-background-primary-background);
     border: none;
     padding: 0;
   }
@@ -44,7 +43,7 @@
   }
 
   .caret {
-    @include inputs.dropdown-caret($color: var(--er-ui-icons));
+    @include inputs.dropdown-caret;
 
     &.open {
       transform: rotate(180deg);
@@ -61,33 +60,10 @@
     outline: var(--er-ui-cta-primary) auto 1px;
   }
 
-  &:hover:not([aria-disabled="true"]) {
-    background-color: var(--er-ui-background-selected-background);
-    color: var(--er-ui-text-primary-text);
-  }
-
   &[aria-disabled="true"] {
     pointer-events: none;
   }
 
-  &[aria-selected="true"] {
-    background-color: var(--er-ui-cta-primary);
-    color: var(--er-ui-text-primary-text-reversed);
-  }
-
-  &[class*="--keyboard-selected"] {
-    background-color: var(--er-ui-background-selected-background);
-  }
-
-  &[class*="--outside-month"] {
-    color: var(--er-ui-text-secondary-text);
-  }
-
-  &[class*="--in-selecting-range"]:not([aria-selected="true"]) {
-    background-color: var(--er-ui-background-selected-background);
-    color: var(--er-ui-text-primary-text);
-  }
-    
   &[class*="--in-selecting-range"], &[class*="--in-range"] {
     &[class*="-range-end"] {
       border-radius: 0 0.5rem 0.5rem 0;
@@ -95,14 +71,6 @@
 
     &[class*="-range-start"] {
       border-radius: 0.5rem 0 0 0.5rem;
-    }
-
-    &[class*="--keyboard-selected"] {
-      color: var(--er-ui-text-primary-text);
-    }
-
-    &[class*="--outside-month"][aria-selected="true"]:not(:hover) {
-      color: var(--er-ui-text-primary-text-reversed);
     }
   }
 }

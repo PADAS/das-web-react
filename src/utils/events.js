@@ -7,7 +7,6 @@ import isObject from 'lodash/isObject';
 import { addNoteToEvent, createEvent, EVENT_API_URL, updateEvent, uploadEventFile } from '../ducks/events';
 import { calcTopRatedReportAndTypeForCollection } from './event-types';
 import { calcUrlForImage } from './img';
-import { COLOR_TOKENS } from './colors';
 import { EVENT_FORM_STATES } from '../constants';
 import { getEventReporters } from '../selectors';
 import store from '../store';
@@ -263,29 +262,6 @@ export const calcDisplayPriorityForReport = (report, eventTypes) => {
   }
 
   return report.priority;
-};
-
-export const PRIORITY_COLOR_MAP = {
-  300: {
-    base: COLOR_TOKENS['ui-event-priority-red'],
-    background: COLOR_TOKENS['red-6'],
-    key: 'red',
-  },
-  200: {
-    base: COLOR_TOKENS['ui-event-priority-amber'],
-    background: COLOR_TOKENS['amber-6'],
-    key: 'amber',
-  },
-  100: {
-    base: COLOR_TOKENS['ui-event-priority-green'],
-    background: COLOR_TOKENS['green-6'],
-    key: 'green',
-  },
-  0: {
-    base: COLOR_TOKENS['ui-event-priority-grey'],
-    background: COLOR_TOKENS['greyscale-11'],
-    key: 'none',
-  },
 };
 
 export const setOriginalTextToEventNotes = (event) => {

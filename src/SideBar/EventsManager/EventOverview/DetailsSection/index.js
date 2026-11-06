@@ -5,7 +5,6 @@ import MoonLoader from 'react-spinners/MoonLoader';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { COLOR_TOKENS } from '../../../../utils/colors';
 import { ReactComponent as PencilWritingIcon } from '../../../../common/images/icons/pencil-writing.svg';
 
 import {
@@ -15,9 +14,9 @@ import {
   getLinearErrorPropTree,
 } from '../../../../utils/event-schemas';
 import { getHoursAndMinutesString } from '../../../../utils/datetime';
-import { PRIORITY_COLOR_MAP } from '../../../../utils/events';
 import { REPORT_PRIORITIES, VALID_EVENT_GEOMETRY_TYPES } from '../../../../constants';
 import { selectEventTypeByValue } from '../../../../selectors/event-types';
+import { PRIORITY_COLOR_MAP, tokenVar } from '../../../../utils/colors';
 import { TrackerContext } from '../../../../utils/analytics';
 
 import {
@@ -46,7 +45,7 @@ const SCHEMA_LOADER_SIZE = 40;
 
 const renderPriorityIcon = (priority) => <span
   className={styles.priorityDot}
-  style={{ backgroundColor: PRIORITY_COLOR_MAP[priority.value].base }}
+  style={{ backgroundColor: tokenVar(PRIORITY_COLOR_MAP[priority.value].baseToken) }}
 />;
 
 const DetailsSection = ({
@@ -280,7 +279,7 @@ const DetailsSection = ({
 
     {isSchemaLoading && <div className={styles.section}>
       <div className={styles.schemaLoader} role="status">
-        <MoonLoader color={COLOR_TOKENS['ui-cta-primary']} size={SCHEMA_LOADER_SIZE} />
+        <MoonLoader color="var(--er-ui-cta-primary)" size={SCHEMA_LOADER_SIZE} />
 
         <span className="sr-only">{t('schemaLoadingLabel')}</span>
       </div>

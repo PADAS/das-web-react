@@ -2,7 +2,6 @@ import { memo, useContext } from 'react';
 import { useDispatch } from 'react-redux';
 import { center, bboxPolygon } from '@turf/turf';
 
-import { COLOR_TOKENS } from '../../../utils/colors';
 import { BREAKPOINTS, SIDEBAR_WIDTH_PIXELS } from '../../../constants';
 import { useMatchMedia } from '../../../hooks';
 import { showFeatures } from '../../../ducks/map-layer-filter';
@@ -18,6 +17,8 @@ import { SYMBOLS_LAYER_ID, POLYGONS_LAYER_ID, LINES_LAYER_ID } from '../../../Sp
 import { MapContext } from '../../../MapContext';
 
 import * as styles from '../styles.module.scss';
+
+const ANALYZER_ICON_STYLE = { height: '2rem', stroke: 'var(--er-ui-icons)', width: '2rem' };
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
@@ -48,8 +49,8 @@ const FeatureListItem = memo((props) => {
   };
 
   const iconForCategory = category => {
-    if (category === 'geofence') return <GeofenceIcon stroke={COLOR_TOKENS['ui-icons']} style={{ height: '2rem', width: '2rem' }} />;
-    if (category === 'proximity') return <ProximityIcon stroke={COLOR_TOKENS['ui-icons']} style={{ height: '2rem', width: '2rem' }} />;
+    if (category === 'geofence') return <GeofenceIcon style={ANALYZER_ICON_STYLE} />;
+    if (category === 'proximity') return <ProximityIcon style={ANALYZER_ICON_STYLE} />;
     return null;
   };
 

@@ -52,7 +52,7 @@
     }
 
     &:hover {
-      background: colors.shade(var(--er-ui-cta-primary), 27%);
+      background: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
     }
 
     &:focus-visible {
@@ -263,7 +263,7 @@
           background-color: var(--er-ui-background-selected-background);
 
           &:hover, &:focus {
-            background-color: colors.shade(var(--er-ui-background-selected-background), 5%);
+            background-color: colors.shade(var(--er-ui-background-selected-background), colors.$surface-hover-shade);
           }
         }
 

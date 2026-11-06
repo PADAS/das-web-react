@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as PlayIcon } from '../../common/images/icons/play.svg';
 
-import { COLOR_TOKENS } from '../../utils/colors';
 import { EMPTY_VALUE, TAB_KEYS } from '../../constants';
 import { formatDistanceInKilometers } from '../../utils/distance';
 import { PATROL_DETAIL_VIEW_CATEGORY, trackEventFactory } from '../../utils/analytics';
@@ -117,7 +116,12 @@ const Header = ({ onChangeTitle, patrol, setRedirectTo, printableContentRef }) =
 
   return <div className={styles.header} style={{ backgroundColor: !isNewPatrol ? theme.background : undefined }}>
     <div className={styles.icon} style={{ backgroundColor: !isNewPatrol ? theme.base : undefined }}>
-      <SvgIcon className={!isNewPatrol ? '' : 'newPatrol'} style={{ fill: theme.fontColor ?? COLOR_TOKENS['ui-text-primary-text-reversed'] }} type='patrols' iconId={patrolIconId}  />
+      <SvgIcon
+        className={!isNewPatrol ? '' : 'newPatrol'}
+        iconId={patrolIconId}
+        style={{ fill: theme.fontColor ?? 'var(--er-ui-text-primary-text-reversed)' }}
+        type="patrols"
+      />
     </div>
 
     <p className={styles.serialNumber}>{patrol.serial_number}</p>

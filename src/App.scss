@@ -369,16 +369,6 @@ body {
   margin-right: 2rem;
 }
 
-.btn-primary {
-  background-color: var(--er-ui-cta-primary);
-  border-color: var(--er-ui-cta-primary);
-}
-
-.btn-light {
-  background: var(--er-ui-background-tertiary-background);
-  color: var(--er-ui-text-secondary-text);
-}
-
 .app-container h1,
 h2,
 h3,
@@ -449,11 +439,7 @@ div.mapboxgl-popup-tip {
   padding: 0.5rem 1rem;
   user-select: text;
 
-  &:active,
-  &:visited,
   &:focus {
-    background-color: unset;
-    color: unset;
     outline: none;
   }
 }

@@ -257,8 +257,8 @@ $chip-height-small: 1.75rem;
   }
 
   &:hover {
-    background-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
-    border-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
+    background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
+    border-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
   }
 
   &:focus-visible {
@@ -284,8 +284,8 @@ $chip-height-small: 1.75rem;
     color: var(--er-ui-text-primary-text-reversed);
 
     &:hover {
-      background-color: colors.shade(var(--er-ui-cta-primary), 17%);
-      border-color: colors.shade(var(--er-ui-cta-primary), 17%);
+      background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
+      border-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
     }
 
     &:focus-visible {
@@ -324,8 +324,8 @@ $chip-height-small: 1.75rem;
   padding: 0 0.5rem;
 
   &:hover {
-    background-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
-    border-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
+    background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
+    border-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
   }
 
   &:focus-visible {
@@ -351,8 +351,8 @@ $chip-height-small: 1.75rem;
   color: var(--er-ui-status-error-destructive);
 
   &:hover {
-    background-color: colors.shade(var(--er-ui-status-bg-error-bg), 5%);
-    border-color: colors.shade(var(--er-ui-status-bg-error-bg), 5%);
+    background-color: colors.shade(var(--er-ui-status-bg-error-bg), colors.$surface-hover-shade);
+    border-color: colors.shade(var(--er-ui-status-bg-error-bg), colors.$surface-hover-shade);
   }
 
   &[aria-disabled='true'] {
@@ -437,7 +437,7 @@ $chip-height-small: 1.75rem;
 
   // Hovering a focused button would otherwise hide its focus ring.
   &:hover:not(:disabled, :focus-visible) {
-    background-color: colors.shade(var(--er-ui-cta-primary), 17%);
+    background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
   }
 
   &:focus-visible {
@@ -460,7 +460,7 @@ $chip-height-small: 1.75rem;
   text-decoration: none;
 
   &:hover:not(:disabled, :focus-visible) {
-    background-color: colors.shade(var(--er-ui-background-selected-background), 5%);
+    background-color: colors.shade(var(--er-ui-background-selected-background), colors.$surface-hover-shade);
     color: colors.shade(var(--er-ui-cta-primary), 15%);
   }
 

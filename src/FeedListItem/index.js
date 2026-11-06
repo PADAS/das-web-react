@@ -1,7 +1,5 @@
 import { memo, useCallback, useRef } from 'react';
 
-import { COLOR_TOKENS } from '../utils/colors';
-
 import * as styles from './styles.module.scss';
 
 const FeedListItem = ({
@@ -12,7 +10,7 @@ const FeedListItem = ({
   IconComponent = null,
   onClick,
   themeBgColor = null,
-  themeColor = COLOR_TOKENS['ui-event-priority-grey'],
+  themeColor = 'var(--er-ui-event-priority-grey)',
   TitleComponent,
   ...otherProps
 }) => {

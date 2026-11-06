@@ -3,7 +3,6 @@ import uniq from 'lodash/uniq';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { COLOR_TOKENS } from '../../../utils/colors';
 import { mapEventTypesToCategories } from '../../../utils/event-types';
 import { TrackerContext } from '../../../utils/analytics';
 
@@ -118,7 +117,11 @@ const EventTypesFilter = ({ filterText, id, onChange, onChangeFilterText, value 
             <ul className={styles.eventTypeList}>
               {category.types.map((eventType) => <li key={eventType.id}>
                 <SelectableItem
-                  icon={<SvgIcon color={COLOR_TOKENS['ui-icons']} iconId={eventType.icon_id || eventType.value} type="events" />}
+                  icon={<SvgIcon
+                    color="var(--er-ui-icons)"
+                    iconId={eventType.icon_id || eventType.value}
+                    type="events"
+                  />}
                   id={`${id}-${eventType.id}`}
                   isChecked={value.includes(eventType.id)}
                   label={eventType.display}

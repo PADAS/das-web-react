@@ -40,8 +40,8 @@ $footer-button-min-width: 4.375rem;
     color: var(--er-ui-text-primary-text-reversed);
 
     &:hover {
-      background-color: colors.shade(var(--er-ui-cta-primary), 17%);
-      border-color: colors.shade(var(--er-ui-cta-primary), 17%);
+      background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
+      border-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
     }
 
     &:focus-visible {
@@ -58,8 +58,8 @@ $footer-button-min-width: 4.375rem;
     color: var(--er-ui-text-primary-text-reversed);
 
     &:hover {
-      background-color: colors.shade(var(--er-teal-t100), 18%);
-      border-color: colors.shade(var(--er-teal-t100), 18%);
+      background-color: colors.shade(var(--er-teal-t100), colors.$hover-shade);
+      border-color: colors.shade(var(--er-teal-t100), colors.$hover-shade);
     }
 
     &:focus-visible {

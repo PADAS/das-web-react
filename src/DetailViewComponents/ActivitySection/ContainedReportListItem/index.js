@@ -11,8 +11,8 @@ import { ReactComponent as ArrowUpSimpleIcon } from '../../../common/images/icon
 import { EVENT_FORM_STATES, EVENT_LINK_TARGET_TYPES, TAB_KEYS } from '../../../constants';
 import { fetchEvent } from '../../../ducks/events';
 import { format, STANDARD_DATE_FORMAT } from '../../../utils/datetime';
-import { COLOR_TOKENS } from '../../../utils/colors';
-import { getIsEventFullyLoaded, PRIORITY_COLOR_MAP } from '../../../utils/events';
+import { getIsEventFullyLoaded } from '../../../utils/events';
+import { PRIORITY_COLOR_MAP } from '../../../utils/colors';
 import { selectEventLinkPermissions } from '../../../selectors/event-links';
 import useReport from '../../../hooks/useReport';
 
@@ -23,7 +23,7 @@ import ReportFormSummary from '../../../ReportFormSummary';
 import * as activitySectionStyles from '../styles.module.scss';
 import * as styles from './styles.module.scss';
 
-const LOADER_COLOR = COLOR_TOKENS['ui-cta-primary'];
+const LOADER_COLOR = 'var(--er-ui-cta-primary)';
 const LOADER_SIZE = 30;
 const REMOVE_LOADER_SIZE = 14;
 
@@ -108,8 +108,8 @@ const ContainedReportListItem = ({
       className={`${activitySectionStyles.itemRow} ${activitySectionStyles.collapseRow} ${styles[priorityKey]}`}
       onClick={onToggleCollapseRow}
     >
-      <div className={activitySectionStyles.itemIcon} style={{ color: COLOR_TOKENS['ui-text-primary-text-reversed'] }}>
-        <EventIcon color={COLOR_TOKENS['ui-text-primary-text-reversed']} report={report} />
+      <div className={activitySectionStyles.itemIcon} style={{ color: 'var(--er-ui-text-primary-text-reversed)' }}>
+        <EventIcon color="var(--er-ui-text-primary-text-reversed)" report={report} />
       </div>
 
       <div className={activitySectionStyles.itemDetails}>

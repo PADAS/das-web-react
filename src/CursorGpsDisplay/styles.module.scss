@@ -63,7 +63,7 @@
   }
 
   .caret {
-    @include inputs.dropdown-caret($color: var(--er-ui-icons));
+    @include inputs.dropdown-caret;
 
     margin-left: 0.5rem;
 

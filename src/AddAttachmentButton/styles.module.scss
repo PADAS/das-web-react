@@ -6,7 +6,7 @@
 }
 
 .draggingOver {
-  background-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
+  background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
   outline: 2px dashed var(--er-teal-t100);
   cursor: copy;
 }

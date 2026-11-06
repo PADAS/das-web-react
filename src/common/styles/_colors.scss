@@ -13,8 +13,17 @@
   @return color-mix(in srgb, $color $opacity, transparent);
 }
 
+// Hover and active states darken by these steps; utils/colors.js mirrors the
+// ones JS uses, and its test checks that both agree.
+$active-shade: 20%;
+$hover-shade: 15%;
+$row-tint: 95%;
+$surface-hover-shade: 5%;
+
 // Read-only fields, table headers and other quiet surfaces.
 $subtle-background: tint(var(--er-ui-background-tertiary-background), 50%);
+
+// Rows, pills and tiles take a strong base and a quiet background.
 $report-no-priority-theme: (
   base: var(--er-ui-event-priority-grey),
   background: var(--er-greyscale-11),
@@ -31,29 +40,28 @@ $report-high-priority-theme: (
   base: var(--er-ui-event-priority-red),
   background: var(--er-red-6),
 );
-$patrol-row-tint: 95%;
 $patrol-overdue-theme: (
   base: var(--er-ui-patrol-status-overdue),
-  background: tint(var(--er-ui-patrol-status-overdue), $patrol-row-tint),
+  background: tint(var(--er-ui-patrol-status-overdue), $row-tint),
 );
 $patrol-active-theme: (
   base: var(--er-ui-patrol-status-active),
-  background: tint(var(--er-ui-patrol-status-active), $patrol-row-tint),
+  background: tint(var(--er-ui-patrol-status-active), $row-tint),
 );
 $patrol-ready-theme: (
   base: var(--er-ui-patrol-status-scheduled),
-  background: tint(var(--er-ui-patrol-status-scheduled), $patrol-row-tint),
+  background: tint(var(--er-ui-patrol-status-scheduled), $row-tint),
 );
 $patrol-paused-theme: (
   base: var(--er-yellow-2),
-  background: tint(var(--er-yellow-2), $patrol-row-tint),
+  background: tint(var(--er-yellow-2), $row-tint),
 );
 $patrol-done-theme: (
   base: var(--er-greyscale-7),
-  background: tint(var(--er-greyscale-7), $patrol-row-tint),
+  background: tint(var(--er-greyscale-7), $row-tint),
 );
 $patrol-cancelled-theme: (
   base: var(--er-greyscale-9),
-  background: tint(var(--er-greyscale-9), $patrol-row-tint),
+  background: tint(var(--er-greyscale-9), $row-tint),
   font-color: var(--er-ui-text-disabled),
 );

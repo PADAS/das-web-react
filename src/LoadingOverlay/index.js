@@ -1,8 +1,6 @@
 import { useId } from 'react';
 import MoonLoader from 'react-spinners/MoonLoader';
 
-import { COLOR_TOKENS } from '../utils/colors';
-
 import * as styles from './styles.module.scss';
 
 const DEFAULT_LOADER_SIZE = 50;
@@ -22,7 +20,7 @@ const LoadingOverlay = ({
       style={style}
       {...otherProps}
     >
-    <MoonLoader color={COLOR_TOKENS['ui-text-primary-text-reversed']} size={loaderSize} />
+    <MoonLoader color="var(--er-ui-text-primary-text-reversed)" size={loaderSize} />
 
     {message && <span className={styles.message} id={messageId}>{message}</span>}
 

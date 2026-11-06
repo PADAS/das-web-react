@@ -1,11 +1,3 @@
-import { COLOR_TOKENS } from '../colors';
-
-const ICON_COLOR_BY_PRIORITY = {
-  100: COLOR_TOKENS['ui-event-priority-green'],
-  200: COLOR_TOKENS['ui-event-priority-amber'],
-  300: COLOR_TOKENS['ui-event-priority-red'],
-};
-
 export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) => {
   const { contains } = collection;
 
@@ -32,8 +24,6 @@ export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) 
   return sorted[0];
 };
 
-
-export const calcIconColorByPriority = (priority) => ICON_COLOR_BY_PRIORITY[priority] ?? COLOR_TOKENS['ui-event-priority-grey'];
 
 const getOrdernum = (item) => typeof item.ordernum === 'number' ? item.ordernum : 1000;
 

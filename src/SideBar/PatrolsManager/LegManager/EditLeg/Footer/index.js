@@ -2,7 +2,6 @@ import { memo } from 'react';
 import MoonLoader from 'react-spinners/MoonLoader';
 import { useTranslation } from 'react-i18next';
 
-import { COLOR_TOKENS } from '../../../../../utils/colors';
 import { TAB_KEYS } from '../../../../../constants';
 
 import Link from '../../../../../Link';
@@ -30,7 +29,7 @@ const Footer = ({ disableSaveButton, formId, isSaving, legId, patrolId }) => {
       <span className={styles.saveButtonLabel}>{t('saveButton')}</span>
 
       {isSaving && <span className={styles.saveButtonLoader}>
-        <MoonLoader aria-hidden color={COLOR_TOKENS['ui-text-primary-text-reversed']} size={SAVE_LOADER_SIZE} />
+        <MoonLoader aria-hidden color="var(--er-ui-text-primary-text-reversed)" size={SAVE_LOADER_SIZE} />
       </span>}
     </button>
   </footer>;

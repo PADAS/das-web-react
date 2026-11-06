@@ -4,7 +4,6 @@ import Popover from 'react-bootstrap/Popover';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { COLOR_TOKENS } from '../../../../../utils/colors';
 import { calcUrlForImage } from '../../../../../utils/img';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../../../../ducks/patrol-filter';
 import { TrackerContext } from '../../../../../utils/analytics';
@@ -27,7 +26,11 @@ const getPatrolTypeValue = (patrolType) => patrolType.id;
 const getTeamLeadLabel = (teamLead) => teamLead.name;
 const getTeamLeadValue = (teamLead) => teamLead.id;
 
-const renderPatrolTypeIcon = (patrolType) => <SvgIcon color={COLOR_TOKENS['ui-icons']} iconId={patrolType.icon_id} type="patrols" />;
+const renderPatrolTypeIcon = (patrolType) => <SvgIcon
+  color="var(--er-ui-icons)"
+  iconId={patrolType.icon_id}
+  type="patrols"
+/>;
 
 const renderStatusIcon = (status) => <span className={`${styles.optionDot} ${styles[status.value]}`} />;
 

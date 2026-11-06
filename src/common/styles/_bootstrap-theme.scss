@@ -4,8 +4,8 @@
 // its CSS variables. Only src/index.scss uses this partial, which emits rules.
 
 @mixin button-variant($background, $color, $border: $background) {
-  --bs-btn-active-bg: #{colors.shade($background, 20%)};
-  --bs-btn-active-border-color: #{colors.shade($border, 20%)};
+  --bs-btn-active-bg: #{colors.shade($background, colors.$active-shade)};
+  --bs-btn-active-border-color: #{colors.shade($border, colors.$active-shade)};
   --bs-btn-active-color: #{$color};
   --bs-btn-bg: #{$background};
   --bs-btn-border-color: #{$border};
@@ -13,8 +13,8 @@
   --bs-btn-disabled-bg: #{$background};
   --bs-btn-disabled-border-color: #{$border};
   --bs-btn-disabled-color: #{$color};
-  --bs-btn-hover-bg: #{colors.shade($background, 15%)};
-  --bs-btn-hover-border-color: #{colors.shade($border, 15%)};
+  --bs-btn-hover-bg: #{colors.shade($background, colors.$hover-shade)};
+  --bs-btn-hover-border-color: #{colors.shade($border, colors.$hover-shade)};
   --bs-btn-hover-color: #{$color};
 }
 
@@ -57,7 +57,7 @@
   --bs-info-text-emphasis: var(--er-ui-status-running);
   --bs-light: var(--er-ui-background-tertiary-background);
   --bs-link-color: var(--er-ui-cta-primary);
-  --bs-link-hover-color: #{colors.shade(var(--er-ui-cta-primary), 20%)};
+  --bs-link-hover-color: #{colors.shade(var(--er-ui-cta-primary), colors.$hover-shade)};
   --bs-primary: var(--er-ui-cta-primary);
   --bs-primary-bg-subtle: var(--er-ui-background-selected-background);
   --bs-primary-border-subtle: #{colors.tint(var(--er-ui-cta-primary), 65%)};
@@ -125,7 +125,7 @@ a {
 }
 
 .btn-light {
-  @include button-variant(var(--er-ui-background-tertiary-background), var(--er-ui-text-primary-text));
+  @include button-variant(var(--er-ui-background-tertiary-background), var(--er-ui-text-secondary-text));
 }
 
 .btn-dark {
@@ -190,6 +190,12 @@ a {
   --bs-backdrop-bg: var(--er-greyscale-0);
 }
 
+.table {
+  --bs-table-active-bg: #{colors.with-opacity(var(--er-ui-text-primary-text), 10%)};
+  --bs-table-hover-bg: #{colors.with-opacity(var(--er-ui-text-primary-text), 7.5%)};
+  --bs-table-striped-bg: #{colors.with-opacity(var(--er-ui-text-primary-text), 5%)};
+}
+
 .popover {
   --bs-popover-bg: var(--er-ui-background-elevated-component);
   --bs-popover-border-color: var(--er-ui-divider-lines);
@@ -206,6 +212,16 @@ a {
   &:focus {
     border-color: #{colors.tint(var(--er-ui-cta-primary), 50%)};
     box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
+  }
+
+  &.is-invalid:focus,
+  .was-validated &:invalid:focus {
+    box-shadow: 0 0 0 0.25rem #{colors.with-opacity(var(--er-ui-status-error-destructive), 25%)};
+  }
+
+  &.is-valid:focus,
+  .was-validated &:valid:focus {
+    box-shadow: 0 0 0 0.25rem #{colors.with-opacity(var(--er-ui-status-success), 25%)};
   }
 }
 

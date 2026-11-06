@@ -71,7 +71,7 @@ describe('useClusterPolygon', () => {
       id: 'cluster-polygon-layer',
       maxzoom: 18,
       paint: {
-        'fill-color': withOpacity(COLOR_TOKENS['green-9'], 0.4),
+        'fill-color': withOpacity(COLOR_TOKENS['green-9'], 40),
         'fill-outline-color': COLOR_TOKENS['green-1'],
       },
       source: 'cluster-polygon-source',

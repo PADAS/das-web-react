@@ -3,15 +3,15 @@ import mapboxgl from 'mapbox-gl';
 import { useContext, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { COLOR_TOKENS, shade } from '../../../utils/colors';
+import { COLOR_STEPS, COLOR_TOKENS, shade } from '../../../utils/colors';
 import { hidePopup, showPopup } from '../../../ducks/popup';
 import { injectStylesToElement } from '../../../utils/styles';
 import { LAYER_IDS, SOURCE_IDS } from '../../../constants';
 import { MapContext } from '../../../MapContext';
 
-const CRS_AREA_COLOR = COLOR_TOKENS['ui-cta-primary'];
-const CRS_AREA_HOVER_COLOR = shade(CRS_AREA_COLOR, 0.17);
-const CRS_AREA_TEXT_COLOR = COLOR_TOKENS['ui-text-primary-text-reversed'];
+const CRS_AREA_COLOR = 'var(--er-ui-cta-primary)';
+const CRS_AREA_HOVER_COLOR = shade(CRS_AREA_COLOR, COLOR_STEPS.hoverShade);
+const CRS_AREA_TEXT_COLOR = 'var(--er-ui-text-primary-text-reversed)';
 
 const CRS_BBOX_CONTROL_MARKER_STYLES = {
   CARET: (isControlMenuOpen) =>  ({
@@ -112,7 +112,7 @@ const useCrsBoundingBoxLayer = () => {
       if (!map.getLayer(LAYER_IDS.COORDINATE_REFERENCE_SYSTEM_BBOX)) {
         map.addLayer({
           id: LAYER_IDS.COORDINATE_REFERENCE_SYSTEM_BBOX,
-          paint: { 'line-color': CRS_AREA_COLOR, 'line-width': 4 },
+          paint: { 'line-color': COLOR_TOKENS['ui-cta-primary'], 'line-width': 4 },
           source: SOURCE_IDS.COORDINATE_REFERENCE_SYSTEM_BBOX,
           type: 'line',
         });

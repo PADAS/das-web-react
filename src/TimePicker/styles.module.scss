@@ -122,7 +122,7 @@
     }
 
     .caret {
-      @include inputs.dropdown-caret($color: var(--er-ui-icons));
+      @include inputs.dropdown-caret;
 
       &.open {
         transform: rotate(180deg);

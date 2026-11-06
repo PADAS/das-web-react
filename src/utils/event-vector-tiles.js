@@ -1,10 +1,9 @@
 import { point } from '@turf/turf';
 
-import { COLOR_TOKENS, withOpacity } from './colors';
+import { COLOR_TOKENS, PRIORITY_COLOR_MAP, withOpacity } from './colors';
 import { DEFAULT_SYMBOL_LAYOUT, MAP_ICON_SCALE } from '../constants';
-import { PRIORITY_COLOR_MAP } from './events';
 
-export const TIME_SLIDER_DEFAULT_LABEL_COLOR = withOpacity(COLOR_TOKENS['greyscale-white'], 0.7);
+export const TIME_SLIDER_DEFAULT_LABEL_COLOR = withOpacity(COLOR_TOKENS['greyscale-white'], 70);
 
 const FADE_INTERPOLATION_CAP = 0.3;
 export const TIME_SLIDER_RECENT_LABEL_COLOR = COLOR_TOKENS['yellow-4'];
@@ -12,10 +11,10 @@ export const TIME_SLIDER_RECENT_LABEL_COLOR = COLOR_TOKENS['yellow-4'];
 // Fill color by priority.
 const PRIORITY_FILL_COLOR_EXPRESSION = [
   'case',
-  ['==', ['get', 'priority'], 100], PRIORITY_COLOR_MAP[100].base,
-  ['==', ['get', 'priority'], 200], PRIORITY_COLOR_MAP[200].base,
-  ['==', ['get', 'priority'], 300], PRIORITY_COLOR_MAP[300].base,
-  PRIORITY_COLOR_MAP[0].base,
+  ['==', ['get', 'priority'], 100], COLOR_TOKENS[PRIORITY_COLOR_MAP[100].baseToken],
+  ['==', ['get', 'priority'], 200], COLOR_TOKENS[PRIORITY_COLOR_MAP[200].baseToken],
+  ['==', ['get', 'priority'], 300], COLOR_TOKENS[PRIORITY_COLOR_MAP[300].baseToken],
+  COLOR_TOKENS[PRIORITY_COLOR_MAP[0].baseToken],
 ];
 
 export const EVENT_GEOMETRY_FILL_PAINT = {

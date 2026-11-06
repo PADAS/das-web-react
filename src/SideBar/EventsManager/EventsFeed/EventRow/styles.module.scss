@@ -5,7 +5,7 @@
 @mixin event-row-theme($theme) {
   $theme-color: map.get($theme, 'base');
 
-  --event-row-hover-background: #{colors.tint($theme-color, colors.$patrol-row-tint)};
+  --event-row-hover-background: #{colors.tint($theme-color, colors.$row-tint)};
 
   .icon {
     background-color: $theme-color;

@@ -68,7 +68,7 @@
       padding-left: 0.5rem;
 
       &:hover, &.active {
-        background-color: colors.shade(var(--er-ui-background-selected-background), 5%);
+        background-color: colors.shade(var(--er-ui-background-selected-background), colors.$surface-hover-shade);
       }
     }
 

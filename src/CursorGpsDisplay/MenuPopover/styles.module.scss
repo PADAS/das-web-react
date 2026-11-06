@@ -45,7 +45,7 @@
     }
 
     &:hover:not(:disabled) {
-      background-color: colors.shade(var(--er-ui-background-tertiary-background), 5%);
+      background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
     }
 
     .searchIcon {

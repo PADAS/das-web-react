@@ -84,7 +84,7 @@
       transition: background-color 150ms ease;
 
       &:hover:not(:disabled, :focus-visible) {
-        background-color: colors.shade(var(--er-ui-cta-primary), 17%);
+        background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
       }
 
       &:focus-visible {
@@ -125,7 +125,7 @@
           background-color: colors.tint(var(--er-ui-cta-primary), 73%);
 
           /* The resting blue reads 4.41:1 on this tint, under the 4.5:1 AA floor. */
-          color: colors.shade(var(--er-ui-cta-primary), 17%);
+          color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
         }
       }
     }

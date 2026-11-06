@@ -34,7 +34,7 @@ const LINE_LAYOUT = {
 const SYMBOL_PAINT = {
   ...DEFAULT_SYMBOL_PAINT,
   'text-halo-blur': 0.5,
-  'text-halo-color': withOpacity(COLOR_TOKENS['greyscale-0'], 0.7),
+  'text-halo-color': withOpacity(COLOR_TOKENS['greyscale-0'], 70),
   'text-halo-width': 0.5,
 };
 

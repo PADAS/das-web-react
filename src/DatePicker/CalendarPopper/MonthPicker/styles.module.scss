@@ -17,7 +17,6 @@ $label-font-size: 0.875rem;
     font-weight: 400;
   
     [class*="react-datepicker__header"] {
-      background: var(--er-ui-background-primary-background);
       border: none;
       padding: 0;
     }
@@ -26,23 +25,8 @@ $label-font-size: 0.875rem;
       padding: 0.25rem 1rem;
       width: unset;
 
-      &:hover:not([aria-disabled="true"]) {
-        background-color: var(--er-ui-background-selected-background);
-        color: var(--er-ui-text-primary-text);
-      }
-
       &[aria-disabled="true"] {
         pointer-events: none;
-      }
-    
-      &[aria-selected="true"] {
-        background-color: var(--er-ui-cta-primary);
-        color: var(--er-ui-text-primary-text-reversed);
-      }
-
-      &[class*="--keyboard-selected"] {
-        background-color: var(--er-ui-background-selected-background);
-        color: var(--er-ui-text-primary-text);
       }
     }
   }
@@ -116,7 +100,7 @@ $label-font-size: 0.875rem;
     }
 
     .caret {
-      @include inputs.dropdown-caret($color: var(--er-ui-icons));
+      @include inputs.dropdown-caret;
 
       margin-left: 0.5rem;
 

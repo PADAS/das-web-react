@@ -167,7 +167,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
             ['has', 'stroke'], ['get', 'stroke'],
             ['has', 'outline_color'], ['get', 'outline_color'],
             ['has', 'border_color'], ['get', 'border_color'],
-            withOpacity(COLOR_TOKENS['amber-4'], 0.25)
+            withOpacity(COLOR_TOKENS['amber-4'], 25)
           ]
         },
         filter: polygonLayerFilter

@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { fetchEventTypeSchema } from '../ducks/event-schemas';
-import { COLOR_TOKENS } from '../utils/colors';
 import { selectEventSchema } from '../selectors/event-schemas';
 import { selectEventTypeByValue } from '../selectors/event-types';
 import useReport from '../hooks/useReport';
@@ -14,7 +13,7 @@ import V1SchemaFormSummary from './V1SchemaFormSummary';
 
 import * as styles from './styles.module.scss';
 
-const LOADER_COLOR = COLOR_TOKENS['ui-cta-primary'];
+const LOADER_COLOR = 'var(--er-ui-cta-primary)';
 const LOADER_SIZE = 30;
 
 const EventFormSummary = ({ report }) => {

@@ -2,7 +2,6 @@ import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } f
 import MoonLoader from 'react-spinners/MoonLoader';
 import { useTranslation } from 'react-i18next';
 
-import { COLOR_TOKENS } from '../utils/colors';
 import { extractSubjectFromMessage } from '../utils/messaging';
 import {
   fetchAllMessages,
@@ -78,7 +77,7 @@ const MessageSummaryList = (props) => {
   return <div ref={containerRef} className={styles.scrollContainer}>
     {loading
       ? <div className={styles.loaderWrapper}>
-        <MoonLoader color={COLOR_TOKENS['ui-cta-primary']} />
+        <MoonLoader color="var(--er-ui-cta-primary)" />
       </div>
       : <MessageList
         className={styles.summaryList}

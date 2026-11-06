@@ -38,7 +38,7 @@
         padding: 0.5rem;
 
         .caret {
-          @include inputs.dropdown-caret($color: var(--er-ui-icons));
+          @include inputs.dropdown-caret;
     
           &.menuOpen {
             transform: rotate(180deg);
