@@ -1,13 +1,17 @@
-import { memo, useCallback, useEffect, useId, useRef, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useId, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { BREAKPOINTS, DAS_HOST, SIDEBAR_WIDTH_PIXELS, VERTICAL_NAV_RAIL_WIDTH_PIXELS } from '../../constants';
 import { calcMaxOtusTabWidth, clampOtusTabWidth } from '../../utils/otus';
+import { HOST_TOOL_ERROR_CODES } from './hostTools/HostToolError';
+import { MapContext } from '../../MapContext';
+import runHostTool, { HOST_TOOL_SPECS, HOST_TOOLS_VERSION } from './hostTools';
 import { selectOtusTabWidth } from '../../selectors/otus';
 import { updateUserPreferences } from '../../ducks/user-preferences';
 import { useMatchMedia } from '../../hooks';
+import useJumpToLocation from '../../hooks/useJumpToLocation';
 import useNavigate from '../../hooks/useNavigate';
 
 import LoadingOverlay from '../../LoadingOverlay';
@@ -19,7 +23,13 @@ import * as styles from './styles.module.scss';
 const KEYBOARD_RESIZE_STEP_PIXELS = 16;
 
 export const OTUS_COMMANDS = { NEW_THREAD: 'new-thread', TOGGLE_THREADS: 'toggle-threads' };
-export const OTUS_MESSAGE_TYPES = { COMMAND: 'otus:command', CONNECT: 'otus:connect', READY: 'otus:ready' };
+export const OTUS_MESSAGE_TYPES = {
+  COMMAND: 'otus:command',
+  CONNECT: 'otus:connect',
+  READY: 'otus:ready',
+  TOOL_CALL: 'otus:tool-call',
+  TOOL_RESULT: 'otus:tool-result',
+};
 // Longer than the 8 seconds Otus itself waits for the token.
 export const OTUS_READY_TIMEOUT_MS = 10_000;
 
@@ -32,16 +42,21 @@ const WIDTH_BY_RESIZE_KEY = {
 
 const OtusTab = ({ isActive, url }) => {
   const dispatch = useDispatch();
+  const store = useStore();
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.otusTab' });
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
+  const jumpToLocation = useJumpToLocation();
   const navigate = useNavigate();
 
   const otusTabWidth = useSelector(selectOtusTabWidth);
   const token = useSelector((state) => state.data.token?.access_token);
 
+  const map = useContext(MapContext);
+
   const frameWrapperRef = useRef(null);
   const hasConnectedRef = useRef(false);
+  const hostToolContextRef = useRef(null);
   const iframeRef = useRef(null);
 
   const panelId = useId();
@@ -81,7 +96,13 @@ const OtusTab = ({ isActive, url }) => {
 
   const postConnect = useCallback(() => {
     iframeRef.current?.contentWindow?.postMessage(
-      { site_url: DAS_HOST, token, type: OTUS_MESSAGE_TYPES.CONNECT },
+      {
+        site_url: DAS_HOST,
+        token,
+        tools: HOST_TOOL_SPECS,
+        tools_version: HOST_TOOLS_VERSION,
+        type: OTUS_MESSAGE_TYPES.CONNECT,
+      },
       otusOrigin
     );
   }, [otusOrigin, token]);
@@ -152,6 +173,42 @@ const OtusTab = ({ isActive, url }) => {
 
     return () => window.removeEventListener('message', onMessage);
   }, [frameKey, otusOrigin, postConnect, token]);
+
+  // A frame-initiated call reads the map and store as they are when it arrives.
+  useEffect(() => {
+    hostToolContextRef.current = { dispatch, getState: store.getState, jumpToLocation, map };
+  });
+
+  useEffect(() => {
+    const onMessage = async (event) => {
+      if (event.origin === otusOrigin
+        && event.source === iframeRef.current?.contentWindow
+        && event.data?.type === OTUS_MESSAGE_TYPES.TOOL_CALL) {
+        const postResult = (result) => event.source.postMessage(
+          { id: event.data.id, ...result, type: OTUS_MESSAGE_TYPES.TOOL_RESULT },
+          otusOrigin
+        );
+
+        try {
+          postResult({
+            ok: true,
+            result: await runHostTool(event.data.name, event.data.arguments ?? {}, hostToolContextRef.current),
+          });
+        } catch (error) {
+          console.warn('error running an Otus host tool', event.data.name, error);
+
+          postResult({
+            error: { code: error.code ?? HOST_TOOL_ERROR_CODES.FAILED, message: error.message },
+            ok: false,
+          });
+        }
+      }
+    };
+
+    window.addEventListener('message', onMessage);
+
+    return () => window.removeEventListener('message', onMessage);
+  }, [otusOrigin]);
 
   useEffect(() => {
     if (isWaitingForReady) {

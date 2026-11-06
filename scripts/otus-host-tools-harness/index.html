@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Otus host tools harness</title>
+  <style>
+    body { color: #222; font: 0.875rem/1.4 system-ui, sans-serif; margin: 0; padding: 0.75rem; }
+    h1 { font-size: 1rem; margin: 0 0 0.5rem; }
+    label { display: block; font-weight: 600; margin: 0.5rem 0 0.25rem; }
+    select, textarea, button { box-sizing: border-box; font: inherit; width: 100%; }
+    textarea { font-family: ui-monospace, monospace; min-height: 8rem; }
+    button { margin-top: 0.5rem; padding: 0.4rem; }
+    pre { background: #f4f4f4; font-size: 0.75rem; margin: 0.25rem 0; overflow-x: auto; padding: 0.5rem; white-space: pre-wrap; }
+    #status { color: #666; }
+    #description { color: #444; margin: 0.25rem 0; }
+  </style>
+</head>
+<body>
+  <h1>Otus host tools harness</h1>
+  <p id="status">Waiting for otus:connect…</p>
+
+  <label for="tool">Tool</label>
+  <select id="tool" disabled></select>
+  <p id="description"></p>
+
+  <label for="args">Arguments (JSON)</label>
+  <textarea id="args" spellcheck="false">{}</textarea>
+
+  <button id="send" type="button" disabled>Call tool</button>
+
+  <label>Log</label>
+  <div id="log"></div>
+
+  <script>
+    // Stands in for Otus inside the Otus tab: answers the handshake, then
+    // sends otus:tool-call messages and logs the otus:tool-result replies.
+    const EXAMPLE_ARGUMENTS = {
+      pin_subject_tracks: { subject_ids: ['00000000-0000-0000-0000-000000000000'] },
+      set_date_range: { lower: new Date(Date.now() - 7 * 864e5).toISOString(), upper: null },
+      set_event_filter: { priorities: ['red'], states: ['active'] },
+      set_map_layer_visibility: { events_layer: true, visible: false },
+      set_patrol_filter: { statuses: ['active'] },
+      show_event: { event_id: '00000000-0000-0000-0000-000000000000' },
+      show_patrol: { patrol_id: '00000000-0000-0000-0000-000000000000' },
+    };
+
+    const $ = (id) => document.getElementById(id);
+    let callCount = 0;
+    let parentOrigin = null;
+    let tools = [];
+
+    const log = (label, data) => {
+      const entry = document.createElement('pre');
+      entry.textContent = `${new Date().toLocaleTimeString()} ${label}\n${JSON.stringify(data, null, 2)}`;
+      $('log').prepend(entry);
+    };
+
+    const selectTool = () => {
+      const tool = tools.find((candidate) => candidate.name === $('tool').value);
+      $('description').textContent = tool?.description ?? '';
+      $('args').value = JSON.stringify(EXAMPLE_ARGUMENTS[tool?.name] ?? {}, null, 2);
+    };
+
+    window.addEventListener('message', (event) => {
+      if (event.source !== window.parent) return;
+
+      if (event.data?.type === 'otus:connect') {
+        parentOrigin = event.origin;
+        tools = event.data.tools ?? [];
+        $('status').textContent = `Connected to ${event.data.site_url} (tools v${event.data.tools_version}, `
+          + `${tools.length} tools, token ${event.data.token ? 'received' : 'missing'}).`;
+        $('tool').innerHTML = tools.map((tool) => `<option>${tool.name}</option>`).join('');
+        $('tool').disabled = $('send').disabled = !tools.length;
+        selectTool();
+        log('otus:connect tools', tools);
+      } else if (event.data?.type === 'otus:tool-result') {
+        log(`otus:tool-result ${event.data.id}`, event.data);
+      } else {
+        log(event.data?.type ?? 'message', event.data);
+      }
+    });
+
+    $('tool').addEventListener('change', selectTool);
+
+    $('send').addEventListener('click', () => {
+      let args;
+      try {
+        args = JSON.parse($('args').value);
+      } catch (error) {
+        log('invalid JSON', { message: error.message });
+        return;
+      }
+
+      callCount += 1;
+      const call = { arguments: args, id: `call-${callCount}`, name: $('tool').value, type: 'otus:tool-call' };
+      log(`otus:tool-call ${call.id}`, call);
+      window.parent.postMessage(call, parentOrigin);
+    });
+
+    window.parent.postMessage({ type: 'otus:ready' }, '*');
+  </script>
+</body>
+</html>
