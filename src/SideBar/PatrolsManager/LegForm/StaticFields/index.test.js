@@ -352,7 +352,12 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
 
     test.each([
       ['Team', { team: { display: 'Alpha', id: 'team-1' } }, 'Clear the team from the leg form', undefined],
-      ['Team Lead', { teamLead: { id: 'member-2', name: 'Priya' } }, 'Clear the team lead from the leg form', undefined],
+      [
+        'Team Lead',
+        { teamLead: { id: 'member-2', name: 'Priya' } },
+        'Clear the team lead from the leg form',
+        undefined,
+      ],
       [
         'Team Members',
         { teamMembers: [{ id: 'member-2', name: 'Priya' }] },
@@ -369,7 +374,12 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     });
 
     test.each([
-      ['Team Members', { teamMembers: [{ id: 'member-2', name: 'Priya' }] }, 'Priya', 'Deselect a team member from the leg form'],
+      [
+        'Team Members',
+        { teamMembers: [{ id: 'member-2', name: 'Priya' }] },
+        'Priya',
+        'Deselect a team member from the leg form',
+      ],
       ['Assets', { assets: [{ id: 'asset-1', name: 'Radio 7' }] }, 'Radio 7', 'Deselect an asset from the leg form'],
     ])('tracks the user removing one of the %s', async (label, leg, optionName, action) => {
       renderStaticFields({ leg });
@@ -389,10 +399,45 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     ])('tracks the user clearing all the %s', async (label, leg, action) => {
       renderStaticFields({ leg });
 
-      const control = screen.getByRole('combobox', { name: label }).closest('.control');
-      await userEvent.click(control.querySelector('.indicatorsContainer > :first-child'));
+      await userEvent.click(screen.getByTestId('select-clearIndicator'));
 
       expect(trackMock).toHaveTrackedAction(action, '0', { category: 'Test' });
+    });
+
+    test.each([['Team'], ['Team Lead']])(
+      'does not track the user pressing backspace in the empty %s field',
+      async (label) => {
+        renderStaticFields();
+
+        await userEvent.type(screen.getByRole('combobox', { name: label }), '{backspace}');
+
+        expect(trackMock).not.toHaveBeenCalled();
+      }
+    );
+
+    test.each([
+      ['Team', { team: { display: 'Alpha', id: 'team-1' } }, 'Alpha'],
+      ['Team Lead', { teamLead: { id: 'member-2', name: 'Priya' } }, 'Priya'],
+    ])('does not track the user picking the %s already chosen', async (label, leg, optionName) => {
+      renderStaticFields({ leg });
+
+      await userEvent.click(screen.getByLabelText(label));
+      await userEvent.click(await screen.findByRole('option', { name: optionName }));
+
+      expect(trackMock).not.toHaveBeenCalled();
+    });
+
+    test('tracks nothing and still works without a tracker', async () => {
+      render(
+        <Provider store={mockStore(store)}>
+          <StaticFields errors={{}} leg={buildLegDraft()} onChangeLeg={onChangeLeg} />
+        </Provider>
+      );
+
+      await userEvent.click(screen.getByLabelText('Team'));
+      await userEvent.click(await screen.findByText('Alpha'));
+
+      expect(onChangeLeg).toHaveBeenCalledWith({ team: { display: 'Alpha', id: 'team-1' } });
     });
 
     test.each([

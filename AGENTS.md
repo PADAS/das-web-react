@@ -572,7 +572,7 @@ Comment only what the code cannot say — a non-obvious *why*, a caveat, an exte
 - Drive interactions with `userEvent`, and `await` every call. Query with `getByRole` and the accessible name, and with `getByTestId` only where no accessible query reaches the element.
 - Assert through the `jest-dom` matchers — `toBeVisible`, `toBeInTheDocument`, `toHaveAttribute`, `toHaveTextContent`, `toHaveClass` — and on dispatched actions, rather than reading DOM properties by hand.
 - Mock a duck by spreading `jest.requireActual` and replacing only the action creators used, and give thunks `mockImplementation(() => () => {})`.
-- Mock HTTP with MSW: build the `setupServer` handlers from the duck's exported URL constants and wire `server.listen` / `resetHandlers` / `close`. Provide the map with `createMapMock` through `MapContext.Provider`, and analytics with a `TrackerContext` value whose `track` is a `jest.fn()`; a component that calls `debouncedTrack` (the leg form) needs `trackEventFactory('Test', jest.fn())` instead.
+- Mock HTTP with MSW: build the `setupServer` handlers from the duck's exported URL constants and wire `server.listen` / `resetHandlers` / `close`. Provide the map with `createMapMock` through `MapContext.Provider`, and analytics with a `TrackerContext` value whose `track` is a `jest.fn()`.
 - A test that would have passed before your change is not a regression guard. Check that each new test fails against the old behavior.
 
 ## Workflow

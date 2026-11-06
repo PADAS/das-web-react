@@ -8,9 +8,10 @@ import userEvent from '@testing-library/user-event';
 import { act, render, screen, waitFor } from '../../../test-utils';
 import AddItemButton from '../../../AddItemButton';
 import { addPatrolSegmentToEvent } from '../../../utils/events';
-import { GA4_MAX_ACTION_LENGTH } from '../../../__test-helpers/analytics';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
+import { GA4_MAX_ACTION_LENGTH } from '../../../__test-helpers/analytics';
 import { mockStore } from '../../../__test-helpers/MockStore';
+import { PATROL_OVERVIEW_CATEGORY } from '../../../utils/analytics';
 import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
 import patrols from '../../../__test-helpers/fixtures/patrols';
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../../constants';
@@ -262,10 +263,12 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     expect(ReactGA4.event).toHaveBeenCalledWith({
       action: 'Click a tab in patrol overview',
-      category: 'Patrol Overview',
+      category: PATROL_OVERVIEW_CATEGORY,
       label: 'History',
     });
-    expect('Click a tab in patrol overview'.length).toBeLessThanOrEqual(GA4_MAX_ACTION_LENGTH);
+    ReactGA4.event.mock.calls.forEach(([{ action }]) => {
+      expect(action.length).toBeLessThanOrEqual(GA4_MAX_ACTION_LENGTH);
+    });
   });
 
   test('shows the footer', async () => {

@@ -5,9 +5,8 @@ export const GA4_MAX_ACTION_LENGTH = 40;
 expect.extend({
   toHaveTrackedAction(trackMock, action, label, { category } = {}) {
     if (action.length > GA4_MAX_ACTION_LENGTH) {
-      throw new Error(
-        `expected the action "${action}" to be ${GA4_MAX_ACTION_LENGTH} characters or fewer, it has ${action.length}`
-      );
+      throw new Error(`expected the action "${action}" to be ${GA4_MAX_ACTION_LENGTH} characters or fewer, `
+        + `it has ${action.length}`);
     }
 
     const expectedCall = [...(category === undefined ? [] : [category]), action, label];
@@ -15,7 +14,8 @@ expect.extend({
 
     return {
       message: () => `expected the tracker ${this.isNot ? 'not ' : ''}to be called with `
-        + `${this.utils.printExpected(expectedCall)}\nReceived calls: ${this.utils.printReceived(trackMock.mock.calls)}`,
+        + `${this.utils.printExpected(expectedCall)}\n`
+        + `Received calls: ${this.utils.printReceived(trackMock.mock.calls)}`,
       pass,
     };
   },

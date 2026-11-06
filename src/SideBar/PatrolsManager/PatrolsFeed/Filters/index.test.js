@@ -21,6 +21,7 @@ jest.mock('../../../../ducks/patrol-filter', () => ({
 
 describe('SideBar - PatrolsManager - PatrolsFeed - Filters', () => {
   let store;
+  let track;
 
   beforeEach(() => {
     track = jest.fn();
@@ -44,8 +45,6 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters', () => {
       },
     };
   });
-
-  let track;
 
   const renderFilters = (props) => render(
     <Provider store={mockStore(store)}>

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { calcUrlForImage } from '../../../../utils/img';
 import { getHoursAndMinutesString } from '../../../../utils/datetime';
 import parseLegDraftDateTime from '../utils/parseLegDraftDateTime';
-import { TrackerContext } from '../../../../utils/analytics';
+import { TrackerContext, trackEventFactory } from '../../../../utils/analytics';
 
 import DatePicker, { isValidDate } from '../../../../DatePicker';
 import LocationPicker from '../../../../LocationPicker';
@@ -17,29 +17,35 @@ import TimePicker, { isValidTime } from '../../../../TimePicker';
 import * as styles from './styles.module.scss';
 
 const FIELD_TRACK_DEBOUNCE_DELAY = 1000;
-// React Select names the change: picking an option, removing one, or clearing the field.
-const SELECT_EVENT_KIND_BY_ACTION = {
+// React Select names each change: a pick, a removal or a clear.
+const CHANGE_KIND_BY_SELECT_ACTION = {
   clear: 'clear',
   'pop-value': 'deselect',
   'remove-value': 'deselect',
   'select-option': 'select',
 };
-const TEAM_EVENTS = { clear: 'Clear the team from the leg form', select: 'Select a team from the leg form' };
-const TEAM_LEAD_EVENTS = {
+const TEAM_ACTION_BY_CHANGE_KIND = {
+  clear: 'Clear the team from the leg form',
+  select: 'Select a team from the leg form',
+};
+const TEAM_LEAD_ACTION_BY_CHANGE_KIND = {
   clear: 'Clear the team lead from the leg form',
   select: 'Select a team lead from the leg form',
 };
-const TEAM_MEMBER_EVENTS = {
+const TEAM_MEMBER_ACTION_BY_CHANGE_KIND = {
   clear: 'Clear team members from the leg form',
   deselect: 'Deselect a team member from the leg form',
   select: 'Select a team member from the leg form',
 };
-const ASSET_EVENTS = {
+const ASSET_ACTION_BY_CHANGE_KIND = {
   clear: 'Clear assets from the leg form',
   deselect: 'Deselect an asset from the leg form',
   select: 'Select an asset from the leg form',
 };
 const TIME_OPTIONS_INTERVAL_IN_MINUTES = 15;
+
+// Without a tracker provider the form still works, untracked.
+const NO_OP_TRACKER = trackEventFactory('', () => {});
 
 const getOptionLabel = ({ name }) => name;
 const getOptionValue = ({ id }) => id;
@@ -63,7 +69,7 @@ const StaticFields = ({
 
   const teamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
 
-  const tracker = useContext(TrackerContext);
+  const tracker = useContext(TrackerContext) ?? NO_OP_TRACKER;
 
   const endDatePickerRef = useRef();
   const endTimePickerRef = useRef();
@@ -136,8 +142,7 @@ const StaticFields = ({
   const isStartTimeInvalid = !!errors.startTime || !!errors.startDateTime;
   const startDateTimeError = errors.startDate ?? errors.startTime ?? errors.startDateTime;
 
-  // The pickers report every keystroke that parses, so each field tracks one
-  // event per edit.
+  // Pickers report each parsed keystroke, so a field tracks once per edit.
   const debouncedTrackers = useMemo(() => ({
     endDate: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
     endLocation: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
@@ -163,13 +168,6 @@ const StaticFields = ({
     <label className={`${styles.checkboxLabel} ${isDisabled ? styles.disabled : ''}`} htmlFor={id}>{label}</label>
   </div>;
 
-  const trackSelectChange = (events, { action }, label) => {
-    const eventName = events[SELECT_EVENT_KIND_BY_ACTION[action]];
-    if (eventName) {
-      tracker.track(eventName, label);
-    }
-  };
-
   const renderSelect = ({ id, label, ...selectProps }) => <div className={styles.field}>
     <label className={styles.label} htmlFor={id}>{label}</label>
 
@@ -181,9 +179,21 @@ const StaticFields = ({
     />
   </div>;
 
+  // React Select also reports Backspace in an empty field and a pick of the
+  // option already chosen, which change nothing.
+  const trackSelectChange = (actionByChangeKind, actionMeta, previousValue, value, label) => {
+    const hasChanged = Array.isArray(value)
+      ? value.length !== (previousValue?.length ?? 0)
+      : value?.id !== previousValue?.id;
+    const action = actionByChangeKind[CHANGE_KIND_BY_SELECT_ACTION[actionMeta.action]];
+    if (hasChanged && action) {
+      tracker.track(action, label);
+    }
+  };
+
   // Closing the form, saved or discarded, would otherwise drop a pending edit.
   useEffect(() => () => {
-    Object.values(debouncedTrackers).forEach((debouncedTrack) => debouncedTrack.flush());
+    Object.values(debouncedTrackers).forEach((debouncedTracker) => debouncedTracker.flush());
   }, [debouncedTrackers]);
 
   return <div className={styles.staticFields}>
@@ -354,7 +364,7 @@ const StaticFields = ({
           onChange: (team, actionMeta) => {
             onChangeLeg({ team });
 
-            trackSelectChange(TEAM_EVENTS, actionMeta);
+            trackSelectChange(TEAM_ACTION_BY_CHANGE_KIND, actionMeta, leg.team, team);
           },
           options: teamAndTrackingOptions.teams,
           value: leg.team,
@@ -367,7 +377,13 @@ const StaticFields = ({
           onChange: (teamMembers, actionMeta) => {
             onChangeLeg({ teamMembers: [...teamMembers] });
 
-            trackSelectChange(TEAM_MEMBER_EVENTS, actionMeta, String(teamMembers.length));
+            trackSelectChange(
+              TEAM_MEMBER_ACTION_BY_CHANGE_KIND,
+              actionMeta,
+              leg.teamMembers,
+              teamMembers,
+              String(teamMembers.length)
+            );
           },
           options: teamAndTrackingOptions.members,
           renderOptionIcon: renderSubjectOptionIcon,
@@ -382,7 +398,7 @@ const StaticFields = ({
           onChange: (teamLead, actionMeta) => {
             onChangeLeg({ teamLead });
 
-            trackSelectChange(TEAM_LEAD_EVENTS, actionMeta);
+            trackSelectChange(TEAM_LEAD_ACTION_BY_CHANGE_KIND, actionMeta, leg.teamLead, teamLead);
           },
           options: teamAndTrackingOptions.members,
           renderOptionIcon: renderSubjectOptionIcon,
@@ -396,7 +412,7 @@ const StaticFields = ({
           onChange: (assets, actionMeta) => {
             onChangeLeg({ assets: [...assets] });
 
-            trackSelectChange(ASSET_EVENTS, actionMeta, String(assets.length));
+            trackSelectChange(ASSET_ACTION_BY_CHANGE_KIND, actionMeta, leg.assets, assets, String(assets.length));
           },
           options: teamAndTrackingOptions.assets,
           renderOptionIcon: renderSubjectOptionIcon,

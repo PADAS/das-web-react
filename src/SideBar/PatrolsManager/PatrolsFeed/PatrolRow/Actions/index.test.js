@@ -29,6 +29,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow - Actions', () => {
 
   let reduxStore;
   let store;
+  let track;
 
   beforeAll(() => {
     jest.useFakeTimers({ advanceTimers: true }).setSystemTime(new Date('2022-02-01'));
@@ -61,8 +62,6 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow - Actions', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
-
-  let track;
 
   const renderActions = (props) => {
     reduxStore = mockStore(store);
