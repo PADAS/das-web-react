@@ -337,8 +337,8 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     );
 
     test.each([
-      ['Team', 'Alpha', 'Pick a team from the leg form', 'set'],
-      ['Team Lead', 'Priya', 'Pick a team lead from the leg form', 'set'],
+      ['Team', 'Alpha', 'Change team from the leg form', 'set'],
+      ['Team Lead', 'Priya', 'Change team lead from the leg form', 'set'],
       ['Team Members', 'Maya Chen', 'Change team members from the leg form', '1'],
       ['Assets', 'Radio 7', 'Change tracked assets from the leg form', '1'],
     ])('tracks the %s the user picks', async (label, optionName, action, trackedLabel) => {
@@ -351,8 +351,8 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     });
 
     test.each([
-      ['Team', { team: { display: 'Alpha', id: 'team-1' } }, 'Pick a team from the leg form', 'cleared'],
-      ['Team Lead', { teamLead: { id: 'member-2', name: 'Priya' } }, 'Pick a team lead from the leg form', 'cleared'],
+      ['Team', { team: { display: 'Alpha', id: 'team-1' } }, 'Change team from the leg form', 'cleared'],
+      ['Team Lead', { teamLead: { id: 'member-2', name: 'Priya' } }, 'Change team lead from the leg form', 'cleared'],
       ['Team Members', { teamMembers: [{ id: 'member-2', name: 'Priya' }] }, 'Change team members from the leg form', '0'],
       ['Assets', { assets: [{ id: 'asset-1', name: 'Radio 7' }] }, 'Change tracked assets from the leg form', '0'],
     ])('tracks the %s the user clears', async (label, leg, action, trackedLabel) => {

@@ -182,7 +182,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow - Actions', () => {
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Cancel' }));
 
     expect(updatePatrol).toHaveBeenCalledWith(expect.objectContaining({ id: activePatrol.id, state: 'cancelled' }));
-    await waitFor(() => expect(track).toHaveTrackedAction('Pick a status from the patrols feed', 'cancelled'));
+    await waitFor(() => expect(track).toHaveTrackedAction('Select a status from the patrols feed', 'cancelled'));
   });
 
   test('holds the menu shut while the move it was given is still saving', async () => {

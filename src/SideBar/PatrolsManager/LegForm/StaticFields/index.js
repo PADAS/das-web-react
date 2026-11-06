@@ -325,7 +325,7 @@ const StaticFields = ({
           onChange: (team) => {
             onChangeLeg({ team });
 
-            tracker.track('Pick a team from the leg form', team ? 'set' : 'cleared');
+            tracker.track('Change team from the leg form', team ? 'set' : 'cleared');
           },
           options: teamAndTrackingOptions.teams,
           value: leg.team,
@@ -353,7 +353,7 @@ const StaticFields = ({
           onChange: (teamLead) => {
             onChangeLeg({ teamLead });
 
-            tracker.track('Pick a team lead from the leg form', teamLead ? 'set' : 'cleared');
+            tracker.track('Change team lead from the leg form', teamLead ? 'set' : 'cleared');
           },
           options: teamAndTrackingOptions.members,
           renderOptionIcon: renderSubjectOptionIcon,
