@@ -72,7 +72,8 @@ export const TAB_KEYS = {
   EVENTS: 'events',
   GEAR: 'gear',
   LAYERS: 'layers',
-  OTUS: 'otus',
+  // The URL uses the tab's new name, Atlas; the code still calls it Otus.
+  OTUS: 'atlas',
   PATROLS: 'patrols',
   SETTINGS: 'settings',
 };
