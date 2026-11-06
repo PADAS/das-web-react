@@ -337,11 +337,11 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     );
 
     test.each([
-      ['Team', 'Alpha', 'Change team from the leg form', 'set'],
-      ['Team Lead', 'Priya', 'Change team lead from the leg form', 'set'],
-      ['Team Members', 'Maya Chen', 'Change team members from the leg form', '1'],
-      ['Assets', 'Radio 7', 'Change tracked assets from the leg form', '1'],
-    ])('tracks the %s the user picks', async (label, optionName, action, trackedLabel) => {
+      ['Team', 'Alpha', 'Select a team from the leg form', undefined],
+      ['Team Lead', 'Priya', 'Select a team lead from the leg form', undefined],
+      ['Team Members', 'Maya Chen', 'Select a team member from the leg form', '1'],
+      ['Assets', 'Radio 7', 'Select an asset from the leg form', '1'],
+    ])('tracks the %s the user selects', async (label, optionName, action, trackedLabel) => {
       renderStaticFields();
 
       await userEvent.click(screen.getByLabelText(label));
@@ -351,16 +351,48 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
     });
 
     test.each([
-      ['Team', { team: { display: 'Alpha', id: 'team-1' } }, 'Change team from the leg form', 'cleared'],
-      ['Team Lead', { teamLead: { id: 'member-2', name: 'Priya' } }, 'Change team lead from the leg form', 'cleared'],
-      ['Team Members', { teamMembers: [{ id: 'member-2', name: 'Priya' }] }, 'Change team members from the leg form', '0'],
-      ['Assets', { assets: [{ id: 'asset-1', name: 'Radio 7' }] }, 'Change tracked assets from the leg form', '0'],
-    ])('tracks the %s the user clears', async (label, leg, action, trackedLabel) => {
+      ['Team', { team: { display: 'Alpha', id: 'team-1' } }, 'Clear the team from the leg form', undefined],
+      ['Team Lead', { teamLead: { id: 'member-2', name: 'Priya' } }, 'Clear the team lead from the leg form', undefined],
+      [
+        'Team Members',
+        { teamMembers: [{ id: 'member-2', name: 'Priya' }] },
+        'Deselect a team member from the leg form',
+        '0',
+      ],
+      ['Assets', { assets: [{ id: 'asset-1', name: 'Radio 7' }] }, 'Deselect an asset from the leg form', '0'],
+    ])('tracks the user pressing backspace in the %s field', async (label, leg, action, trackedLabel) => {
       renderStaticFields({ leg });
 
       await userEvent.type(screen.getByRole('combobox', { name: label }), '{backspace}');
 
       expect(trackMock).toHaveTrackedAction(action, trackedLabel, { category: 'Test' });
+    });
+
+    test.each([
+      ['Team Members', { teamMembers: [{ id: 'member-2', name: 'Priya' }] }, 'Priya', 'Deselect a team member from the leg form'],
+      ['Assets', { assets: [{ id: 'asset-1', name: 'Radio 7' }] }, 'Radio 7', 'Deselect an asset from the leg form'],
+    ])('tracks the user removing one of the %s', async (label, leg, optionName, action) => {
+      renderStaticFields({ leg });
+
+      await userEvent.click(screen.getByRole('button', { name: `Remove ${optionName}` }));
+
+      expect(trackMock).toHaveTrackedAction(action, '0', { category: 'Test' });
+    });
+
+    test.each([
+      [
+        'Team Members',
+        { teamMembers: [{ id: 'member-1', name: 'Maya Chen' }, { id: 'member-2', name: 'Priya' }] },
+        'Clear team members from the leg form',
+      ],
+      ['Assets', { assets: [{ id: 'asset-1', name: 'Radio 7' }] }, 'Clear assets from the leg form'],
+    ])('tracks the user clearing all the %s', async (label, leg, action) => {
+      renderStaticFields({ leg });
+
+      const control = screen.getByRole('combobox', { name: label }).closest('.control');
+      await userEvent.click(control.querySelector('.indicatorsContainer > :first-child'));
+
+      expect(trackMock).toHaveTrackedAction(action, '0', { category: 'Test' });
     });
 
     test.each([
@@ -489,8 +521,7 @@ describe('SideBar - PatrolsManager - LegForm - StaticFields', () => {
 
       const labels = trackMock.mock.calls.map(([, , label]) => label);
 
-      expect(labels).toHaveLength(5);
-      labels.forEach((label) => expect(label).toMatch(/^(set|cleared|on|off|\d+)$/));
+      expect(labels).toEqual([undefined, undefined, '1', '1', 'set']);
     });
   });
 });

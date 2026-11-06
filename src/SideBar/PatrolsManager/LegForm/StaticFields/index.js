@@ -17,6 +17,28 @@ import TimePicker, { isValidTime } from '../../../../TimePicker';
 import * as styles from './styles.module.scss';
 
 const FIELD_TRACK_DEBOUNCE_DELAY = 1000;
+// React Select names the change: picking an option, removing one, or clearing the field.
+const SELECT_EVENT_KIND_BY_ACTION = {
+  clear: 'clear',
+  'pop-value': 'deselect',
+  'remove-value': 'deselect',
+  'select-option': 'select',
+};
+const TEAM_EVENTS = { clear: 'Clear the team from the leg form', select: 'Select a team from the leg form' };
+const TEAM_LEAD_EVENTS = {
+  clear: 'Clear the team lead from the leg form',
+  select: 'Select a team lead from the leg form',
+};
+const TEAM_MEMBER_EVENTS = {
+  clear: 'Clear team members from the leg form',
+  deselect: 'Deselect a team member from the leg form',
+  select: 'Select a team member from the leg form',
+};
+const ASSET_EVENTS = {
+  clear: 'Clear assets from the leg form',
+  deselect: 'Deselect an asset from the leg form',
+  select: 'Select an asset from the leg form',
+};
 const TIME_OPTIONS_INTERVAL_IN_MINUTES = 15;
 
 const getOptionLabel = ({ name }) => name;
@@ -140,6 +162,13 @@ const StaticFields = ({
 
     <label className={`${styles.checkboxLabel} ${isDisabled ? styles.disabled : ''}`} htmlFor={id}>{label}</label>
   </div>;
+
+  const trackSelectChange = (events, { action }, label) => {
+    const eventName = events[SELECT_EVENT_KIND_BY_ACTION[action]];
+    if (eventName) {
+      tracker.track(eventName, label);
+    }
+  };
 
   const renderSelect = ({ id, label, ...selectProps }) => <div className={styles.field}>
     <label className={styles.label} htmlFor={id}>{label}</label>
@@ -322,10 +351,10 @@ const StaticFields = ({
           getOptionLabel: getTeamOptionLabel,
           id: teamSelectId,
           label: t('teamLabel'),
-          onChange: (team) => {
+          onChange: (team, actionMeta) => {
             onChangeLeg({ team });
 
-            tracker.track('Change team from the leg form', team ? 'set' : 'cleared');
+            trackSelectChange(TEAM_EVENTS, actionMeta);
           },
           options: teamAndTrackingOptions.teams,
           value: leg.team,
@@ -335,10 +364,10 @@ const StaticFields = ({
           id: teamMembersSelectId,
           isMulti: true,
           label: t('teamMembersLabel'),
-          onChange: (teamMembers) => {
+          onChange: (teamMembers, actionMeta) => {
             onChangeLeg({ teamMembers: [...teamMembers] });
 
-            tracker.track('Change team members from the leg form', String(teamMembers.length));
+            trackSelectChange(TEAM_MEMBER_EVENTS, actionMeta, String(teamMembers.length));
           },
           options: teamAndTrackingOptions.members,
           renderOptionIcon: renderSubjectOptionIcon,
@@ -350,10 +379,10 @@ const StaticFields = ({
         {renderSelect({
           id: teamLeadSelectId,
           label: t('teamLeadLabel'),
-          onChange: (teamLead) => {
+          onChange: (teamLead, actionMeta) => {
             onChangeLeg({ teamLead });
 
-            tracker.track('Change team lead from the leg form', teamLead ? 'set' : 'cleared');
+            trackSelectChange(TEAM_LEAD_EVENTS, actionMeta);
           },
           options: teamAndTrackingOptions.members,
           renderOptionIcon: renderSubjectOptionIcon,
@@ -364,10 +393,10 @@ const StaticFields = ({
           id: assetsSelectId,
           isMulti: true,
           label: t('assetsLabel'),
-          onChange: (assets) => {
+          onChange: (assets, actionMeta) => {
             onChangeLeg({ assets: [...assets] });
 
-            tracker.track('Change tracked assets from the leg form', String(assets.length));
+            trackSelectChange(ASSET_EVENTS, actionMeta, String(assets.length));
           },
           options: teamAndTrackingOptions.assets,
           renderOptionIcon: renderSubjectOptionIcon,
