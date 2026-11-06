@@ -14,7 +14,7 @@ import { ReactComponent as DocumentIcon } from '../common/images/icons/document.
 import { ReactComponent as EarthRangerMarkIcon } from '../common/images/icons/er-mark.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as GundiLogoIcon } from '../common/images/icons/gundi-logo.svg';
-import { ReactComponent as HeatmapIcon } from '../common/images/icons/heatmap.svg';
+import { ReactComponent as EcoscopeLogoIcon } from '../common/images/icons/ecoscope-logo.svg';
 import { ReactComponent as InformationIcon } from '../common/images/icons/information.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
@@ -456,7 +456,7 @@ const GlobalMenuDrawer = () => {
       <li>
         {renderExternalLink(
           ECOSCOPE_ANALYSIS_URL,
-          <HeatmapIcon aria-hidden />,
+          <EcoscopeLogoIcon aria-hidden />,
           t('ecoscopeName'),
           'Ecoscope Analysis',
           t('ecoscopeAnalysisLink'),
