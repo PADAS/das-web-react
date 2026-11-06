@@ -224,6 +224,14 @@ describe('SideBar - OtusTab', () => {
     expect(screen.getByRole('button', { name: 'Recent' })).toHaveAttribute('aria-pressed', 'false');
   });
 
+  test('ignores a recent conversations message that does not come from the frame window', () => {
+    renderOtusTab();
+
+    dispatchThreadsMessage({ open: true }, { source: window });
+
+    expect(screen.getByRole('button', { name: 'Recent' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
   test('posts the site and token to the frame when it announces it is ready', () => {
     renderOtusTab();
     const postMessage = mockFramePostMessage();
@@ -440,6 +448,17 @@ describe('SideBar - OtusTab', () => {
       expect(screen.queryByRole('alert')).toBeNull();
       expect(getFrame()).toHaveAttribute('src', 'https://otus.example.com/?embed=1&titlebar=0');
       expect(screen.getByRole('status')).toHaveTextContent('Loading Atlas…');
+    });
+
+    test('shows the recent button as not pressed once the user reloads the frame', async () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+      dispatchThreadsMessage({ open: true });
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      await user.click(screen.getByRole('button', { name: 'Try again' }));
+
+      expect(screen.getByRole('button', { name: 'Recent' })).toHaveAttribute('aria-pressed', 'false');
     });
 
     test('moves focus to the frame wrapper when the user clicks try again', async () => {
