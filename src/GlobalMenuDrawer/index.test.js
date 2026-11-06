@@ -425,6 +425,20 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.getByRole('heading', { name: 'EARTHRANGER APPS' })).toBeInTheDocument();
   });
 
+  test('lists LEARN, with Help Center and User\'s Guide, above the exports', async () => {
+    renderGlobalMenuDrawer();
+
+    const learnHeading = screen.getByRole('heading', { name: 'LEARN' });
+
+    expect(learnHeading.compareDocumentPosition(screen.getByRole('heading', { name: 'EXPORTS' })))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+
+    expect(learnHeading.compareDocumentPosition(screen.getByRole('link', { name: 'Help Center' })))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(learnHeading.compareDocumentPosition(screen.getByRole('link', { name: 'User\'s Guide' })))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
   test('shows the What\'s New, Training and System Status links', async () => {
     renderGlobalMenuDrawer();
 

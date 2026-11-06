@@ -393,15 +393,29 @@ const GlobalMenuDrawer = () => {
       </li>
 
       <li>
+        {renderExternalLink(COMMUNITY_SITE_URL, <PersonIcon aria-hidden />, t('communityButton'), 'Community')}
+      </li>
+    </ul>
+
+    <hr aria-hidden className={styles.separator} />
+
+    <h3>{t('learnHeader')}</h3>
+
+    <ul>
+      <li>
         {renderExternalLink(HELP_CENTER_SITE_URL, <InformationIcon aria-hidden />, t('helpCenterButton'), 'Help Center')}
       </li>
 
       <li>
-        {renderExternalLink(COMMUNITY_SITE_URL, <PersonIcon aria-hidden />, t('communityButton'), 'Community')}
+        {renderExternalLink(USERS_GUIDE_SITE_URL, <BulletListIcon aria-hidden />, t('usersGuideButton'), 'Users Guide')}
       </li>
 
       <li>
-        {renderExternalLink(USERS_GUIDE_SITE_URL, <BulletListIcon aria-hidden />, t('usersGuideButton'), 'Users Guide')}
+        {renderExternalLink(RELEASE_NOTES_URL, <StarIcon aria-hidden />, t('whatsNewLink'), 'What\'s New')}
+      </li>
+
+      <li>
+        {renderExternalLink(TRAINING_URL, <PlayCircleIcon aria-hidden />, t('trainingLink'), 'Training')}
       </li>
     </ul>
 
@@ -450,20 +464,6 @@ const GlobalMenuDrawer = () => {
         {!deviceMobileStoreLink && renderMobileStoreLinks(MOBILE_STORE_LINKS)}
       </ul>
     </>}
-
-    <hr aria-hidden className={styles.separator} />
-
-    <h3>{t('learnHeader')}</h3>
-
-    <ul>
-      <li>
-        {renderExternalLink(RELEASE_NOTES_URL, <StarIcon aria-hidden />, t('whatsNewLink'), 'What\'s New')}
-      </li>
-
-      <li>
-        {renderExternalLink(TRAINING_URL, <PlayCircleIcon aria-hidden />, t('trainingLink'), 'Training')}
-      </li>
-    </ul>
 
     <footer className={styles.footer}>
       <ul className={styles.policies}>
