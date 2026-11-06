@@ -366,6 +366,17 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.getByRole('link', { name: 'Gundi Integrations' })).toHaveAttribute('href', GUNDI_PORTAL_URL);
   });
 
+  test('lists Ecoscope Analysis under EARTHRANGER APPS, not under EXPORTS, for non-staff users too', async () => {
+    renderGlobalMenuDrawer();
+
+    const ecoscopeLink = screen.getByRole('link', { name: 'Ecoscope Analysis' });
+
+    expect(screen.getByRole('heading', { name: 'EARTHRANGER APPS' }).compareDocumentPosition(ecoscopeLink))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(ecoscopeLink).toHaveTextContent('Ecoscope');
+    expect(ecoscopeLink).toHaveTextContent('Analysis');
+  });
+
   test('lists Gundi Integrations right after Admin, above the EarthRanger Mobile links', async () => {
     store.data.user.is_staff = true;
     renderGlobalMenuDrawer();
@@ -410,11 +421,12 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.queryByRole('link', { name: 'App Store (iPhone)' })).toBeNull();
   });
 
-  test('does not show the EarthRanger Apps heading to a non-staff user on a phone', async () => {
+  test('shows the EarthRanger Apps heading with Ecoscope to a non-staff user on a phone', async () => {
     mockUserAgent(ANDROID_USER_AGENT);
     renderGlobalMenuDrawer();
 
-    expect(screen.queryByRole('heading', { name: 'EARTHRANGER APPS' })).toBeNull();
+    expect(screen.getByRole('heading', { name: 'EARTHRANGER APPS' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Ecoscope Analysis' })).toBeInTheDocument();
   });
 
   test('shows the EarthRanger Apps heading to a staff user on a phone', async () => {

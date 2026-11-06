@@ -33,7 +33,7 @@
     },
     "ecoscopeAnalysisLinkAriaLabel": "Uchambuzi na Ecoscope",
     "ecoscopeAnalysisLink": "Uchambuzi",
-    "ecoscopeHeading": "ECOSCOPE",
+    "ecoscopeName": "Ecoscope",
     "footer": {
       "clientVersion": "Toleo la Wavuti: {{version}}",
       "copyright": "©{{year}} EarthRanger",
@@ -44,6 +44,8 @@
       "websitePrivacyPolicyLink": "Sera ya Faragha ya Wavuti"
     },
     "gundiLink": "Miunganisho ya Gundi",
+    "gundiName": "Gundi",
+    "gundiTag": "Miunganisho",
     "header": "Menyu Kuu",
     "helpCenterButton": "Kituo cha Msaada",
     "learnHeader": "Jifunze",

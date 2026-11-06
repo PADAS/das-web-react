@@ -14,6 +14,7 @@ import { ReactComponent as DocumentIcon } from '../common/images/icons/document.
 import { ReactComponent as EarthRangerMarkIcon } from '../common/images/icons/er-mark.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as GundiLogoIcon } from '../common/images/icons/gundi-logo.svg';
+import { ReactComponent as HeatmapIcon } from '../common/images/icons/heatmap.svg';
 import { ReactComponent as InformationIcon } from '../common/images/icons/information.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
@@ -90,7 +91,8 @@ const MOBILE_STORE_LINKS = [
   },
 ];
 
-const renderExternalLink = (href, icon, label, analyticsLabel) => <a
+const renderExternalLink = (href, icon, label, analyticsLabel, tag, ariaLabel) => <a
+  aria-label={ariaLabel}
   href={href}
   onClick={() => mainToolbarTracker.track(`Click '${analyticsLabel}' menu item`)}
   rel="noopener noreferrer"
@@ -99,6 +101,8 @@ const renderExternalLink = (href, icon, label, analyticsLabel) => <a
   {icon}
 
   <span>{label}</span>
+
+  {!!tag && <span className={styles.tag}>{tag}</span>}
 </a>;
 
 const GlobalMenuDrawer = () => {
@@ -427,43 +431,41 @@ const GlobalMenuDrawer = () => {
       {exportModals.map((modal) => <li key={modal.title}>
         <button onClick={() => onModalClick(modal)} type="button">{modal.title}</button>
       </li>)}
-
-      <li className={styles.nestedListItem}>
-        <h4>{t('ecoscopeHeading')}</h4>
-
-        <ul>
-          <li>
-            <a
-              aria-label={t('ecoscopeAnalysisLinkAriaLabel')}
-              href={ECOSCOPE_ANALYSIS_URL}
-              onClick={() => mainToolbarTracker.track('Click \'Ecoscope Analysis\' menu item')}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              {t('ecoscopeAnalysisLink')}
-            </a>
-          </li>
-        </ul>
-      </li>
     </ul>
 
-    {(!!user.is_staff || !deviceMobileStoreLink) && <>
-      <hr aria-hidden className={styles.separator} />
+    <hr aria-hidden className={styles.separator} />
 
-      <h3>{t('appsHeader')}</h3>
+    <h3>{t('appsHeader')}</h3>
 
-      <ul>
-        {!!user.is_staff && <li>
-          {renderExternalLink(`${DAS_HOST}/admin`, <EarthRangerMarkIcon aria-hidden />, t('adminLink'), 'Admin')}
-        </li>}
+    <ul>
+      {!!user.is_staff && <li>
+        {renderExternalLink(`${DAS_HOST}/admin`, <EarthRangerMarkIcon aria-hidden />, t('adminLink'), 'Admin')}
+      </li>}
 
-        {!!user.is_staff && <li>
-          {renderExternalLink(GUNDI_PORTAL_URL, <GundiLogoIcon aria-hidden />, t('gundiLink'), 'Gundi')}
-        </li>}
+      {!!user.is_staff && <li>
+        {renderExternalLink(
+          GUNDI_PORTAL_URL,
+          <GundiLogoIcon aria-hidden />,
+          t('gundiName'),
+          'Gundi',
+          t('gundiTag'),
+          t('gundiLink'),
+        )}
+      </li>}
 
-        {!deviceMobileStoreLink && renderMobileStoreLinks(MOBILE_STORE_LINKS)}
-      </ul>
-    </>}
+      <li>
+        {renderExternalLink(
+          ECOSCOPE_ANALYSIS_URL,
+          <HeatmapIcon aria-hidden />,
+          t('ecoscopeName'),
+          'Ecoscope Analysis',
+          t('ecoscopeAnalysisLink'),
+          t('ecoscopeAnalysisLinkAriaLabel'),
+        )}
+      </li>
+
+      {!deviceMobileStoreLink && renderMobileStoreLinks(MOBILE_STORE_LINKS)}
+    </ul>
 
     <footer className={styles.footer}>
       <ul className={styles.policies}>

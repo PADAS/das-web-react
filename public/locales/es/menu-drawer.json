@@ -31,7 +31,7 @@
     },
     "ecoscopeAnalysisLinkAriaLabel": "Análisis con Ecoscope",
     "ecoscopeAnalysisLink": "Análisis",
-    "ecoscopeHeading": "ECOSCOPE",
+    "ecoscopeName": "Ecoscope",
     "footer": {
       "clientVersion": "Versión del cliente web: {{version}}",
       "copyright": "©{{year}} EarthRanger",
@@ -42,6 +42,8 @@
       "websitePrivacyPolicyLink": "Política de Privacidad del sitio web"
     },
     "gundiLink": "Integraciones de Gundi",
+    "gundiName": "Gundi",
+    "gundiTag": "Integraciones",
     "header": "Menú principal",
     "helpCenterButton": "Centro de ayuda",
     "learnHeader": "APRENDER",

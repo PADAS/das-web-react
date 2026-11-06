@@ -31,7 +31,7 @@
     },
     "ecoscopeAnalysisLinkAriaLabel": "Ecoscope सँग विश्लेषण",
     "ecoscopeAnalysisLink": "विश्लेषण",
-    "ecoscopeHeading": "ECOSCOPE",
+    "ecoscopeName": "Ecoscope",
     "footer": {
       "clientVersion": "वेब ग्राहक संस्करण: {{version}}",
       "copyright": "©{{year}} अर्थरेन्जर",
@@ -42,6 +42,8 @@
       "websitePrivacyPolicyLink": "वेबसाइट गोपनीयता नीति"
     },
     "gundiLink": "Gundi एकीकरणहरु",
+    "gundiName": "Gundi",
+    "gundiTag": "एकीकरणहरु",
     "header": "मुख्य मेनू",
     "helpCenterButton": "सहायता केन्द्र",
     "learnHeader": "सिक्नुहोस्",
