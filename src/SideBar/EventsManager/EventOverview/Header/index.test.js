@@ -49,7 +49,7 @@ describe('SideBar - EventsManager - EventOverview - Header', () => {
 
     useJumpToLocation.mockImplementation(() => jumpToLocation);
 
-    store = { data: { eventTypes, patrolTypes, subjectStore: {} } };
+    store = { data: { eventCategories: {}, eventTypes, patrolTypes, subjectStore: {} }, view: { systemConfig: {} } };
   });
 
   const renderHeader = (props = {}, storeOverrides = store) => render(

@@ -1,0 +1,37 @@
+@use 'sass:map';
+@use '../../common/styles/vars/colors';
+@use '../shared';
+
+@mixin patrol-option-theme($theme) {
+  .icon {
+    background-color: map.get($theme, 'base');
+
+    @if map.get($theme, 'font-color') {
+      color: map.get($theme, 'font-color');
+    }
+  }
+
+  .status .statusTitle {
+    color: map.get($theme, 'font-color') or map.get($theme, 'base');
+  }
+}
+
+.patrolOption {
+  @include shared.link-target-option;
+
+  &.active {
+    @include patrol-option-theme(colors.$patrol-active-theme);
+  }
+
+  &.cancelled, &.invalid {
+    @include patrol-option-theme(colors.$patrol-cancelled-theme);
+  }
+
+  &.done {
+    @include patrol-option-theme(colors.$patrol-done-theme);
+  }
+
+  &.paused {
+    @include patrol-option-theme(colors.$patrol-paused-theme);
+  }
+}

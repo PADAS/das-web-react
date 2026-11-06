@@ -4,7 +4,9 @@ import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ClipIcon } from '../../../../../common/images/icons/link.svg';
+import { ReactComponent as IncidentIcon } from '../../../../../common/images/icons/incident.svg';
 import { ReactComponent as MarkerFeedIcon } from '../../../../../common/images/icons/marker-feed.svg';
+import { ReactComponent as PatrolIcon } from '../../../../../common/images/icons/patrol.svg';
 
 import {
   collectionHasMultipleValidLocations,
@@ -12,15 +14,18 @@ import {
   getReportLink,
   isReportActive,
 } from '../../../../../utils/events';
-import { EVENT_FORM_STATES } from '../../../../../constants';
+import { EVENT_FORM_STATES, EVENT_LINK_TARGET_TYPES } from '../../../../../constants';
 import { setBounceEventIDs } from '../../../../../ducks/map-ui';
 import { setEventState, updateEvent } from '../../../../../ducks/events';
 import { showToast } from '../../../../../utils/toast';
 import { TrackerContext } from '../../../../../utils/analytics';
+import useEventLinking from '../../../../../hooks/useEventLinking';
 import useJumpToLocation from '../../../../../hooks/useJumpToLocation';
 
 import ContextMenu from '../../../../../ContextMenu';
+import DelayedUnmount from '../../../../../DelayedUnmount';
 import KebabMenu from '../../../../../KebabMenu';
+import LinkEventModal from '../../../../../LinkEventModal';
 import Menu from '../../../../../Menu';
 import NotificationDetails from './NotificationDetails';
 
@@ -38,6 +43,7 @@ const Actions = ({ className = '', contextMenuRef, coordinates, event }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'eventsManager.eventsFeed.eventRow.actions' });
 
+  const eventLinking = useEventLinking(event);
   const jumpToLocation = useJumpToLocation();
 
   const tracker = useContext(TrackerContext);
@@ -175,6 +181,22 @@ const Actions = ({ className = '', contextMenuRef, coordinates, event }) => {
 
     <Menu.Divider className={styles.mobileOnlyOption} />
 
+    {eventLinking.permissions.canAddToIncident && <Menu.Option
+      onClick={() => eventLinking.openLinkModal(EVENT_LINK_TARGET_TYPES.INCIDENT)}
+    >
+      <IncidentIcon aria-hidden="true" />
+
+      {t('addToIncidentOption')}
+    </Menu.Option>}
+
+    {eventLinking.permissions.canAddToPatrol && <Menu.Option
+      onClick={() => eventLinking.openLinkModal(EVENT_LINK_TARGET_TYPES.PATROL)}
+    >
+      <PatrolIcon aria-hidden="true" />
+
+      {t('addToPatrolOption')}
+    </Menu.Option>}
+
     <Menu.Option onClick={onCopyLink}>
       <ClipIcon aria-hidden="true" />
 
@@ -214,6 +236,19 @@ const Actions = ({ className = '', contextMenuRef, coordinates, event }) => {
     <ContextMenu aria-label={t('moreOptionsButtonLabel')} isLoading={isUpdatingState} ref={contextMenuRef}>
       {renderMenuOptions()}
     </ContextMenu>
+
+    <DelayedUnmount isMounted={eventLinking.isLinkModalOpen}>
+      <LinkEventModal
+        canCreateIncident={eventLinking.permissions.canCreateIncident}
+        event={event}
+        isLinking={eventLinking.isLinking}
+        onAdd={eventLinking.addToLinkTarget}
+        onCreateIncident={eventLinking.addToNewIncident}
+        onHide={eventLinking.closeLinkModal}
+        show={eventLinking.isLinkModalOpen}
+        type={eventLinking.linkModalType}
+      />
+    </DelayedUnmount>
   </div>;
 };
 

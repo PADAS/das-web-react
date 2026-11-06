@@ -3,9 +3,8 @@ import { Link, Route, Routes, useLocation } from 'react-router';
 import { toast } from 'react-toastify';
 import userEvent from '@testing-library/user-event';
 
-import { addPatrolSegmentToEvent } from '../../../../utils/events';
 import { createMapMock } from '../../../../__test-helpers/mocks';
-import { fetchEvent } from '../../../../ducks/events';
+import { addEventToPatrol, fetchEvent } from '../../../../ducks/events';
 import {
   fetchDefaultPatrolSegmentTypeSchema,
   fetchPatrolTypeSchema,
@@ -25,6 +24,7 @@ import LegOverview from './';
 
 jest.mock('../../../../ducks/events', () => ({
   ...jest.requireActual('../../../../ducks/events'),
+  addEventToPatrol: jest.fn(),
   fetchEvent: jest.fn(),
 }));
 
@@ -55,11 +55,6 @@ jest.mock('../../../../AddItemButton', () => {
   return AddItemButton;
 });
 
-jest.mock('../../../../utils/events', () => ({
-  ...jest.requireActual('../../../../utils/events'),
-  addPatrolSegmentToEvent: jest.fn(),
-}));
-
 const LocationDisplay = () => <div data-testid="test-location">{useLocation().pathname}</div>;
 
 // Navigates the same way the footer buttons do: through a pending navigation
@@ -82,7 +77,7 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview', () => {
   beforeEach(() => {
     jest.spyOn(toast, 'error').mockImplementation(() => {});
 
-    addPatrolSegmentToEvent.mockImplementation(() => Promise.resolve());
+    addEventToPatrol.mockImplementation(() => () => Promise.resolve());
     fetchDefaultPatrolSegmentTypeSchema.mockImplementation(() => () => {});
     fetchEvent.mockImplementation(() => () => Promise.resolve());
     fetchPatrolTypeSchema.mockImplementation(() => () => {});
@@ -424,7 +419,8 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview', () => {
 
     await userEvent.click(screen.getByRole('button', { name: ADD_EVENT_BUTTON_LABEL }));
 
-    await waitFor(() => expect(addPatrolSegmentToEvent).toHaveBeenCalledWith(activePatrolSegment.id, 'new-event'));
+    await waitFor(() => expect(addEventToPatrol)
+      .toHaveBeenCalledWith('new-event', patrol.id, activePatrolSegment.id));
   });
 
   test('gives the event it adds the crumbs back to this leg', () => {
@@ -437,9 +433,8 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview', () => {
     ]);
   });
 
-  test('warns the user and still refreshes the patrol when a new event could not be linked to the leg', async () => {
-    jest.spyOn(console, 'warn').mockImplementation(() => {});
-    addPatrolSegmentToEvent.mockImplementation(() => Promise.reject(new Error('link error')));
+  test('warns the user when a new event could not be linked to the leg', async () => {
+    addEventToPatrol.mockImplementation(() => () => Promise.reject(new Error('link error')));
 
     renderLegOverview({ legId: activePatrolSegment.id });
 
@@ -447,6 +442,5 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview', () => {
 
     await waitFor(() => expect(toast.error)
       .toHaveBeenCalledWith('The event was saved but could not be added to this patrol leg.'));
-    expect(fetchPatrol).toHaveBeenCalledWith(patrol.id);
   });
 });

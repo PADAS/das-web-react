@@ -1,15 +1,4 @@
 {
-  "addToIncidentModal": {
-    "modalBody": {
-      "addToNewIncidentButton": "Add to new incident",
-      "loadingItem": "Loading...",
-      "noMoreEventsItem": "No more incidents to display."
-    },
-    "modalFooter": {
-      "cancelButton": "Cancel"
-    },
-    "modalTitle": "Add to Incident"
-  },
   "errorMessages": {
     "accordionHeaderButton": {
       "closed": "See details",
@@ -18,6 +7,14 @@
   },
   "eventIcon": {
     "collectionTitle": "Collection"
+  },
+  "eventLinking": {
+    "addedToIncidentMessage": "Event {{eventSerialNumber}} added to incident {{incidentSerialNumber}}.",
+    "addedToNewIncidentMessage": "Event {{eventSerialNumber}} added to new incident {{incidentSerialNumber}}.",
+    "addedToPatrolMessage": "Event {{eventSerialNumber}} added to patrol {{patrolSerialNumber}}.",
+    "addToIncidentErrorMessage": "Could not add the event to the incident. Please try again.",
+    "addToNewIncidentErrorMessage": "Could not add the event to a new incident. Please try again.",
+    "addToPatrolErrorMessage": "Could not add the event to the patrol. Please try again."
   },
   "eventsManager": {
     "eventOverview": {
@@ -69,6 +66,8 @@
       "eventListLabel": "Event list",
       "eventRow": {
         "actions": {
+          "addToIncidentOption": "Add to Incident",
+          "addToPatrolOption": "Add to Patrol",
           "copyLinkMessage": "Link copied",
           "copyLinkOption": "Copy event link",
           "jumpToLocationButtonLabel": "Jump to location",
@@ -121,6 +120,51 @@
       "loadingMoreLabel": "Loading more events",
       "retryButton": "Try again"
     }
+  },
+  "linkEventModal": {
+    "addButton": "Add",
+    "cancelButtonLabel": "Cancel",
+    "closeButtonLabel": "Close",
+    "createIncidentButtonLabel": "Create new incident",
+    "incident": {
+      "emptyStateMessage": "No incidents to display.",
+      "fetchErrorMessage": "Could not load incidents. Please try again.",
+      "loadingLabel": "Loading incidents",
+      "loadingMoreLabel": "Loading more incidents",
+      "resultsCountMessage_one": "{{count}} incident",
+      "resultsCountMessage_other": "{{count}} incidents",
+      "resultsListLabel": "Incidents",
+      "searchBarLabel": "Search incidents",
+      "title": "Add to Incident"
+    },
+    "incidentOption": {
+      "addButtonLabel": "Add to incident {{serialNumber}} {{title}}",
+      "eventCountLabel_one": "{{count}} event",
+      "eventCountLabel_other": "{{count}} events",
+      "states": {
+        "active": "Active",
+        "resolved": "Resolved",
+        "review": "In review"
+      }
+    },
+    "noMatchesMessage": "Adjust your search to find what you are looking for.",
+    "noMatchesMessageTitle": "No results found.",
+    "patrol": {
+      "emptyStateMessage": "No patrols to display.",
+      "fetchErrorMessage": "Could not load patrols. Please try again.",
+      "loadingLabel": "Loading patrols",
+      "loadingMoreLabel": "Loading more patrols",
+      "resultsCountMessage_one": "{{count}} patrol",
+      "resultsCountMessage_other": "{{count}} patrols",
+      "resultsListLabel": "Patrols",
+      "searchBarLabel": "Search patrols",
+      "title": "Add to Patrol"
+    },
+    "patrolOption": {
+      "addButtonLabel": "Add to patrol {{serialNumber}} {{title}}",
+      "legLabel": "Leg {{number}}"
+    },
+    "retryButtonLabel": "Try again"
   },
   "reportGeometryDrawer": {
     "cancelationConfirmationModal": {

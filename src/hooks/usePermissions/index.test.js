@@ -3,7 +3,13 @@ import { Provider } from 'react-redux';
 import { mockStore } from '../../__test-helpers/MockStore';
 import { renderHook } from '../../test-utils';
 
-import { useEventsPermissions, useMessagesPermissions, useObservationsPermissions, usePatrolsPermissions } from '.';
+import {
+  useEventRelationshipsPermissions,
+  useEventsPermissions,
+  useMessagesPermissions,
+  useObservationsPermissions,
+  usePatrolsPermissions,
+} from '.';
 import { PERMISSION_KEYS, PERMISSIONS } from '../../constants';
 
 describe('usePermissions', () => {
@@ -13,6 +19,7 @@ describe('usePermissions', () => {
       data: {
         user: {
           permissions: {
+            [PERMISSION_KEYS.EVENT_RELATIONSHIPS]: [PERMISSIONS.DELETE],
             [PERMISSION_KEYS.EVENTS]: [
               PERMISSIONS.CREATE,
               PERMISSIONS.DELETE,
@@ -52,6 +59,19 @@ describe('usePermissions', () => {
     {children}
   </Provider>;
 
+  describe('useEventRelationshipsPermissions', () => {
+    test('returns the event relationships permissions', async () => {
+      const { result } = renderHook(() => useEventRelationshipsPermissions(), { wrapper });
+
+      expect(result.current).toEqual({
+        hasEventRelationshipsCreatePermission: false,
+        hasEventRelationshipsDeletePermission: true,
+        hasEventRelationshipsExportPermission: false,
+        hasEventRelationshipsReadPermission: false,
+        hasEventRelationshipsUpdatePermission: false,
+      });
+    });
+  });
 
   describe('useEventsPermissions', () => {
     test('returns the events permissions', async () => {

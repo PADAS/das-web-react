@@ -1,20 +1,20 @@
 {
-  "addToIncidentModal": {
-    "modalBody": {
-      "addToNewIncidentButton": "नयाँ घटनामा थप्नुहोस्",
-      "loadingItem": "लोड हुँदैछ…",
-      "noMoreEventsItem": "प्रदर्शनका लागि थप कुनै घटना छैनन् ।"
-    },
-    "modalFooter": {
-      "cancelButton": "रद्द गर्नुहोस्"
-    },
-    "modalTitle": "घटनामा थप्नुहोस्"
-  },
   "errorMessages": {
     "accordionHeaderButton": {
       "closed": "विवरण हेर्नुहोस्",
       "open": "विवरण लुकाउनुहोस्"
     }
+  },
+  "eventIcon": {
+    "collectionTitle": "सकंलन"
+  },
+  "eventLinking": {
+    "addedToIncidentMessage": "घटना {{eventSerialNumber}} घटना {{incidentSerialNumber}} मा थपियो ।",
+    "addedToNewIncidentMessage": "घटना {{eventSerialNumber}} नयाँ घटना {{incidentSerialNumber}} मा थपियो ।",
+    "addedToPatrolMessage": "घटना {{eventSerialNumber}} गस्ती {{patrolSerialNumber}} मा थपियो ।",
+    "addToIncidentErrorMessage": "घटनालाई घटनामा थप्न सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।",
+    "addToNewIncidentErrorMessage": "घटनालाई नयाँ घटनामा थप्न सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।",
+    "addToPatrolErrorMessage": "घटनालाई गस्तीमा थप्न सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।"
   },
   "eventsManager": {
     "eventOverview": {
@@ -35,7 +35,7 @@
         "patrolIndicator": "ग",
         "reportMenu": {
           "addToIncidentOption": "घटनामा थप्नुहोस्",
-          "addToPatrolOption": "गस्तिमा थप्नुहोस्",
+          "addToPatrolOption": "गस्तीमा थप्नुहोस्",
           "copyLinkMessage": "लिकं कपि गरियो",
           "copyLinkOption": "घटनाको लिकं कपि गर्नुहोस्",
           "jumpToLocationOption": "स्थानमा जानुहोस्",
@@ -66,6 +66,8 @@
       "eventListLabel": "घटना सूची",
       "eventRow": {
         "actions": {
+          "addToIncidentOption": "घटनामा थप्नुहोस्",
+          "addToPatrolOption": "गस्तीमा थप्नुहोस्",
           "copyLinkMessage": "लिकं कपि गरियो",
           "copyLinkOption": "घटनाको लिकं कपि गर्नुहोस्",
           "jumpToLocationButtonLabel": "स्थानमा जानुहोस्",
@@ -118,6 +120,51 @@
       "loadingMoreLabel": "थप घटनाहरु लोड हुँदैछन्",
       "retryButton": "फेरी प्रयास गर्नुहोस्"
     }
+  },
+  "linkEventModal": {
+    "addButton": "थप्नुहोस्",
+    "cancelButtonLabel": "रद्द गर्नुहोस्",
+    "closeButtonLabel": "बन्द गर्नुहोस्",
+    "createIncidentButtonLabel": "नयाँ घटना सिर्जना गर्नुहोस्",
+    "incident": {
+      "emptyStateMessage": "प्रदर्शनका लागि कुनै घटना छैनन् ।",
+      "fetchErrorMessage": "घटना लोड गर्न सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।",
+      "loadingLabel": "घटनाहरु लोड हुँदै",
+      "loadingMoreLabel": "थप घटनाहरु लोड हुँदैछन्",
+      "resultsCountMessage_one": "{{count}} घटना",
+      "resultsCountMessage_other": "{{count}} घटनाहरु",
+      "resultsListLabel": "घटनाहरु",
+      "searchBarLabel": "घटनाहरु खोज्नुहोस्",
+      "title": "घटनामा थप्नुहोस्"
+    },
+    "incidentOption": {
+      "addButtonLabel": "घटना {{serialNumber}} {{title}} मा थप्नुहोस्",
+      "eventCountLabel_one": "{{count}} घटना",
+      "eventCountLabel_other": "{{count}} घटनाहरु",
+      "states": {
+        "active": "सक्रिय",
+        "resolved": "समाधान गरिएको",
+        "review": "समीक्षामा"
+      }
+    },
+    "noMatchesMessage": "तपाईं खोजिरहनुभएको कुरा फेला पार्नको लागि आफ्नो खोज समायोजन गर्नुहोस्।",
+    "noMatchesMessageTitle": "कुनै परिणाम फेला परेन।",
+    "patrol": {
+      "emptyStateMessage": "प्रदर्शनीका लागि कुनै गस्ती छैन ।",
+      "fetchErrorMessage": "गस्ती लोड गर्न सकिएन । कृपया फेरी प्रयास गर्नुहोस् ।",
+      "loadingLabel": "गस्तीहरु लोड हुँदै",
+      "loadingMoreLabel": "थप गस्तीहरु लोड हुँदैछन्",
+      "resultsCountMessage_one": "{{count}} गस्ती",
+      "resultsCountMessage_other": "{{count}} गस्तीहरु",
+      "resultsListLabel": "गस्तीहरु",
+      "searchBarLabel": "गस्तीहरु खोज्नुहोस्",
+      "title": "गस्तीमा थप्नुहोस्"
+    },
+    "patrolOption": {
+      "addButtonLabel": "गस्ती {{serialNumber}} {{title}} मा थप्नुहोस्",
+      "legLabel": "खण्ड {{number}}"
+    },
+    "retryButtonLabel": "फेरी प्रयास गर्नुहोस्"
   },
   "reportGeometryDrawer": {
     "cancelationConfirmationModal": {
@@ -208,8 +255,5 @@
     }
   },
   "unknownEventTitle": "अज्ञात घटनाको शिर्षक",
-  "unknownEventType": "अज्ञात घटनाको किसिम",
-  "eventIcon": {
-    "collectionTitle": "सकंलन"
-  }
+  "unknownEventType": "अज्ञात घटनाको किसिम"
 }

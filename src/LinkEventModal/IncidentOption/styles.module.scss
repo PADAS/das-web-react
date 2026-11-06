@@ -1,0 +1,43 @@
+@use 'sass:map';
+@use '../../common/styles/vars/colors';
+@use '../shared';
+
+@mixin incident-option-theme($theme) {
+  .icon {
+    background-color: map.get($theme, 'base');
+  }
+}
+
+.incidentOption {
+  @include shared.link-target-option;
+
+  .status .statusTitle {
+    &.active {
+      color: colors.$plum;
+    }
+
+    &.resolved {
+      color: colors.$alt-light-gray;
+    }
+
+    &.review {
+      color: colors.$dark-gold;
+    }
+  }
+
+  &.red {
+    @include incident-option-theme(colors.$report-high-priority-theme);
+  }
+
+  &.amber {
+    @include incident-option-theme(colors.$report-medium-priority-theme);
+  }
+
+  &.green {
+    @include incident-option-theme(colors.$report-low-priority-theme);
+  }
+
+  &.none {
+    @include incident-option-theme(colors.$report-no-priority-theme);
+  }
+}

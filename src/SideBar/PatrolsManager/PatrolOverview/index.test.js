@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 
 import { act, render, screen, waitFor } from '../../../test-utils';
 import AddItemButton from '../../../AddItemButton';
-import { addPatrolSegmentToEvent } from '../../../utils/events';
+import { addEventToPatrol } from '../../../ducks/events';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes from '../../../__test-helpers/fixtures/patrol-types';
@@ -37,9 +37,9 @@ jest.mock('../../../ducks/patrols', () => ({
   uploadPatrolFile: jest.fn(),
 }));
 
-jest.mock('../../../utils/events', () => ({
-  ...jest.requireActual('../../../utils/events'),
-  addPatrolSegmentToEvent: jest.fn(() => Promise.resolve()),
+jest.mock('../../../ducks/events', () => ({
+  ...jest.requireActual('../../../ducks/events'),
+  addEventToPatrol: jest.fn(),
 }));
 
 jest.mock('react-router', () => ({
@@ -66,6 +66,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     addItemButtonMock = jest.fn(() => <button data-testid="addEventButton" type="button" />);
     AddItemButton.mockImplementation(addItemButtonMock);
 
+    addEventToPatrol.mockImplementation(() => () => Promise.resolve());
     fetchPatrol.mockImplementation(() => () => Promise.resolve());
     updatePatrol.mockImplementation(() => () => Promise.resolve());
     uploadPatrolFile.mockResolvedValue({});
@@ -573,86 +574,29 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
     ]);
   });
 
-  test('links a newly added event to the leg the patrol is on and refreshes the patrol', async () => {
-    const patrolWithMultipleLegs = {
-      ...patrolWithoutLeader,
-      patrol_segments: [
-        {
-          ...patrolWithoutLeader.patrol_segments[0],
-          time_range: { end_time: '2021-08-13T18:00:00-07:00', start_time: '2021-08-13T16:24:00-07:00' },
-        },
-        {
-          ...patrolWithoutLeader.patrol_segments[0],
-          id: 'second-leg-id',
-          time_range: { end_time: null, start_time: '2021-08-13T18:00:00-07:00' },
-        },
-      ],
-    };
-    store.data.patrolStore[patrolWithMultipleLegs.id] = patrolWithMultipleLegs;
-
-    await renderPatrolOverview(patrolWithMultipleLegs.id);
-
-    fetchPatrol.mockClear();
-
-    const [props] = addItemButtonMock.mock.calls.at(-1);
-
-    await props.formProps.onSaveSuccess([{ data: { data: { id: 'new-event-id' } } }]);
-
-    expect(addPatrolSegmentToEvent).toHaveBeenCalledWith('second-leg-id', 'new-event-id');
-    expect(fetchPatrol).toHaveBeenCalledWith(patrolWithMultipleLegs.id);
-  });
-
-  test('does not link a newly added event to a leg planned after the one the patrol is on', async () => {
-    const patrolWithPlannedLeg = {
-      ...patrolWithoutLeader,
-      patrol_segments: [
-        {
-          ...patrolWithoutLeader.patrol_segments[0],
-          time_range: { end_time: null, start_time: '2021-08-13T16:24:00-07:00' },
-        },
-        { ...patrolWithoutLeader.patrol_segments[0], id: 'planned-leg-id', scheduled_start: '2100-01-01T00:00:00Z' },
-      ],
-    };
-    store.data.patrolStore[patrolWithPlannedLeg.id] = patrolWithPlannedLeg;
-
-    await renderPatrolOverview(patrolWithPlannedLeg.id);
-
-    const [props] = addItemButtonMock.mock.calls.at(-1);
-
-    await props.formProps.onSaveSuccess([{ data: { data: { id: 'new-event-id' } } }]);
-
-    expect(addPatrolSegmentToEvent)
-      .toHaveBeenCalledWith(patrolWithoutLeader.patrol_segments[0].id, 'new-event-id');
-  });
-
-  test('warns the user and still refreshes the patrol when a new event could not be linked to it', async () => {
-    jest.spyOn(console, 'warn').mockImplementation(() => {});
-    addPatrolSegmentToEvent.mockImplementation(() => Promise.reject(new Error('link error')));
+  test('links a newly added event to the patrol', async () => {
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
     await renderPatrolOverview(patrolWithoutLeader.id);
 
-    fetchPatrol.mockClear();
-
     const [props] = addItemButtonMock.mock.calls.at(-1);
 
     await props.formProps.onSaveSuccess([{ data: { data: { id: 'new-event-id' } } }]);
 
-    expect(toast.error).toHaveBeenCalledWith('The event was saved but could not be added to this patrol.');
-    expect(fetchPatrol).toHaveBeenCalledWith(patrolWithoutLeader.id);
+    expect(addEventToPatrol).toHaveBeenCalledWith('new-event-id', patrolWithoutLeader.id);
   });
 
-  test('does not reject back into the event form when the patrol refresh fails', async () => {
-    jest.spyOn(console, 'warn').mockImplementation(() => {});
+  test('warns the user when a new event could not be linked to the patrol', async () => {
+    addEventToPatrol.mockImplementation(() => () => Promise.reject(new Error('link error')));
     store.data.patrolStore[patrolWithoutLeader.id] = patrolWithoutLeader;
 
     await renderPatrolOverview(patrolWithoutLeader.id);
-
-    fetchPatrol.mockImplementation(() => () => Promise.reject(new Error('refresh error')));
 
     const [props] = addItemButtonMock.mock.calls.at(-1);
 
     await expect(props.formProps.onSaveSuccess([{ data: { data: { id: 'new-event-id' } } }])).resolves.toBeUndefined();
+
+    expect(toast.error).toHaveBeenCalledWith('The event was saved but could not be added to this patrol.');
   });
 
   test('also accepts a single, non-array save result when linking a new event', async () => {
@@ -664,9 +608,7 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
 
     await props.formProps.onSaveSuccess({ data: { data: { id: 'new-event-id' } } });
 
-    const [segment] = patrolWithoutLeader.patrol_segments;
-
-    expect(addPatrolSegmentToEvent).toHaveBeenCalledWith(segment.id, 'new-event-id');
+    expect(addEventToPatrol).toHaveBeenCalledWith('new-event-id', patrolWithoutLeader.id);
   });
 
   test('shows the unsaved changes prompt and stays on the page if navigation is cancelled', async () => {

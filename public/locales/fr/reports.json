@@ -1,15 +1,4 @@
 {
-  "addToIncidentModal": {
-    "modalBody": {
-      "addToNewIncidentButton": "Ajouter à un nouvel Incident",
-      "loadingItem": "Chargement...",
-      "noMoreEventsItem": "Aucun autre incident à afficher."
-    },
-    "modalFooter": {
-      "cancelButton": "Annuler"
-    },
-    "modalTitle": "Ajouter à un Incident"
-  },
   "errorMessages": {
     "accordionHeaderButton": {
       "closed": "Afficher plus de détails",
@@ -18,6 +7,14 @@
   },
   "eventIcon": {
     "collectionTitle": "Collection"
+  },
+  "eventLinking": {
+    "addedToIncidentMessage": "Événement {{eventSerialNumber}} ajouté à l'incident {{incidentSerialNumber}}.",
+    "addedToNewIncidentMessage": "Événement {{eventSerialNumber}} ajouté au nouvel incident {{incidentSerialNumber}}.",
+    "addedToPatrolMessage": "Événement {{eventSerialNumber}} ajouté à la patrouille {{patrolSerialNumber}}.",
+    "addToIncidentErrorMessage": "Impossible d'ajouter l'événement à l'incident. Veuillez réessayer.",
+    "addToNewIncidentErrorMessage": "Impossible d'ajouter l'événement à un nouvel incident. Veuillez réessayer.",
+    "addToPatrolErrorMessage": "Impossible d'ajouter l'événement à la patrouille. Veuillez réessayer."
   },
   "eventsManager": {
     "eventOverview": {
@@ -69,6 +66,8 @@
       "eventListLabel": "Liste des événements",
       "eventRow": {
         "actions": {
+          "addToIncidentOption": "Ajouter à un Incident",
+          "addToPatrolOption": "Ajouter à une Patrouille",
           "copyLinkMessage": "Lien copié avec succès",
           "copyLinkOption": "Copier le lien de l'événement",
           "jumpToLocationButtonLabel": "Aller à l'emplacement",
@@ -121,6 +120,51 @@
       "loadingMoreLabel": "Chargement d'autres événements",
       "retryButton": "Réessayez"
     }
+  },
+  "linkEventModal": {
+    "addButton": "Ajouter",
+    "cancelButtonLabel": "Annuler",
+    "closeButtonLabel": "Fermer",
+    "createIncidentButtonLabel": "Créer un nouvel incident",
+    "incident": {
+      "emptyStateMessage": "Aucun incident à afficher.",
+      "fetchErrorMessage": "Impossible de charger les incidents. Veuillez réessayer.",
+      "loadingLabel": "Chargement des incidents",
+      "loadingMoreLabel": "Chargement d'autres incidents",
+      "resultsCountMessage_one": "{{count}} incident",
+      "resultsCountMessage_other": "{{count}} incidents",
+      "resultsListLabel": "Incidents",
+      "searchBarLabel": "Rechercher des incidents",
+      "title": "Ajouter à un Incident"
+    },
+    "incidentOption": {
+      "addButtonLabel": "Ajouter à l'incident {{serialNumber}} {{title}}",
+      "eventCountLabel_one": "{{count}} événement",
+      "eventCountLabel_other": "{{count}} événements",
+      "states": {
+        "active": "Actif",
+        "resolved": "Résolu",
+        "review": "En révision"
+      }
+    },
+    "noMatchesMessage": "Ajustez votre recherche pour trouver ce que vous cherchez.",
+    "noMatchesMessageTitle": "Aucun résultat trouvé.",
+    "patrol": {
+      "emptyStateMessage": "Aucune patrouille à afficher.",
+      "fetchErrorMessage": "Impossible de charger les patrouilles. Veuillez réessayer.",
+      "loadingLabel": "Chargement des patrouilles",
+      "loadingMoreLabel": "Chargement d'autres patrouilles",
+      "resultsCountMessage_one": "{{count}} patrouille",
+      "resultsCountMessage_other": "{{count}} patrouilles",
+      "resultsListLabel": "Patrouilles",
+      "searchBarLabel": "Rechercher des patrouilles",
+      "title": "Ajouter à une Patrouille"
+    },
+    "patrolOption": {
+      "addButtonLabel": "Ajouter à la patrouille {{serialNumber}} {{title}}",
+      "legLabel": "Étape {{number}}"
+    },
+    "retryButtonLabel": "Réessayez"
   },
   "reportGeometryDrawer": {
     "cancelationConfirmationModal": {

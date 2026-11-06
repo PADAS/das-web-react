@@ -17,18 +17,18 @@ import TitleInput from '../../../TitleInput';
 import * as styles from './styles.module.scss';
 
 const Header = ({
+  canLinkReport = false,
   isCommunity = false,
   isReadOnly = false,
   isStateDirty = false,
   isTitleDirty = false,
   onChangeState,
   onChangeTitle,
-  onSaveReport,
+  onSaveNewReport = null,
   parentCrumbs,
   printableContentRef,
   report,
   savedState,
-  setRedirectTo,
   ...otherProps
 }) => {
   const { t } = useTranslation('reports', { keyPrefix: 'eventsManager.eventOverview.header' });
@@ -85,12 +85,12 @@ const Header = ({
     </div>
 
     <ReportMenu
+      canLinkReport={canLinkReport}
       hasLocation={hasLocation}
       onJumpToLocation={onJumpToLocation}
-      onSaveReport={onSaveReport}
+      onSaveNewReport={onSaveNewReport}
       printableContentRef={printableContentRef}
       report={report}
-      setRedirectTo={setRedirectTo}
       title={displayTitle}
     />
   </>;

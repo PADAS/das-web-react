@@ -7,13 +7,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
-import { addPatrolSegmentToEvent } from '../../../utils/events';
+import { addEventToPatrol } from '../../../ducks/events';
 import buildPatrolStatusUpdate from '../utils/buildPatrolStatusUpdate';
-import {
-  calcTitleAndSubtitleForPatrol,
-  getTrackedSubjectsForPatrolSegment,
-  governingPatrolSegment,
-} from '../../../utils/patrols';
+import { calcTitleAndSubtitleForPatrol, getTrackedSubjectsForPatrolSegment } from '../../../utils/patrols';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
 import { fetchTracksIfNecessary } from '../../../utils/tracks';
 import { PATROL_OVERVIEW_CATEGORY, TrackerContext, trackEventFactory } from '../../../utils/analytics';
@@ -77,26 +73,19 @@ const PatrolOverviewContent = ({ patrol }) => {
 
   const onAddEvent = useCallback(async (saveResults) => {
     const [firstResult] = Array.isArray(saveResults) ? saveResults : [saveResults];
-    const newEventId = firstResult.data.data.id;
 
     // The event is already saved: a failed link leaves it out of the patrol,
     // not unreported, so the rest of the flow carries on.
     try {
-      await addPatrolSegmentToEvent(governingPatrolSegment(patrol).id, newEventId);
+      await dispatch(addEventToPatrol(firstResult.data.data.id, patrol.id));
 
       patrolOverviewTracker.track('Link new event to patrol');
-    } catch (error) {
+    } catch {
       toast.error(t('addEventLinkErrorMessage'));
 
       patrolOverviewTracker.track('Error linking new event to patrol');
-
-      console.warn('Error linking a new event to a patrol: ', error);
     }
-
-    // The event form is waiting on this, so a failed refresh must not reject
-    // into it.
-    await dispatch(fetchPatrol(patrol.id)).catch(() => {});
-  }, [dispatch, patrol, t]);
+  }, [dispatch, patrol.id, t]);
 
   const addEventFormProps = useMemo(() => ({
     isPatrolReport: true,
