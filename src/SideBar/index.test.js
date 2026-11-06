@@ -339,7 +339,7 @@ describe('SideBar', () => {
     store.view.systemConfig.otusUrl = 'https://otus.example.com';
     renderSideBar();
 
-    expect(screen.getByRole('link', { name: 'Otus' })).toHaveAttribute('href', '/atlas');
+    expect(screen.getByRole('link', { name: 'Atlas' })).toHaveAttribute('href', '/atlas');
   });
 
   test('sets the Otus tab as active', async () => {
@@ -361,7 +361,7 @@ describe('SideBar', () => {
 
     const { rerender } = renderSideBar();
 
-    const otusFrame = screen.getByTitle('Otus chat');
+    const otusFrame = screen.getByTitle('Atlas chat');
 
     expect(screen.getByRole('region', { name: 'Atlas' })).toHaveClass('active');
 
@@ -370,7 +370,7 @@ describe('SideBar', () => {
 
     rerender(sideBarTree(mockStore(store)));
 
-    expect(screen.getByTitle('Otus chat')).toBe(otusFrame);
+    expect(screen.getByTitle('Atlas chat')).toBe(otusFrame);
     expect(otusFrame).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Atlas' })).not.toHaveClass('active');
   });

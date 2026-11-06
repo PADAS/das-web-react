@@ -36,7 +36,7 @@ describe('SideBar - OtusTab - Header', () => {
 
     expect(screen.getByRole('button', { name: 'New conversation' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Recent' })).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Close Otus' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Close Atlas' })).toBeVisible();
   });
 
   test('starts a new conversation when the user clicks the new conversation button', async () => {
@@ -70,7 +70,7 @@ describe('SideBar - OtusTab - Header', () => {
   test('closes the tab when the user clicks the close button', async () => {
     renderHeader();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Close Otus' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Close Atlas' }));
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });

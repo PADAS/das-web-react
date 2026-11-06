@@ -248,15 +248,15 @@
     "otusTab": {
       "header": {
         "betaBadgeLabel": "Beta",
-        "closeButtonLabel": "Cerrar Otus",
+        "closeButtonLabel": "Cerrar Atlas",
         "newConversationButtonLabel": "Nueva conversación",
         "recentButtonLabel": "Recientes",
         "title": "Atlas"
       },
-      "iframeTitle": "Chat de Otus",
-      "loadErrorMessage": "Otus no pudo cargarse en este sitio. Vuelva a intentarlo o contacte con soporte si el problema continúa.",
-      "loadingMessage": "Cargando Otus…",
-      "resizeHandleLabel": "Redimensionar el panel de Otus",
+      "iframeTitle": "Chat de Atlas",
+      "loadErrorMessage": "Atlas no pudo cargarse en este sitio. Vuelva a intentarlo o contacte con soporte si el problema continúa.",
+      "loadingMessage": "Cargando Atlas…",
+      "resizeHandleLabel": "Redimensionar el panel de Atlas",
       "retryButtonLabel": "Reintentar"
     },
     "patrolsLink": "Patrullas",

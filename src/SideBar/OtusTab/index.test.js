@@ -51,11 +51,11 @@ describe('SideBar - OtusTab', () => {
     return render(otusTabTree(props));
   };
 
-  const getFrame = () => screen.getByTitle('Otus chat');
+  const getFrame = () => screen.getByTitle('Atlas chat');
 
   const getPanel = () => screen.getByRole('region', { name: 'Atlas' });
 
-  const getResizeHandle = () => screen.getByRole('separator', { name: 'Resize Otus panel' });
+  const getResizeHandle = () => screen.getByRole('separator', { name: 'Resize Atlas panel' });
 
   const mockFramePostMessage = () => {
     const postMessage = jest.fn();
@@ -78,7 +78,7 @@ describe('SideBar - OtusTab', () => {
     ...overrides,
   })));
 
-  const LOAD_ERROR_MESSAGE = 'Otus couldn\'t load on this site. Try again, or contact support if this keeps happening.';
+  const LOAD_ERROR_MESSAGE = 'Atlas couldn\'t load on this site. Try again, or contact support if this keeps happening.';
 
   const movePointerTo = (clientX) => user.pointer({ coords: { clientX }, target: getResizeHandle() });
 
@@ -110,7 +110,7 @@ describe('SideBar - OtusTab', () => {
   test('does not load the frame until the tab is first activated', () => {
     renderOtusTab({ isActive: false });
 
-    expect(screen.queryByTitle('Otus chat')).toBeNull();
+    expect(screen.queryByTitle('Atlas chat')).toBeNull();
   });
 
   test('loads the frame when the tab becomes active', () => {
@@ -147,7 +147,7 @@ describe('SideBar - OtusTab', () => {
   test('shows a loading message until the frame has loaded', () => {
     renderOtusTab();
 
-    expect(screen.getByRole('status')).toHaveTextContent('Loading Otus…');
+    expect(screen.getByRole('status')).toHaveTextContent('Loading Atlas…');
 
     fireEvent.load(getFrame());
 
@@ -167,13 +167,13 @@ describe('SideBar - OtusTab', () => {
     renderOtusTab({ isActive: false });
 
     expect(screen.getByRole('heading', { name: 'Atlas' })).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Close Otus' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Close Atlas' })).toBeVisible();
   });
 
   test('closes the sidebar when the header close button is clicked', async () => {
     renderOtusTab();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Close Otus' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Close Atlas' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith('/');
@@ -439,7 +439,7 @@ describe('SideBar - OtusTab', () => {
 
       expect(screen.queryByRole('alert')).toBeNull();
       expect(getFrame()).toHaveAttribute('src', 'https://otus.example.com/?embed=1&titlebar=0');
-      expect(screen.getByRole('status')).toHaveTextContent('Loading Otus…');
+      expect(screen.getByRole('status')).toHaveTextContent('Loading Atlas…');
     });
 
     test('moves focus to the frame wrapper when the user clicks try again', async () => {
