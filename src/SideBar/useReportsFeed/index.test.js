@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw/http';
+import { MemoryRouter } from 'react-router';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 
@@ -53,8 +54,71 @@ describe('useReportsFeed', () => {
     jest.restoreAllMocks();
   });
 
-  const renderUseReportsFeed = (builtStore = mockStore(store)) => renderHook(() => useReportsFeed(), {
-    wrapper: ({ children }) => <Provider store={builtStore}>{children}</Provider>,
+  const renderUseReportsFeed = (builtStore = mockStore(store), initialEntries = ['/events']) => renderHook(
+    () => useReportsFeed(),
+    {
+      wrapper: ({ children }) => <MemoryRouter initialEntries={initialEntries}>
+        <Provider store={builtStore}>{children}</Provider>
+      </MemoryRouter>,
+    }
+  );
+
+  const captureIncludeDetailsParams = () => {
+    const includeDetailsParams = [];
+    server.use(http.get(EVENTS_API_URL, ({ request }) => {
+      includeDetailsParams.push(new URL(request.url).searchParams.get('include_details'));
+
+      return HttpResponse.json(eventFeedResponse);
+    }));
+
+    return includeDetailsParams;
+  };
+
+  const showEventsTable = () => {
+    store.view.feedTableView = { events: true };
+  };
+
+  test('loads event details in the table view filtered to one event type', async () => {
+    showEventsTable();
+    store.data.eventFilter = {
+      ...INITIAL_EVENT_FILTER_STATE,
+      filter: { ...INITIAL_EVENT_FILTER_STATE.filter, event_type: ['type-id'] },
+    };
+    const includeDetailsParams = captureIncludeDetailsParams();
+
+    renderUseReportsFeed(mockStore(store));
+
+    await waitFor(() => {
+      expect(includeDetailsParams.at(-1)).toBe('true');
+    });
+  });
+
+  test('keeps loading event details while an event of the table is open', async () => {
+    showEventsTable();
+    store.data.eventFilter = {
+      ...INITIAL_EVENT_FILTER_STATE,
+      filter: { ...INITIAL_EVENT_FILTER_STATE.filter, event_type: ['type-id'] },
+    };
+    const includeDetailsParams = captureIncludeDetailsParams();
+
+    renderUseReportsFeed(mockStore(store), ['/events/event-id']);
+
+    await waitFor(() => {
+      expect(includeDetailsParams.length).toBeGreaterThan(0);
+    });
+    expect(includeDetailsParams).not.toContain('false');
+  });
+
+  test('does not load event details in the table view across event types', async () => {
+    showEventsTable();
+    const includeDetailsParams = captureIncludeDetailsParams();
+
+    renderUseReportsFeed(mockStore(store));
+
+    await waitFor(() => {
+      expect(includeDetailsParams.length).toBeGreaterThan(0);
+    });
+    expect(includeDetailsParams).not.toContain('true');
   });
 
   test('returns the reportsFetchFeed properties and methods', async () => {

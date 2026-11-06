@@ -1,5 +1,6 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import omit from 'lodash/omit';
+import uniq from 'lodash/uniq';
 
 import { API_URL, PREVIEW_FEATURES } from '../../constants';
 import { calcPatrolFilterForRequest } from '../../utils/patrol-filter';
@@ -24,6 +25,7 @@ export const ADD_PATROL_NOTE_SUCCESS = 'PATROLS.ADD_PATROL_NOTE_SUCCESS';
 export const CREATE_PATROL_SUCCESS = 'PATROLS.CREATE_PATROL_SUCCESS';
 
 export const FETCH_PATROLS_FEED_SUCCESS = 'PATROLS.FETCH_PATROLS_FEED_SUCCESS';
+export const FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS = 'PATROLS.FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS';
 
 export const FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS
   = 'PATROLS.FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS';
@@ -42,6 +44,12 @@ export const REMOVE_PATROL_FROM_FEED = 'PATROLS.REMOVE_PATROL_FROM_FEED';
 export const DELETE_PATROL_BY_ID = 'PATROLS.DELETE_PATROL_BY_ID';
 
 // Action creators
+const patrolsFeedPage = (data) => ({
+  count: data.count ?? null,
+  next: data.next ?? null,
+  results: data.results.map((patrol) => patrol.id),
+});
+
 const patrolFeedMembership = (patrolId, matchesCurrentFilter) => ({
   payload: patrolId,
   type: matchesCurrentFilter ? ADD_PATROL_TO_FEED : REMOVE_PATROL_FROM_FEED,
@@ -99,8 +107,13 @@ export const fetchPatrol = (id) => (dispatch) => axios.get(`${PATROLS_API_URL}${
     throw error;
   });
 
+let nextPatrolsFeedPageCancelToken = CancelToken.source();
+
 export const fetchPatrolsFeed = () => (dispatch, getState) => {
   const cancelToken = CancelToken.source();
+
+  // A page of the previous filter's feed must not land in the new one.
+  nextPatrolsFeedPageCancelToken.cancel();
 
   const request = axios.get(
     `${PATROLS_API_URL}?${calcPatrolFilterForRequest({
@@ -120,7 +133,7 @@ export const fetchPatrolsFeed = () => (dispatch, getState) => {
       dispatch(updatePatrolStore(response.data.data));
 
       dispatch({
-        payload: response.data.data.results.map((patrol) => patrol.id),
+        payload: patrolsFeedPage(response.data.data),
         type: FETCH_PATROLS_FEED_SUCCESS,
       });
     })
@@ -131,6 +144,31 @@ export const fetchPatrolsFeed = () => (dispatch, getState) => {
     });
 
   return { cancelToken, request };
+};
+
+// The next page's URL comes from the API and already carries the filter.
+export const fetchNextPatrolsFeedPage = (url) => (dispatch) => {
+  nextPatrolsFeedPageCancelToken.cancel();
+  nextPatrolsFeedPageCancelToken = CancelToken.source();
+
+  return axios.get(url, { cancelToken: nextPatrolsFeedPageCancelToken.token })
+    .then((response) => {
+      dispatch(updatePatrolStore(response.data.data));
+
+      dispatch({
+        payload: patrolsFeedPage(response.data.data),
+        type: FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS,
+      });
+
+      return response;
+    })
+    .catch((error) => {
+      if (!isCancel(error)) {
+        console.warn('error fetching patrols next page', error);
+      }
+
+      throw error;
+    });
 };
 
 export const fetchPatrolTeamAndTrackingOptions = () => async (dispatch) => {
@@ -321,19 +359,30 @@ export const patrolStoreReducer = globallyResettableReducer((state, { type, payl
   }
 }, INITIAL_STORE_STATE);
 
-export const INITIAL_PATROLS_FEED_STATE = [];
+export const INITIAL_PATROLS_FEED_STATE = { count: null, next: null, results: [] };
 
 export const patrolsFeedReducer = globallyResettableReducer((state, { type, payload }) => {
   switch (type) {
   case FETCH_PATROLS_FEED_SUCCESS:
     return payload;
 
+  case FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS:
+    return { ...payload, results: uniq([...state.results, ...payload.results]) };
+
   case ADD_PATROL_TO_FEED:
-    return state.includes(payload) ? state : [payload, ...state];
+    return state.results.includes(payload) ? state : {
+      ...state,
+      count: state.count === null ? null : state.count + 1,
+      results: [payload, ...state.results],
+    };
 
   case DELETE_PATROL_BY_ID:
   case REMOVE_PATROL_FROM_FEED:
-    return state.includes(payload) ? state.filter((patrolId) => patrolId !== payload) : state;
+    return state.results.includes(payload) ? {
+      ...state,
+      count: state.count === null ? null : Math.max(0, state.count - 1),
+      results: state.results.filter((patrolId) => patrolId !== payload),
+    } : state;
 
   default:
     return state;

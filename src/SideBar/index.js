@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
+import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
 import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
@@ -12,6 +13,7 @@ import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg'
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
 import { ReactComponent as OtusIcon } from '../common/images/icons/otus.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
+import { ReactComponent as TableIcon } from '../common/images/icons/table.svg';
 
 import { detailViewPattern, getCurrentIdFromURL, getCurrentTabFromURL, tabPath } from '../utils/navigation';
 import { FEED_CATEGORY } from '../utils/analytics';
@@ -20,6 +22,7 @@ import { SocketContext } from '../withSocketConnection';
 import useNavigate from '../hooks/useNavigate';
 import { usePatrolsPermissions } from '../hooks/usePermissions';
 import { usePreviewFeature } from '../hooks';
+import useFeedTableView, { useTableViewLink } from '../FeedTable/useFeedTableView';
 import useReportsFeed from './useReportsFeed';
 
 import AddItemButton from '../AddItemButton';
@@ -121,6 +124,11 @@ const SideBar = () => {
   const isSideBarClosing = !isSideBarOpen && !!tabLocation;
   const displayedPathname = (tabLocation ?? location).pathname;
   const displayedTab = getCurrentTabFromURL(displayedPathname);
+
+  const { canShowTableView, isTableView, toggleTableView } = useFeedTableView();
+  useTableViewLink();
+  const isFeedDisplayed = (displayedTab === TAB_KEYS.EVENTS || displayedTab === TAB_KEYS.PATROLS)
+    && !getCurrentIdFromURL(displayedPathname);
 
   const hideDefaultHeader = (patrolSchemasEnabled
     && canReadPatrols
@@ -303,14 +311,29 @@ const SideBar = () => {
             <h3 id="side-bar-tab-header">{t(`${displayedTab}Link`)}</h3>
           </div>
 
-          <Link
-            aria-label={t('closeButtonLabel')}
-            className={styles.closeButton}
-            title={t('closeButtonLabel')}
-            to="/"
-          >
-            <CrossIcon aria-hidden="true" className={styles.closeButtonIcon} />
-          </Link>
+          <div className={styles.headerActions}>
+            {isFeedDisplayed && canShowTableView && <button
+              aria-label={t(isTableView ? 'showListButtonLabel' : 'showTableButtonLabel')}
+              className={styles.tableViewButton}
+              data-testid="sideBar-tableViewButton"
+              onClick={toggleTableView}
+              title={t(isTableView ? 'showListButtonLabel' : 'showTableButtonLabel')}
+              type="button"
+            >
+              {isTableView
+                ? <BulletListIcon aria-hidden="true" className={styles.tableViewButtonIcon} />
+                : <TableIcon aria-hidden="true" className={styles.tableViewButtonIcon} />}
+            </button>}
+
+            <Link
+              aria-label={t('closeButtonLabel')}
+              className={styles.closeButton}
+              title={t('closeButtonLabel')}
+              to="/"
+            >
+              <CrossIcon aria-hidden="true" className={styles.closeButtonIcon} />
+            </Link>
+          </div>
         </div>}
 
         <div className={`${styles.tabBody} ${hideDefaultHeader ? styles.noHeader : ''}`}>

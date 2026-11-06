@@ -62,6 +62,56 @@
     "hideDetailsButton": "विवरणहरु लुकाउनुहोस्",
     "showDetailsButton": "विवरणहरु हेर्नुहोस्"
   },
+  "feedTable": {
+    "bulkUpdateErrorMessage_one": "{{count}} घटना अद्यावधिक गर्न सकिएन",
+    "bulkUpdateErrorMessage_other": "{{count}} घटनाहरू अद्यावधिक गर्न सकिएन",
+    "bulkUpdateSuccessMessage_one": "{{count}} घटना अद्यावधिक गरियो",
+    "bulkUpdateSuccessMessage_other": "{{count}} घटनाहरू अद्यावधिक गरिए",
+    "clearSelectionButtonLabel": "खाली गर्नुहोस्",
+    "columnsButtonLabel": "स्तम्भहरू",
+    "columnsMenuLabel": "देखाइएका स्तम्भहरू",
+    "createdAtColumnTitle": "सिर्जना गरिएको",
+    "eventTimeColumnTitle": "घटनाको समय",
+    "eventTypeColumnTitle": "प्रकार",
+    "exportButtonLabel": "सबै फिल्डहरू निर्यात गर्नुहोस् (CSV)",
+    "exportErrorMessage": "CSV निर्यात गर्न सकिएन",
+    "grid": {
+      "allRowsCheckboxLabel": "सबै पङ्क्तिहरू चयन गर्नुहोस्",
+      "checkedStateLabel": "चयन गरिएको",
+      "indeterminateStateLabel": "केही चयन गरिएका",
+      "noRowsMessage": "देखाउन केही छैन",
+      "rowCheckboxLabel": "पङ्क्ति चयन गर्नुहोस्",
+      "rowDeselectMessage": "यो पङ्क्तिको चयन हटाउन space थिच्नुहोस्",
+      "rowSelectMessage": "यो पङ्क्ति चयन गर्न space थिच्नुहोस्",
+      "uncheckedStateLabel": "चयन नगरिएको"
+    },
+    "iconColumnTitle": "आइकन",
+    "leaderColumnTitle": "नेता",
+    "legsColumnTitle": "खण्डहरू",
+    "loadedPatrolsMessage_one": "{{count}} गस्तीमध्ये {{loaded}} देखाइँदै",
+    "loadedPatrolsMessage_other": "{{count}} गस्तीहरूमध्ये {{loaded}} देखाइँदै",
+    "locationColumnTitle": "स्थान",
+    "moveColumnHintMessage": "स्तम्भ सार्न स्तम्भ शीर्षकमा Alt र बायाँ वा दायाँ तीर थिच्नुहोस्।",
+    "objectView": {
+      "breadcrumbLabel": "मार्ग",
+      "itemCount_one": "{{count}} वस्तु",
+      "itemCount_other": "{{count}} वस्तुहरू",
+      "open": "हेर्नुहोस्"
+    },
+    "patrolEndColumnTitle": "अन्त्य",
+    "patrolStartColumnTitle": "सुरु",
+    "patrolTypeColumnTitle": "गस्ती प्रकार",
+    "priorityColumnTitle": "प्राथमिकता",
+    "reopenButtonLabel": "फेरी खोल्नुहोस्",
+    "reportedByColumnTitle": "द्वारा रिपोर्ट गरिएको",
+    "resolveButtonLabel": "समाधान गर्नुहोस्",
+    "selectedCountMessage_one": "{{count}} चयन गरियो",
+    "selectedCountMessage_other": "{{count}} चयन गरियो",
+    "serialColumnTitle": "आईडी",
+    "stateColumnTitle": "अवस्था",
+    "titleColumnTitle": "शीर्षक",
+    "updatedAtColumnTitle": "अद्यावधिक गरिएको"
+  },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "भू–अनुमतिबाट डाटा हेर्न तपाईंको लोकेसन सेयर गर्नुहोस्",
     "shareLocationToastTitle": "कसरी भनेर जान्नुहोस्"
@@ -271,9 +321,11 @@
           "legend": "एप रिफ्रेस गर्नुहोस्",
           "mapLayersCheckboxLabel": "नक्साका तहहरु",
           "mapPositionAndZoomLevelCheckboxLabel": "नक्साको स्थिति र जुम स्तर",
-          "patrolFiltersCheckboxLabel": "गस्ती फिल्टर"
+          "patrolFiltersCheckboxLabel": "गस्ती फिल्टर",
+          "tableViewCheckboxLabel": "तालिका दृश्य"
         },
         "experimentalFeaturesFieldSet": {
+          "FEED_TABLE": "घटना र गस्तीका लागि तालिका दृश्य",
           "legend": "प्रयोगात्मक सुविधाहरु"
         },
         "languageSelect": {
@@ -367,6 +419,8 @@
       },
       "mapTabTitle": "नक्सा"
     },
+    "showListButtonLabel": "सूचीको रूपमा देखाउनुहोस्",
+    "showTableButtonLabel": "तालिकाको रूपमा देखाउनुहोस्",
     "titleInput": {
       "editButtonLabel": "शीर्षक सम्पादन गर्नुहोस्"
     }

@@ -6851,6 +6851,35 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ag-charts-types@npm:13.3.1":
+  version: 13.3.1
+  resolution: "ag-charts-types@npm:13.3.1"
+  checksum: 10c0/8b083402a3a2dc15c2fe005a2fa8d7c305ce0568ba4567dff266d34d1cc20dfa5a983822cbe37aa1aa7062c60f2c918f83b4416212109384f9ea9e014987f61b
+  languageName: node
+  linkType: hard
+
+"ag-grid-community@npm:35.3.1, ag-grid-community@npm:^35.2.0":
+  version: 35.3.1
+  resolution: "ag-grid-community@npm:35.3.1"
+  dependencies:
+    ag-charts-types: "npm:13.3.1"
+  checksum: 10c0/65acd61236907b66133f464757fa5bb120c35b17fa30bd434cea15e59b948e211560890f19b864a07456b50bdb2e5bda4a8c1f85e715762492bcab803e7e1e9c
+  languageName: node
+  linkType: hard
+
+"ag-grid-react@npm:^35.2.0":
+  version: 35.3.1
+  resolution: "ag-grid-react@npm:35.3.1"
+  dependencies:
+    ag-grid-community: "npm:35.3.1"
+    prop-types: "npm:^15.8.1"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10c0/77c9c3d890c2ed9b43b711d46baa2f2097d579880c7bacb46c7902827c8b969506435eac2c492f9873527ade89941723f3a30013aa8ba0a52669559a5ac565ea
+  languageName: node
+  linkType: hard
+
 "agent-base@npm:6":
   version: 6.0.2
   resolution: "agent-base@npm:6.0.2"
@@ -7940,6 +7969,8 @@ __metadata:
     "@turf/buffer": "npm:^7.4.0"
     "@turf/turf": "npm:^7.4.0"
     "@vitejs/plugin-react": "npm:^6.1.2"
+    ag-grid-community: "npm:^35.2.0"
+    ag-grid-react: "npm:^35.2.0"
     ajv: "npm:^8.20.0"
     ajv-draft-04: "npm:^1.0.0"
     ajv-formats: "npm:^3.0.1"

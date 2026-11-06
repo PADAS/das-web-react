@@ -1,4 +1,4 @@
-import { memo, useContext, useMemo } from 'react';
+import { lazy, memo, Suspense, useContext, useMemo, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import MoonLoader from 'react-spinners/MoonLoader';
 import uniq from 'lodash/uniq';
@@ -17,8 +17,11 @@ import EventFilter from '../../../EventFilter';
 import EventRow from './EventRow';
 import { ScrollRestoration, SidebarScrollContext } from '../../../SidebarScrollContext';
 import SortControls from './SortControls';
+import useFeedTableView from '../../../FeedTable/useFeedTableView';
 
 import * as styles from './styles.module.scss';
+
+const EventsTable = lazy(() => import('../../../FeedTable/EventsTable'));
 
 const EMPTY_EVENTS = [];
 const LOADING_MORE_SPINNER_SIZE = 20;
@@ -40,9 +43,16 @@ const EventsFeed = ({ eventsFeed }) => {
 
   const { scrollRef } = useContext(SidebarScrollContext);
 
+  const { isTableView } = useFeedTableView();
+
+  const [tableToolbarContainer, setTableToolbarContainer] = useState(null);
+
   const feedEvents = eventsFeed.events.results ?? EMPTY_EVENTS;
 
-  const displayTimeProp = calcTimePropForSortConfig(eventsFeed.feedSort);
+  // A serial number sort has no time of its own for the rows to show.
+  const displayTimeProp = eventsFeed.feedSort[1].value === 'serial_number'
+    ? 'updated_at'
+    : calcTimePropForSortConfig(eventsFeed.feedSort);
 
   const events = useMemo(() => sortEventsBySortConfig(
     eventsFeed.shouldExcludeContained ? excludeContainedEvents(feedEvents) : feedEvents,
@@ -59,8 +69,8 @@ const EventsFeed = ({ eventsFeed }) => {
 
   return <TrackerContext.Provider value={eventsFeedTracker}>
     <ErrorBoundary>
-      <div className={styles.eventsFeed}>
-        <EventFilter isSortable>
+      <div className={`${styles.eventsFeed} ${isTableView ? styles.tableView : ''}`}>
+        <EventFilter isSortable summaryActionsRef={isTableView ? setTableToolbarContainer : undefined}>
           <SortControls />
         </EventFilter>
 
@@ -72,18 +82,24 @@ const EventsFeed = ({ eventsFeed }) => {
           </button>
         </div>}
 
-        {!eventsFeed.events.error && eventsFeed.loadingEventFeed && <DetailViewLoader
+        {!eventsFeed.events.error && isTableView && <Suspense
+          fallback={<DetailViewLoader className={styles.loader} label={t('loadingLabel')} />}
+        >
+          <EventsTable events={events} eventsFeed={eventsFeed} toolbarContainer={tableToolbarContainer} />
+        </Suspense>}
+
+        {!eventsFeed.events.error && !isTableView && eventsFeed.loadingEventFeed && <DetailViewLoader
           className={styles.loader}
           label={t('loadingLabel')}
         />}
 
-        {!eventsFeed.events.error && !eventsFeed.loadingEventFeed && events.length === 0 && <p
+        {!eventsFeed.events.error && !isTableView && !eventsFeed.loadingEventFeed && events.length === 0 && <p
           className={styles.emptyStateMessage}
         >
           {t('emptyStateMessage')}
         </p>}
 
-        {!eventsFeed.events.error && !eventsFeed.loadingEventFeed && events.length > 0 && <ScrollRestoration
+        {!eventsFeed.events.error && !isTableView && !eventsFeed.loadingEventFeed && events.length > 0 && <ScrollRestoration
           className={styles.eventListScrollContainer}
           namespace={TAB_KEYS.EVENTS}
         >

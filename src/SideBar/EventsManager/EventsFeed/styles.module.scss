@@ -3,6 +3,7 @@
 
 .eventsFeed {
   @include shared.default-view-width;
+  @include shared.table-view-width;
 
   display: flex;
   flex-direction: column;

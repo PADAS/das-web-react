@@ -20,7 +20,8 @@ import patrols from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import { act, createEvent, fireEvent, render, screen, waitFor } from '../test-utils';
 import SideBar from '.';
-import { PERMISSION_KEYS, PERMISSIONS, PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { BREAKPOINTS, PERMISSION_KEYS, PERMISSIONS, PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { SET_FEED_TABLE_VIEW, setFeedTableView } from '../ducks/feed-table-view';
 import useNavigate from '../hooks/useNavigate';
 import { MapContext } from '../MapContext';
 import { report } from '../__test-helpers/fixtures/reports';
@@ -902,6 +903,76 @@ describe('SideBar', () => {
       expect(screen.getByTestId('mapLayersTab')).toBeInTheDocument();
       expect(screen.queryByTestId('settingsPane')).toBeNull();
       expect(screen.getByTestId('sideBar-tab')).not.toHaveAttribute('inert');
+    });
+  });
+
+  describe('table view button', () => {
+    const tableViewActions = (mockedStore) => mockedStore.getActions()
+      .filter((action) => action.type === SET_FEED_TABLE_VIEW);
+
+    const renderWithFeedTable = (feedTableView = {}) => {
+      store.view.feedTableView = feedTableView;
+      const mockedStore = mockStore(store);
+      renderSideBar(mockedStore);
+
+      return mockedStore;
+    };
+
+    test('shows the events feed as a table', async () => {
+      const mockedStore = renderWithFeedTable();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Show as table' }));
+
+      expect(tableViewActions(mockedStore)).toEqual([setFeedTableView('events', true)]);
+    });
+
+    test('shows the table as a list again', async () => {
+      const mockedStore = renderWithFeedTable({ events: true });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Show as list' }));
+
+      expect(tableViewActions(mockedStore)).toEqual([setFeedTableView('events', false)]);
+    });
+
+    test('opens the table from a shared table link', () => {
+      useLocation.mockImplementation(jest.fn(() => ({ pathname: '/events', search: '?view=table' })));
+
+      const mockedStore = renderWithFeedTable();
+
+      expect(tableViewActions(mockedStore)).toEqual([setFeedTableView('events', true)]);
+    });
+
+    test('is not shown with the table feature flag turned off', () => {
+      store.view.experimentalFeatures = { FEED_TABLE: false };
+      renderSideBar();
+
+      expect(screen.queryByRole('button', { name: 'Show as table' })).toBeNull();
+    });
+
+    test('is not shown below the medium layout', () => {
+      BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = false;
+
+      renderWithFeedTable();
+
+      expect(screen.queryByRole('button', { name: 'Show as table' })).toBeNull();
+
+      BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = true;
+    });
+
+    test('is not shown on a detail view', () => {
+      useLocation.mockImplementation(jest.fn(() => ({ pathname: '/events/123' })));
+
+      renderWithFeedTable();
+
+      expect(screen.queryByRole('button', { name: 'Show as table' })).toBeNull();
+    });
+
+    test('is not shown on tabs without a feed', () => {
+      useLocation.mockImplementation(jest.fn(() => ({ pathname: '/layers' })));
+
+      renderWithFeedTable();
+
+      expect(screen.queryByRole('button', { name: 'Show as table' })).toBeNull();
     });
   });
 });

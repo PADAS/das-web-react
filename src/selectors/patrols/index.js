@@ -901,7 +901,7 @@ export const selectPatrolsFeedMappedFromStore = createSelector(
   (patrolsFeed, patrolStore) => {
     // List the patrols from the feed that are defined in the patrol store.
     const patrolsFeedMappedFromStore = [];
-    patrolsFeed.forEach((patrolId) => {
+    patrolsFeed.results.forEach((patrolId) => {
       if (patrolStore[patrolId]) {
         patrolsFeedMappedFromStore.push(patrolStore[patrolId]);
       }
@@ -909,6 +909,11 @@ export const selectPatrolsFeedMappedFromStore = createSelector(
 
     return patrolsFeedMappedFromStore;
   }
+);
+
+export const selectPatrolsFeedTotalCount = createSelector(
+  [selectPatrolsFeed, selectPatrolsFeedMappedFromStore],
+  (patrolsFeed, patrolsFeedMappedFromStore) => patrolsFeed.count ?? patrolsFeedMappedFromStore.length
 );
 
 export const selectPatrolsWithTracks = createSelector(

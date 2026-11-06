@@ -62,6 +62,56 @@
     "hideDetailsButton": "Ocultar Detalles",
     "showDetailsButton": "Mostrar Detalles"
   },
+  "feedTable": {
+    "bulkUpdateErrorMessage_one": "No se pudo actualizar {{count}} evento",
+    "bulkUpdateErrorMessage_other": "No se pudieron actualizar {{count}} eventos",
+    "bulkUpdateSuccessMessage_one": "{{count}} evento actualizado",
+    "bulkUpdateSuccessMessage_other": "{{count}} eventos actualizados",
+    "clearSelectionButtonLabel": "Limpiar",
+    "columnsButtonLabel": "Columnas",
+    "columnsMenuLabel": "Columnas visibles",
+    "createdAtColumnTitle": "Creado",
+    "eventTimeColumnTitle": "Hora del evento",
+    "eventTypeColumnTitle": "Tipo",
+    "exportButtonLabel": "Exportar todos los campos (CSV)",
+    "exportErrorMessage": "No se pudo exportar el CSV",
+    "grid": {
+      "allRowsCheckboxLabel": "Seleccionar todas las filas",
+      "checkedStateLabel": "seleccionada",
+      "indeterminateStateLabel": "algunas seleccionadas",
+      "noRowsMessage": "No hay nada que mostrar",
+      "rowCheckboxLabel": "Seleccionar fila",
+      "rowDeselectMessage": "Presione la barra espaciadora para deseleccionar esta fila",
+      "rowSelectMessage": "Presione la barra espaciadora para seleccionar esta fila",
+      "uncheckedStateLabel": "no seleccionada"
+    },
+    "iconColumnTitle": "Icono",
+    "leaderColumnTitle": "Líder",
+    "legsColumnTitle": "Tramos",
+    "loadedPatrolsMessage_one": "Mostrando {{loaded}} de {{count}} patrulla",
+    "loadedPatrolsMessage_other": "Mostrando {{loaded}} de {{count}} patrullas",
+    "locationColumnTitle": "Ubicación",
+    "moveColumnHintMessage": "Presione Alt y la flecha izquierda o derecha en el encabezado de una columna para moverla.",
+    "objectView": {
+      "breadcrumbLabel": "Ruta",
+      "itemCount_one": "{{count}} elemento",
+      "itemCount_other": "{{count}} elementos",
+      "open": "Ver"
+    },
+    "patrolEndColumnTitle": "Fin",
+    "patrolStartColumnTitle": "Inicio",
+    "patrolTypeColumnTitle": "Tipo de patrulla",
+    "priorityColumnTitle": "Prioridad",
+    "reopenButtonLabel": "Reabrir",
+    "reportedByColumnTitle": "Reportado por",
+    "resolveButtonLabel": "Resolver",
+    "selectedCountMessage_one": "{{count}} seleccionado",
+    "selectedCountMessage_other": "{{count}} seleccionados",
+    "serialColumnTitle": "ID",
+    "stateColumnTitle": "Estado",
+    "titleColumnTitle": "Título",
+    "updatedAtColumnTitle": "Actualizado"
+  },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Comparte tu ubicación para ver datos con permisos geográficos.",
     "shareLocationToastTitle": "Aprende cómo"
@@ -271,9 +321,11 @@
           "legend": "Recargar la página",
           "mapLayersCheckboxLabel": "Capas de mapa",
           "mapPositionAndZoomLevelCheckboxLabel": "Posición del mapa y nivel de zoom",
-          "patrolFiltersCheckboxLabel": "Filtros de patrullas"
+          "patrolFiltersCheckboxLabel": "Filtros de patrullas",
+          "tableViewCheckboxLabel": "Vista de tabla"
         },
         "experimentalFeaturesFieldSet": {
+          "FEED_TABLE": "Vista de tabla para eventos y patrullas",
           "legend": "Funcionalidades experimentales"
         },
         "languageSelect": {
@@ -367,6 +419,8 @@
       },
       "mapTabTitle": "Mapa"
     },
+    "showListButtonLabel": "Mostrar como lista",
+    "showTableButtonLabel": "Mostrar como tabla",
     "titleInput": {
       "editButtonLabel": "Editar título"
     }

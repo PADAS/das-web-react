@@ -96,6 +96,7 @@ describe('SideBar - EventsManager - EventsFeed - SortControls', () => {
 
     await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{ArrowDown}');
+    await userEvent.keyboard('{ArrowDown}');
 
     expect(screen.getByRole('menuitemradio', { name: 'Date Updated' })).toHaveFocus();
   });
@@ -107,11 +108,11 @@ describe('SideBar - EventsManager - EventsFeed - SortControls', () => {
 
     await userEvent.keyboard('{ArrowUp}');
 
-    expect(screen.getByRole('menuitemradio', { name: 'Event Date' })).toHaveFocus();
+    expect(screen.getByRole('menuitemradio', { name: 'Serial Number' })).toHaveFocus();
 
     await userEvent.keyboard('{ArrowUp}');
 
-    expect(screen.getByRole('menuitemradio', { name: 'Created Date' })).toHaveFocus();
+    expect(screen.getByRole('menuitemradio', { name: 'Event Date' })).toHaveFocus();
   });
 
   test('moves the focus to the last and first sort by menu options with the end and home keys', async () => {
@@ -121,7 +122,7 @@ describe('SideBar - EventsManager - EventsFeed - SortControls', () => {
 
     await userEvent.keyboard('{End}');
 
-    expect(screen.getByRole('menuitemradio', { name: 'Event Date' })).toHaveFocus();
+    expect(screen.getByRole('menuitemradio', { name: 'Serial Number' })).toHaveFocus();
 
     await userEvent.keyboard('{Home}');
 
