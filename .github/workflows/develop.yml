@@ -144,6 +144,21 @@ jobs:
     secrets:
       ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
 
+  # Deploys the legacy `develop` site; release.yml explains the legacy chain.
+  deploy-legacy-develop:
+    name: "deploy-legacy-develop (das-dev / develop site)"
+    needs: [config, build, test]
+    uses: ./.github/workflows/_deploy_legacy_kubectl.yml
+    with:
+      environment: ""
+      image_repository: "europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react"
+      image_tag: ${{ needs.config.outputs.image-tag }}
+      deployments: ${{ vars.LEGACY_DEPLOYMENTS }}
+      cluster_name: "das-dev"
+      cluster_zone: "us-west1-a"
+      tenants: "develop"
+      service_account: ${{ vars.LEGACY_DEPLOY_SERVICE_ACCOUNT }}
+
   # Tells the ER Core team in Slack when mainline `develop` breaks (DASOPS-2238).
   #
   # `needs` lists every job in this workflow. It cannot move into the reusable
@@ -156,7 +171,7 @@ jobs:
   # those quiet. `contains(needs.*.result, 'failure')` then fires on a real
   # failure even when some other job was skipped.
   notify-failure:
-    needs: [test, config, build, deploy-dev, sync-dev]
+    needs: [test, config, build, deploy-dev, sync-dev, deploy-legacy-develop]
     if: ${{ !cancelled() && contains(needs.*.result, 'failure') }}
     # Local copy, not the shared serca-pipelines one: this repo is public and
     # that repo is internal, so the cross-repo call is a startup failure. See the

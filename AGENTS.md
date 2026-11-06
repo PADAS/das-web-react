@@ -331,7 +331,7 @@ Either way the client gets an access token, Auth0's used as is, kept in a cookie
 **Conversations** belong to Otus, per user and site, so they survive a reload. Since Otus starts a sandbox per user, the frame loads on the tab's first visit, then stays alive while the user switches tabs.
 
 **UI**
-- **Otus tab** (`/otus`): the client's own header, whose New conversation and Recent buttons it relays to the frame, above the Otus frame. On medium layouts and up the panel resizes by drag or keyboard, its width survives a reload, and the map's padding follows it.
+- **Otus tab** (`/atlas`): the client's own header, whose New conversation and Recent buttons it relays to the frame, above the Otus frame. On medium layouts and up the panel resizes by drag or keyboard, its width survives a reload, and the map's padding follows it.
 
 **Key files**
 - `SideBar/OtusTab/`: the frame, the handshake, the resizing, and the header.
@@ -409,7 +409,7 @@ All application source is `.js`, including JSX — Vite compiles every source `.
 
 ### Routing
 
-The app is mounted under `REACT_APP_ROUTE_PREFIX`. `constants/routes.js` holds the top-level routes: login, EULA and community sit above the shell, and everything else falls through to the authenticated app. Inside it, `SideBar/` routes each tab by its `TAB_KEYS` segment (`events`, `patrols`, `gear`, `layers`, `otus`, `settings`), and the Events and Patrols managers nest their own routes. Elsewhere, read the tab and item from the URL with `getCurrentTabFromURL` / `getCurrentIdFromURL` in `utils/navigation.js`.
+The app is mounted under `REACT_APP_ROUTE_PREFIX`. `constants/routes.js` holds the top-level routes: login, EULA and community sit above the shell, and everything else falls through to the authenticated app. Inside it, `SideBar/` routes each tab by its `TAB_KEYS` segment (`events`, `patrols`, `gear`, `layers`, `atlas` for the Otus tab, `settings`), and the Events and Patrols managers nest their own routes. Elsewhere, read the tab and item from the URL with `getCurrentTabFromURL` / `getCurrentIdFromURL` in `utils/navigation.js`.
 
 Navigate with the app's `hooks/useNavigate`, not React Router's, so a form with unsaved changes can prompt before the user leaves.
 
