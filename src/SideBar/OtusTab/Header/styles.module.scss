@@ -1,6 +1,8 @@
 @use 'sass:color';
 @use '../../../common/styles/vars/colors';
 
+$cta-primary-hover: color.adjust(colors.$ui-cta-primary, $lightness: -6%);
+
 .header {
   align-items: center;
   background-color: colors.$ui-background-secondary;
@@ -24,7 +26,7 @@
     width: 2rem;
 
     &:hover {
-      color: color.adjust(colors.$ui-cta-primary, $lightness: -6%);
+      color: $cta-primary-hover;
     }
 
     &:focus-visible {
@@ -91,7 +93,7 @@
         color: colors.$ui-text-primary-reversed;
 
         &:hover {
-          background-color: color.adjust(colors.$ui-cta-primary, $lightness: -6%);
+          background-color: $cta-primary-hover;
         }
       }
 
