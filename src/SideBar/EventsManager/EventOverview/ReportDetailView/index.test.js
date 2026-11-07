@@ -1872,4 +1872,86 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
       expect(screen.queryByRole('menuitem', { name: 'Add to Incident' })).not.toBeInTheDocument();
     });
   });
+
+  describe('a draft from Atlas', () => {
+    beforeEach(() => {
+      state.data.eventTypes = [...eventTypes, snareV2];
+      state.data.eventSchemas = {
+        ...eventSchemas,
+        [snareV2.value]: {
+          base: {
+            json: {
+              $schema: 'https://json-schema.org/draft/2020-12/schema',
+              properties: {
+                count: { title: 'Count', type: 'number' },
+                snare_material: { title: 'Material', type: 'string' },
+              },
+              required: [],
+              type: 'object',
+            },
+            ui: {
+              fields: {
+                count: { parent: 'section-1', type: 'NUMERIC' },
+                snare_material: { parent: 'section-1', type: 'TEXT' },
+              },
+              headers: {},
+              order: ['section-1'],
+              sections: {
+                'section-1': {
+                  columns: 1,
+                  isActive: true,
+                  label: 'Details',
+                  leftColumn: [{ name: 'snare_material', type: 'field' }, { name: 'count', type: 'field' }],
+                  rightColumn: [],
+                },
+              },
+            },
+          },
+        },
+      };
+      state.data.user = { first_name: 'Ann', last_name: 'Ranger', username: 'ann' };
+
+      renderWithWrapper(<ReportDetailView
+        isNewReport
+        newReportTypeId={snareV2.id}
+        reportData={{ draftedBy: 'atlas', eventDetails: { count: 2, snare_material: 'wire' } }}
+        reportId="atlas-draft"
+      />);
+    });
+
+    test('says that Atlas drafted it, with no way to dismiss that', async () => {
+      expect(await screen.findByText('Atlas drafted this event. Saving records that.')).toBeVisible();
+      expect(screen.getByRole('note')).not.toContainElement(screen.queryByRole('button', { name: /close/i }));
+    });
+
+    test('marks each filled field until the person changes or keeps it', async () => {
+      expect(await screen.findAllByText('Filled by Atlas')).toHaveLength(2);
+
+      await userEvent.type(screen.getByLabelText('Count'), '5');
+      expect(screen.getAllByText('Filled by Atlas')).toHaveLength(1);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Keep' }));
+      expect(screen.queryByText('Filled by Atlas')).not.toBeInTheDocument();
+    });
+
+    test('lists the unchecked fields at save, and saves only when told to', async () => {
+      await userEvent.type(await screen.findByLabelText('Count'), '5');
+      await userEvent.click(screen.getByText('Save'));
+
+      const prompt = (await screen.findByText(/These fields still show what Atlas filled/)).parentElement;
+      expect(prompt).toHaveTextContent('Material');
+      expect(prompt).not.toHaveTextContent('Count');
+      expect(generateSaveActionsForReportLikeObject).not.toHaveBeenCalled();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save anyway' }));
+
+      await waitFor(() => {
+        expect(generateSaveActionsForReportLikeObject).toHaveBeenCalledTimes(1);
+      });
+      expect(generateSaveActionsForReportLikeObject.mock.calls[0][2]).toEqual([{
+        text: 'Drafted by Atlas, saved by Ann Ranger. Kept as filled: Material. Changed: Count.',
+        tmpId: undefined,
+      }]);
+    });
+  });
 });

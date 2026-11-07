@@ -101,7 +101,7 @@ export const createNewReportForEventType = (reportType, data) => {
   const reporter = reportedById && getReporterById(reportedById);
 
   return {
-    event_details: {},
+    event_details: data?.eventDetails ?? {},
     event_type: reportType.value,
     icon_id: reportType.icon_id,
     is_collection: false,

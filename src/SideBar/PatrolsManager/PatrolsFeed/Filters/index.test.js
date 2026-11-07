@@ -44,12 +44,13 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters', () => {
     };
   });
 
-  const renderFilters = (props) => render(
+  const renderFilters = (props, renderOptions) => render(
     <Provider store={mockStore(store)}>
       <TrackerContext.Provider value={{ track: jest.fn() }}>
         <Filters resultCount={3} {...props} />
       </TrackerContext.Provider>
-    </Provider>
+    </Provider>,
+    renderOptions
   );
 
   test('summarizes how many patrols the feed is listing and over what range', () => {
@@ -110,6 +111,12 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters', () => {
     await userEvent.click(filtersButton);
 
     expect(filtersButton).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('opens the popover a navigation asks for on arrival', async () => {
+    renderFilters({}, { initialEntries: [{ pathname: '/patrols', state: { openPopover: 'filters' } }] });
+
+    expect(await screen.findByRole('dialog', { name: 'Patrol Filters' })).toBeVisible();
   });
 
   test('keeps the filters popover styles alongside the classes its overlay adds', async () => {

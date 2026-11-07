@@ -44,12 +44,13 @@ describe('EventFilter', () => {
     };
   });
 
-  const renderEventFilter = (props) => render(
+  const renderEventFilter = (props, renderOptions) => render(
     <Provider store={mockStore(store)}>
       <TrackerContext.Provider value={tracker}>
         <EventFilter {...props} />
       </TrackerContext.Provider>
-    </Provider>
+    </Provider>,
+    renderOptions
   );
 
   test('renders its children beside the popover triggers', () => {
@@ -155,6 +156,13 @@ describe('EventFilter', () => {
 
     expect(screen.getByRole('button', { name: 'Filters' })).toHaveAttribute('aria-haspopup', 'dialog');
     expect(screen.getByRole('button', { name: 'Dates' })).toHaveAttribute('aria-haspopup', 'dialog');
+  });
+
+  test('opens the popover a navigation asks for on arrival', async () => {
+    renderEventFilter({}, { initialEntries: [{ pathname: '/events', state: { openPopover: 'dates' } }] });
+
+    expect(await screen.findByRole('dialog', { name: 'Date Range' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Dates' })).toHaveAttribute('aria-expanded', 'true');
   });
 
   test('opens and closes the filters popover from its trigger', async () => {

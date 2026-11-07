@@ -258,6 +258,14 @@
       "linksHeader": "Links"
     },
     "reportDetailView": {
+      "atlasDraft": {
+        "banner": "Atlas drafted this event. Saving records that.",
+        "noneLabel": "none",
+        "note": "Drafted by Atlas, saved by {{user}}. Kept as filled: {{kept}}. Changed: {{changed}}.",
+        "reviewButton": "Check the fields",
+        "reviewPrompt": "These fields still show what Atlas filled. Check them, or save anyway:",
+        "saveAnywayButton": "Save anyway"
+      },
       "cantAddNoteAlert": "Can not add a new note: there's an empty note not saved yet",
       "quickLinks": {
         "activityAnchor": "Activity",

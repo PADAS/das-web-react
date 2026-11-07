@@ -4,6 +4,7 @@ import isEqual from 'react-fast-compare';
 import Overlay from 'react-bootstrap/Overlay';
 import { Trans, useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router';
 
 import { calcFriendlyDurationString } from '../../../../utils/datetime';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../../../ducks/patrol-filter';
@@ -40,7 +41,10 @@ const Filters = ({ resultCount }) => {
   const [datesAnchor, setDatesAnchor] = useState(null);
   const [filterText, setFilterText] = useState(patrolFilter.filter.text);
   const [filtersAnchor, setFiltersAnchor] = useState(null);
-  const [openPopover, setOpenPopover] = useState(null);
+  // A navigation can ask for a popover open on arrival, as the Atlas actions
+  // playground does after it changes this filter.
+  const location = useLocation();
+  const [openPopover, setOpenPopover] = useState(location.state?.openPopover ?? null);
 
   const isDatesModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, patrolFilter.filter.date_range)
     || INITIAL_FILTER_STATE.filter.patrols_overlap_daterange !== patrolFilter.filter.patrols_overlap_daterange;

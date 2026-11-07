@@ -8,7 +8,9 @@ import {
   VERTICAL_NAV_RAIL_WIDTH_PIXELS,
 } from '../../constants';
 import { mockStore } from '../../__test-helpers/MockStore';
-import { act, fireEvent, render, screen } from '../../test-utils';
+import { act, fireEvent, render, screen, waitFor } from '../../test-utils';
+import { HOST_TOOL_ERROR_CODES } from '../../hostActions/HostToolError';
+import runHostTool, { HOST_TOOL_SPECS } from '../../hostActions';
 import { updateUserPreferences } from '../../ducks/user-preferences';
 import { useMatchMedia } from '../../hooks';
 import useNavigate from '../../hooks/useNavigate';
@@ -21,6 +23,12 @@ jest.mock('../../hooks', () => ({
 }));
 
 jest.mock('../../hooks/useNavigate', () => jest.fn());
+
+jest.mock('../../hostActions', () => ({
+  ...jest.requireActual('../../hostActions'),
+  __esModule: true,
+  default: jest.fn(),
+}));
 
 const OTUS_URL = 'https://otus.example.com';
 const MAX_WIDTH = 1440 - VERTICAL_NAV_RAIL_WIDTH_PIXELS - MIN_VISIBLE_MAP_WIDTH_PIXELS;
@@ -66,6 +74,18 @@ describe('SideBar - OtusTab', () => {
 
   const dispatchReadyMessage = (overrides = {}) => act(() => window.dispatchEvent(new MessageEvent('message', {
     data: { type: 'otus:ready' },
+    origin: OTUS_URL,
+    source: getFrame().contentWindow,
+    ...overrides,
+  })));
+
+  const dispatchToolCallMessage = (overrides = {}) => act(() => window.dispatchEvent(new MessageEvent('message', {
+    data: {
+      arguments: { lower: '2026-10-01T00:00:00.000Z' },
+      id: 'call-1',
+      name: 'set_date_range',
+      type: 'otus:tool-call',
+    },
     origin: OTUS_URL,
     source: getFrame().contentWindow,
     ...overrides,
@@ -200,7 +220,7 @@ describe('SideBar - OtusTab', () => {
 
     expect(postMessage).toHaveBeenCalledTimes(1);
     expect(postMessage).toHaveBeenCalledWith(
-      { site_url: DAS_HOST, token: 'the-token', type: 'otus:connect' },
+      { site_url: DAS_HOST, token: 'the-token', tools: HOST_TOOL_SPECS, tools_version: 1, type: 'otus:connect' },
       OTUS_URL
     );
   });
@@ -215,6 +235,62 @@ describe('SideBar - OtusTab', () => {
     expect(postMessage).toHaveBeenCalledTimes(2);
   });
 
+  test('runs a tool the frame calls and posts its result back with the call id', async () => {
+    runHostTool.mockResolvedValue({ date_range: { lower: '2026-10-01T00:00:00.000Z', upper: null } });
+    renderOtusTab();
+    const postMessage = mockFramePostMessage();
+
+    dispatchToolCallMessage();
+
+    await waitFor(() => expect(postMessage).toHaveBeenCalledWith({
+      id: 'call-1',
+      ok: true,
+      result: { date_range: { lower: '2026-10-01T00:00:00.000Z', upper: null } },
+      type: 'otus:tool-result',
+    }, OTUS_URL));
+    expect(runHostTool).toHaveBeenCalledWith(
+      'set_date_range',
+      { lower: '2026-10-01T00:00:00.000Z' },
+      expect.objectContaining({ dispatch: expect.any(Function), getState: expect.any(Function) })
+    );
+  });
+
+  test('posts the error code and message back when a tool fails', async () => {
+    runHostTool.mockRejectedValue(Object.assign(new Error('No event with id x.'), { code: 'not_found' }));
+    renderOtusTab();
+    const postMessage = mockFramePostMessage();
+
+    dispatchToolCallMessage();
+
+    await waitFor(() => expect(postMessage).toHaveBeenCalledWith({
+      error: { code: 'not_found', message: 'No event with id x.' },
+      id: 'call-1',
+      ok: false,
+      type: 'otus:tool-result',
+    }, OTUS_URL));
+  });
+
+  test('reports an unexpected tool failure as failed', async () => {
+    runHostTool.mockRejectedValue(new TypeError('boom'));
+    renderOtusTab();
+    const postMessage = mockFramePostMessage();
+
+    dispatchToolCallMessage();
+
+    await waitFor(() => expect(postMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ error: { code: HOST_TOOL_ERROR_CODES.FAILED, message: 'boom' }, ok: false }),
+      OTUS_URL
+    ));
+  });
+
+  test('ignores tool calls from another origin', () => {
+    renderOtusTab();
+
+    dispatchToolCallMessage({ origin: 'https://evil.example.com' });
+
+    expect(runHostTool).not.toHaveBeenCalled();
+  });
+
   test('posts the renewed token to the frame once it has connected', () => {
     const { rerender } = renderOtusTab();
     const postMessage = mockFramePostMessage();
@@ -225,7 +301,13 @@ describe('SideBar - OtusTab', () => {
 
     expect(postMessage).toHaveBeenCalledTimes(2);
     expect(postMessage).toHaveBeenLastCalledWith(
-      { site_url: DAS_HOST, token: 'the-renewed-token', type: 'otus:connect' },
+      {
+        site_url: DAS_HOST,
+        token: 'the-renewed-token',
+        tools: HOST_TOOL_SPECS,
+        tools_version: 1,
+        type: 'otus:connect',
+      },
       OTUS_URL
     );
   });

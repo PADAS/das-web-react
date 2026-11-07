@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { TEXT_ELEMENT_ALPHANUMERIC_FORMAT_VALIDATION_PATTERN } from '../../../utils/form-schemas/constants';
 
-const ajv = new Ajv2020({ allErrors: true });
+export const ajv = new Ajv2020({ allErrors: true });
 addFormats(ajv);
 ajv.addKeyword({ keyword: 'x-section', schemaType: 'string' });
 ajv.addKeyword({ keyword: 'x-enumExtra', schemaType: 'object' });
