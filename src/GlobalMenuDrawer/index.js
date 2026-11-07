@@ -91,10 +91,10 @@ const MOBILE_STORE_LINKS = [
   },
 ];
 
-const renderExternalLink = (href, icon, label, analyticsLabel, tag, ariaLabel) => <a
+const renderExternalLink = (href, icon, label, analyticsLabel, tag, ariaLabel, placement = 'menu item') => <a
   aria-label={ariaLabel}
   href={href}
-  onClick={() => mainToolbarTracker.track(`Click '${analyticsLabel}' menu item`)}
+  onClick={() => mainToolbarTracker.track(`Click '${analyticsLabel}' ${placement}`)}
   rel="noopener noreferrer"
   target="_blank"
 >
@@ -136,6 +136,7 @@ const GlobalMenuDrawer = () => {
   const closeButtonRef = useRef();
   const dataPrivacyPolicyLinkRef = useRef();
 
+  const activeUser = selectedUserProfile?.id ? selectedUserProfile : user;
   const canReadPatrols = patrolManagementEnabled && hasPatrolsReadPermission;
   // iPadOS reports itself as a Mac, so only phones and older iPads match here.
   const deviceMobileStoreLink = MOBILE_STORE_LINKS
@@ -215,23 +216,6 @@ const GlobalMenuDrawer = () => {
       });
   };
 
-  const renderMobileStoreLinks = (mobileStoreLinks) => <li
-    className={styles.nestedListItem}
-  >
-    <h4>{t('mobileHeading')}</h4>
-
-    <ul>
-      {mobileStoreLinks.map((mobileStoreLink) => <li key={mobileStoreLink.href}>
-        {renderExternalLink(
-          mobileStoreLink.href,
-          <mobileStoreLink.Icon aria-hidden />,
-          t(mobileStoreLink.labelKey),
-          mobileStoreLink.analyticsLabel,
-        )}
-      </li>)}
-    </ul>
-  </li>;
-
   const onContactSupportClick = () => {
     mainToolbarTracker.track('Click \'Contact Support\'');
 
@@ -245,7 +229,7 @@ const GlobalMenuDrawer = () => {
     }
     const userInput = selectSupportFormFieldByLabelText('ER Requestor Name');
     if (userInput) {
-      userInput.value = (selectedUserProfile?.id ? selectedUserProfile : user)?.username;
+      userInput.value = activeUser?.username;
     }
   };
 
@@ -264,6 +248,26 @@ const GlobalMenuDrawer = () => {
       title: t('alertsModal.title'),
     }, ALERTS_CATEGORY);
   }, [onModalClick, t, token.access_token]);
+
+  const renderMobileStoreLinks = (mobileStoreLinks, placement) => <li
+    className={styles.nestedListItem}
+  >
+    <h4>{t('mobileHeading')}</h4>
+
+    <ul>
+      {mobileStoreLinks.map((mobileStoreLink) => <li key={mobileStoreLink.href}>
+        {renderExternalLink(
+          mobileStoreLink.href,
+          <mobileStoreLink.Icon aria-hidden />,
+          t(mobileStoreLink.labelKey),
+          mobileStoreLink.analyticsLabel,
+          undefined,
+          undefined,
+          placement,
+        )}
+      </li>)}
+    </ul>
+  </li>;
 
   // Calculate the navigation links to show based on the enabled features.
   const navigationItems = useMemo(() => [
@@ -339,7 +343,7 @@ const GlobalMenuDrawer = () => {
       <hr aria-hidden className={styles.separator} />
 
       <ul>
-        {renderMobileStoreLinks([deviceMobileStoreLink])}
+        {renderMobileStoreLinks([deviceMobileStoreLink], 'top link')}
       </ul>
     </>}
 
@@ -438,11 +442,11 @@ const GlobalMenuDrawer = () => {
     <h3>{t('appsHeader')}</h3>
 
     <ul>
-      {!!user.is_staff && <li>
+      {!!activeUser?.is_staff && <li>
         {renderExternalLink(`${DAS_HOST}/admin`, <EarthRangerMarkIcon aria-hidden />, t('adminLink'), 'Admin')}
       </li>}
 
-      {!!user.is_staff && <li>
+      {!!activeUser?.is_staff && <li>
         {renderExternalLink(
           GUNDI_PORTAL_URL,
           <GundiLogoIcon aria-hidden />,

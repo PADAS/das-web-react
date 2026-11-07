@@ -18,7 +18,7 @@ import GlobalMenuDrawer, {
 import { hideDrawer } from '../ducks/drawer';
 import { INITIAL_GEAR_STATE } from '../ducks/gear';
 import { mockStore } from '../__test-helpers/MockStore';
-import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS, } from '../constants';
+import { DAS_HOST, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS, } from '../constants';
 import { render, screen, within } from '../test-utils';
 import { useMatchMedia } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
@@ -40,6 +40,11 @@ jest.mock('../hooks', () => ({
   useMatchMedia: jest.fn(),
 }));
 jest.mock('../hooks/useNavigate', () => jest.fn());
+const mockTrack = jest.fn();
+jest.mock('../utils/analytics', () => ({
+  ...jest.requireActual('../utils/analytics'),
+  trackEventFactory: () => ({ track: (...args) => mockTrack(...args) }),
+}));
 
 const ANDROID_USER_AGENT = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) '
   + 'Chrome/130.0.0.0 Mobile Safari/537.36';
@@ -60,6 +65,7 @@ describe('GlobalMenuDrawer', () => {
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
+    mockTrack.mockClear();
 
     store = {
       data: {
@@ -362,8 +368,57 @@ describe('GlobalMenuDrawer', () => {
     store.data.user.is_staff = true;
     renderGlobalMenuDrawer();
 
-    expect(screen.getByRole('link', { name: 'Admin' })).toHaveAttribute('href', expect.stringMatching(/\/admin$/));
+    expect(screen.getByRole('link', { name: 'Admin' })).toHaveAttribute('href', `${DAS_HOST}/admin`);
     expect(screen.getByRole('link', { name: 'Gundi Integrations' })).toHaveAttribute('href', GUNDI_PORTAL_URL);
+  });
+
+  test('hides the Admin and Gundi links from a staff user acting as a non-staff profile', async () => {
+    store.data.user.is_staff = true;
+    store.data.selectedUserProfile = { id: 'profile-id', is_staff: false, username: 'ranger' };
+    renderGlobalMenuDrawer();
+
+    expect(screen.queryByRole('link', { name: 'Admin' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Gundi Integrations' })).toBeNull();
+  });
+
+  test('shows the Admin and Gundi links to a non-staff user acting as a staff profile', async () => {
+    store.data.selectedUserProfile = { id: 'profile-id', is_staff: true, username: 'admin' };
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('link', { name: 'Admin' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Gundi Integrations' })).toBeInTheDocument();
+  });
+
+  test('tracks a click on each new link', async () => {
+    store.data.user.is_staff = true;
+    renderGlobalMenuDrawer();
+
+    const links = [
+      ['Admin', 'Admin'],
+      ['Gundi Integrations', 'Gundi'],
+      ['Ecoscope Analysis', 'Ecoscope Analysis'],
+      ['App Store (iPhone)', 'Mobile App Store'],
+      ['Google Play (Android)', 'Mobile Google Play'],
+      ['What\'s New', 'What\'s New'],
+      ['Training', 'Training'],
+      ['System Status', 'System Status'],
+    ];
+    for (const [name] of links) {
+      await userEvent.click(screen.getByRole('link', { name }));
+    }
+
+    links.forEach(([, analyticsLabel]) => {
+      expect(mockTrack).toHaveBeenCalledWith(`Click '${analyticsLabel}' menu item`);
+    });
+  });
+
+  test('tracks the store link at the top of the menu on a phone as a top link', async () => {
+    mockUserAgent(IPHONE_USER_AGENT);
+    renderGlobalMenuDrawer();
+
+    await userEvent.click(screen.getByRole('link', { name: 'App Store (iPhone)' }));
+
+    expect(mockTrack).toHaveBeenCalledWith('Click \'Mobile App Store\' top link');
   });
 
   test('lists Ecoscope Analysis under EARTHRANGER APPS, not under EXPORTS, for non-staff users too', async () => {
