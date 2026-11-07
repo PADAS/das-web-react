@@ -1,0 +1,30 @@
+@use '../common/styles/buttons';
+@use '../common/styles/vars/colors';
+
+.fallback {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  justify-content: safe center;
+  overflow-y: auto;
+  padding: 3rem max(1rem, calc(50% - 10rem));
+  text-align: center;
+  width: 100vw;
+
+  .title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .message {
+    color: colors.$secondary-medium-gray;
+    margin-bottom: 1.5rem;
+  }
+
+  .reloadButton {
+    @include buttons.primary-action-button;
+
+    font-size: 1rem;
+  }
+}

@@ -189,6 +189,11 @@
     "recentRadiosGroupLabel": "Recent radios",
     "restrictedReporterLabel": "RESTRICTED"
   },
+  "rootErrorBoundary": {
+    "errorTitle": "Something went wrong",
+    "reloadButtonLabel": "Reload",
+    "reloadMessage": "EarthRanger ran into an unexpected problem. Reload the page to continue."
+  },
   "schemaFields": {
     "addButton": {
       "content": "New",

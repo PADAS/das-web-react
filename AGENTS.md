@@ -38,7 +38,7 @@ An event has a serial number users quote, a **title** (shown as its event type's
 
 **Event Types** are the templates events are filed against ("Injured Animal", "Snare"). A type sets the icon, the default priority and state, the geometry (a Point type stores `location`, a Polygon type `geometry`), whether its events are readonly, and the **form schema** behind the event's form, **v1** (legacy) or **v2** (current). **Event categories** group types and are the unit of permission: users can only create events in the categories they are granted.
 
-**Incident Collections** are events whose type has `is_collection`, grouping related events (a snare, a carcass and an arrest) through `contains`, each child pointing back through `is_contained_in`. A collection has no reporter, location or time of its own: jumping to it goes to its children, and changing its state changes theirs.
+**Incident Collections** are events whose type has `is_collection`, grouping related events (a snare, a carcass and an arrest) through `contains`, each child pointing back through `is_contained_in`. An event belongs to one incident at most, and incidents do not nest. A collection has no reporter, location or time of its own: jumping to it goes to its children, and changing its state changes theirs.
 
 An event can also belong to a **patrol**, when filed during one, and be **linked** to other events.
 
@@ -149,7 +149,7 @@ A leg takes the patrol's state and its place in it: only the first leg can be re
 
 **Tracks.** A patrol's route is the tracks of every subject its legs tracked, lead first, each cut to that subject's legs; pauses contribute nothing. They draw once the patrol begins, whatever a later leg says, one line per subject, with pins at the start, the end, handovers and pauses. Visibility cycles like a subject's track, a map click clears visible ones except those led by the clicked subject, and the track length and time slider bound them. While a patrol track is shown, the regular tracks of its subjects are dimmed.
 
-**Events** join a patrol through a leg: an event lists its legs in `patrol_segments`, and a patrol's events are its legs'. An event added from Patrol Overview, or added to a patrol from Event Overview, goes to the running leg, else the last to have run; one added from Leg Overview goes to that leg.
+**Events** join a patrol through a leg: an event lists its legs in `patrol_segments` and its patrol in `patrols`, and a patrol's events are its legs'. An event belongs to one patrol at most, and only a patrol that began can take one. An event added from Patrol Overview, or added to a patrol from Event Overview or the Events Feed, goes to the leg the server picks for the event's time; one added from Leg Overview goes to that leg. Removing an event takes it off the whole patrol, even from Leg Overview, and keeps the server from linking it again on its own.
 
 **Mobile patrols.** A patrol run from EarthRanger Mobile carries `provenance: 'mobile'`: while one is under way it takes no new legs and offers only End, and its legs can be edited only once done or cancelled.
 
@@ -170,7 +170,7 @@ A leg takes the patrol's state and its place in it: only the first leg can be re
 - `selectors/patrols/`: patrol tracks per subject and leg, distances, tracked subjects.
 - `SideBar/PatrolsManager/`: the Patrols tab routes and screens, and the shared `LegForm`.
 - `PatrolTracks/`, `PatrolTrackLayer/`, `PatrolStartStopLayer/`, `PatrolTrackLegend/`: the map layers and legend.
-- `AddToPatrolModal/`: adding an event to a patrol from Event Overview.
+- `LinkEventModal/`, `hooks/useEventLinking/`, `selectors/event-links/`: adding an event to a patrol or an incident and removing it, and who may, from the menus, the activity sections and the Links section.
 
 ### Gear
 
@@ -379,7 +379,7 @@ The map fills the screen, framed by a top bar, a sidebar and a global menu. On s
 
 ### Technical Stack
 
-- **Runtime and tooling:** Node 24, Yarn 4, Vite 8, ESLint, Stylelint
+- **Runtime and tooling:** Node 26, Yarn 4, Vite 8, ESLint, Stylelint
 - **UI:** React 19; `react-bootstrap` (Bootstrap 5); Sass modules
 - **Routing:** React Router 8 declarative mode, with `BrowserRouter`
 - **State:** Redux 5 + `redux-thunk`, `redux-promise`, `reselect`; persistence via `redux-persist`
@@ -504,6 +504,7 @@ Function parameters follow the call's own logic, not the alphabet.
 ### Component Structure
 
 - Functional components with hooks. No PropTypes.
+- For basic elements, such as buttons or inputs, prefer styled native HTML over `react-bootstrap`.
 - Props destructured in the signature with defaults inline. `ref` is a plain prop. A component that wraps a DOM element collects the rest into `...otherProps` and spreads it last onto the root element.
 - Body order, groups separated by a blank line: library hooks (`useDispatch`, `useTranslation`, router hooks), app hooks, `useSelector` calls, `useContext`, `useRef`, `useId`, `useState`, derived variables, `useMemo`, handlers, `useEffect`, then the returned JSX.
 - Memoize only when it pays: for a dependency array, for a genuinely expensive computation, or for the props of a `memo` boundary you checked actually bails. Never to spare a field or two a re-render. In practice that makes the presentational children of a stateful container good `memo` candidates, and the container itself a poor one.

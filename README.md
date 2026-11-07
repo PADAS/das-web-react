@@ -35,7 +35,7 @@ Every site (tenant) serves the client from its own domain, and the client talks 
 #### Prerequisites
 
 - [Git](https://git-scm.com/) for version control
-- [Node.js 24](https://nodejs.org/) for JavaScript runtime
+- [Node.js 26](https://nodejs.org/) for JavaScript runtime
 - [Yarn 4](https://yarnpkg.com/) for package management
 
 #### Clone the repo

@@ -4,6 +4,12 @@ import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
 import { EVENT_API_URL } from '../../../ducks/events';
+import {
+  EVENT_LINK_TARGET_TYPES,
+  PERMISSION_KEYS,
+  PERMISSIONS,
+  SYSTEM_CONFIG_FLAGS,
+} from '../../../constants';
 import { EVENT_TYPE_SCHEMA_V1_URL } from '../../../ducks/event-schemas';
 import { eventSchemas } from '../../../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../../../__test-helpers/fixtures/event-types';
@@ -408,5 +414,88 @@ describe('ActivitySection - ContainedReportListItem', () => {
     renderContainedReportListItem(undefined, mockedStore);
 
     expect((await screen.findByText('Species'))).toBeDefined();
+  });
+
+  describe('removing the event from a link', () => {
+    let linkedReport;
+    let onRemove;
+
+    beforeEach(() => {
+      linkedReport = {
+        ...report,
+        is_contained_in: [{ related_event: { id: 'incident-id' } }],
+        patrols: ['patrol-id'],
+        updates: [],
+      };
+      onRemove = jest.fn();
+      store.data.eventCategories = {};
+      store.data.eventStore[report.id] = linkedReport;
+      store.data.user = {
+        permissions: {
+          [PERMISSION_KEYS.EVENT_RELATIONSHIPS]: [PERMISSIONS.DELETE],
+          [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
+        },
+      };
+      store.view.systemConfig = { [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true };
+    });
+
+    const renderRemovableContainedReportListItem = (props) => renderContainedReportListItem(
+      { onRemove, removeFrom: EVENT_LINK_TARGET_TYPES.INCIDENT, ...props },
+      mockStore(store)
+    );
+
+    test('shows a button to remove the event from its incident, described by the event title', () => {
+      renderRemovableContainedReportListItem();
+
+      expect(screen.getByRole('button', { name: 'Remove from Incident' })).toHaveAccessibleDescription('Light');
+    });
+
+    test('shows a button to remove the event from its patrol', () => {
+      renderRemovableContainedReportListItem({ removeFrom: EVENT_LINK_TARGET_TYPES.PATROL });
+
+      expect(screen.getByRole('button', { name: 'Remove from Patrol' })).toBeVisible();
+    });
+
+    test('removes the event the store holds when the user clicks the button', async () => {
+      renderRemovableContainedReportListItem();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Remove from Incident' }));
+
+      expect(onRemove).toHaveBeenCalledWith(linkedReport);
+    });
+
+    test('does not show the button without a remove handler', () => {
+      renderRemovableContainedReportListItem({ onRemove: null });
+
+      expect(screen.queryByRole('button', { name: 'Remove from Incident' })).toBeNull();
+    });
+
+    test('does not show the button to a user who may not remove the event', () => {
+      store.data.user.permissions = {};
+
+      renderRemovableContainedReportListItem();
+
+      expect(screen.queryByRole('button', { name: 'Remove from Incident' })).toBeNull();
+    });
+
+    test('does not show the button before the event is fully loaded', () => {
+      delete store.data.eventStore[report.id];
+
+      renderRemovableContainedReportListItem();
+
+      expect(screen.queryByRole('button', { name: 'Remove from Incident' })).toBeNull();
+    });
+
+    test('keeps the button focusable but busy, ignoring presses, while the removal runs', async () => {
+      renderRemovableContainedReportListItem({ isRemoving: true });
+
+      const removeButton = screen.getByRole('button', { name: 'Remove from Incident' });
+      await userEvent.click(removeButton);
+
+      expect(removeButton).toHaveAttribute('aria-busy', 'true');
+      expect(removeButton).toHaveAttribute('aria-disabled', 'true');
+      expect(removeButton).toBeEnabled();
+      expect(onRemove).not.toHaveBeenCalled();
+    });
   });
 });

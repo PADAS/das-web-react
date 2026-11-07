@@ -138,6 +138,21 @@ test('naming an untitled patrol after the type of its leg, as the patrol views d
   expect(screen.getByTestId(`patrol-list-item-title-${testPatrol.id}`)).toHaveTextContent('Routine Patrol');
 });
 
+test('renders the icon and the title as text when the item has no click handler', () => {
+  testPatrol = { ...patrols[0] };
+  renderPatrolListItem({ ...initialProps, onClick: null, patrol: testPatrol, showControls: false });
+
+  expect(screen.getByTestId(`patrol-list-item-title-${testPatrol.id}`)).toBeInTheDocument();
+  expect(screen.queryAllByRole('button')).toHaveLength(0);
+});
+
+test('makes the icon and the title buttons when the item has a click handler', () => {
+  testPatrol = { ...patrols[0] };
+  renderPatrolListItem({ ...initialProps, onClick: jest.fn(), patrol: testPatrol, showControls: false });
+
+  expect(screen.getAllByRole('button')).toHaveLength(2);
+});
+
 describe('the patrol list item', () => {
   const TEST_PATROL_TITLE = 'wow what a neat patrol';
 
