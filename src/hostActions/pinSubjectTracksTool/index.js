@@ -31,8 +31,13 @@ const pinSubjectTracksTool = {
     additionalProperties: false,
     minProperties: 1,
     properties: {
-      subject_group_ids: { ...UUID_LIST_SCHEMA, description: 'Subject groups.' },
-      subject_ids: { ...UUID_LIST_SCHEMA, description: 'Single subjects.' },
+      subject_group_ids: { ...UUID_LIST_SCHEMA, description: 'Subject groups.', 'x-source': 'subject_groups' },
+      subject_ids: {
+        ...UUID_LIST_SCHEMA,
+        description: 'Single subjects.',
+        'x-source': 'trackable_subjects',
+        'x-within': 'subject_group_ids',
+      },
     },
     type: 'object',
   },

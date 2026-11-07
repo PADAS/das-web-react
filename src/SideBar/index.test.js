@@ -360,7 +360,7 @@ describe('SideBar', () => {
 
     renderSideBar();
 
-    expect(screen.getByLabelText('Action file (.action.json)')).toBeInTheDocument();
+    expect(screen.getByLabelText('Action')).toBeInTheDocument();
   });
 
   test('navigates home when the user clicks the active Otus tab link', async () => {

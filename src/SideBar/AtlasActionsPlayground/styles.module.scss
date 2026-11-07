@@ -158,3 +158,33 @@
 .error {
   color: colors.$error;
 }
+
+.stepList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stepButton {
+  background: none;
+  border: 1px solid colors.$light-gray-border;
+  border-radius: 1rem;
+  color: colors.$secondary-medium-gray;
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+
+  &.currentStep {
+    border-color: colors.$bright-blue;
+    color: colors.$bright-blue;
+    font-weight: 600;
+  }
+}
+
+.stepButtons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+}

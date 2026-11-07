@@ -32,8 +32,15 @@ const draftNewEventTool = {
       event_details: {
         description: 'Form field values by field name, as describe_event_type lists them.',
         type: 'object',
+        'x-source': 'event_type_fields',
+        'x-within': 'event_type_id',
       },
-      event_type_id: { description: 'The event type id, a UUID.', format: 'uuid', type: 'string' },
+      event_type_id: {
+        description: 'The event type id, a UUID. v2 types only.',
+        format: 'uuid',
+        type: 'string',
+        'x-source': 'v2_event_types',
+      },
       location: {
         additionalProperties: false,
         description: 'Where it happened. Ignored for event types whose geometry is not a point.',

@@ -21,7 +21,11 @@ const setPatrolFilterTool = {
     additionalProperties: false,
     minProperties: 1,
     properties: {
-      patrol_type_ids: { ...UUID_LIST_SCHEMA, description: 'Patrol types to show. Empty shows every type.' },
+      patrol_type_ids: {
+        ...UUID_LIST_SCHEMA,
+        description: 'Patrol types to show. Empty shows every type.',
+        'x-source': 'patrol_types',
+      },
       reset: {
         description: 'Clear the search and every filter but the date range back to the default first.',
         type: 'boolean',
@@ -32,7 +36,11 @@ const setPatrolFilterTool = {
         type: 'array',
       },
       text: { description: 'The feed search text. Empty clears it.', type: 'string' },
-      tracked_by_ids: { ...UUID_LIST_SCHEMA, description: 'Team leads (subjects) to show. Empty shows all.' },
+      tracked_by_ids: {
+        ...UUID_LIST_SCHEMA,
+        description: 'Team leads (subjects) to show. Empty shows all.',
+        'x-source': 'patrol_leaders',
+      },
     },
     type: 'object',
   },

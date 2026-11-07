@@ -35,7 +35,9 @@ const showEventTool = {
     + 'It does not open the event: the result carries a link to its detail view.',
   inputSchema: {
     additionalProperties: false,
-    properties: { event_id: { description: 'The event id, a UUID.', format: 'uuid', type: 'string' } },
+    properties: {
+      event_id: { description: 'The event id, a UUID.', format: 'uuid', type: 'string', 'x-source': 'recent_events' },
+    },
     required: ['event_id'],
     type: 'object',
   },

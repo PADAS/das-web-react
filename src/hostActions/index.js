@@ -35,6 +35,11 @@ export const HOST_TOOL_SPECS = HOST_TOOLS.map((hostTool) => ({
 
 const ajv = new Ajv({ allErrors: true });
 addFormats(ajv);
+// Hints for pickers and for Atlas. They do not change what is valid:
+// "x-source" names the site data a value comes from, and "x-within" names the
+// sibling property whose picks narrow that data.
+ajv.addKeyword({ keyword: 'x-source', schemaType: 'string' });
+ajv.addKeyword({ keyword: 'x-within', schemaType: 'string' });
 
 const HOST_TOOLS_BY_NAME = Object.fromEntries(HOST_TOOLS.map((hostTool) => [
   hostTool.name,

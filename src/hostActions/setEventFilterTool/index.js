@@ -34,13 +34,21 @@ const setEventFilterTool = {
     additionalProperties: false,
     minProperties: 1,
     properties: {
-      event_type_ids: { ...UUID_LIST_SCHEMA, description: 'Event types to show. Empty shows every type.' },
+      event_type_ids: {
+        ...UUID_LIST_SCHEMA,
+        description: 'Event types to show. Empty shows every type.',
+        'x-source': 'event_types',
+      },
       priorities: {
         description: 'Priorities to show. Empty shows every priority.',
         items: { enum: Object.keys(PRIORITY_VALUES_BY_KEY), type: 'string' },
         type: 'array',
       },
-      reported_by_ids: { ...UUID_LIST_SCHEMA, description: 'Reporters (users or subjects) to show. Empty shows all.' },
+      reported_by_ids: {
+        ...UUID_LIST_SCHEMA,
+        description: 'Reporters (users or subjects) to show. Empty shows all.',
+        'x-source': 'reporters',
+      },
       reset: {
         description: 'Clear the search and every filter but the date range back to the default first.',
         type: 'boolean',

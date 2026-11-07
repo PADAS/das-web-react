@@ -34,7 +34,9 @@ const showPatrolTool = {
     + 'the result carries a link to its detail view.',
   inputSchema: {
     additionalProperties: false,
-    properties: { patrol_id: { description: 'The patrol id, a UUID.', format: 'uuid', type: 'string' } },
+    properties: {
+      patrol_id: { description: 'The patrol id, a UUID.', format: 'uuid', type: 'string', 'x-source': 'recent_patrols' },
+    },
     required: ['patrol_id'],
     type: 'object',
   },

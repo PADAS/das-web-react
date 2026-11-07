@@ -53,7 +53,14 @@ const describeEventTypeTool = {
     + 'v2 event types only. A field in a conditional section shows only when its conditions hold.',
   inputSchema: {
     additionalProperties: false,
-    properties: { event_type_id: { description: 'The event type id, a UUID.', format: 'uuid', type: 'string' } },
+    properties: {
+      event_type_id: {
+        description: 'The event type id, a UUID. v2 types only.',
+        format: 'uuid',
+        type: 'string',
+        'x-source': 'v2_event_types',
+      },
+    },
     required: ['event_type_id'],
     type: 'object',
   },

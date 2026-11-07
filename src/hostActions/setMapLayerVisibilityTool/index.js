@@ -36,12 +36,26 @@ const setMapLayerVisibilityTool = {
   inputSchema: {
     additionalProperties: false,
     properties: {
-      analyzer_ids: { ...UUID_LIST_SCHEMA, description: 'Spatial analyzers.' },
+      analyzer_ids: { ...UUID_LIST_SCHEMA, description: 'Spatial analyzers.', 'x-source': 'analyzers' },
       events_layer: { description: 'Also apply to the events shown on the map.', type: 'boolean' },
-      feature_ids: { ...UUID_LIST_SCHEMA, description: 'Single spatial features.' },
-      feature_set_ids: { ...UUID_LIST_SCHEMA, description: 'Feature sets ("display categories").' },
-      subject_group_ids: { ...UUID_LIST_SCHEMA, description: 'Subject groups.' },
-      subject_ids: { ...UUID_LIST_SCHEMA, description: 'Single subjects.' },
+      feature_ids: {
+        ...UUID_LIST_SCHEMA,
+        description: 'Single spatial features.',
+        'x-source': 'features',
+        'x-within': 'feature_set_ids',
+      },
+      feature_set_ids: {
+        ...UUID_LIST_SCHEMA,
+        description: 'Feature sets ("display categories").',
+        'x-source': 'feature_sets',
+      },
+      subject_group_ids: { ...UUID_LIST_SCHEMA, description: 'Subject groups.', 'x-source': 'subject_groups' },
+      subject_ids: {
+        ...UUID_LIST_SCHEMA,
+        description: 'Single subjects.',
+        'x-source': 'subjects',
+        'x-within': 'subject_group_ids',
+      },
       visible: { description: 'true shows the layers, false hides them.', type: 'boolean' },
     },
     required: ['visible'],

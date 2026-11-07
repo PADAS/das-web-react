@@ -40,15 +40,15 @@ const FieldInput = ({ field, onChange, t, value }) => {
 
   case FORM_ELEMENT_TYPES.BOOLEAN:
     input = <select className={styles.select} onChange={(event) => onChange(toValue(field, event.target.value))} value={value === undefined ? '' : String(value)}>
-      <option value="">{t('fields.notFilled')}</option>
-      <option value="true">{t('fields.yes')}</option>
-      <option value="false">{t('fields.no')}</option>
+      <option value="">{t('notFilled')}</option>
+      <option value="true">{t('yes')}</option>
+      <option value="false">{t('no')}</option>
     </select>;
     break;
 
   case FORM_ELEMENT_TYPES.CHOICE_LIST:
     input = <select className={styles.select} onChange={(event) => onChange(toValue(field, event.target.value))} value={value ?? ''}>
-      <option value="">{t('fields.notFilled')}</option>
+      <option value="">{t('notFilled')}</option>
       {field.options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
     </select>;
     break;
@@ -58,7 +58,7 @@ const FieldInput = ({ field, onChange, t, value }) => {
     break;
 
   default:
-    input = <span className={styles.empty}>{t('fields.fileOnly')}</span>;
+    input = <span className={styles.empty}>{t('fileOnly')}</span>;
   }
 
   return <label className={styles.field}>
@@ -84,7 +84,7 @@ const DraftEventFields = ({ eventDetails, eventTypeId, onChange, t }) => {
     return () => { isCurrent = false; };
   }, [eventTypeId, runHostAction]);
 
-  if (!eventTypeId) return null;
+  if (!eventTypeId) return <p className={styles.empty}>{t('chooseEventTypeFirst')}</p>;
   if (!description) return <p className={styles.empty}>{t('loading')}</p>;
   if (!description.ok) return <p className={styles.error}>{description.error.message}</p>;
 
@@ -95,7 +95,7 @@ const DraftEventFields = ({ eventDetails, eventTypeId, onChange, t }) => {
 
   return description.result.sections.map((section, index) => <fieldset className={styles.checkList} key={index}>
     {(section.label || section.conditional) && <legend className={styles.label}>
-      {section.label}{section.conditional ? ` (${t('fields.conditional')})` : ''}
+      {section.label}{section.conditional ? ` (${t('conditional')})` : ''}
     </legend>}
     {section.fields.map((field) => <FieldInput
       field={field}
