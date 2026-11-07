@@ -47,19 +47,17 @@ const socketHealthStatusResolver = () => {
 
 export const updateSocketHealthStatus = socketHealthStatusResolver();
 
-export const fetchSystemStatus = () => (dispatch) => axios.get(STATUS_API_URL, {
-  params: {
-    service_status: true,
-  },
-})
-  .then((response) => {
+export const fetchSystemStatus = () => async (dispatch) => {
+  try {
+    const response = await axios.get(STATUS_API_URL, { params: { service_status: true } });
     dispatch(setSystemConfigFromSystemStatus(response.data.data));
     dispatch(fetchSystemStatusSuccess(response));
     return response.data.data;
-  })
-  .catch(error => {
+  } catch (error) {
+    console.warn('Failed to fetch the system status', error?.response?.status, error?.message);
     dispatch(fetchSystemStatusError(error));
-  });
+  }
+};
 
 const fetchSystemStatusSuccess = ({ data: { data } }) => ({
   type: FETCH_SYSTEM_STATUS_SUCCESS,

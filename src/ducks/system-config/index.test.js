@@ -211,6 +211,17 @@ describe('Ducks - System config', () => {
       .toHaveBeenCalledWith('Ignoring an invalid Otus URL from the system status', 'otus.pamdas.org');
   });
 
+  test('setSystemConfigFromSystemStatus treats a server that does not send the Tableau flag as Tableau off', async () => {
+    const dispatch = jest.fn();
+
+    setSystemConfigFromSystemStatus({ site_name: 'Site name' })(dispatch);
+
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ [SYSTEM_CONFIG_FLAGS.TABLEAU]: false }),
+      type: SET_SYSTEM_CONFIG,
+    }));
+  });
+
   test('setSystemConfigFromSystemStatus reports a null Otus URL on a server that does not send Otus settings', async () => {
     const dispatch = jest.fn();
 
@@ -347,8 +358,13 @@ describe('Ducks - System config', () => {
       expect(systemConfigReducer(undefined, {})).toEqual(INITIAL_STATE);
     });
 
-    test('clears the Otus URL when the user signs out', () => {
-      const state = { ...INITIAL_STATE, otusUrl: 'https://otus.pamdas.org', sitename: 'Site name' };
+    test('clears Tableau and the Otus URL when the user signs out', () => {
+      const state = {
+        ...INITIAL_STATE,
+        [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
+        otusUrl: 'https://otus.pamdas.org',
+        sitename: 'Site name',
+      };
 
       expect(systemConfigReducer(state, { payload: {}, type: CLEAR_AUTH })).toEqual({
         ...INITIAL_STATE,

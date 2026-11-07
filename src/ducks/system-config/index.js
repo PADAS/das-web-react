@@ -43,7 +43,8 @@ export const setSystemConfigFromSystemStatus = (systemStatus) => (dispatch) => {
       [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: systemStatus[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT] ?? true,
       [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: systemStatus[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES] ?? true,
       [SYSTEM_CONFIG_FLAGS.SUBJECTS]: systemStatus[SYSTEM_CONFIG_FLAGS.SUBJECTS] ?? true,
-      [SYSTEM_CONFIG_FLAGS.TABLEAU]: systemStatus[SYSTEM_CONFIG_FLAGS.TABLEAU] ?? true,
+      // Tableau is legacy, so it stays hidden unless the server turns it on.
+      [SYSTEM_CONFIG_FLAGS.TABLEAU]: systemStatus[SYSTEM_CONFIG_FLAGS.TABLEAU] ?? false,
       [SYSTEM_CONFIG_FLAGS.GEO_SPAN]: systemStatus[SYSTEM_CONFIG_FLAGS.GEO_SPAN] ?? null,
       // The env override wins here, unlike default_event_filter_from_days.
       otusUrl: parseOtusUrl(REACT_APP_OTUS_URL || systemStatus.otus_settings?.url),
@@ -104,9 +105,13 @@ export const INITIAL_STATE = {
 
 const systemConfigReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
-  // Only superusers get the Otus URL, so it must not outlive the user.
+  // Only superusers get Tableau and Otus, so they must not outlive the user.
   case CLEAR_AUTH:
-    return { ...state, otusUrl: INITIAL_STATE.otusUrl };
+    return {
+      ...state,
+      [SYSTEM_CONFIG_FLAGS.TABLEAU]: INITIAL_STATE[SYSTEM_CONFIG_FLAGS.TABLEAU],
+      otusUrl: INITIAL_STATE.otusUrl,
+    };
 
   case SET_SYSTEM_CONFIG:
     return { ...state, ...action.payload };

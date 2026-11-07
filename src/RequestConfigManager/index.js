@@ -100,19 +100,11 @@ const RequestConfigManager = ({
   }, [masterRequestCancelToken]);
 
   const addUserProfileHeaderToRequestsIfNecessary = useCallback((config) => {
-    const profile = (selectedUserProfile && selectedUserProfile.id)
-    && (user && user.id)
-    && (selectedUserProfile.id !== user.id)
-    && selectedUserProfile.id;
+    // A selected profile is never the main user, so it applies before the user loads.
+    const profile = selectedUserProfile?.id !== user?.id && selectedUserProfile?.id;
 
     if (config.url && !config.url.includes('/user/me') && profile) {
       config.headers['USER-PROFILE'] = profile;
-    }
-    const isStatusEndpoint = typeof config.url === 'string'
-      && /(?:^|\/)api\/v1\.0\/status(?:[?#]|$)/.test(config.url);
-
-    if (isStatusEndpoint) {
-      delete config.headers['Authorization'];
     }
   }, [selectedUserProfile, user]);
 

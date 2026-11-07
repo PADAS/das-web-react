@@ -31,22 +31,23 @@ jest.mock('../utils/auth-recovery', () => ({
   recoverAuth: jest.fn(),
 }));
 
-const renderManager = () => {
+const renderManager = ({ selectedUserProfile = null, user = { id: 'u1' } } = {}) => {
   const store = mockStore({
     data: {
-      selectedUserProfile: null,
-      user: { id: 'u1' },
       masterRequestCancelToken: { token: {} },
+      selectedUserProfile,
       token: { access_token: 'existing.jwt.token' },
+      user,
     },
     view: { userLocationAccessGranted: { granted: false } },
   });
 
   render(<Provider store={store}><RequestConfigManager /></Provider>);
 
-  const calls = axios.interceptors.response.use.mock.calls;
-  const [, rejected] = calls[calls.length - 1];
-  return { store, rejected };
+  const requestCalls = axios.interceptors.request.use.mock.calls;
+  const responseCalls = axios.interceptors.response.use.mock.calls;
+  const [, rejected] = responseCalls[responseCalls.length - 1];
+  return { rejected, requestHandler: requestCalls[requestCalls.length - 1][0], store };
 };
 
 const make401 = (configOverrides = {}) => ({
@@ -220,5 +221,43 @@ describe('RequestConfigManager 401 handling', () => {
     await expect(rejected(error)).rejects.toBe(error);
     expect(recoverAuth).not.toHaveBeenCalled();
     expect(navigate).not.toHaveBeenCalled();
+  });
+});
+
+describe('RequestConfigManager request headers', () => {
+  beforeEach(() => {
+    useLocation.mockReturnValue({ search: '' });
+    useNavigate.mockReturnValue(jest.fn());
+
+    axios.interceptors.request.use.mockClear();
+    axios.interceptors.response.use.mockClear();
+    axios.defaults.headers.common = {};
+  });
+
+  const makeStatusConfig = () => ({ headers: { Authorization: 'Bearer existing.jwt.token' }, url: '/api/v1.0/status' });
+
+  test('keeps the Authorization header on a system status request', () => {
+    const { requestHandler } = renderManager();
+
+    expect(requestHandler(makeStatusConfig()).headers.Authorization).toBe('Bearer existing.jwt.token');
+  });
+
+  test('sends the active profile with a system status request', () => {
+    const { requestHandler } = renderManager({ selectedUserProfile: { id: 'p1' } });
+
+    expect(requestHandler(makeStatusConfig()).headers)
+      .toEqual({ Authorization: 'Bearer existing.jwt.token', 'USER-PROFILE': 'p1' });
+  });
+
+  test('sends the active profile before the current user has loaded', () => {
+    const { requestHandler } = renderManager({ selectedUserProfile: { id: 'p1' }, user: {} });
+
+    expect(requestHandler(makeStatusConfig()).headers['USER-PROFILE']).toBe('p1');
+  });
+
+  test('does not send a profile header when no profile is selected', () => {
+    const { requestHandler } = renderManager({ user: {} });
+
+    expect(requestHandler(makeStatusConfig()).headers).not.toHaveProperty('USER-PROFILE');
   });
 });

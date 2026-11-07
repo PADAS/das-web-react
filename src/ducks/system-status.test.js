@@ -119,6 +119,17 @@ describe('updating socket health status', () => {
     expect(dispatch).toHaveBeenCalledTimes(2);
     expect(dispatch).toHaveBeenCalledWith({ payload: systemStatusConfig, type: FETCH_SYSTEM_STATUS_SUCCESS });
   });
+
+  test('fetchSystemStatus warns with the status code when the request fails', async () => {
+    server.use(http.get(STATUS_API_URL, () => new HttpResponse(null, { status: 401 })));
+    const dispatch = jest.fn();
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    await fetchSystemStatus()(dispatch);
+
+    expect(warnSpy).toHaveBeenCalledWith('Failed to fetch the system status', 401, expect.any(String));
+    warnSpy.mockRestore();
+  });
 });
 
 describe('service status', () => {
