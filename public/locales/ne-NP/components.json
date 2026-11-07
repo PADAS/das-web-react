@@ -68,6 +68,7 @@
     "bulkUpdateSuccessMessage_one": "{{count}} घटना अद्यावधिक गरियो",
     "bulkUpdateSuccessMessage_other": "{{count}} घटनाहरू अद्यावधिक गरिए",
     "clearSelectionButtonLabel": "खाली गर्नुहोस्",
+    "clientSortLoadingMessage": "{{column}} अनुसार क्रमबद्ध गर्दै: {{total}} मध्ये {{loaded}} लोड भयो",
     "columnsButtonLabel": "स्तम्भहरू",
     "columnsMenuLabel": "देखाइएका स्तम्भहरू",
     "createdAtColumnTitle": "सिर्जना गरिएको",

@@ -37,7 +37,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   const patrolsFeed = useSelector((state) => state.data.patrolsFeed);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
-  const loadingMoreRef = useRef(false);
+  const loadingMoreRef = useRef({ next: null, promise: null });
 
   const columnDefs = useMemo(() => [
     {
@@ -110,16 +110,21 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
 
   const getRowClass = useCallback((params) => styles[calcPatrolState(params.data).key], []);
 
-  // The patrols API has no ordering, so the table sorts the loaded pages only.
+  // The patrols API has no ordering, so the grid sorts every column, and the
+  // table loads every page behind a sort. A page asked for again, before its
+  // rows arrive, gets the same request.
   const onLoadMore = () => {
-    if (!loadingMoreRef.current && patrolsFeed.next) {
-      loadingMoreRef.current = true;
-      dispatch(fetchNextPatrolsFeedPage(patrolsFeed.next))
-        .catch(() => {})
-        .finally(() => {
-          loadingMoreRef.current = false;
-        });
-    }
+    const { next } = patrolsFeed;
+    if (!next) return undefined;
+    if (loadingMoreRef.current.next === next) return loadingMoreRef.current.promise;
+
+    const promise = dispatch(fetchNextPatrolsFeedPage(next));
+    loadingMoreRef.current = { next, promise };
+    // A failed page can be asked for again.
+    promise.catch(() => {
+      if (loadingMoreRef.current.promise === promise) loadingMoreRef.current = { next: null, promise: null };
+    });
+    return promise;
   };
 
   const onOpenRow = (patrol) => {
@@ -145,6 +150,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
       : null}
     tableKey={TAB_KEYS.PATROLS}
     toolbarContainer={toolbarContainer}
+    totalCount={patrolsFeed.count}
   />;
 };
 

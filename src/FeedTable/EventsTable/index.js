@@ -103,19 +103,29 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     ? selectEventSchema(state, filteredEventType.value)
     : null);
 
-  const loadingMoreRef = useRef(false);
+  const loadingMoreRef = useRef({ next: null, promise: null });
 
+  // A sort on a column the events API can't order by; the table loads every
+  // page to sort them all. A new feed sort, from the sort controls or a
+  // header, takes over.
+  const [clientSortState, setClientSortState] = useState(null);
   const [updatingState, setUpdatingState] = useState(false);
 
+  const clientSort = clientSortState?.feedSort === eventSort ? clientSortState : null;
   const [sortDirection, sortOption] = eventSort;
 
-  // Only what the events API orders by is sortable, so a sort covers every
-  // page, not just the loaded ones. It is the feed's own sort.
+  // What the events API orders by is the feed's own sort, and covers every page.
   const serverSortable = useCallback((sortValue) => ({
-    sort: sortOption.value === sortValue ? (sortDirection === SORT_DIRECTION.up ? 'asc' : 'desc') : null,
+    serverSorted: true,
+    sort: !clientSort && sortOption.value === sortValue ? (sortDirection === SORT_DIRECTION.up ? 'asc' : 'desc') : null,
     sortable: true,
     sortingOrder: ['desc', 'asc'],
-  }), [sortDirection, sortOption.value]);
+  }), [clientSort, sortDirection, sortOption.value]);
+
+  const clientSortable = useCallback((colId) => ({
+    sort: clientSort?.colId === colId ? clientSort.sort : null,
+    sortable: true,
+  }), [clientSort]);
 
   useEffect(() => {
     if (filteredEventType && !eventSchema) {
@@ -144,10 +154,10 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
           cellRendererParams: { eventSchema: eventSchema?.json ? eventSchema : null, fieldName: field.key },
           valueGetter: (params) => params.data?.event_details?.[field.key],
         }
-        : { valueGetter: (params) => field.toText(params.data?.event_details) }),
+        : { ...clientSortable(`event_details.${field.key}`), valueGetter: (params) => field.toText(params.data?.event_details) }),
       ...(field.isDate && { valueFormatter: formatDateValue }),
     }));
-  }, [coordinatesRepresentation, eventSchema, eventTypeFilter.length, eventsForFallbackColumns]);
+  }, [clientSortable, coordinatesRepresentation, eventSchema, eventTypeFilter.length, eventsForFallbackColumns]);
 
   const columnDefs = useMemo(() => [
     {
@@ -158,6 +168,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     {
       cellRenderer: PriorityCell,
       colId: 'priority',
+      ...clientSortable('priority'),
       headerName: t('priorityColumnTitle'),
       minWidth: 110,
       valueFormatter: (params) => tPriorities((PRIORITY_COLOR_MAP[params.value] ?? PRIORITY_COLOR_MAP[0]).key),
@@ -174,6 +185,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     },
     {
       colId: 'title',
+      ...clientSortable('title'),
       flex: 2,
       headerName: t('titleColumnTitle'),
       minWidth: 180,
@@ -181,6 +193,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     },
     {
       colId: 'event_type',
+      ...clientSortable('event_type'),
       flex: 1,
       headerName: t('eventTypeColumnTitle'),
       minWidth: 140,
@@ -188,6 +201,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     },
     {
       colId: 'state',
+      ...clientSortable('state'),
       headerName: t('stateColumnTitle'),
       minWidth: 100,
       valueGetter: (params) => {
@@ -198,6 +212,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     },
     {
       colId: 'reported_by',
+      ...clientSortable('reported_by'),
       headerName: t('reportedByColumnTitle'),
       minWidth: 140,
       valueGetter: (params) => params.data?.reported_by?.name ?? '',
@@ -229,13 +244,14 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     },
     {
       colId: 'location',
+      ...clientSortable('location'),
       defaultHidden: true,
       headerName: t('locationColumnTitle'),
       minWidth: 170,
       valueGetter: (params) => formatCoordinates(getCoordinatesForEvent(params.data)),
     },
     ...detailColumns,
-  ], [detailColumns, eventTypes, serverSortable, t, tPriorities, tStates]);
+  ], [clientSortable, detailColumns, eventTypes, serverSortable, t, tPriorities, tStates]);
 
   const getRowClass = useCallback(
     (params) => styles[(PRIORITY_COLOR_MAP[calcDisplayPriorityForReport(params.data, eventTypes)] ?? PRIORITY_COLOR_MAP[0]).key],
@@ -249,18 +265,27 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     const option = EVENT_SORT_OPTIONS.find((sortOption) => sortOption.value === sortedColumn?.colId);
     if (option) {
       const direction = sortedColumn.sort === 'asc' ? SORT_DIRECTION.up : SORT_DIRECTION.down;
+      setClientSortState(null);
       dispatch(updateEventFilter({ filter: { sort: [direction, option] } }));
+    } else {
+      // A cleared sort falls back to the feed's own.
+      setClientSortState(sortedColumn ? { colId: sortedColumn.colId, feedSort: eventSort, sort: sortedColumn.sort } : null);
     }
   };
 
+  // A page asked for again, before its rows arrive, gets the same request.
   const onLoadMore = () => {
     const { next } = eventsFeed.events;
-    if (loadingMoreRef.current || !next) return;
+    if (!next) return undefined;
+    if (loadingMoreRef.current.next === next) return loadingMoreRef.current.promise;
 
-    loadingMoreRef.current = true;
-    dispatch(fetchNextEventFeedPage(next)).finally(() => {
-      loadingMoreRef.current = false;
+    const promise = dispatch(fetchNextEventFeedPage(next));
+    loadingMoreRef.current = { next, promise };
+    // A failed page can be asked for again.
+    promise.catch(() => {
+      if (loadingMoreRef.current.promise === promise) loadingMoreRef.current = { next: null, promise: null };
     });
+    return promise;
   };
 
   // The same export as the menu's Field Events report: every event matching the feed filter, with its details.
@@ -389,6 +414,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     rowData={events}
     tableKey={TAB_KEYS.EVENTS}
     toolbarContainer={toolbarContainer}
+    totalCount={eventsFeed.events.count}
   />;
 };
 

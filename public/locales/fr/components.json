@@ -68,6 +68,7 @@
     "bulkUpdateSuccessMessage_one": "{{count}} événement actualisé",
     "bulkUpdateSuccessMessage_other": "{{count}} événements actualisés",
     "clearSelectionButtonLabel": "Effacer",
+    "clientSortLoadingMessage": "Tri par {{column}} : {{loaded}} sur {{total}} chargés",
     "columnsButtonLabel": "Colonnes",
     "columnsMenuLabel": "Colonnes affichées",
     "createdAtColumnTitle": "Créé",

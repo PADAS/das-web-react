@@ -158,13 +158,39 @@ describe('EventsTable', () => {
     expect(within(screen.getByTestId('toolbarContainer')).getByRole('button', { name: 'Export all fields (CSV)' })).toBeVisible();
   });
 
-  test('sorts only the columns the events API orders by, with the feed sort', () => {
+  test('shows the feed sort on the columns the events API orders by', () => {
     renderEventsTable();
 
     expect(columnById(DEFAULT_EVENT_SORT[1].value)).toMatchObject({ sort: 'desc', sortable: true });
     expect(columnById('event_time')).toMatchObject({ sort: null, sortable: true });
-    expect(columnById('title').sortable).toBeUndefined();
-    expect(columnById('priority').sortable).toBeUndefined();
+    expect(columnById('title')).toMatchObject({ sort: null, sortable: true });
+    expect(columnById('icon').sortable).toBeUndefined();
+  });
+
+  test('sorts a column the events API cannot order by in the table, keeping the feed sort', () => {
+    renderEventsTable();
+
+    act(() => lastGridProps().onSortChanged({
+      api: { getColumnState: () => [{ colId: 'priority', sort: 'desc' }] },
+      source: 'uiColumnSorted',
+    }));
+
+    expect(updateEventFilter).not.toHaveBeenCalled();
+    expect(columnById('priority').sort).toBe('desc');
+    expect(columnById(DEFAULT_EVENT_SORT[1].value).sort).toBeNull();
+  });
+
+  test('goes back to the feed sort when the table sort is cleared', () => {
+    renderEventsTable();
+
+    act(() => lastGridProps().onSortChanged({
+      api: { getColumnState: () => [{ colId: 'priority', sort: 'desc' }] },
+      source: 'uiColumnSorted',
+    }));
+    act(() => lastGridProps().onSortChanged({ api: { getColumnState: () => [{ colId: 'priority' }] }, source: 'uiColumnSorted' }));
+
+    expect(columnById('priority').sort).toBeNull();
+    expect(columnById(DEFAULT_EVENT_SORT[1].value).sort).toBe('desc');
   });
 
   const rerenderWithNewEvents = (rerender) => rerender(<Provider store={store}>

@@ -68,6 +68,7 @@
     "bulkUpdateSuccessMessage_one": "{{count}} evento actualizado",
     "bulkUpdateSuccessMessage_other": "{{count}} eventos actualizados",
     "clearSelectionButtonLabel": "Limpiar",
+    "clientSortLoadingMessage": "Ordenando por {{column}}: {{loaded}} de {{total}} cargados",
     "columnsButtonLabel": "Columnas",
     "columnsMenuLabel": "Columnas visibles",
     "createdAtColumnTitle": "Creado",

@@ -219,6 +219,34 @@ describe('FeedTable', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Showing 1 of 3');
   });
 
+  test('loads every page behind a sort of its own and says how far it got', async () => {
+    const onLoadMore = jest.fn()
+      .mockReturnValueOnce(Promise.resolve())
+      .mockReturnValueOnce(Promise.resolve())
+      .mockReturnValue(undefined);
+    await renderFeedTable([{ ...COLUMNS[0], sortable: true }, COLUMNS[1]], undefined, ROWS, { onLoadMore, totalCount: 3 });
+
+    act(() => gridApi.applyColumnState({ state: [{ colId: 'a', sort: 'asc' }] }));
+
+    await waitFor(() => expect(onLoadMore).toHaveBeenCalledTimes(3));
+    expect(screen.getByRole('status')).toHaveTextContent('Sorting by A: loaded 1 of 3');
+  });
+
+  test('loads no pages behind a sort the API makes', async () => {
+    const onLoadMore = jest.fn(() => Promise.resolve());
+    await renderFeedTable(
+      [{ ...COLUMNS[0], serverSorted: true, sortable: true }, COLUMNS[1]],
+      undefined,
+      ROWS,
+      { onLoadMore, statusMessage: 'Status', totalCount: 3 }
+    );
+
+    await act(async () => gridApi.applyColumnState({ state: [{ colId: 'a', sort: 'asc' }] }));
+
+    expect(onLoadMore).not.toHaveBeenCalled();
+    expect(screen.getByRole('status')).toHaveTextContent('Status');
+  });
+
   test('says when there are no rows in the app language', async () => {
     await renderFeedTable(COLUMNS, undefined, []);
 

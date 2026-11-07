@@ -187,6 +187,9 @@ export const formatDateValue = (params) => {
 
 // `layoutScoped` columns, such as an event type's fields, keep their own order.
 // `menuName` names a column without a header, such as the icon, in the menu.
+// `serverSorted` columns are sorted by the API; any other sort is the grid's
+// own, so the table loads every page behind it. `onLoadMore` returns the
+// page's promise, or nothing when there is no page left.
 const FeedTable = ({
   ariaLabel,
   columnDefs,
@@ -203,10 +206,12 @@ const FeedTable = ({
   statusMessage,
   tableKey,
   toolbarContainer,
+  totalCount,
 }) => {
   const { t } = useTranslation('components', { keyPrefix: 'feedTable' });
 
   const columnsMenuItemRefs = useRef([]);
+  const onLoadMoreRef = useRef(onLoadMore);
 
   const columnsMenuId = useId();
   const moveColumnHintId = useId();
@@ -221,7 +226,9 @@ const FeedTable = ({
   const [hiddenColumns, setHiddenColumns] = useState(
     () => readStored(storageKey('hiddenColumns', tableKey), isPlainObject, {})
   );
+  const [clientSortColId, setClientSortColId] = useState(null);
   const [isColumnsMenuOpen, setIsColumnsMenuOpen] = useState(false);
+  const [loadedPageCount, setLoadedPageCount] = useState(0);
   const [selectedRows, setSelectedRows] = useState([]);
 
   const localeText = useMemo(() => ({
@@ -252,7 +259,7 @@ const FeedTable = ({
   // The grid lays columns out in definition order, so the order survives a
   // rebuild only if the definitions carry it.
   const visibleColumnDefs = useMemo(
-    () => fillWidthWithLastColumn(orderedColumnDefs.map(({ defaultHidden, layoutScoped: _layoutScoped, menuName: _menuName, ...column }) => ({
+    () => fillWidthWithLastColumn(orderedColumnDefs.map(({ defaultHidden, layoutScoped: _layoutScoped, menuName: _menuName, serverSorted: _serverSorted, ...column }) => ({
       ...column,
       ...(columnWidths[column.colId] && { flex: null, width: columnWidths[column.colId] }),
       hide: isColumnHidden({ ...column, defaultHidden }),
@@ -362,6 +369,40 @@ const FeedTable = ({
     }
   };
 
+  const serverSortedColIds = useMemo(
+    () => new Set(columnDefs.filter((column) => column.serverSorted).map((column) => column.colId)),
+    [columnDefs]
+  );
+
+  const onGridSortChanged = (event) => {
+    const sortedColumn = event.api.getColumnState().find((column) => !!column.sort);
+    setClientSortColId(sortedColumn && !serverSortedColIds.has(sortedColumn.colId) ? sortedColumn.colId : null);
+
+    onSortChanged?.(event);
+  };
+
+  // A sort of the grid's own covers only the loaded rows, so while one is on
+  // the table loads the remaining pages, one at a time, and the rows reflow in.
+  useEffect(() => {
+    onLoadMoreRef.current = onLoadMore;
+  });
+
+  useEffect(() => {
+    if (!clientSortColId || loading) return undefined;
+
+    let cancelled = false;
+    onLoadMoreRef.current?.()?.then(() => {
+      if (!cancelled) setLoadedPageCount((count) => count + 1);
+    }, () => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [clientSortColId, loadedPageCount, loading]);
+
+  const clientSortColumn = columnDefs.find((column) => column.colId === clientSortColId);
+  const isLoadingForClientSort = !!clientSortColumn && !loading && totalCount > rowData.length;
+
   const onExportClick = async () => {
     setExporting(true);
     try {
@@ -396,7 +437,16 @@ const FeedTable = ({
         </button>
       </div>}
 
-      {!!statusMessage && <span className={styles.statusMessage} role="status">{statusMessage}</span>}
+      {isLoadingForClientSort
+        ? <span className={styles.statusMessage} role="status">
+          <MoonLoader size={12} />
+          {t('clientSortLoadingMessage', {
+            column: clientSortColumn.menuName ?? clientSortColumn.headerName,
+            loaded: rowData.length,
+            total: totalCount,
+          })}
+        </span>
+        : !!statusMessage && <span className={styles.statusMessage} role="status">{statusMessage}</span>}
 
       <div className={styles.toolbarEnd}>
         <button
@@ -483,7 +533,7 @@ const FeedTable = ({
         onColumnResized={onColumnResized}
         onGridReady={(event) => setGridApi(event.api)}
         onSelectionChanged={(event) => setSelectedRows(event.api.getSelectedRows())}
-        onSortChanged={onSortChanged}
+        onSortChanged={onGridSortChanged}
         rowClass={styles.row}
         rowData={rowData}
         rowSelection={renderBulkActions ? ROW_SELECTION : undefined}

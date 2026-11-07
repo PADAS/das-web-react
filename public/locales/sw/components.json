@@ -73,6 +73,7 @@
     "bulkUpdateSuccessMessage_one": "Tukio {{count}} limesasishwa",
     "bulkUpdateSuccessMessage_other": "Matukio {{count}} yamesasishwa",
     "clearSelectionButtonLabel": "Futa",
+    "clientSortLoadingMessage": "Inapanga kwa {{column}}: {{loaded}} kati ya {{total}} zimepakiwa",
     "columnsButtonLabel": "Safu wima",
     "columnsMenuLabel": "Safu wima zinazoonyeshwa",
     "createdAtColumnTitle": "Imeundwa",
