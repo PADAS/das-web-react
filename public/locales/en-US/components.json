@@ -243,6 +243,9 @@
       },
       "editedFileNote": "You edited the file, so it no longer follows your picks. Change a pick to start over.",
       "emptyResult": "Run an action to see what happens on the map and what Atlas gets back.",
+      "emptySources": {
+        "v2_event_types": "This site has no v2 event types. Atlas can draft only v2 types. An admin can make one with the form builder."
+      },
       "errorStatus": "{{name}} failed: {{code}}",
       "fileLabel": "Action file (.action.json)",
       "fileOnly": "Fill this one in the file.",

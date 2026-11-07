@@ -36,6 +36,9 @@ const SourceList = ({ label, name, onChange, properties, schema, sources, t, val
   const source = sources[schema['x-source']];
   const status = <SourceStatus source={source} t={t} />;
   if (!source || source.isLoading || source.error) return status;
+  if (!source.options.length) {
+    return <p className={styles.empty}>{t(`emptySources.${schema['x-source']}`, { defaultValue: t('noOptions') })}</p>;
+  }
 
   const within = schema['x-within'];
   const parentIds = within ? values[within] : null;

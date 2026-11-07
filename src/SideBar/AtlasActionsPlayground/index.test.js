@@ -98,6 +98,14 @@ describe('SideBar - AtlasActionsPlayground', () => {
     });
   });
 
+  test('says why a list is empty when the site has none', async () => {
+    useSources.mockReturnValue({ ...SOURCES, v2_event_types: loaded([]) });
+    await chooseAction('draft_new_event');
+    await next();
+
+    expect(screen.getByText(/This site has no v2 event types/)).toBeInTheDocument();
+  });
+
   test('keeps a required flag in the file even when it is off', async () => {
     await chooseAction('set_map_layer_visibility');
     await goToReview();
