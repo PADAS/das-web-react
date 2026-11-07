@@ -19,7 +19,12 @@ import * as styles from './styles.module.scss';
 const KEYBOARD_RESIZE_STEP_PIXELS = 16;
 
 export const OTUS_COMMANDS = { NEW_THREAD: 'new-thread', TOGGLE_THREADS: 'toggle-threads' };
-export const OTUS_MESSAGE_TYPES = { COMMAND: 'otus:command', CONNECT: 'otus:connect', READY: 'otus:ready' };
+export const OTUS_MESSAGE_TYPES = {
+  COMMAND: 'otus:command',
+  CONNECT: 'otus:connect',
+  READY: 'otus:ready',
+  THREADS: 'otus:threads',
+};
 // Longer than the 8 seconds Otus itself waits for the token.
 export const OTUS_READY_TIMEOUT_MS = 10_000;
 
@@ -51,6 +56,7 @@ const OtusTab = ({ isActive, url }) => {
   const [hasBeenActivated, setHasBeenActivated] = useState(isActive);
   const [loadedFrameKey, setLoadedFrameKey] = useState(null);
   const [readyFrameKey, setReadyFrameKey] = useState(null);
+  const [recentOpenFrameKey, setRecentOpenFrameKey] = useState(null);
   const [timedOutFrameKey, setTimedOutFrameKey] = useState(null);
   const [widthWhileResizing, setWidthWhileResizing] = useState(null);
 
@@ -71,6 +77,8 @@ const OtusTab = ({ isActive, url }) => {
   // A late ready message still clears the error, as the frame stays mounted behind it.
   const hasTimedOut = timedOutFrameKey === frameKey && readyFrameKey !== frameKey;
   const isLoading = loadedFrameKey !== frameKey;
+  // A reloaded frame starts with Recent closed, so only its own message counts.
+  const isRecentOpen = recentOpenFrameKey === frameKey;
   // A frame Otus refuses still fires load, so only its ready message proves it.
   const isWaitingForReady = !isLoading && readyFrameKey !== frameKey;
   const otusOrigin = embedUrl.origin;
@@ -134,15 +142,19 @@ const OtusTab = ({ isActive, url }) => {
 
   useEffect(() => {
     const onMessage = (event) => {
-      if (event.origin === otusOrigin
-        && event.source === iframeRef.current?.contentWindow
-        && event.data?.type === OTUS_MESSAGE_TYPES.READY) {
-        setReadyFrameKey(frameKey);
+      if (event.origin === otusOrigin && event.source === iframeRef.current?.contentWindow) {
+        if (event.data?.type === OTUS_MESSAGE_TYPES.READY) {
+          setReadyFrameKey(frameKey);
 
-        if (token) {
-          hasConnectedRef.current = true;
+          if (token) {
+            hasConnectedRef.current = true;
 
-          postConnect();
+            postConnect();
+          }
+        }
+
+        if (event.data?.type === OTUS_MESSAGE_TYPES.THREADS) {
+          setRecentOpenFrameKey(event.data.open === true ? frameKey : null);
         }
       }
     };
@@ -172,7 +184,13 @@ const OtusTab = ({ isActive, url }) => {
     id={panelId}
     style={isMediumLayoutOrLarger ? { width } : undefined}
     >
-    <Header onClose={onClose} onNewConversation={onNewConversation} onToggleRecent={onToggleRecent} titleId={titleId} />
+    <Header
+      isRecentOpen={isRecentOpen}
+      onClose={onClose}
+      onNewConversation={onNewConversation}
+      onToggleRecent={onToggleRecent}
+      titleId={titleId}
+    />
 
     {hasBeenActivated && <div
       className={styles.frameWrapper}

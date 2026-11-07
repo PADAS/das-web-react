@@ -254,19 +254,19 @@
       "featuresTabTitle": "Features",
       "subjectsTabTitle": "Subjects"
     },
-    "otusLink": "Otus",
+    "otusLink": "Atlas",
     "otusTab": {
       "header": {
         "betaBadgeLabel": "Beta",
-        "closeButtonLabel": "Close Otus",
+        "closeButtonLabel": "Close Atlas",
         "newConversationButtonLabel": "New conversation",
         "recentButtonLabel": "Recent",
-        "title": "Otus"
+        "title": "Atlas"
       },
-      "iframeTitle": "Otus chat",
-      "loadErrorMessage": "Otus couldn't load on this site. Try again, or contact support if this keeps happening.",
-      "loadingMessage": "Loading Otus…",
-      "resizeHandleLabel": "Resize Otus panel",
+      "iframeTitle": "Atlas chat",
+      "loadErrorMessage": "Atlas couldn't load on this site. Try again, or contact support if this keeps happening.",
+      "loadingMessage": "Loading Atlas…",
+      "resizeHandleLabel": "Resize Atlas panel",
       "retryButtonLabel": "Try again"
     },
     "patrolsLink": "Patrols",
