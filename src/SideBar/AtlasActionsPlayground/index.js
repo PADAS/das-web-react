@@ -1,40 +1,69 @@
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import { useStore } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import buildExampleFile from './buildExampleFile';
+import ACTION_FORMS from './actionForms';
 import { HOST_TOOL_SPECS } from '../../hostActions';
+import useNavigate from '../../hooks/useNavigate';
 import useRunHostAction from '../../hostActions/useRunHostAction';
+import useTargetOptions from './useTargetOptions';
 
 import * as styles from './styles.module.scss';
 
-// Stands in for the Atlas tab: shows the file Atlas would attach to a reply,
-// runs it the way an Atlas call is run, and shows the message sent back.
-const AtlasActionsPlayground = () => {
-  const store = useStore();
+// Long enough to read the confirmation before the view changes.
+export const SWITCH_DELAY_MS = 1500;
+
+const INITIAL_PICKS = Object.fromEntries(
+  Object.entries(ACTION_FORMS).map(([name, actionForm]) => [name, actionForm.initialPicks()])
+);
+
+// Stands in for the Atlas tab: pick an action and what it acts on, see the
+// file Atlas would attach to a reply, run it the way an Atlas call is run,
+// then follow it to the view that shows what changed.
+const AtlasActionsPlayground = ({ isActive }) => {
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.atlasActionsPlayground' });
 
+  const navigate = useNavigate();
+  const options = useTargetOptions();
   const runHostAction = useRunHostAction();
 
   const actionSelectId = useId();
   const fileTextareaId = useId();
 
+  const switchTimeoutRef = useRef(null);
+
   const [actionName, setActionName] = useState(HOST_TOOL_SPECS[0].name);
   const [callCount, setCallCount] = useState(0);
-  const [fileText, setFileText] = useState(() => buildExampleFile(HOST_TOOL_SPECS[0].name, store.getState()));
+  const [editedFileText, setEditedFileText] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [picksByAction, setPicksByAction] = useState(INITIAL_PICKS);
   const [run, setRun] = useState(null);
+  const [switchesView, setSwitchesView] = useState(true);
+  const [switchingTo, setSwitchingTo] = useState(null);
 
+  const actionForm = ACTION_FORMS[actionName];
   const actionSpec = HOST_TOOL_SPECS.find((hostToolSpec) => hostToolSpec.name === actionName);
+  const picks = picksByAction[actionName];
+
+  const generatedFileText = JSON.stringify(
+    { name: actionName, arguments: actionForm.toArguments(picks, options) },
+    null,
+    2
+  );
+  const fileText = editedFileText ?? generatedFileText;
+
+  const setPick = (key, value) => {
+    setEditedFileText(null);
+    setPicksByAction({ ...picksByAction, [actionName]: { ...picks, [key]: value } });
+  };
 
   const onChangeAction = (event) => {
+    setEditedFileText(null);
     setActionName(event.target.value);
-    setFileText(buildExampleFile(event.target.value, store.getState()));
   };
 
   const loadFile = async (file) => {
-    if (file) setFileText(await file.text());
+    if (file) setEditedFileText(await file.text());
   };
 
   const onDropFile = (event) => {
@@ -44,6 +73,9 @@ const AtlasActionsPlayground = () => {
   };
 
   const onRun = async () => {
+    clearTimeout(switchTimeoutRef.current);
+    setSwitchingTo(null);
+
     let action;
     try {
       action = JSON.parse(fileText);
@@ -62,9 +94,21 @@ const AtlasActionsPlayground = () => {
 
     setIsRunning(false);
     setRun({ call, result });
+
+    const destination = result.ok && switchesView ? ACTION_FORMS[call.name]?.destination(call.arguments) : null;
+    if (destination) {
+      setSwitchingTo(destination);
+
+      switchTimeoutRef.current = setTimeout(() => {
+        setSwitchingTo(null);
+        navigate(destination.to, destination.state && { state: destination.state });
+      }, SWITCH_DELAY_MS);
+    }
   };
 
-  return <section className={styles.playground}>
+  useEffect(() => () => clearTimeout(switchTimeoutRef.current), []);
+
+  return <section className={`${styles.playground} ${isActive ? styles.active : ''}`} hidden={!isActive}>
     <p className={styles.intro}>{t('intro')}</p>
 
     <label className={styles.label} htmlFor={actionSelectId}>{t('actionLabel')}</label>
@@ -73,19 +117,30 @@ const AtlasActionsPlayground = () => {
     </select>
     <p className={styles.description}>{actionSpec.description}</p>
 
+    <h4 className={styles.heading}>{t('targetsHeading')}</h4>
+    <div className={styles.targets}>
+      {actionForm.render({ options, picks, setPick, spec: actionSpec, t })}
+    </div>
+
     <label className={styles.label} htmlFor={fileTextareaId}>{t('fileLabel')}</label>
     <textarea
       className={styles.code}
       id={fileTextareaId}
-      onChange={(event) => setFileText(event.target.value)}
+      onChange={(event) => setEditedFileText(event.target.value)}
       onDragOver={(event) => event.preventDefault()}
       onDrop={onDropFile}
-      rows={10}
+      rows={8}
       spellCheck={false}
       value={fileText}
     />
+    {editedFileText !== null && <p className={styles.description}>{t('editedFileNote')}</p>}
 
     <div className={styles.buttons}>
+      <label className={styles.option}>
+        <input checked={switchesView} onChange={(event) => setSwitchesView(event.target.checked)} type="checkbox" />
+        <span>{t('switchViewLabel')}</span>
+      </label>
+
       <label className={`btn btn-outline-secondary btn-sm ${styles.fileButton}`}>
         {t('loadFileButton')}
         <input
@@ -96,7 +151,7 @@ const AtlasActionsPlayground = () => {
         />
       </label>
 
-      <Button disabled={isRunning} onClick={onRun} size="sm" type="button" variant="primary">
+      <Button disabled={isRunning || !!switchingTo} onClick={onRun} size="sm" type="button" variant="primary">
         {t('runButton')}
       </Button>
     </div>
@@ -116,7 +171,9 @@ const AtlasActionsPlayground = () => {
         {run.result.ok
           ? t('okStatus', { name: run.call.name })
           : t('errorStatus', { code: run.result.error.code, name: run.call.name })}
+        {switchingTo && <> {t('switchingTo', { view: t(switchingTo.labelKey) })}</>}
       </p>
+      {!run.result.ok && <p className={styles.error}>{run.result.error.message}</p>}
 
       <h5 className={styles.subheading}>{t('callHeading')}</h5>
       <pre className={styles.code}>{JSON.stringify(run.call, null, 2)}</pre>

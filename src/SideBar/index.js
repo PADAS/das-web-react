@@ -315,6 +315,9 @@ const SideBar = () => {
         </div>}
 
         <div className={`${styles.tabBody} ${hideDefaultHeader ? styles.noHeader : ''}`}>
+          {/* Outside the routes so a run survives the trip to the view it switched to. */}
+          {showOtusTab && <AtlasActionsPlayground isActive={displayedTab === TAB_KEYS.OTUS} />}
+
           <Routes location={tabLocation ?? location}>
             {/* Gets rid of warning */}
             <Route path="/" element={null} />
@@ -343,7 +346,7 @@ const SideBar = () => {
 
             {showLayersTab && <Route path={TAB_KEYS.LAYERS} element={<MapLayersTab />} />}
 
-            {showOtusTab && <Route path={TAB_KEYS.OTUS} element={<AtlasActionsPlayground />} />}
+            {showOtusTab && <Route path={TAB_KEYS.OTUS} element={null} />}
 
             <Route path={TAB_KEYS.SETTINGS} element={<SettingsPane />} />
           </Routes>

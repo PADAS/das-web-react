@@ -1,12 +1,81 @@
 @use '../../common/styles/vars/colors';
 
 .playground {
-  color: colors.$ui-text-primary;
+  display: none;
+
+  // Stays mounted while another tab is open, so a run survives the trip to
+  // the view it switched to.
+  &.active {
+    color: colors.$ui-text-primary;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1rem;
+  }
+}
+
+.targets {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.input,
+.search {
+  border: 1px solid colors.$light-gray-border;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.checkList {
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.count {
+  color: colors.$secondary-medium-gray;
+  font-weight: 400;
+}
+
+.options {
+  list-style: none;
+  margin: 0;
+  max-height: 10rem;
   overflow-y: auto;
-  padding: 1rem;
+  padding: 0;
+}
+
+.option {
+  align-items: center;
+  display: flex;
+  font-size: 0.875rem;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.optionLabel {
+  white-space: pre;
+}
+
+.radios {
+  display: flex;
+  gap: 1rem;
 }
 
 .intro,
@@ -51,9 +120,15 @@
 }
 
 .buttons {
+  align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   justify-content: flex-end;
+
+  .option {
+    margin-right: auto;
+  }
 }
 
 .fileButton {
