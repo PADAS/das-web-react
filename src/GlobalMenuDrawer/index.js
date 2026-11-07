@@ -249,10 +249,10 @@ const GlobalMenuDrawer = () => {
     }, ALERTS_CATEGORY);
   }, [onModalClick, t, token.access_token]);
 
-  const renderMobileStoreLinks = (mobileStoreLinks, placement) => <li
+  const renderMobileStoreLinks = (mobileStoreLinks, isTopLink = false) => <li
     className={styles.nestedListItem}
   >
-    {placement ? <h3>{t('mobileHeading')}</h3> : <h4>{t('mobileHeading')}</h4>}
+    {isTopLink ? <h3>{t('mobileHeading')}</h3> : <h4>{t('mobileHeading')}</h4>}
 
     <ul>
       {mobileStoreLinks.map((mobileStoreLink) => <li key={mobileStoreLink.href}>
@@ -261,7 +261,7 @@ const GlobalMenuDrawer = () => {
           href: mobileStoreLink.href,
           icon: <mobileStoreLink.Icon aria-hidden />,
           label: t(mobileStoreLink.labelKey),
-          placement,
+          placement: isTopLink ? 'top link' : undefined,
         })}
       </li>)}
     </ul>
@@ -341,7 +341,7 @@ const GlobalMenuDrawer = () => {
       <hr aria-hidden className={styles.separator} />
 
       <ul>
-        {renderMobileStoreLinks([deviceMobileStoreLink], 'top link')}
+        {renderMobileStoreLinks([deviceMobileStoreLink], true)}
       </ul>
     </>}
 
@@ -365,21 +365,21 @@ const GlobalMenuDrawer = () => {
     <hr aria-hidden className={styles.separator} />
 
     <ul>
-      <li>
-        {!!tableauEnabled && <button onClick={() => openTableauReport()} type="button">
+      {!!tableauEnabled && <li>
+        <button onClick={() => openTableauReport()} type="button">
           <BarChartIcon aria-hidden />
 
           <span>{t('tableauButton')}</span>
-        </button>}
-      </li>
+        </button>
+      </li>}
 
-      <li>
-        {!!alertsEnabled && !!eventTypes.length && <button onClick={onOpenAlertsModalClick} type="button">
+      {!!alertsEnabled && !!eventTypes.length && <li>
+        <button onClick={onOpenAlertsModalClick} type="button">
           <BellIcon aria-hidden />
 
           <span>{t('alertsButton')}</span>
-        </button>}
-      </li>
+        </button>
+      </li>}
 
       <li>
         {jiraIframeHelpButton ? <button onClick={onContactSupportClick} type="button">

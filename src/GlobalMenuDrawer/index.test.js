@@ -204,6 +204,16 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.queryByRole('button', { name: 'Tableau' })).toBeNull();
   });
 
+  test('leaves no empty list items when Tableau and Alerts are off', async () => {
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.TABLEAU] = false;
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.ALERTS] = false;
+    renderGlobalMenuDrawer();
+
+    screen.getAllByRole('listitem').forEach((listItem) => {
+      expect(listItem).not.toBeEmptyDOMElement();
+    });
+  });
+
   test('opens a window to the tableau dashboard when clicking the Tableau button', async () => {
     global.open = jest.fn();
     renderGlobalMenuDrawer();
