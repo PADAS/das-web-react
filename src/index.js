@@ -80,6 +80,7 @@ const RootApp = () => {
   useWebVitals();
 
   useEffect(() => {
+    // No 401 recovery is attached yet, so this request must stay token-free.
     dispatch(fetchSystemStatus())
       .catch(() => setConfigError(true));
   }, [dispatch]);

@@ -58,6 +58,7 @@ export const fetchSystemStatus = () => (dispatch) => axios.get(STATUS_API_URL, {
     return response.data.data;
   })
   .catch(error => {
+    console.warn('Failed to fetch the system status', error?.response?.status, error?.message);
     dispatch(fetchSystemStatusError(error));
   });
 

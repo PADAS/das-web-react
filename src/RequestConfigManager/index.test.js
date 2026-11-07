@@ -222,3 +222,46 @@ describe('RequestConfigManager 401 handling', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 });
+
+describe('RequestConfigManager request headers', () => {
+  beforeEach(() => {
+    useLocation.mockReturnValue({ search: '' });
+    useNavigate.mockReturnValue(jest.fn());
+
+    axios.interceptors.request.use.mockClear();
+    axios.defaults.headers.common = {};
+  });
+
+  const renderRequestHandler = (selectedUserProfile = null) => {
+    const store = mockStore({
+      data: {
+        masterRequestCancelToken: { token: {} },
+        selectedUserProfile,
+        token: { access_token: 'existing.jwt.token' },
+        user: { id: 'u1' },
+      },
+      view: { userLocationAccessGranted: { granted: false } },
+    });
+
+    render(<Provider store={store}><RequestConfigManager /></Provider>);
+
+    const calls = axios.interceptors.request.use.mock.calls;
+    return calls[calls.length - 1][0];
+  };
+
+  test('keeps the Authorization header on a system status request', () => {
+    const requestHandler = renderRequestHandler();
+
+    const config = requestHandler({ headers: { Authorization: 'Bearer existing.jwt.token' }, url: '/api/v1.0/status' });
+
+    expect(config.headers.Authorization).toBe('Bearer existing.jwt.token');
+  });
+
+  test('sends the active profile with a system status request', () => {
+    const requestHandler = renderRequestHandler({ id: 'p1' });
+
+    const config = requestHandler({ headers: { Authorization: 'Bearer existing.jwt.token' }, url: '/api/v1.0/status' });
+
+    expect(config.headers).toEqual({ Authorization: 'Bearer existing.jwt.token', 'USER-PROFILE': 'p1' });
+  });
+});
