@@ -48,6 +48,8 @@ jest.mock('../utils/analytics', () => ({
 
 const ANDROID_USER_AGENT = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) '
   + 'Chrome/130.0.0.0 Mobile Safari/537.36';
+const ANDROID_TABLET_USER_AGENT = 'Mozilla/5.0 (Linux; Android 14; SM-X910) AppleWebKit/537.36 (KHTML, like Gecko) '
+  + 'Chrome/130.0.0.0 Safari/537.36';
 const IPHONE_USER_AGENT = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 '
   + '(KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1';
 
@@ -421,6 +423,14 @@ describe('GlobalMenuDrawer', () => {
     expect(mockTrack).toHaveBeenCalledWith('Click \'Mobile App Store\' top link');
   });
 
+  test('names the Gundi and Ecoscope links with their visible label followed by their tag', async () => {
+    store.data.user.is_staff = true;
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('link', { name: 'Gundi Integrations' })).toHaveTextContent('GundiIntegrations');
+    expect(screen.getByRole('link', { name: 'Ecoscope Analysis' })).toHaveTextContent('EcoscopeAnalysis');
+  });
+
   test('lists Ecoscope Analysis under EARTHRANGER APPS, not under EXPORTS, for non-staff users too', async () => {
     renderGlobalMenuDrawer();
 
@@ -462,6 +472,14 @@ describe('GlobalMenuDrawer', () => {
     expect(appStoreLink.compareDocumentPosition(screen.getByRole('button', { name: 'Tableau' })))
       .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(screen.queryByRole('link', { name: 'Google Play (Android)' })).toBeNull();
+  });
+
+  test('shows both EarthRanger Mobile store links in the apps section on an Android tablet', async () => {
+    mockUserAgent(ANDROID_TABLET_USER_AGENT);
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('link', { name: 'App Store (iPhone)' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 4, name: 'EARTHRANGER MOBILE' })).toBeInTheDocument();
   });
 
   test('shows only the Google Play link, above the rest of the menu, on an Android phone', async () => {

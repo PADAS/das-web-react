@@ -25,7 +25,6 @@
       "title": "Rapport Quotidien"
     },
     "ecoscopeAnalysisLink": "Analyse",
-    "ecoscopeAnalysisLinkAriaLabel": "Analyse avec Ecoscope",
     "ecoscopeName": "Ecoscope",
     "exportsHeader": "EXPORTER",
     "fieldReportsModal": {
@@ -41,7 +40,6 @@
       "systemStatusLink": "État du Système",
       "websitePrivacyPolicyLink": "Politique de Confidentialité du Site Web"
     },
-    "gundiLink": "Intégrations Gundi",
     "gundiName": "Gundi",
     "gundiTag": "Intégrations",
     "header": "Menu principal",

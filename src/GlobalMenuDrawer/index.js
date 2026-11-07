@@ -87,12 +87,12 @@ const MOBILE_STORE_LINKS = [
     href: MOBILE_GOOGLE_PLAY_URL,
     Icon: AndroidLogoIcon,
     labelKey: 'mobileGooglePlayLink',
-    userAgentPattern: /Android/,
+    userAgentPattern: /Android.*Mobile/,
   },
 ];
 
-const renderExternalLink = ({ analyticsLabel, ariaLabel, href, icon, label, placement = 'menu item', tag }) => <a
-  aria-label={ariaLabel}
+const renderExternalLink = ({ analyticsLabel, href, icon, label, placement = 'menu item', tag }) => <a
+  aria-label={tag ? `${label} ${tag}` : undefined}
   href={href}
   onClick={() => mainToolbarTracker.track(`Click '${analyticsLabel}' ${placement}`)}
   rel="noopener noreferrer"
@@ -479,7 +479,6 @@ const GlobalMenuDrawer = () => {
       {!!activeUser?.is_staff && <li>
         {renderExternalLink({
           analyticsLabel: 'Gundi',
-          ariaLabel: t('gundiLink'),
           href: GUNDI_PORTAL_URL,
           icon: <GundiLogoIcon aria-hidden />,
           label: t('gundiName'),
@@ -490,7 +489,6 @@ const GlobalMenuDrawer = () => {
       <li>
         {renderExternalLink({
           analyticsLabel: 'Ecoscope Analysis',
-          ariaLabel: t('ecoscopeAnalysisLinkAriaLabel'),
           href: ECOSCOPE_ANALYSIS_URL,
           icon: <EcoscopeLogoIcon aria-hidden />,
           label: t('ecoscopeName'),

@@ -27,7 +27,6 @@
       "title": "दैनिक रिपोर्ट"
     },
     "ecoscopeAnalysisLink": "विश्लेषण",
-    "ecoscopeAnalysisLinkAriaLabel": "Ecoscope सँग विश्लेषण",
     "ecoscopeName": "Ecoscope",
     "exportsHeader": "निर्यात",
     "fieldReportsModal": {
@@ -43,7 +42,6 @@
       "systemStatusLink": "प्रणालीको स्थिति",
       "websitePrivacyPolicyLink": "वेबसाइट गोपनीयता नीति"
     },
-    "gundiLink": "Gundi एकीकरणहरु",
     "gundiName": "Gundi",
     "gundiTag": "एकीकरणहरु",
     "header": "मुख्य मेनू",

@@ -27,7 +27,6 @@
       "title": "Daily Report"
     },
     "ecoscopeAnalysisLink": "Analysis",
-    "ecoscopeAnalysisLinkAriaLabel": "Ecoscope Analysis",
     "ecoscopeName": "Ecoscope",
     "exportsHeader": "EXPORTS",
     "fieldReportsModal": {
@@ -43,7 +42,6 @@
       "systemStatusLink": "System Status",
       "websitePrivacyPolicyLink": "Website Privacy Policy"
     },
-    "gundiLink": "Gundi Integrations",
     "gundiName": "Gundi",
     "gundiTag": "Integrations",
     "header": "Main Menu",
