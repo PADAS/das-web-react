@@ -1,4 +1,4 @@
-import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../../../ducks/patrol-filter';
+import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../ducks/patrol-filter';
 
 const STATUSES = ['active', 'done', 'cancelled'];
 

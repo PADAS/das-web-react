@@ -1,10 +1,10 @@
-import { mockStore } from '../../../../__test-helpers/MockStore';
-import { setAnalyzerFeatureActiveStateForIDs } from '../../../../utils/analyzers';
+import { mockStore } from '../../__test-helpers/MockStore';
+import { setAnalyzerFeatureActiveStateForIDs } from '../../utils/analyzers';
 
 import setMapLayerVisibilityTool from './';
 
-jest.mock('../../../../utils/analyzers', () => ({
-  ...jest.requireActual('../../../../utils/analyzers'),
+jest.mock('../../utils/analyzers', () => ({
+  ...jest.requireActual('../../utils/analyzers'),
   setAnalyzerFeatureActiveStateForIDs: jest.fn(),
 }));
 
@@ -17,7 +17,7 @@ const analyzerFeatures = () => [{
   name: 'Fence',
 }];
 
-describe('SideBar - OtusTab - hostTools - setMapLayerVisibilityTool', () => {
+describe('hostActions - setMapLayerVisibilityTool', () => {
   let map, store;
   beforeEach(() => {
     map = {};

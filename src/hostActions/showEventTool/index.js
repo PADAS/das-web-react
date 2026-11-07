@@ -1,15 +1,15 @@
-import { calcTitleAndSubtitle } from '../../../../utils/titles';
+import { calcTitleAndSubtitle } from '../../utils/titles';
 import {
   eventTypeTitleForEvent,
   getCoordinatesForCollection,
   getCoordinatesForEvent,
   getEventIdsForCollection,
   getReportLink,
-} from '../../../../utils/events';
-import { fetchEvent } from '../../../../ducks/events';
+} from '../../utils/events';
+import { fetchEvent } from '../../ducks/events';
 import HostToolError, { HOST_TOOL_ERROR_CODES } from '../HostToolError';
-import { REPORT_PRIORITIES } from '../../../../constants';
-import { setBounceEventIDs } from '../../../../ducks/map-ui';
+import { REPORT_PRIORITIES } from '../../constants';
+import { setBounceEventIDs } from '../../ducks/map-ui';
 
 // Clearing the bounce first lets a repeated call bounce the same event again.
 const BOUNCE_DELAY = 100;

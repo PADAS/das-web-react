@@ -5,12 +5,12 @@ import {
   getBoundsForPatrol,
   getPatrolLocationCoordinates,
   patrolHasTrackData,
-} from '../../../../utils/patrols';
-import { DAS_HOST } from '../../../../constants';
-import { fetchPatrol, togglePatrolTrackState } from '../../../../ducks/patrols';
-import { fetchTracksIfNecessary } from '../../../../utils/tracks';
+} from '../../utils/patrols';
+import { DAS_HOST } from '../../constants';
+import { fetchPatrol, togglePatrolTrackState } from '../../ducks/patrols';
+import { fetchTracksIfNecessary } from '../../utils/tracks';
 import HostToolError, { HOST_TOOL_ERROR_CODES } from '../HostToolError';
-import { selectPatrolMeasuredSubjectIds, selectPatrolTrackData } from '../../../../selectors/patrols';
+import { selectPatrolMeasuredSubjectIds, selectPatrolTrackData } from '../../selectors/patrols';
 
 const findPatrol = async (patrolId, context) => {
   if (!context.getState().data.patrolStore[patrolId]) {

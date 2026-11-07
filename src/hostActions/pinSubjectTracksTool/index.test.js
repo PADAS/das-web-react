@@ -1,10 +1,10 @@
-import { fetchTracksIfNecessary } from '../../../../utils/tracks';
-import { mockStore } from '../../../../__test-helpers/MockStore';
+import { fetchTracksIfNecessary } from '../../utils/tracks';
+import { mockStore } from '../../__test-helpers/MockStore';
 
 import pinSubjectTracksTool from './';
 
-jest.mock('../../../../utils/tracks', () => ({
-  ...jest.requireActual('../../../../utils/tracks'),
+jest.mock('../../utils/tracks', () => ({
+  ...jest.requireActual('../../utils/tracks'),
   fetchTracksIfNecessary: jest.fn(),
 }));
 
@@ -12,7 +12,7 @@ const lineTrack = (coordinates) => ({
   track: { features: [{ geometry: { coordinates, type: 'LineString' }, type: 'Feature' }] },
 });
 
-describe('SideBar - OtusTab - hostTools - pinSubjectTracksTool', () => {
+describe('hostActions - pinSubjectTracksTool', () => {
   let jumpToLocation, store;
   beforeEach(() => {
     fetchTracksIfNecessary.mockResolvedValue();

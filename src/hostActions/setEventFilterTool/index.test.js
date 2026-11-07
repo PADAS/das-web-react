@@ -1,9 +1,9 @@
-import { mockStore } from '../../../../__test-helpers/MockStore';
-import { INITIAL_FILTER_STATE, UPDATE_EVENT_FILTER } from '../../../../ducks/event-filter';
+import { mockStore } from '../../__test-helpers/MockStore';
+import { INITIAL_FILTER_STATE, UPDATE_EVENT_FILTER } from '../../ducks/event-filter';
 
 import setEventFilterTool from './';
 
-describe('SideBar - OtusTab - hostTools - setEventFilterTool', () => {
+describe('hostActions - setEventFilterTool', () => {
   let store;
   beforeEach(() => {
     store = mockStore({ data: { eventFilter: INITIAL_FILTER_STATE } });

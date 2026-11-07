@@ -1,10 +1,10 @@
 import uniqBy from 'lodash/uniqBy';
 
-import { canShowTrackForSubject } from '../../../../utils/subjects';
-import { fetchTracksIfNecessary } from '../../../../utils/tracks';
-import { pinSubjectTracks } from '../../../../ducks/map-ui';
-import { selectHydratedSubjectGroupsWithLastPositionTime } from '../../../../selectors/subjects';
-import { showSubjects } from '../../../../ducks/map-layer-filter';
+import { canShowTrackForSubject } from '../../utils/subjects';
+import { fetchTracksIfNecessary } from '../../utils/tracks';
+import { pinSubjectTracks } from '../../ducks/map-ui';
+import { selectHydratedSubjectGroupsWithLastPositionTime } from '../../selectors/subjects';
+import { showSubjects } from '../../ducks/map-layer-filter';
 
 // A track crossing the antimeridian is split into a MultiLineString.
 const LINE_GEOMETRY_TYPES = ['LineString', 'MultiLineString'];

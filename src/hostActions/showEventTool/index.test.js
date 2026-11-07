@@ -1,11 +1,11 @@
-import { fetchEvent } from '../../../../ducks/events';
+import { fetchEvent } from '../../ducks/events';
 import { HOST_TOOL_ERROR_CODES } from '../HostToolError';
-import { mockStore } from '../../../../__test-helpers/MockStore';
+import { mockStore } from '../../__test-helpers/MockStore';
 
 import showEventTool from './';
 
-jest.mock('../../../../ducks/events', () => ({
-  ...jest.requireActual('../../../../ducks/events'),
+jest.mock('../../ducks/events', () => ({
+  ...jest.requireActual('../../ducks/events'),
   fetchEvent: jest.fn(),
 }));
 
@@ -19,7 +19,7 @@ const EVENT = {
   title: 'Snare at the river',
 };
 
-describe('SideBar - OtusTab - hostTools - showEventTool', () => {
+describe('hostActions - showEventTool', () => {
   let jumpToLocation, state, store;
   beforeEach(() => {
     jest.useFakeTimers();

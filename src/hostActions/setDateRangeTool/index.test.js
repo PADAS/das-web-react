@@ -1,11 +1,11 @@
-import { mockStore } from '../../../../__test-helpers/MockStore';
-import { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from '../../../../ducks/global-date-range';
+import { mockStore } from '../../__test-helpers/MockStore';
+import { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from '../../ducks/global-date-range';
 
 import setDateRangeTool from './';
 
 const DATE_RANGE = { lower: '2026-10-01T00:00:00.000Z', upper: '2026-10-31T00:00:00.000Z' };
 
-describe('SideBar - OtusTab - hostTools - setDateRangeTool', () => {
+describe('hostActions - setDateRangeTool', () => {
   let store;
   beforeEach(() => {
     store = mockStore({ data: { eventFilter: { filter: { date_range: DATE_RANGE } } } });

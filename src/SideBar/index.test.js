@@ -329,10 +329,10 @@ describe('SideBar', () => {
     expect(screen.getByRole('link', { name: 'Otus' })).toBeVisible();
   });
 
-  test('does not show the Otus tab when there is no Otus URL in the store', async () => {
+  test('shows the Otus tab even when there is no Otus URL in the store, for the actions playground', async () => {
     renderSideBar();
 
-    expect(screen.queryByRole('link', { name: 'Otus' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Otus' })).toBeVisible();
   });
 
   test('links the Otus tab to /atlas', async () => {
@@ -354,25 +354,13 @@ describe('SideBar', () => {
     expect(screen.getByRole('link', { name: 'Settings' })).not.toHaveClass('active');
   });
 
-  test('keeps the Otus frame mounted when navigating to another tab', async () => {
-    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+  test('shows the actions playground in the Otus tab', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
     useLocation.mockImplementation(useLocationMock);
 
-    const { rerender } = renderSideBar();
+    renderSideBar();
 
-    const otusFrame = screen.getByTitle('Otus chat');
-
-    expect(screen.getByRole('region', { name: 'Otus' })).toHaveClass('active');
-
-    useLocationMock = jest.fn((() => ({ pathname: '/events' })));
-    useLocation.mockImplementation(useLocationMock);
-
-    rerender(sideBarTree(mockStore(store)));
-
-    expect(screen.getByTitle('Otus chat')).toBe(otusFrame);
-    expect(otusFrame).toBeInTheDocument();
-    expect(screen.getByRole('region', { name: 'Otus' })).not.toHaveClass('active');
+    expect(screen.getByLabelText('Action file (.action.json)')).toBeInTheDocument();
   });
 
   test('navigates home when the user clicks the active Otus tab link', async () => {
@@ -602,13 +590,13 @@ describe('SideBar', () => {
     expect(screen.getByRole('heading')).toHaveTextContent('Map Layers');
   });
 
-  test('does not show the default header for the Otus tab', async () => {
-    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+  test('shows the default header for the Otus tab, over the actions playground', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
     useLocation.mockImplementation(useLocationMock);
     renderSideBar();
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Otus');
+    expect(screen.getByRole('link', { name: 'Close sidebar' })).toBeInTheDocument();
   });
 
   test('sets the tab title for the Settings tab', async () => {

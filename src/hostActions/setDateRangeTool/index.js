@@ -1,4 +1,4 @@
-import { resetGlobalDateRange, updateGlobalDateRange } from '../../../../ducks/global-date-range';
+import { resetGlobalDateRange, updateGlobalDateRange } from '../../ducks/global-date-range';
 
 const DATE_SCHEMA = { format: 'date-time', type: ['string', 'null'] };
 

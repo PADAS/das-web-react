@@ -6,12 +6,12 @@ import {
   showAnalyzers,
   showFeatures,
   showSubjects,
-} from '../../../../ducks/map-layer-filter';
-import { getAnalyzerListState } from '../../../MapLayersTab/AnalyzersTab/selectors';
-import { getFeatureLayerListState } from '../../../MapLayersTab/FeaturesTab/selectors';
-import { getUniqueSubjectGroupSubjectIDs } from '../../../../utils/subjects';
-import { selectHydratedSubjectGroupsWithLastPositionTime } from '../../../../selectors/subjects';
-import { setAnalyzerFeatureActiveStateForIDs } from '../../../../utils/analyzers';
+} from '../../ducks/map-layer-filter';
+import { getAnalyzerListState } from '../../SideBar/MapLayersTab/AnalyzersTab/selectors';
+import { getFeatureLayerListState } from '../../SideBar/MapLayersTab/FeaturesTab/selectors';
+import { getUniqueSubjectGroupSubjectIDs } from '../../utils/subjects';
+import { selectHydratedSubjectGroupsWithLastPositionTime } from '../../selectors/subjects';
+import { setAnalyzerFeatureActiveStateForIDs } from '../../utils/analyzers';
 
 const UUID_LIST_SCHEMA = { items: { format: 'uuid', type: 'string' }, type: 'array' };
 

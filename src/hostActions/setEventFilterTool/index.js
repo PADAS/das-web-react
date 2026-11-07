@@ -1,5 +1,5 @@
-import { EVENT_STATE_CHOICES, REPORT_PRIORITIES } from '../../../../constants';
-import { INITIAL_FILTER_STATE, updateEventFilter } from '../../../../ducks/event-filter';
+import { EVENT_STATE_CHOICES, REPORT_PRIORITIES } from '../../constants';
+import { INITIAL_FILTER_STATE, updateEventFilter } from '../../ducks/event-filter';
 
 const STATE_CHOICES = EVENT_STATE_CHOICES.filter((stateChoice) => !!stateChoice.value);
 

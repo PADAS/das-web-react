@@ -8,7 +8,7 @@ jest.mock('./setDateRangeTool', () => ({
   default: { ...jest.requireActual('./setDateRangeTool').default, run: jest.fn() },
 }));
 
-describe('SideBar - OtusTab - hostTools', () => {
+describe('hostActions', () => {
   let context;
   beforeEach(() => {
     context = { dispatch: jest.fn(), getState: jest.fn(), jumpToLocation: jest.fn(), map: {} };

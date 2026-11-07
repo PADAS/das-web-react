@@ -9,8 +9,8 @@ import {
 } from '../../constants';
 import { mockStore } from '../../__test-helpers/MockStore';
 import { act, fireEvent, render, screen, waitFor } from '../../test-utils';
-import { HOST_TOOL_ERROR_CODES } from './hostTools/HostToolError';
-import runHostTool, { HOST_TOOL_SPECS } from './hostTools';
+import { HOST_TOOL_ERROR_CODES } from '../../hostActions/HostToolError';
+import runHostTool, { HOST_TOOL_SPECS } from '../../hostActions';
 import { updateUserPreferences } from '../../ducks/user-preferences';
 import { useMatchMedia } from '../../hooks';
 import useNavigate from '../../hooks/useNavigate';
@@ -24,8 +24,8 @@ jest.mock('../../hooks', () => ({
 
 jest.mock('../../hooks/useNavigate', () => jest.fn());
 
-jest.mock('./hostTools', () => ({
-  ...jest.requireActual('./hostTools'),
+jest.mock('../../hostActions', () => ({
+  ...jest.requireActual('../../hostActions'),
   __esModule: true,
   default: jest.fn(),
 }));

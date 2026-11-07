@@ -31,7 +31,7 @@ import SoundNotificationsPlayer from '../SoundNotificationsPlayer';
 import EventsManager from './EventsManager';
 import GearTab from './GearTab';
 import MapLayersTab from './MapLayersTab';
-import OtusTab from './OtusTab';
+import AtlasActionsPlayground from './AtlasActionsPlayground';
 import PatrolsFeed from './PatrolsFeed';
 import PatrolsManager from './PatrolsManager';
 import SettingsPane from './SettingsPane';
@@ -62,7 +62,6 @@ const SideBar = () => {
     initialLoadInProgress,
     loading: gearLoading,
   } = useSelector((state) => state.data.gear);
-  const otusUrl = useSelector((state) => state.view.systemConfig.otusUrl);
   const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const sideBar = useSelector((state) => state.view.sideBar);
   const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
@@ -85,7 +84,8 @@ const SideBar = () => {
     && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), location.pathname);
 
   const showGearTab = hasGear;
-  const showOtusTab = !!otusUrl;
+  // Prototype: the actions playground stands in for Atlas on every site.
+  const showOtusTab = true;
 
   const isOtusTabActive = showOtusTab && currentTab === TAB_KEYS.OTUS;
 
@@ -125,8 +125,7 @@ const SideBar = () => {
   const hideDefaultHeader = (patrolSchemasEnabled
     && canReadPatrols
     && !!matchPath(detailViewPattern(TAB_KEYS.PATROLS), displayedPathname))
-    || (eventsEnabled && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), displayedPathname))
-    || (showOtusTab && displayedTab === TAB_KEYS.OTUS);
+    || (eventsEnabled && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), displayedPathname));
 
   const onClickBackFromDetailView = useCallback(() => {
     if (location.key === 'default' || location.state?.comesFromLogin || location.state?.comesFromLngLatRedirection) {
@@ -300,7 +299,9 @@ const SideBar = () => {
                 />}
             </div>}
 
-            <h3 id="side-bar-tab-header">{t(`${displayedTab}Link`)}</h3>
+            <h3 id="side-bar-tab-header">
+              {t(displayedTab === TAB_KEYS.OTUS ? 'otusLink' : `${displayedTab}Link`)}
+            </h3>
           </div>
 
           <Link
@@ -314,9 +315,6 @@ const SideBar = () => {
         </div>}
 
         <div className={`${styles.tabBody} ${hideDefaultHeader ? styles.noHeader : ''}`}>
-          {/* Outside the routes so a tab switch keeps the frame mounted. */}
-          {showOtusTab && <OtusTab isActive={displayedTab === TAB_KEYS.OTUS} url={otusUrl} />}
-
           <Routes location={tabLocation ?? location}>
             {/* Gets rid of warning */}
             <Route path="/" element={null} />
@@ -345,7 +343,7 @@ const SideBar = () => {
 
             {showLayersTab && <Route path={TAB_KEYS.LAYERS} element={<MapLayersTab />} />}
 
-            {showOtusTab && <Route path={TAB_KEYS.OTUS} element={null} />}
+            {showOtusTab && <Route path={TAB_KEYS.OTUS} element={<AtlasActionsPlayground />} />}
 
             <Route path={TAB_KEYS.SETTINGS} element={<SettingsPane />} />
           </Routes>

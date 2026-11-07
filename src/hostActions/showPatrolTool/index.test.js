@@ -1,32 +1,32 @@
-import { DAS_HOST } from '../../../../constants';
-import { fetchPatrol, UPDATE_PATROL_TRACK_STATE } from '../../../../ducks/patrols';
-import { fetchTracksIfNecessary } from '../../../../utils/tracks';
-import { getBoundsForPatrol, patrolHasTrackData } from '../../../../utils/patrols';
+import { DAS_HOST } from '../../constants';
+import { fetchPatrol, UPDATE_PATROL_TRACK_STATE } from '../../ducks/patrols';
+import { fetchTracksIfNecessary } from '../../utils/tracks';
+import { getBoundsForPatrol, patrolHasTrackData } from '../../utils/patrols';
 import { HOST_TOOL_ERROR_CODES } from '../HostToolError';
-import { mockStore } from '../../../../__test-helpers/MockStore';
-import { selectPatrolMeasuredSubjectIds, selectPatrolTrackData } from '../../../../selectors/patrols';
+import { mockStore } from '../../__test-helpers/MockStore';
+import { selectPatrolMeasuredSubjectIds, selectPatrolTrackData } from '../../selectors/patrols';
 
 import showPatrolTool from './';
 
-jest.mock('../../../../ducks/patrols', () => ({
-  ...jest.requireActual('../../../../ducks/patrols'),
+jest.mock('../../ducks/patrols', () => ({
+  ...jest.requireActual('../../ducks/patrols'),
   fetchPatrol: jest.fn(),
 }));
 
-jest.mock('../../../../selectors/patrols', () => ({
-  ...jest.requireActual('../../../../selectors/patrols'),
+jest.mock('../../selectors/patrols', () => ({
+  ...jest.requireActual('../../selectors/patrols'),
   selectPatrolMeasuredSubjectIds: jest.fn(),
   selectPatrolTrackData: jest.fn(),
 }));
 
-jest.mock('../../../../utils/patrols', () => ({
-  ...jest.requireActual('../../../../utils/patrols'),
+jest.mock('../../utils/patrols', () => ({
+  ...jest.requireActual('../../utils/patrols'),
   getBoundsForPatrol: jest.fn(),
   patrolHasTrackData: jest.fn(),
 }));
 
-jest.mock('../../../../utils/tracks', () => ({
-  ...jest.requireActual('../../../../utils/tracks'),
+jest.mock('../../utils/tracks', () => ({
+  ...jest.requireActual('../../utils/tracks'),
   fetchTracksIfNecessary: jest.fn(),
 }));
 
@@ -38,7 +38,7 @@ const PATROL = {
   title: 'River patrol',
 };
 
-describe('SideBar - OtusTab - hostTools - showPatrolTool', () => {
+describe('hostActions - showPatrolTool', () => {
   let jumpToLocation, state, store;
   beforeEach(() => {
     fetchPatrol.mockImplementation(() => () => Promise.resolve());

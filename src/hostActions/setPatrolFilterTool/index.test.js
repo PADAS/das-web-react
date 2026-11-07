@@ -1,9 +1,9 @@
-import { mockStore } from '../../../../__test-helpers/MockStore';
-import { INITIAL_FILTER_STATE, UPDATE_PATROL_FILTER } from '../../../../ducks/patrol-filter';
+import { mockStore } from '../../__test-helpers/MockStore';
+import { INITIAL_FILTER_STATE, UPDATE_PATROL_FILTER } from '../../ducks/patrol-filter';
 
 import setPatrolFilterTool from './';
 
-describe('SideBar - OtusTab - hostTools - setPatrolFilterTool', () => {
+describe('hostActions - setPatrolFilterTool', () => {
   let store;
   beforeEach(() => {
     store = mockStore({ data: { patrolFilter: INITIAL_FILTER_STATE } });
