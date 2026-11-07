@@ -1,6 +1,7 @@
 import { TAB_KEYS } from '../../constants';
 
 import CheckList from './CheckList';
+import DraftEventFields from './DraftEventFields';
 
 import * as styles from './styles.module.scss';
 
@@ -151,6 +152,50 @@ const ACTION_FORMS = {
     </>,
     toArguments: (picks) => ({ ...withoutEmpty(picks), visible: picks.visible }),
     destination: () => ({ labelKey: 'destinations.mapLayers', to: `/${TAB_KEYS.LAYERS}` }),
+  },
+
+  describe_event_type: {
+    initialPicks: () => ({ event_type_id: '' }),
+    render: ({ options, picks, setPick, t }) => <SingleSelect
+      label={t('fields.eventType')}
+      onChange={(id) => setPick('event_type_id', id)}
+      recent={options.v2EventTypes}
+      t={t}
+      value={picks.event_type_id || options.v2EventTypes.options[0]?.id || ''}
+    />,
+    toArguments: (picks, options) => ({ event_type_id: picks.event_type_id || options.v2EventTypes.options[0]?.id || '' }),
+    destination: () => null,
+  },
+
+  // The tool opens the form itself, as it does when Atlas calls it.
+  draft_new_event: {
+    // Kept per event type, since each type has its own fields.
+    initialPicks: () => ({ detailsByType: {}, event_type_id: '' }),
+    render: ({ options, picks, setPick, t }) => {
+      const eventTypeId = picks.event_type_id || options.v2EventTypes.options[0]?.id || '';
+
+      return <>
+        <SingleSelect
+          label={t('fields.eventType')}
+          onChange={(id) => setPick('event_type_id', id)}
+          recent={options.v2EventTypes}
+          t={t}
+          value={eventTypeId}
+        />
+        <DraftEventFields
+          eventDetails={picks.detailsByType[eventTypeId] ?? {}}
+          eventTypeId={eventTypeId}
+          onChange={(eventDetails) => setPick('detailsByType', { ...picks.detailsByType, [eventTypeId]: eventDetails })}
+          t={t}
+        />
+      </>;
+    },
+    toArguments: (picks, options) => {
+      const eventTypeId = picks.event_type_id || options.v2EventTypes.options[0]?.id || '';
+
+      return { event_type_id: eventTypeId, event_details: picks.detailsByType[eventTypeId] ?? {} };
+    },
+    destination: () => null,
   },
 
   pin_subject_tracks: {

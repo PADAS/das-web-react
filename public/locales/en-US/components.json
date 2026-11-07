@@ -242,12 +242,17 @@
       "errorStatus": "{{name}} failed: {{code}}",
       "fields": {
         "analyzers": "Analyzers",
+        "conditional": "shown only when its conditions hold",
         "event": "Event",
+        "eventType": "Event type",
         "eventTypes": "Event types",
         "eventsLayer": "Also apply to events on the map",
         "featureSets": "Feature sets",
+        "fileOnly": "Fill this one in the file.",
         "hide": "Hide",
         "lower": "From",
+        "no": "No",
+        "notFilled": "Not filled",
         "patrol": "Patrol",
         "patrolTypes": "Patrol types",
         "priorities": "Priorities",
@@ -261,7 +266,8 @@
         "text": "Search text",
         "upToNow": "Up to now",
         "upper": "To",
-        "visibility": "Visibility"
+        "visibility": "Visibility",
+        "yes": "Yes"
       },
       "fileLabel": "Action file (.action.json)",
       "intro": "Atlas attaches a file like this to its reply. Pick an action and what it acts on, run it, and see the result on the map.",

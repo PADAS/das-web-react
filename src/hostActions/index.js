@@ -1,6 +1,8 @@
 import addFormats from 'ajv-formats';
 import Ajv from 'ajv';
 
+import describeEventTypeTool from './describeEventTypeTool';
+import draftNewEventTool from './draftNewEventTool';
 import HostToolError, { HOST_TOOL_ERROR_CODES } from './HostToolError';
 import pinSubjectTracksTool from './pinSubjectTracksTool';
 import setDateRangeTool from './setDateRangeTool';
@@ -10,8 +12,10 @@ import setPatrolFilterTool from './setPatrolFilterTool';
 import showEventTool from './showEventTool';
 import showPatrolTool from './showPatrolTool';
 
-// Every tool reads or moves what the user sees, and none writes to the site.
+// No tool writes to the site. A draft tool fills a form that the person saves.
 const HOST_TOOLS = [
+  describeEventTypeTool,
+  draftNewEventTool,
   pinSubjectTracksTool,
   setDateRangeTool,
   setEventFilterTool,

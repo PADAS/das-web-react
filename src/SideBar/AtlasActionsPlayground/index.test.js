@@ -14,6 +14,8 @@ jest.mock('./useTargetOptions', () => jest.fn());
 const SNARE_ID = 'b5a2b5f4-0c46-4b8f-9e8a-0a7c1d2e3f40';
 const CARCASS_ID = 'c6b3c6a5-1d57-4c9a-8f9b-1b8d2e3f4a51';
 
+const SIGHTING_TYPE_ID = '7d1b0a4e-6f3c-4c55-9a7e-2f1c3b4d5e6f';
+
 const recent = (options) => ({ error: false, isLoading: false, options, results: [] });
 
 const OPTIONS = {
@@ -26,6 +28,7 @@ const OPTIONS = {
   subjectGroups: [],
   subjects: [],
   trackableSubjects: [],
+  v2EventTypes: recent([{ id: SIGHTING_TYPE_ID, label: 'Wildlife sighting' }]),
 };
 
 describe('SideBar - AtlasActionsPlayground', () => {

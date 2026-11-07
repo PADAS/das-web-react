@@ -1,0 +1,19 @@
+@use '../../common/styles/vars/colors';
+
+.draftedField {
+  border-left: 3px solid colors.$bright-blue;
+  padding-left: 0.5rem;
+}
+
+.badge {
+  align-items: center;
+  color: colors.$bright-blue;
+  display: flex;
+  font-size: 0.75rem;
+  gap: 0.25rem;
+
+  button {
+    font-size: 0.75rem;
+    padding: 0;
+  }
+}

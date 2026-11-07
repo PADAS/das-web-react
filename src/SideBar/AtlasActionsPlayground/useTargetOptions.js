@@ -82,6 +82,15 @@ const useTargetOptions = () => {
         .map((patrolType) => ({ id: patrolType.id, label: patrolType.display }))
         .sort(byLabel),
       subjectGroups: flattenSubjectGroups(subjectGroups),
+      // Atlas drafts only v2 event types.
+      v2EventTypes: {
+        error: false,
+        isLoading: false,
+        options: eventTypes
+          .filter((eventType) => eventType.version === 2 && eventType.is_active !== false && !eventType.is_collection)
+          .map((eventType) => ({ id: eventType.id, label: eventType.display }))
+          .sort(byLabel),
+      },
       subjects: subjects.map((subject) => ({ id: subject.id, label: subject.name })).sort(byLabel),
       trackableSubjects: subjects
         .filter(canShowTrackForSubject)

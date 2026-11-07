@@ -18,6 +18,8 @@ describe('hostActions', () => {
   describe('HOST_TOOL_SPECS', () => {
     test('describes every tool by name, description and input schema only', () => {
       expect(HOST_TOOL_SPECS.map((hostToolSpec) => hostToolSpec.name)).toEqual([
+        'describe_event_type',
+        'draft_new_event',
         'pin_subject_tracks',
         'set_date_range',
         'set_event_filter',

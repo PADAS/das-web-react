@@ -5,6 +5,7 @@ import { HOST_TOOL_ERROR_CODES } from '../HostToolError';
 import { MapContext } from '../../MapContext';
 import runHostTool from '../';
 import useJumpToLocation from '../../hooks/useJumpToLocation';
+import useNavigate from '../../hooks/useNavigate';
 
 // Resolves with what the caller hands back to Atlas, never rejects. A call
 // reads the map and store as they are when it runs.
@@ -12,12 +13,13 @@ const useRunHostAction = () => {
   const dispatch = useDispatch();
   const jumpToLocation = useJumpToLocation();
   const map = useContext(MapContext);
+  const navigate = useNavigate();
   const store = useStore();
 
   const contextRef = useRef(null);
 
   useEffect(() => {
-    contextRef.current = { dispatch, getState: store.getState, jumpToLocation, map };
+    contextRef.current = { dispatch, getState: store.getState, jumpToLocation, map, navigate };
   });
 
   return useCallback(async (name, args) => {
