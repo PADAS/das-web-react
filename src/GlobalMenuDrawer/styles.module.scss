@@ -71,8 +71,8 @@
       &.nestedListItem {
         margin-top: 1rem;
 
-        h4 {
-          color: #b1b3b3;
+        h3, h4 {
+          color: colors.$secondary-light-gray;
           font-size: .75rem;
           margin-bottom: 0.25rem;
         }
@@ -114,9 +114,9 @@
         }
 
         .tag {
-          border: 1px solid #b1b3b3;
+          border: 1px solid colors.$secondary-light-gray;
           border-radius: 0.625rem;
-          color: #b1b3b3;
+          color: colors.$secondary-light-gray;
           font-size: 0.625rem;
           font-weight: 500;
           line-height: 1;

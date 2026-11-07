@@ -492,6 +492,23 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.getByRole('heading', { name: 'EARTHRANGER APPS' })).toBeInTheDocument();
   });
 
+  test('does not show the EXPORTS heading when no export is available', async () => {
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.DAILY_REPORT] = false;
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT] = false;
+    store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS] = [];
+    renderGlobalMenuDrawer();
+
+    expect(screen.queryByRole('heading', { name: 'EXPORTS' })).toBeNull();
+  });
+
+  test('shows the EarthRanger Mobile heading of the top store link one level below the menu heading', async () => {
+    mockUserAgent(IPHONE_USER_AGENT);
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('heading', { level: 3, name: 'EARTHRANGER MOBILE' })).toBeInTheDocument();
+  });
+
   test('lists LEARN, with Help Center and User\'s Guide, above the exports', async () => {
     renderGlobalMenuDrawer();
 

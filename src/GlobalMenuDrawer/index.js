@@ -11,10 +11,10 @@ import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-
 import { ReactComponent as ChatBubbleIcon } from '../common/images/icons/chat-bubble.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
+import { ReactComponent as EcoscopeLogoIcon } from '../common/images/icons/ecoscope-logo.svg';
 import { ReactComponent as EarthRangerMarkIcon } from '../common/images/icons/er-mark.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as GundiLogoIcon } from '../common/images/icons/gundi-logo.svg';
-import { ReactComponent as EcoscopeLogoIcon } from '../common/images/icons/ecoscope-logo.svg';
 import { ReactComponent as InformationIcon } from '../common/images/icons/information.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
@@ -91,7 +91,7 @@ const MOBILE_STORE_LINKS = [
   },
 ];
 
-const renderExternalLink = (href, icon, label, analyticsLabel, tag, ariaLabel, placement = 'menu item') => <a
+const renderExternalLink = ({ analyticsLabel, ariaLabel, href, icon, label, placement = 'menu item', tag }) => <a
   aria-label={ariaLabel}
   href={href}
   onClick={() => mainToolbarTracker.track(`Click '${analyticsLabel}' ${placement}`)}
@@ -252,19 +252,17 @@ const GlobalMenuDrawer = () => {
   const renderMobileStoreLinks = (mobileStoreLinks, placement) => <li
     className={styles.nestedListItem}
   >
-    <h4>{t('mobileHeading')}</h4>
+    {placement ? <h3>{t('mobileHeading')}</h3> : <h4>{t('mobileHeading')}</h4>}
 
     <ul>
       {mobileStoreLinks.map((mobileStoreLink) => <li key={mobileStoreLink.href}>
-        {renderExternalLink(
-          mobileStoreLink.href,
-          <mobileStoreLink.Icon aria-hidden />,
-          t(mobileStoreLink.labelKey),
-          mobileStoreLink.analyticsLabel,
-          undefined,
-          undefined,
+        {renderExternalLink({
+          analyticsLabel: mobileStoreLink.analyticsLabel,
+          href: mobileStoreLink.href,
+          icon: <mobileStoreLink.Icon aria-hidden />,
+          label: t(mobileStoreLink.labelKey),
           placement,
-        )}
+        })}
       </li>)}
     </ul>
   </li>;
@@ -401,7 +399,12 @@ const GlobalMenuDrawer = () => {
       </li>
 
       <li>
-        {renderExternalLink(COMMUNITY_SITE_URL, <PersonIcon aria-hidden />, t('communityButton'), 'Community')}
+        {renderExternalLink({
+          analyticsLabel: 'Community',
+          href: COMMUNITY_SITE_URL,
+          icon: <PersonIcon aria-hidden />,
+          label: t('communityButton'),
+        })}
       </li>
     </ul>
 
@@ -411,31 +414,53 @@ const GlobalMenuDrawer = () => {
 
     <ul>
       <li>
-        {renderExternalLink(HELP_CENTER_SITE_URL, <InformationIcon aria-hidden />, t('helpCenterButton'), 'Help Center')}
+        {renderExternalLink({
+          analyticsLabel: 'Help Center',
+          href: HELP_CENTER_SITE_URL,
+          icon: <InformationIcon aria-hidden />,
+          label: t('helpCenterButton'),
+        })}
       </li>
 
       <li>
-        {renderExternalLink(USERS_GUIDE_SITE_URL, <BulletListIcon aria-hidden />, t('usersGuideButton'), 'Users Guide')}
+        {renderExternalLink({
+          analyticsLabel: 'Users Guide',
+          href: USERS_GUIDE_SITE_URL,
+          icon: <BulletListIcon aria-hidden />,
+          label: t('usersGuideButton'),
+        })}
       </li>
 
       <li>
-        {renderExternalLink(RELEASE_NOTES_URL, <StarIcon aria-hidden />, t('whatsNewLink'), 'What\'s New')}
+        {renderExternalLink({
+          analyticsLabel: 'What\'s New',
+          href: RELEASE_NOTES_URL,
+          icon: <StarIcon aria-hidden />,
+          label: t('whatsNewLink'),
+        })}
       </li>
 
       <li>
-        {renderExternalLink(TRAINING_URL, <PlayCircleIcon aria-hidden />, t('trainingLink'), 'Training')}
+        {renderExternalLink({
+          analyticsLabel: 'Training',
+          href: TRAINING_URL,
+          icon: <PlayCircleIcon aria-hidden />,
+          label: t('trainingLink'),
+        })}
       </li>
     </ul>
 
-    <hr aria-hidden className={styles.separator} />
+    {!!exportModals.length && <>
+      <hr aria-hidden className={styles.separator} />
 
-    <h3>{t('exportsHeader')}</h3>
+      <h3>{t('exportsHeader')}</h3>
 
-    <ul>
-      {exportModals.map((modal) => <li key={modal.title}>
-        <button onClick={() => onModalClick(modal)} type="button">{modal.title}</button>
-      </li>)}
-    </ul>
+      <ul>
+        {exportModals.map((modal) => <li key={modal.title}>
+          <button onClick={() => onModalClick(modal)} type="button">{modal.title}</button>
+        </li>)}
+      </ul>
+    </>}
 
     <hr aria-hidden className={styles.separator} />
 
@@ -443,29 +468,34 @@ const GlobalMenuDrawer = () => {
 
     <ul>
       {!!activeUser?.is_staff && <li>
-        {renderExternalLink(`${DAS_HOST}/admin`, <EarthRangerMarkIcon aria-hidden />, t('adminLink'), 'Admin')}
+        {renderExternalLink({
+          analyticsLabel: 'Admin',
+          href: `${DAS_HOST}/admin`,
+          icon: <EarthRangerMarkIcon aria-hidden />,
+          label: t('adminLink'),
+        })}
       </li>}
 
       {!!activeUser?.is_staff && <li>
-        {renderExternalLink(
-          GUNDI_PORTAL_URL,
-          <GundiLogoIcon aria-hidden />,
-          t('gundiName'),
-          'Gundi',
-          t('gundiTag'),
-          t('gundiLink'),
-        )}
+        {renderExternalLink({
+          analyticsLabel: 'Gundi',
+          ariaLabel: t('gundiLink'),
+          href: GUNDI_PORTAL_URL,
+          icon: <GundiLogoIcon aria-hidden />,
+          label: t('gundiName'),
+          tag: t('gundiTag'),
+        })}
       </li>}
 
       <li>
-        {renderExternalLink(
-          ECOSCOPE_ANALYSIS_URL,
-          <EcoscopeLogoIcon aria-hidden />,
-          t('ecoscopeName'),
-          'Ecoscope Analysis',
-          t('ecoscopeAnalysisLink'),
-          t('ecoscopeAnalysisLinkAriaLabel'),
-        )}
+        {renderExternalLink({
+          analyticsLabel: 'Ecoscope Analysis',
+          ariaLabel: t('ecoscopeAnalysisLinkAriaLabel'),
+          href: ECOSCOPE_ANALYSIS_URL,
+          icon: <EcoscopeLogoIcon aria-hidden />,
+          label: t('ecoscopeName'),
+          tag: t('ecoscopeAnalysisLink'),
+        })}
       </li>
 
       {!deviceMobileStoreLink && renderMobileStoreLinks(MOBILE_STORE_LINKS)}

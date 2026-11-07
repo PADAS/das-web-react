@@ -26,14 +26,14 @@
     "dailyReportModal": {
       "title": "Daily Report"
     },
+    "ecoscopeAnalysisLink": "Analysis",
+    "ecoscopeAnalysisLinkAriaLabel": "Ecoscope Analysis",
+    "ecoscopeName": "Ecoscope",
     "exportsHeader": "EXPORTS",
     "fieldReportsModal": {
       "content": "Exported events will only include those matching the filter criteria currently set in the Events tab.",
       "title": "Field Events"
     },
-    "ecoscopeAnalysisLinkAriaLabel": "Ecoscope Analysis",
-    "ecoscopeAnalysisLink": "Analysis",
-    "ecoscopeName": "Ecoscope",
     "footer": {
       "clientVersion": "Web client version: {{version}}",
       "copyright": "©{{year}} EarthRanger",
