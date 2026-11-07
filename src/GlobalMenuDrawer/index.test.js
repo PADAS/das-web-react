@@ -3,8 +3,16 @@ import userEvent from '@testing-library/user-event';
 
 import { addModal } from '../ducks/modals';
 import { createQuerySelectorMockImplementationWithHelpButtonReference } from '../__test-helpers/jiraSupportWidget';
+import { DAS_HOST, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
+import { hideDrawer } from '../ducks/drawer';
+import { INITIAL_GEAR_STATE } from '../ducks/gear';
+import { mockStore } from '../__test-helpers/MockStore';
+import { render, screen, within } from '../test-utils';
+import { useMatchMedia } from '../hooks';
+import useNavigate from '../hooks/useNavigate';
+
 import GlobalMenuDrawer, {
   CONTACT_US_URL,
   ECOSCOPE_ANALYSIS_URL,
@@ -14,14 +22,7 @@ import GlobalMenuDrawer, {
   RELEASE_NOTES_URL,
   SYSTEM_STATUS_URL,
   TRAINING_URL,
-} from '.';
-import { hideDrawer } from '../ducks/drawer';
-import { INITIAL_GEAR_STATE } from '../ducks/gear';
-import { mockStore } from '../__test-helpers/MockStore';
-import { DAS_HOST, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS, } from '../constants';
-import { render, screen, within } from '../test-utils';
-import { useMatchMedia } from '../hooks';
-import useNavigate from '../hooks/useNavigate';
+} from './';
 
 jest.mock('../ducks/modals', () => ({
   ...jest.requireActual('../ducks/modals'),
