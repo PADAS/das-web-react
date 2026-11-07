@@ -16,15 +16,23 @@
   }
 
   .header {
-    display: flex;
     align-items: center;
+    display: flex;
+    flex-shrink: 0;
+    height: var(--nav-height);
     justify-content: space-between;
-  
+    margin: -1rem -1rem 0;
+    padding: 0 1rem;
+
+    + .separator {
+      margin-top: 0;
+    }
+
     .logo {
       height: 2rem;
-      width: 8.75rem;
+      width: 12.75rem;
     }
-  
+
     .closeButton {
       align-items: center;
       background: none;
@@ -36,11 +44,11 @@
       justify-content: center;
       padding: 0;
       width: buttons.$chip-height;
-  
+
       &:focus-visible {
         outline: 2px solid colors.$light-blue;
       }
-  
+
       &:hover {
         color: colors.$secondary-light-gray;
       }
@@ -81,11 +89,11 @@
         text-align: left;
         text-decoration: none;
         width: fit-content;
-    
+
         &:focus-visible {
           outline: 2px solid colors.$light-blue;
         }
-    
+
         &:hover {
           color: colors.$secondary-light-gray;
         }

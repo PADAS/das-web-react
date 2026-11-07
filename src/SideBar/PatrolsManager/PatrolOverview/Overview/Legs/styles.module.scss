@@ -1,6 +1,6 @@
 @use '../../../../../common/styles/layout';
 @use '../../../../../common/styles/vars/colors';
-@use '../../../_shared' as shared;
+@use '../../../shared';
 
 @mixin fit-content-column {
   white-space: nowrap;

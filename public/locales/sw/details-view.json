@@ -34,6 +34,8 @@
     "collapseClosedButtonLabel": "Panua {{title}}",
     "collapseOpenButtonLabel": "Ficha {{title}}",
     "loadingLabel": "Inapakia {{title}}",
+    "removeFromIncidentButtonLabel": "Ondoa kwenye Tukio",
+    "removeFromPatrolButtonLabel": "Ondoa kwenye Doria",
     "resolvedStateLabel": "Imetatuliwa",
     "reviewStateLabel": "Inakaguliwa",
     "serialNumberLabel": "Nambari ya tukio",

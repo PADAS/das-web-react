@@ -1,4 +1,4 @@
-@use '../../_shared' as shared;
+@use '../../shared';
 
 .mobileOnlyOption {
   @include shared.header-mobile-only-option;

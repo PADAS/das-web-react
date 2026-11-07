@@ -28,6 +28,7 @@ const HOVER_EFFECTS = {
 
 const ReportListItem = ({
   className = '',
+  Component = 'li',
   displayTime = null,
   onIconClick = null,
   onTitleClick = null,
@@ -50,6 +51,9 @@ const ReportListItem = ({
 
   const dateTime = displayTime || report.updated_at || report.time;
   const iconClickHandler = onIconClick || onTitleClick;
+  // With nothing to press they stay text, as a link may wrap the whole item.
+  const IconElement = iconClickHandler ? 'button' : 'span';
+  const TitleElement = onTitleClick ? 'button' : 'span';
   const hasMultipleLocations = collectionHasMultipleValidLocations(report);
   const hasPatrols = !!report?.patrols?.length;
 
@@ -72,6 +76,7 @@ const ReportListItem = ({
 
   return <FeedListItem
     className={`${HOVER_EFFECTS[displayPriority]} ${className}`}
+    Component={Component}
     ControlsComponent={coordinates && !!coordinates.length && showJumpButton ? <LocationJumpButton
       clickAnalytics={[
         MAP_LAYERS_CATEGORY,
@@ -87,11 +92,15 @@ const ReportListItem = ({
 
       {(report.state === 'resolved' || report.state === 'review') && <small className={styles[report.state]}>{t(`${report.state}State`)}</small>}
     </span>}
-    IconComponent={<button className={styles.icon} onClick={() => iconClickHandler?.(report)} type="button">
+    IconComponent={<IconElement
+      className={styles.icon}
+      onClick={iconClickHandler ? () => iconClickHandler(report) : undefined}
+      type={iconClickHandler ? 'button' : undefined}
+    >
       <EventIcon report={report} />
 
       {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
-    </button>}
+    </IconElement>}
     onClick={() => onTitleClick?.(report)}
     themeBgColor={themeBgColor}
     themeColor={themeColor}
@@ -99,7 +108,7 @@ const ReportListItem = ({
     TitleComponent={<>
       <span className={styles.serialNumber}>{report.serial_number}</span>
 
-      <button className={styles.title} type="button">{displayTitle}</button>
+      <TitleElement className={styles.title} type={onTitleClick ? 'button' : undefined}>{displayTitle}</TitleElement>
     </>}
   />;
 };

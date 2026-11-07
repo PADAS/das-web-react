@@ -15,6 +15,7 @@ import NoteListItem from './NoteListItem';
 // Shared so that omitting an optional list does not hand the memos a new
 // identity on every render.
 const EMPTY_LIST = [];
+const EMPTY_SET = new Set();
 
 const getCardId = (card) => card?.tmpId ?? card?.id;
 
@@ -35,6 +36,9 @@ const useActivityFeed = ({
   onDeleteNote,
   onChangeNote,
   onDoneNote,
+  onRemoveContainedReport = null,
+  removeContainedReportFrom = null,
+  removingContainedReportIds = EMPTY_SET,
   sortButtonComponent,
   startIcon,
   startLink = null,
@@ -110,13 +114,24 @@ const useActivityFeed = ({
   const containedEventsSortableList = useMemo(() => enabledContainedEvents.map((containedEvent) => ({
     node: <ContainedReportListItem
       isOpen={expandedCardIds.has(getCardId(containedEvent))}
+      isRemoving={removingContainedReportIds.has(containedEvent.id)}
       key={containedEvent.id}
       onCollapse={onCollapseCard}
       onExpand={onExpandCard}
+      onRemove={onRemoveContainedReport}
+      removeFrom={removeContainedReportFrom}
       report={containedEvent}
     />,
     sortDate: new Date(containedEvent.time || containedEvent.updated_at),
-  })), [enabledContainedEvents, expandedCardIds, onCollapseCard, onExpandCard]);
+  })), [
+    enabledContainedEvents,
+    expandedCardIds,
+    onCollapseCard,
+    onExpandCard,
+    onRemoveContainedReport,
+    removeContainedReportFrom,
+    removingContainedReportIds,
+  ]);
 
   const datesSortableList = useMemo(() => {
     const datesSortableList = [];

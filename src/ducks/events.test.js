@@ -1,20 +1,33 @@
 import axios from 'axios';
+import { http, HttpResponse } from 'msw/http';
+import { setupServer } from 'msw/node';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import { mockStore } from '../__test-helpers/MockStore';
 
 import {
+  ADD_EVENT_TO_FEEDS,
+  addEventToIncident,
+  addEventToPatrol,
   addNoteToEvent,
   COMMUNITY_EVENT_FILES_URL,
   COMMUNITY_EVENT_NOTES_URL,
   COMMUNITY_EVENTS_API_URL,
   createEvent,
   EVENT_API_URL,
+  EVENT_RELATIONSHIPS_API_URL,
+  eventFeedReducer,
   EVENTS_API_URL,
   fetchEventFeed,
+  fetchIncidentLinkTargets,
   fetchMapEvents,
   fetchRecentEventsIntoRealtimeOverlay,
+  INCIDENT_EVENT_API_URL,
+  INITIAL_EVENT_FEED_STATE,
+  PATROL_EVENT_API_URL,
   REMOVE_EVENT_BY_ID,
+  removeEventFromIncident,
+  removeEventFromPatrol,
   SOCKET_EVENT_DATA,
   socketEventData,
   UPDATE_EVENT_STORE,
@@ -22,12 +35,20 @@ import {
   uploadEventFile,
 } from './events';
 import { ADD_EVENT, addRealtimeOverlayEvent, REMOVE_EVENT, removeRealtimeOverlayEvent } from './events-realtime-overlay';
+import { PATROLS_API_URL, UPDATE_PATROL_SUCCESS } from './patrols';
 import { PREVIEW_FEATURES } from '../constants';
+import { validateReportAgainstCurrentEventFilter } from '../utils/events';
 
 jest.mock('../utils/events', () => ({
   ...jest.requireActual('../utils/events'),
   validateReportAgainstCurrentEventFilter: jest.fn(() => true),
 }));
+
+const server = setupServer();
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 describe('fetchMapEvents', () => {
   let map, store;
@@ -379,5 +400,317 @@ describe('socketEventData', () => {
     const types = store.getActions().map((action) => action.type);
     expect(types).not.toContain(addRealtimeOverlayEvent(EVENT_ID).type);
     expect(types).not.toContain(removeRealtimeOverlayEvent(EVENT_ID).type);
+  });
+});
+
+describe('event links', () => {
+  const geoRestrictedState = {
+    data: { user: { permissions: { view_events_geographic_distance: ['view'] } } },
+    view: { userLocation: { coords: { latitude: 10, longitude: 20 } } },
+  };
+
+  let fetchedEventIds;
+  let fetchedPatrolIds;
+
+  beforeEach(() => {
+    fetchedEventIds = [];
+    fetchedPatrolIds = [];
+
+    server.use(
+      http.get(`${EVENT_API_URL}:id`, ({ params }) => {
+        fetchedEventIds.push(params.id);
+
+        return HttpResponse.json({ data: { id: params.id } });
+      }),
+      http.get(`${PATROLS_API_URL}:id`, ({ params }) => {
+        fetchedPatrolIds.push(params.id);
+
+        return HttpResponse.json({ data: { id: params.id, patrol_segments: [] } });
+      })
+    );
+  });
+
+  describe('addEventToIncident', () => {
+    test('adds the event to the incident, then refreshes both', async () => {
+      let requestBody;
+      server.use(http.post(EVENT_RELATIONSHIPS_API_URL('incident-id'), async ({ request }) => {
+        requestBody = await request.json();
+
+        return HttpResponse.json({ data: {} }, { status: 201 });
+      }));
+      const store = mockStore({ data: {}, view: {} });
+
+      const incidentResponse = await store.dispatch(addEventToIncident('event-id', 'incident-id'));
+
+      expect(requestBody).toEqual({ to_event_id: 'event-id', type: 'contains' });
+      expect(fetchedEventIds).toEqual(expect.arrayContaining(['event-id', 'incident-id']));
+      expect(incidentResponse.data.data).toEqual({ id: 'incident-id' });
+      expect(store.getActions()).toContainEqual({ payload: [{ id: 'incident-id' }], type: UPDATE_EVENT_STORE });
+    });
+
+    test('sends the location of a geographically restricted user', async () => {
+      let searchParams;
+      server.use(http.post(EVENT_RELATIONSHIPS_API_URL('incident-id'), ({ request }) => {
+        searchParams = new URL(request.url).searchParams;
+
+        return HttpResponse.json({ data: {} }, { status: 201 });
+      }));
+
+      await mockStore(geoRestrictedState).dispatch(addEventToIncident('event-id', 'incident-id'));
+
+      expect(searchParams.get('location')).toBe('20,10');
+    });
+
+    test('rejects and warns without refreshing anything when the incident does not take the event', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      server.use(http.post(EVENT_RELATIONSHIPS_API_URL('incident-id'), () => new HttpResponse(null, { status: 403 })));
+
+      await expect(mockStore({ data: {}, view: {} }).dispatch(addEventToIncident('event-id', 'incident-id')))
+        .rejects.toThrow();
+
+      expect(console.warn).toHaveBeenCalled();
+      expect(fetchedEventIds).toEqual([]);
+    });
+
+    test('resolves when the event is added but a refresh fails', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      server.use(
+        http.post(EVENT_RELATIONSHIPS_API_URL('incident-id'), () => HttpResponse.json({ data: {} }, { status: 201 })),
+        http.get(`${EVENT_API_URL}:id`, () => new HttpResponse(null, { status: 500 }))
+      );
+
+      await expect(mockStore({ data: {}, view: {} }).dispatch(addEventToIncident('event-id', 'incident-id')))
+        .resolves.toBeUndefined();
+    });
+  });
+
+  describe('addEventToPatrol', () => {
+    test('adds the event to the patrol without naming a leg, then refreshes the event and the loaded patrol', async () => {
+      let requestBody;
+      server.use(http.post(PATROL_EVENT_API_URL('patrol-id', 'event-id'), async ({ request }) => {
+        requestBody = await request.text();
+
+        return HttpResponse.json({ data: {} }, { status: 201 });
+      }));
+      const store = mockStore({ data: { patrolStore: { 'patrol-id': { id: 'patrol-id' } } }, view: {} });
+
+      await store.dispatch(addEventToPatrol('event-id', 'patrol-id'));
+
+      expect(requestBody).toBe('');
+      expect(fetchedEventIds).toEqual(['event-id']);
+      expect(fetchedPatrolIds).toEqual(['patrol-id']);
+      expect(store.getActions()).toContainEqual(expect.objectContaining({ type: UPDATE_PATROL_SUCCESS }));
+    });
+
+    test('links the event to the leg it names', async () => {
+      let requestBody;
+      server.use(http.post(PATROL_EVENT_API_URL('patrol-id', 'event-id'), async ({ request }) => {
+        requestBody = await request.json();
+
+        return HttpResponse.json({ data: {} }, { status: 201 });
+      }));
+
+      await mockStore({ data: { patrolStore: {} }, view: {} })
+        .dispatch(addEventToPatrol('event-id', 'patrol-id', 'leg-id'));
+
+      expect(requestBody).toEqual({ patrol_segment: 'leg-id' });
+    });
+
+    test('does not fetch a patrol that is not loaded', async () => {
+      server.use(http.post(PATROL_EVENT_API_URL('patrol-id', 'event-id'), () => HttpResponse.json(
+        { data: {} },
+        { status: 201 }
+      )));
+
+      await mockStore({ data: { patrolStore: {} }, view: {} }).dispatch(addEventToPatrol('event-id', 'patrol-id'));
+
+      expect(fetchedEventIds).toEqual(['event-id']);
+      expect(fetchedPatrolIds).toEqual([]);
+    });
+
+    test('rejects and warns without refreshing anything when the patrol does not take the event', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      server.use(http.post(PATROL_EVENT_API_URL('patrol-id', 'event-id'), () => new HttpResponse(null, { status: 404 })));
+
+      await expect(mockStore({ data: { patrolStore: {} }, view: {} }).dispatch(addEventToPatrol('event-id', 'patrol-id')))
+        .rejects.toThrow();
+
+      expect(console.warn).toHaveBeenCalled();
+      expect(fetchedEventIds).toEqual([]);
+    });
+  });
+
+  describe('removeEventFromIncident', () => {
+    const incident = { id: 'incident-id', serial_number: 20 };
+
+    beforeEach(() => {
+      validateReportAgainstCurrentEventFilter.mockReturnValue(true);
+    });
+
+    test('removes the event from the incident, then refreshes both and adds the event back to the feed', async () => {
+      let removedRelationship = false;
+      server.use(http.delete(INCIDENT_EVENT_API_URL('incident-id', 'event-id'), () => {
+        removedRelationship = true;
+
+        return HttpResponse.json({ data: null });
+      }));
+      const store = mockStore({ data: { eventStore: {} }, view: {} });
+
+      await store.dispatch(removeEventFromIncident('event-id', 'incident-id'));
+
+      expect(removedRelationship).toBe(true);
+      expect(fetchedEventIds).toEqual(expect.arrayContaining(['event-id', 'incident-id']));
+      expect(store.getActions()).toContainEqual({ payload: 'event-id', type: ADD_EVENT_TO_FEEDS });
+    });
+
+    test('resolves to the incident the event left', async () => {
+      server.use(http.delete(INCIDENT_EVENT_API_URL('incident-id', 'event-id'), () => HttpResponse.json({ data: null })));
+      const store = mockStore({ data: { eventStore: { 'incident-id': incident } }, view: {} });
+
+      await expect(store.dispatch(removeEventFromIncident('event-id', 'incident-id'))).resolves.toEqual(incident);
+    });
+
+    test('does not add the event to the feed when it does not match the event filter', async () => {
+      validateReportAgainstCurrentEventFilter.mockReturnValue(false);
+      server.use(http.delete(INCIDENT_EVENT_API_URL('incident-id', 'event-id'), () => HttpResponse.json({ data: null })));
+      const store = mockStore({ data: { eventStore: {} }, view: {} });
+
+      await store.dispatch(removeEventFromIncident('event-id', 'incident-id'));
+
+      expect(store.getActions()).not.toContainEqual(expect.objectContaining({ type: ADD_EVENT_TO_FEEDS }));
+    });
+
+    test('sends the location of a geographically restricted user', async () => {
+      let searchParams;
+      server.use(http.delete(INCIDENT_EVENT_API_URL('incident-id', 'event-id'), ({ request }) => {
+        searchParams = new URL(request.url).searchParams;
+
+        return HttpResponse.json({ data: null });
+      }));
+
+      await mockStore({ ...geoRestrictedState, data: { ...geoRestrictedState.data, eventStore: {} } })
+        .dispatch(removeEventFromIncident('event-id', 'incident-id'));
+
+      expect(searchParams.get('location')).toBe('20,10');
+    });
+
+    test('rejects and warns without refreshing anything when the incident keeps the event', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      server.use(http.delete(INCIDENT_EVENT_API_URL('incident-id', 'event-id'), () => new HttpResponse(null, { status: 403 })));
+      const store = mockStore({ data: { eventStore: {} }, view: {} });
+
+      await expect(store.dispatch(removeEventFromIncident('event-id', 'incident-id'))).rejects.toThrow();
+
+      expect(console.warn).toHaveBeenCalled();
+      expect(fetchedEventIds).toEqual([]);
+      expect(store.getActions()).not.toContainEqual(expect.objectContaining({ type: ADD_EVENT_TO_FEEDS }));
+    });
+
+    test('resolves to no incident, without touching the feed, when the event is removed but the refresh fails', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      server.use(
+        http.delete(INCIDENT_EVENT_API_URL('incident-id', 'event-id'), () => HttpResponse.json({ data: null })),
+        http.get(`${EVENT_API_URL}:id`, () => new HttpResponse(null, { status: 500 }))
+      );
+      const store = mockStore({ data: { eventStore: {} }, view: {} });
+
+      await expect(store.dispatch(removeEventFromIncident('event-id', 'incident-id'))).resolves.toBeNull();
+
+      expect(store.getActions()).not.toContainEqual(expect.objectContaining({ type: ADD_EVENT_TO_FEEDS }));
+    });
+  });
+
+  describe('removeEventFromPatrol', () => {
+    const patrol = { id: 'patrol-id', serial_number: 1595 };
+
+    test('removes the event from the patrol, then refreshes the event and the patrol', async () => {
+      let removedLink = false;
+      server.use(http.delete(PATROL_EVENT_API_URL('patrol-id', 'event-id'), () => {
+        removedLink = true;
+
+        return new HttpResponse(null, { status: 204 });
+      }));
+      const store = mockStore({ data: { patrolStore: { 'patrol-id': patrol } }, view: {} });
+
+      await expect(store.dispatch(removeEventFromPatrol('event-id', 'patrol-id'))).resolves.toEqual(patrol);
+
+      expect(removedLink).toBe(true);
+      expect(fetchedEventIds).toEqual(['event-id']);
+      expect(fetchedPatrolIds).toEqual(['patrol-id']);
+    });
+
+    test('fetches a patrol that is not loaded, since nothing else names it', async () => {
+      server.use(http.delete(PATROL_EVENT_API_URL('patrol-id', 'event-id'), () => new HttpResponse(null, { status: 204 })));
+
+      await mockStore({ data: { patrolStore: {} }, view: {} }).dispatch(removeEventFromPatrol('event-id', 'patrol-id'));
+
+      expect(fetchedPatrolIds).toEqual(['patrol-id']);
+    });
+
+    test('rejects and warns without refreshing anything when the patrol keeps the event', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      server.use(http.delete(PATROL_EVENT_API_URL('patrol-id', 'event-id'), () => new HttpResponse(null, { status: 404 })));
+
+      await expect(mockStore({ data: { patrolStore: {} }, view: {} })
+        .dispatch(removeEventFromPatrol('event-id', 'patrol-id'))).rejects.toThrow();
+
+      expect(console.warn).toHaveBeenCalled();
+      expect(fetchedEventIds).toEqual([]);
+    });
+  });
+
+  describe('fetchIncidentLinkTargets', () => {
+    test('requests the incidents matching the search text, last updated first', async () => {
+      let searchParams;
+      server.use(http.get(EVENTS_API_URL, ({ request }) => {
+        searchParams = new URL(request.url).searchParams;
+
+        return HttpResponse.json({ data: { count: 1, next: null, results: [{ id: 'incident-id' }] } });
+      }));
+
+      const page = await mockStore({ data: {}, view: {} }).dispatch(fetchIncidentLinkTargets('snare'));
+
+      expect(page.results).toEqual([{ id: 'incident-id' }]);
+      expect(searchParams.get('is_collection')).toBe('true');
+      expect(searchParams.get('include_related_events')).toBe('true');
+      expect(searchParams.get('filter')).toBe(JSON.stringify({ text: 'snare' }));
+      expect(searchParams.get('sort_by')).toBe('-updated_at');
+      expect(searchParams.get('page_size')).toBe('25');
+      expect(searchParams.has('location')).toBe(false);
+    });
+
+    test('sends the location of a geographically restricted user', async () => {
+      let searchParams;
+      server.use(http.get(EVENTS_API_URL, ({ request }) => {
+        searchParams = new URL(request.url).searchParams;
+
+        return HttpResponse.json({ data: { count: 0, next: null, results: [] } });
+      }));
+
+      await mockStore(geoRestrictedState).dispatch(fetchIncidentLinkTargets(''));
+
+      expect(searchParams.get('location')).toBe('20,10');
+      expect(searchParams.has('filter')).toBe(false);
+    });
+
+    test('rejects and warns when the request fails', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      server.use(http.get(EVENTS_API_URL, () => new HttpResponse(null, { status: 500 })));
+
+      await expect(mockStore({ data: {}, view: {} }).dispatch(fetchIncidentLinkTargets(''))).rejects.toThrow();
+      expect(console.warn).toHaveBeenCalled();
+    });
+  });
+});
+
+describe('eventFeedReducer', () => {
+  test('adds an event to the feed once', () => {
+    const state = { ...INITIAL_EVENT_FEED_STATE, results: ['other-event-id'] };
+
+    const nextState = eventFeedReducer(state, { payload: 'event-id', type: ADD_EVENT_TO_FEEDS });
+
+    expect(nextState.results).toEqual(['event-id', 'other-event-id']);
+    expect(eventFeedReducer(nextState, { payload: 'event-id', type: ADD_EVENT_TO_FEEDS }).results)
+      .toEqual(['event-id', 'other-event-id']);
   });
 });

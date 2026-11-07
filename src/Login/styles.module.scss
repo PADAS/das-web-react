@@ -16,8 +16,10 @@
   animation: fadein 0.5s ease-in;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  padding-top: 3rem;
+  height: 100dvh;
+  justify-content: safe center;
+  overflow-y: auto;
+  padding: 3rem 0;
   width: 100vw;
 
   .logo {

@@ -1,25 +1,55 @@
+@use '../../../../../common/styles/buttons';
 @use '../../../../../common/styles/vars/colors';
 
-.link {
-  color: unset;
-  text-decoration: none;
-}
-
-.item {
-  border-radius: .25rem;
-  height: 2.5rem;
+.linkItem {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
   margin-bottom: 0.4rem;
 
-  div[role="img"] {
-    border-radius: .25rem 0 0 .25rem;
-    width: 2.5rem;
+  .link {
+    color: unset;
+    flex: 1;
+    min-width: 0;
+    text-decoration: none;
+  }
 
-    svg {
-      width: 1.5rem;
+  .item {
+    border-radius: 0.25rem;
+    height: 2.5rem;
+
+    div[role="img"] {
+      border-radius: 0.25rem 0 0 0.25rem;
+      width: 2.5rem;
+
+      svg {
+        width: 1.5rem;
+      }
+    }
+
+    span {
+      font-weight: normal;
     }
   }
 
-  span {
-    font-weight: normal;
+  .removeButton {
+    @include buttons.chip-text-button;
+    @include buttons.chip-danger-state;
+
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+
+    > * {
+      grid-area: 1 / 1;
+    }
+
+    &[aria-busy='true'] .removeButtonLabel {
+      opacity: 0;
+    }
+
+    @media print {
+      display: none;
+    }
   }
 }

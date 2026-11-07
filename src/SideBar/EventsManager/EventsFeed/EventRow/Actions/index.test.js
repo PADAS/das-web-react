@@ -2,6 +2,13 @@ import { Provider } from 'react-redux';
 import { toast } from 'react-toastify';
 import userEvent from '@testing-library/user-event';
 
+import {
+  EVENT_LINK_TARGET_TYPES,
+  PERMISSION_KEYS,
+  PERMISSIONS,
+  SYSTEM_CONFIG_FLAGS,
+} from '../../../../../constants';
+import { eventTypes } from '../../../../../__test-helpers/fixtures/event-types';
 import { getReportLink } from '../../../../../utils/events';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
 import { render, screen, waitFor } from '../../../../../test-utils';
@@ -32,12 +39,18 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
 
   let collection;
   let jumpToLocation;
+  let onOpenLinkModal;
+  let onRemoveFromIncident;
+  let onRemoveFromPatrol;
   let reduxStore;
   let store;
   let track;
 
   beforeEach(() => {
     jumpToLocation = jest.fn();
+    onOpenLinkModal = jest.fn();
+    onRemoveFromIncident = jest.fn();
+    onRemoveFromPatrol = jest.fn();
     track = jest.fn();
     setEventState.mockImplementation(() => () => Promise.resolve());
     updateEvent.mockImplementation(() => () => Promise.resolve());
@@ -51,7 +64,7 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
       ],
       is_collection: true,
     };
-    store = { data: {} };
+    store = { data: { eventCategories: {}, eventTypes: [] }, view: { systemConfig: {} } };
   });
 
   const renderActions = (props) => {
@@ -60,7 +73,14 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
     return render(
       <Provider store={reduxStore}>
         <TrackerContext.Provider value={{ track }}>
-          <Actions coordinates={coordinates} event={report} {...props} />
+          <Actions
+            coordinates={coordinates}
+            event={report}
+            onOpenLinkModal={onOpenLinkModal}
+            onRemoveFromIncident={onRemoveFromIncident}
+            onRemoveFromPatrol={onRemoveFromPatrol}
+            {...props}
+          />
         </TrackerContext.Provider>
       </Provider>
     );
@@ -285,5 +305,99 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
     expect(window.navigator.clipboard.writeText).toHaveBeenCalledWith(getReportLink(report));
     await waitFor(() => expect(toast.info).toHaveBeenCalledWith('Link copied', expect.anything()));
     expect(track).toHaveBeenCalledWith('Copy event link from the events feed');
+  });
+
+  describe('linking', () => {
+    const linkedEvent = {
+      ...report,
+      is_contained_in: [{ related_event: { id: 'incident-id' } }],
+      patrols: ['patrol-id'],
+    };
+
+    beforeEach(() => {
+      store = {
+        data: {
+          eventCategories: {},
+          eventTypes,
+          patrolTypes: [],
+          user: {
+            permissions: {
+              [PERMISSION_KEYS.EVENT_RELATIONSHIPS]: [PERMISSIONS.DELETE],
+              [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
+            },
+          },
+        },
+        view: { systemConfig: { [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true } },
+      };
+    });
+
+    test('offers to add an event the user may edit to an incident and to a patrol', async () => {
+      renderActions();
+
+      await openKebabMenu();
+
+      expect(await screen.findByRole('menuitem', { name: 'Add to Incident' })).toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: 'Add to Patrol' })).toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Remove from Incident' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Remove from Patrol' })).not.toBeInTheDocument();
+    });
+
+    test('offers to remove an event from its incident and its patrol instead of adding it to others', async () => {
+      renderActions({ event: linkedEvent });
+
+      await openKebabMenu();
+
+      expect(await screen.findByRole('menuitem', { name: 'Remove from Incident' })).toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: 'Remove from Patrol' })).toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Add to Incident' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Add to Patrol' })).not.toBeInTheDocument();
+    });
+
+    test('does not offer to remove an event from its incident without the delete permission', async () => {
+      store.data.user.permissions = { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] };
+      renderActions({ event: linkedEvent });
+
+      await openKebabMenu();
+
+      expect(await screen.findByRole('menuitem', { name: 'Remove from Patrol' })).toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Remove from Incident' })).not.toBeInTheDocument();
+    });
+
+    test('opens the link modal of the feed for the event', async () => {
+      renderActions();
+
+      await openKebabMenu();
+      await userEvent.click(await screen.findByRole('menuitem', { name: 'Add to Patrol' }));
+
+      expect(onOpenLinkModal).toHaveBeenCalledWith(EVENT_LINK_TARGET_TYPES.PATROL, report);
+    });
+
+    test('removes the event from its incident', async () => {
+      renderActions({ event: linkedEvent });
+
+      await openKebabMenu();
+      await userEvent.click(await screen.findByRole('menuitem', { name: 'Remove from Incident' }));
+
+      expect(onRemoveFromIncident).toHaveBeenCalledWith(linkedEvent);
+    });
+
+    test('removes the event from its patrol', async () => {
+      renderActions({ event: linkedEvent });
+
+      await openKebabMenu();
+      await userEvent.click(await screen.findByRole('menuitem', { name: 'Remove from Patrol' }));
+
+      expect(onRemoveFromPatrol).toHaveBeenCalledWith(linkedEvent);
+    });
+
+    test('marks the menu busy and keeps it closed while the links of the event change', async () => {
+      renderActions({ event: linkedEvent, isChangingLinks: true });
+
+      expect(screen.getByRole('button', { name: 'More options' })).toHaveAttribute('aria-busy', 'true');
+
+      await openKebabMenu();
+
+      expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
+    });
   });
 });

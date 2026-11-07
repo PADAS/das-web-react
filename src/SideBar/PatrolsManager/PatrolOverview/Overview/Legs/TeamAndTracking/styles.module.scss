@@ -1,6 +1,6 @@
 @use '../../../../../../common/styles/inputs';
 @use '../../../../../../common/styles/vars/colors';
-@use '../../../../_shared' as shared;
+@use '../../../../shared';
 
 .toggleButton {
   align-items: center;

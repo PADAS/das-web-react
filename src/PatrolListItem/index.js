@@ -191,26 +191,29 @@ const PatrolListItem = ({
     <span>{dateComponentDateString}</span>
   </div>;
 
-  const renderedIconComponent = patrolIconId && <button
+  // With nothing to press they stay text, as a link may wrap the whole item.
+  const ControlElement = onClick ? 'button' : 'span';
+
+  const renderedIconComponent = patrolIconId && <ControlElement
       className={styles.icon}
       data-testid={`patrol-list-item-icon-${patrol.id}`}
       title={displayTitle}
-      type="button"
+      type={onClick ? 'button' : undefined}
     >
     <SvgIcon iconId={patrolIconId} style={{ fill: theme.fontColor ? theme.fontColor : 'white' }} type="patrols" />
-  </button>;
+  </ControlElement>;
 
   const renderedTitleComponent = <>
     <span className={styles.serialNumber}>{patrol.serial_number}</span>
-    <button
+    <ControlElement
         className={styles.title}
         data-testid={`patrol-list-item-title-${patrol.id}`}
         title={displayTitle}
-        type='button'
+        type={onClick ? 'button' : undefined}
       >
       <span className={styles.mainTitle}>{displayTitle}</span>
       {showTitleDetails && TitleDetailsComponent}
-    </button>
+    </ControlElement>
   </>;
 
   return <FeedListItem

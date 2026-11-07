@@ -22,12 +22,6 @@
     },
     "timeLabel": "Hora"
   },
-  "addToPatrolModal": {
-    "cancel": "Cancelar",
-    "loading": "Cargando...",
-    "noMorePatrols": "No hay más patrullas que mostrar.",
-    "title": "Agregar a patrullaje"
-  },
   "detailView": {
     "addEmptyNoteAlert": "No es posible agregar una nota nueva: existe una nota sin guardar",
     "formButtons": {

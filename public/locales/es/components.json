@@ -184,6 +184,11 @@
     "recentRadiosGroupLabel": "Radios recientes",
     "restrictedReporterLabel": "RESTRINGIDO"
   },
+  "rootErrorBoundary": {
+    "errorTitle": "Algo salió mal",
+    "reloadButtonLabel": "Recargar",
+    "reloadMessage": "EarthRanger tuvo un problema inesperado. Recargue la página para continuar."
+  },
   "schemaFields": {
     "addButton": {
       "content": "Nuevo",
