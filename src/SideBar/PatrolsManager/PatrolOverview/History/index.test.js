@@ -45,11 +45,11 @@ describe('SideBar - PatrolsManager - PatrolOverview - History', () => {
 
     const toggledButton = screen.getByRole('button', { name: 'Sort history in descending order' });
     expect(toggledButton).toHaveAttribute('aria-pressed', 'true');
-    expect(track).toHaveTrackedAction('Sort history section', 'asc');
+    expect(track).toHaveTrackedAction('Sort history section in asc order');
 
     await userEvent.click(toggledButton);
 
-    expect(track).toHaveTrackedAction('Sort history section', 'desc');
+    expect(track).toHaveTrackedAction('Sort history section in desc order');
 
     expect(screen.getByRole('button', { name: 'Sort history in ascending order' })).toHaveAttribute('aria-pressed', 'false');
   });

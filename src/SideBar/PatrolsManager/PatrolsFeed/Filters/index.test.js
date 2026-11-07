@@ -108,7 +108,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters', () => {
 
     expect(filtersButton).toHaveAttribute('aria-expanded', 'true');
     expect(await screen.findByRole('dialog', { name: 'Patrol Filters' })).toBeVisible();
-    expect(track).toHaveTrackedAction('Toggle a filter popover', 'filters');
+    expect(track).toHaveTrackedAction('Toggle the filters filter popover');
 
     await userEvent.click(filtersButton);
 
