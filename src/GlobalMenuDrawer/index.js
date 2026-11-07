@@ -3,13 +3,26 @@ import { getYear } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as AndroidLogoIcon } from '../common/images/icons/android-logo.svg';
+import { ReactComponent as AppleLogoIcon } from '../common/images/icons/apple-logo.svg';
+import { ReactComponent as BarChartIcon } from '../common/images/icons/bar-chart.svg';
+import { ReactComponent as BellIcon } from '../common/images/icons/bell-icon.svg';
+import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
+import { ReactComponent as ChatBubbleIcon } from '../common/images/icons/chat-bubble.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
+import { ReactComponent as EarthRangerMarkIcon } from '../common/images/icons/er-mark.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
+import { ReactComponent as GundiLogoIcon } from '../common/images/icons/gundi-logo.svg';
+import { ReactComponent as EcoscopeLogoIcon } from '../common/images/icons/ecoscope-logo.svg';
+import { ReactComponent as InformationIcon } from '../common/images/icons/information.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
 import { ReactComponent as OtusIcon } from '../common/images/icons/otus.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
+import { ReactComponent as PersonIcon } from '../common/images/icons/person-icon.svg';
+import { ReactComponent as PlayCircleIcon } from '../common/images/icons/play-circle.svg';
+import { ReactComponent as StarIcon } from '../common/images/icons/star.svg';
 
 import { addModal } from '../ducks/modals';
 import {
@@ -20,7 +33,7 @@ import {
   trackEvent,
   trackEventFactory,
 } from '../utils/analytics';
-import { BREAKPOINTS, CLIENT_BUILD_VERSION, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
+import { BREAKPOINTS, CLIENT_BUILD_VERSION, DAS_HOST, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
@@ -47,14 +60,50 @@ const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 const tableuAnalysisTracker = trackEventFactory(TABLEAU_ANALYSIS_CATEGORY);
 
 export const COMMUNITY_SITE_URL = 'https://Community.EarthRanger.com';
-export const CONTACT_SUPPORT_EMAIL_ADDRESS = 'support@pamdas.org';
+export const CONTACT_US_URL = 'https://support.earthranger.com/contact-us';
 export const DATA_PRIVACY_POLICY_URL = 'https://assets-global.website-files.com/61a93c4da07e4e6975c3f2b2/61eaeb2ccd0b65595bd4d387_EarthRanger_PP_ver2021-10-01.pdf';
 export const ECOSCOPE_ANALYSIS_URL = 'https://app.ecoscope.io/login';
-export const ECOSCOPE_DOWNLOADER_MIGRATION_GUIDE_URL = 'https://support.earthranger.com/en_US/ecoscope-getting-help/ecoscope-migration-guide';
 export const EULA_URL = 'https://assets.website-files.com/61a93c4da07e4e6975c3f2b2/61d7274b9ba24a5d8bac44b2_EarthRanger_EULA_ver2021-10-01.pdf';
+export const GUNDI_PORTAL_URL = 'https://gundiservice.org';
 export const HELP_CENTER_SITE_URL = 'https://support.earthranger.com/';
+export const MOBILE_APP_STORE_URL = 'https://apps.apple.com/us/app/earthranger/id1636950688';
+export const MOBILE_GOOGLE_PLAY_URL = 'https://play.google.com/store/apps/details?id=com.earthranger';
+export const RELEASE_NOTES_URL = 'https://support.earthranger.com/en_US/release-notes-all';
+export const SYSTEM_STATUS_URL = 'https://status.serca-tools.org';
+export const TRAINING_URL = 'https://support.earthranger.com/training-registration';
 export const USERS_GUIDE_SITE_URL = 'https://support.earthranger.com/en_US/earthranger-web';
 export const WEBSITE_PRIVACY_POLICY_URL = 'https://www.earthranger.com/privacy-policy';
+
+const MOBILE_STORE_LINKS = [
+  {
+    analyticsLabel: 'Mobile App Store',
+    href: MOBILE_APP_STORE_URL,
+    Icon: AppleLogoIcon,
+    labelKey: 'mobileAppStoreLink',
+    userAgentPattern: /iPhone|iPad|iPod/,
+  },
+  {
+    analyticsLabel: 'Mobile Google Play',
+    href: MOBILE_GOOGLE_PLAY_URL,
+    Icon: AndroidLogoIcon,
+    labelKey: 'mobileGooglePlayLink',
+    userAgentPattern: /Android/,
+  },
+];
+
+const renderExternalLink = (href, icon, label, analyticsLabel, tag, ariaLabel, placement = 'menu item') => <a
+  aria-label={ariaLabel}
+  href={href}
+  onClick={() => mainToolbarTracker.track(`Click '${analyticsLabel}' ${placement}`)}
+  rel="noopener noreferrer"
+  target="_blank"
+>
+  {icon}
+
+  <span>{label}</span>
+
+  {!!tag && <span className={styles.tag}>{tag}</span>}
+</a>;
 
 const GlobalMenuDrawer = () => {
   const dispatch = useDispatch();
@@ -87,7 +136,11 @@ const GlobalMenuDrawer = () => {
   const closeButtonRef = useRef();
   const dataPrivacyPolicyLinkRef = useRef();
 
+  const activeUser = selectedUserProfile?.id ? selectedUserProfile : user;
   const canReadPatrols = patrolManagementEnabled && hasPatrolsReadPermission;
+  // iPadOS reports itself as a Mac, so only phones and older iPads match here.
+  const deviceMobileStoreLink = MOBILE_STORE_LINKS
+    .find((mobileStoreLink) => mobileStoreLink.userAgentPattern.test(window.navigator.userAgent));
 
   const jiraIframeHelpButton = useMemo(() => {
     const jiraWidgetIframe = document.querySelector(JIRA_WIDGET_IFRAME_SELECTOR);
@@ -176,7 +229,7 @@ const GlobalMenuDrawer = () => {
     }
     const userInput = selectSupportFormFieldByLabelText('ER Requestor Name');
     if (userInput) {
-      userInput.value = (selectedUserProfile?.id ? selectedUserProfile : user)?.username;
+      userInput.value = activeUser?.username;
     }
   };
 
@@ -195,6 +248,26 @@ const GlobalMenuDrawer = () => {
       title: t('alertsModal.title'),
     }, ALERTS_CATEGORY);
   }, [onModalClick, t, token.access_token]);
+
+  const renderMobileStoreLinks = (mobileStoreLinks, placement) => <li
+    className={styles.nestedListItem}
+  >
+    <h4>{t('mobileHeading')}</h4>
+
+    <ul>
+      {mobileStoreLinks.map((mobileStoreLink) => <li key={mobileStoreLink.href}>
+        {renderExternalLink(
+          mobileStoreLink.href,
+          <mobileStoreLink.Icon aria-hidden />,
+          t(mobileStoreLink.labelKey),
+          mobileStoreLink.analyticsLabel,
+          undefined,
+          undefined,
+          placement,
+        )}
+      </li>)}
+    </ul>
+  </li>;
 
   // Calculate the navigation links to show based on the enabled features.
   const navigationItems = useMemo(() => [
@@ -266,6 +339,14 @@ const GlobalMenuDrawer = () => {
       </button>
     </header>
 
+    {!!deviceMobileStoreLink && <>
+      <hr aria-hidden className={styles.separator} />
+
+      <ul>
+        {renderMobileStoreLinks([deviceMobileStoreLink], 'top link')}
+      </ul>
+    </>}
+
     {/* Only show the nav in small devices. */}
     {!isMediumLayoutOrLarger && <>
       <hr aria-hidden className={styles.separator} />
@@ -288,58 +369,61 @@ const GlobalMenuDrawer = () => {
     <ul>
       <li>
         {!!tableauEnabled && <button onClick={() => openTableauReport()} type="button">
-          {t('tableauButton')}
+          <BarChartIcon aria-hidden />
+
+          <span>{t('tableauButton')}</span>
         </button>}
       </li>
 
       <li>
         {!!alertsEnabled && !!eventTypes.length && <button onClick={onOpenAlertsModalClick} type="button">
-          {t('alertsButton')}
+          <BellIcon aria-hidden />
+
+          <span>{t('alertsButton')}</span>
         </button>}
       </li>
 
       <li>
         {jiraIframeHelpButton ? <button onClick={onContactSupportClick} type="button">
-          {t('contactSupportButton')}
+          <ChatBubbleIcon aria-hidden />
+
+          <span>{t('contactSupportButton')}</span>
         </button> : <a
-          href={`mailto:${CONTACT_SUPPORT_EMAIL_ADDRESS}?subject=${t('contactSupport.subject')}&body=${t('contactSupport.body')}`}
+          href={CONTACT_US_URL}
           onClick={() => mainToolbarTracker.track('Click \'Contact Support\'')}
+          rel="noopener noreferrer"
+          target="_blank"
         >
-          {t('contactSupportButton')}
+          <ChatBubbleIcon aria-hidden />
+
+          <span>{t('contactSupportButton')}</span>
         </a>}
       </li>
 
       <li>
-        <a
-          href={HELP_CENTER_SITE_URL}
-          onClick={() => mainToolbarTracker.track('Click \'Help Center\' menu item')}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          {t('helpCenterButton')}
-        </a>
+        {renderExternalLink(COMMUNITY_SITE_URL, <PersonIcon aria-hidden />, t('communityButton'), 'Community')}
+      </li>
+    </ul>
+
+    <hr aria-hidden className={styles.separator} />
+
+    <h3>{t('learnHeader')}</h3>
+
+    <ul>
+      <li>
+        {renderExternalLink(HELP_CENTER_SITE_URL, <InformationIcon aria-hidden />, t('helpCenterButton'), 'Help Center')}
       </li>
 
       <li>
-        <a
-          href={COMMUNITY_SITE_URL}
-          onClick={() => mainToolbarTracker.track('Click \'Community\' menu item')}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          {t('communityButton')}
-        </a>
+        {renderExternalLink(USERS_GUIDE_SITE_URL, <BulletListIcon aria-hidden />, t('usersGuideButton'), 'Users Guide')}
       </li>
 
       <li>
-        <a
-          href={USERS_GUIDE_SITE_URL}
-          onClick={() => mainToolbarTracker.track('Click \'Users Guide\' menu item')}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          {t('usersGuideButton')}
-        </a>
+        {renderExternalLink(RELEASE_NOTES_URL, <StarIcon aria-hidden />, t('whatsNewLink'), 'What\'s New')}
+      </li>
+
+      <li>
+        {renderExternalLink(TRAINING_URL, <PlayCircleIcon aria-hidden />, t('trainingLink'), 'Training')}
       </li>
     </ul>
 
@@ -351,52 +435,55 @@ const GlobalMenuDrawer = () => {
       {exportModals.map((modal) => <li key={modal.title}>
         <button onClick={() => onModalClick(modal)} type="button">{modal.title}</button>
       </li>)}
+    </ul>
 
-      <li className={styles.nestedListItem}>
-        <h4>{t('ecoscopeHeading')}</h4>
+    <hr aria-hidden className={styles.separator} />
 
-        <ul>
-          <li>
-            <a
-              aria-label={t('ecoscopeDownloaderMigrationGuideLinkAriaLabel')}
-              href={ECOSCOPE_DOWNLOADER_MIGRATION_GUIDE_URL}
-              onClick={() => mainToolbarTracker.track('Click \'Ecoscope Downloader\' menu item')}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              {t('ecoscopeDownloaderMigrationGuideLink')}
-            </a>
-          </li>
+    <h3>{t('appsHeader')}</h3>
 
-          <li>
-            <a
-              aria-label={t('ecoscopeAnalysisLinkAriaLabel')}
-              href={ECOSCOPE_ANALYSIS_URL}
-              onClick={() => mainToolbarTracker.track('Click \'Ecoscope Analysis\' menu item')}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              {t('ecoscopeAnalysisLink')}
-            </a>
-          </li>
-        </ul>
+    <ul>
+      {!!activeUser?.is_staff && <li>
+        {renderExternalLink(`${DAS_HOST}/admin`, <EarthRangerMarkIcon aria-hidden />, t('adminLink'), 'Admin')}
+      </li>}
+
+      {!!activeUser?.is_staff && <li>
+        {renderExternalLink(
+          GUNDI_PORTAL_URL,
+          <GundiLogoIcon aria-hidden />,
+          t('gundiName'),
+          'Gundi',
+          t('gundiTag'),
+          t('gundiLink'),
+        )}
+      </li>}
+
+      <li>
+        {renderExternalLink(
+          ECOSCOPE_ANALYSIS_URL,
+          <EcoscopeLogoIcon aria-hidden />,
+          t('ecoscopeName'),
+          'Ecoscope Analysis',
+          t('ecoscopeAnalysisLink'),
+          t('ecoscopeAnalysisLinkAriaLabel'),
+        )}
       </li>
+
+      {!deviceMobileStoreLink && renderMobileStoreLinks(MOBILE_STORE_LINKS)}
     </ul>
 
     <footer className={styles.footer}>
-      <p className={styles.versionsAndCopyright}>
-        {t('footer.serverVersion', { version: serverData.version })}
-
-        <br />
-
-        {t('footer.clientVersion', { version: CLIENT_BUILD_VERSION })}
-
-        <br />
-
-        {t('footer.copyright', { year: getYear(new Date()) })}
-      </p>
-
       <ul className={styles.policies}>
+        <li>
+          <a
+            href={SYSTEM_STATUS_URL}
+            onClick={() => mainToolbarTracker.track('Click \'System Status\' menu item')}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {t('footer.systemStatusLink')}
+          </a>
+        </li>
+
         <li>
           <a href={EULA_URL} rel="noreferrer" target="_blank">{t('footer.eulaLink')}</a>
         </li>
@@ -418,6 +505,18 @@ const GlobalMenuDrawer = () => {
           </a>
         </li>
       </ul>
+
+      <p>
+        {t('footer.serverVersion', { version: serverData.version })}
+
+        <br />
+
+        {t('footer.clientVersion', { version: CLIENT_BUILD_VERSION })}
+
+        <br />
+
+        {t('footer.copyright', { year: getYear(new Date()) })}
+      </p>
     </footer>
   </div>;
 };

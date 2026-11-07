@@ -13,17 +13,15 @@
     "exportButton": "Export"
   },
   "globalMenuDrawer": {
+    "adminLink": "Admin",
     "alertsButton": "Alerts",
     "alertsModal": {
       "title": "Alerts"
     },
+    "appsHeader": "EARTHRANGER APPS",
     "closeButtonLabel": "Close Main Menu",
     "closeButtonTitle": "Close",
     "communityButton": "Community",
-    "contactSupport": {
-      "body": "How can we help you?",
-      "subject": "Support request from user"
-    },
     "contactSupportButton": "Contact Support",
     "dailyReportModal": {
       "title": "Daily Report"
@@ -35,22 +33,28 @@
     },
     "ecoscopeAnalysisLinkAriaLabel": "Ecoscope Analysis",
     "ecoscopeAnalysisLink": "Analysis",
-    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Ecoscope Downloader",
-    "ecoscopeDownloaderMigrationGuideLink": "Downloader",
-    "ecoscopeHeading": "ECOSCOPE",
+    "ecoscopeName": "Ecoscope",
     "footer": {
       "clientVersion": "Web client version: {{version}}",
       "copyright": "©{{year}} EarthRanger",
       "dataPrivacyPolicyLink": "Data Privacy Policy",
       "eulaLink": "End User License Agreement",
       "serverVersion": "Server version: {{version}}",
+      "systemStatusLink": "System Status",
       "websitePrivacyPolicyLink": "Website Privacy Policy"
     },
+    "gundiLink": "Gundi Integrations",
+    "gundiName": "Gundi",
+    "gundiTag": "Integrations",
     "header": "Main Menu",
     "helpCenterButton": "Help Center",
+    "learnHeader": "LEARN",
     "masterKMLModal": {
       "title": "Subject KML"
     },
+    "mobileAppStoreLink": "App Store (iPhone)",
+    "mobileGooglePlayLink": "Google Play (Android)",
+    "mobileHeading": "EARTHRANGER MOBILE",
     "navigationButton": {
       "gear": "Gear",
       "mapLayers": "Map Layers",
@@ -66,7 +70,9 @@
       "title": "Observations"
     },
     "tableauButton": "Tableau",
-    "usersGuideButton": "User's Guide"
+    "trainingLink": "Training",
+    "usersGuideButton": "User's Guide",
+    "whatsNewLink": "What's New"
   },
   "kmlExportModal": {
     "dataExportModalTitle": "Export Subject KML File",
