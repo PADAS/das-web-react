@@ -425,6 +425,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       columnDefs={columnDefs}
       getRowClass={getRowClass}
       getRowId={(params) => params.data.id}
+      hasMorePages={!!eventsFeed.events.next}
       layoutScope={eventTypeFilter.length === 1 ? eventTypeFilter[0] : undefined}
       loading={eventsFeed.loadingEventFeed}
       onExport={onExport}

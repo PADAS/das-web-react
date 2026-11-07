@@ -69,6 +69,8 @@
     "bulkUpdateSuccessMessage_other": "{{count}} eventos actualizados",
     "clearSelectionButtonLabel": "Limpiar",
     "clientSortLoadingMessage": "Ordenando por {{column}}: {{loaded}} de {{total}} cargados",
+    "clientSortPausedMessage": "Ordenación en pausa: {{loaded}} de {{total}} cargados",
+    "clientSortRetryButtonLabel": "Reintentar",
     "columnsButtonLabel": "Columnas",
     "columnsMenuLabel": "Columnas visibles",
     "createdAtColumnTitle": "Creado",

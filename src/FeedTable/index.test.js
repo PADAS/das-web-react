@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { render, screen, waitFor } from '../test-utils';
 
-import FeedTable, { formatDateValue, ICON_COLUMN, IconCell } from '.';
+import FeedTable, { BACKGROUND_LOAD_RETRY_DELAY, formatDateValue, ICON_COLUMN, IconCell } from '.';
 
 const COLUMNS = [
   { colId: 'a', field: 'a', headerName: 'A' },
@@ -224,12 +224,48 @@ describe('FeedTable', () => {
       .mockReturnValueOnce(Promise.resolve())
       .mockReturnValueOnce(Promise.resolve())
       .mockReturnValue(undefined);
-    await renderFeedTable([{ ...COLUMNS[0], sortable: true }, COLUMNS[1]], undefined, ROWS, { onLoadMore, totalCount: 3 });
+    await renderFeedTable([{ ...COLUMNS[0], sortable: true }, COLUMNS[1]], undefined, ROWS, { hasMorePages: true, onLoadMore, totalCount: 3 });
 
     act(() => gridApi.applyColumnState({ state: [{ colId: 'a', sort: 'asc' }] }));
 
     await waitFor(() => expect(onLoadMore).toHaveBeenCalledTimes(3));
     expect(screen.getByRole('status')).toHaveTextContent('Sorting by A: loaded 1 of 3');
+  });
+
+  test('retries a page that fails to load behind a sort, then pauses until retried', async () => {
+    let failFirstPage;
+    const onLoadMore = jest.fn()
+      .mockReturnValueOnce(new Promise((resolve, reject) => {
+        failFirstPage = reject;
+      }))
+      .mockImplementation(() => Promise.reject(new Error('offline')));
+    await renderFeedTable([{ ...COLUMNS[0], sortable: true }, COLUMNS[1]], undefined, ROWS, { hasMorePages: true, onLoadMore, totalCount: 3 });
+
+    act(() => gridApi.applyColumnState({ state: [{ colId: 'a', sort: 'asc' }] }));
+    expect(await screen.findByRole('status')).toHaveTextContent('Sorting by A: loaded 1 of 3');
+
+    jest.useFakeTimers();
+    try {
+      await act(async () => failFirstPage(new Error('offline')));
+      for (const delay of [1, 2, 4]) {
+        expect(screen.getByRole('status')).toHaveTextContent('Sorting by A: loaded 1 of 3');
+        await act(async () => jest.advanceTimersByTime(BACKGROUND_LOAD_RETRY_DELAY * delay));
+      }
+
+      expect(onLoadMore).toHaveBeenCalledTimes(4);
+      expect(screen.getByRole('status')).toHaveTextContent('Sorting paused: loaded 1 of 3');
+
+      await act(async () => jest.advanceTimersByTime(BACKGROUND_LOAD_RETRY_DELAY * 8));
+      expect(onLoadMore).toHaveBeenCalledTimes(4);
+
+      onLoadMore.mockReturnValue(undefined);
+      await act(async () => screen.getByRole('button', { name: 'Retry' }).click());
+
+      expect(onLoadMore).toHaveBeenCalledTimes(5);
+      expect(screen.getByRole('status')).toHaveTextContent('Sorting by A: loaded 1 of 3');
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   test('loads no pages behind a sort the API makes', async () => {
@@ -238,7 +274,7 @@ describe('FeedTable', () => {
       [{ ...COLUMNS[0], serverSorted: true, sortable: true }, COLUMNS[1]],
       undefined,
       ROWS,
-      { onLoadMore, statusMessage: 'Status', totalCount: 3 }
+      { hasMorePages: true, onLoadMore, statusMessage: 'Status', totalCount: 3 }
     );
 
     await act(async () => gridApi.applyColumnState({ state: [{ colId: 'a', sort: 'asc' }] }));

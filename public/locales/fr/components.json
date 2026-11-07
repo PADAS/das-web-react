@@ -69,6 +69,8 @@
     "bulkUpdateSuccessMessage_other": "{{count}} événements actualisés",
     "clearSelectionButtonLabel": "Effacer",
     "clientSortLoadingMessage": "Tri par {{column}} : {{loaded}} sur {{total}} chargés",
+    "clientSortPausedMessage": "Tri en pause : {{loaded}} sur {{total}} chargés",
+    "clientSortRetryButtonLabel": "Réessayer",
     "columnsButtonLabel": "Colonnes",
     "columnsMenuLabel": "Colonnes affichées",
     "createdAtColumnTitle": "Créé",

@@ -74,6 +74,8 @@
     "bulkUpdateSuccessMessage_other": "Matukio {{count}} yamesasishwa",
     "clearSelectionButtonLabel": "Futa",
     "clientSortLoadingMessage": "Inapanga kwa {{column}}: {{loaded}} kati ya {{total}} zimepakiwa",
+    "clientSortPausedMessage": "Upangaji umesitishwa: {{loaded}} kati ya {{total}} zimepakiwa",
+    "clientSortRetryButtonLabel": "Jaribu tena",
     "columnsButtonLabel": "Safu wima",
     "columnsMenuLabel": "Safu wima zinazoonyeshwa",
     "createdAtColumnTitle": "Imeundwa",

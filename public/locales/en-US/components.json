@@ -74,6 +74,8 @@
     "bulkUpdateSuccessMessage_other": "{{count}} events updated",
     "clearSelectionButtonLabel": "Clear",
     "clientSortLoadingMessage": "Sorting by {{column}}: loaded {{loaded}} of {{total}}",
+    "clientSortPausedMessage": "Sorting paused: loaded {{loaded}} of {{total}}",
+    "clientSortRetryButtonLabel": "Retry",
     "columnsButtonLabel": "Columns",
     "columnsMenuLabel": "Columns shown",
     "createdAtColumnTitle": "Created",

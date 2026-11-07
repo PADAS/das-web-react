@@ -141,6 +141,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
     columnDefs={columnDefs}
     getRowClass={getRowClass}
     getRowId={(params) => params.data.id}
+    hasMorePages={!!patrolsFeed.next}
     loading={loading}
     onLoadMore={onLoadMore}
     onOpenRow={onOpenRow}
