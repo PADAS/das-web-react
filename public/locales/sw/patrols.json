@@ -22,12 +22,6 @@
     },
     "timeLabel": "Wakati"
   },
-  "addToPatrolModal": {
-    "cancel": "Ghairi",
-    "loading": "Inapakia...",
-    "noMorePatrols": "Hakuna doria zaidi za kuonyesha.",
-    "title": "Ongeza kwenye doria"
-  },
   "detailView": {
     "addEmptyNoteAlert": "Haiwezi kuongeza hati mpya: kuna hati tupu ambayo haijasimbwa bado",
     "formButtons": {

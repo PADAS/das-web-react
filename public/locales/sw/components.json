@@ -240,6 +240,11 @@
     "recentRadiosGroupLabel": "Redio za hivi karibuni",
     "restrictedReporterLabel": "ILIZUIWA"
   },
+  "rootErrorBoundary": {
+    "errorTitle": "Kitu kimeenda kombo",
+    "reloadButtonLabel": "Pakia tena",
+    "reloadMessage": "EarthRanger imekumbwa na tatizo lisilotarajiwa. Pakia tena ukurasa ili kuendelea."
+  },
   "schemaFields": {
     "addButton": {
       "content": "Mpya",

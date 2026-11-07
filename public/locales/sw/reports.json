@@ -1,15 +1,4 @@
 {
-  "addToIncidentModal": {
-    "modalBody": {
-      "addToNewIncidentButton": "Ongeza kwenye tukio jipya",
-      "loadingItem": "Inapakia...",
-      "noMoreEventsItem": "Hakuna matukio zaidi ya kuonyesha."
-    },
-    "modalFooter": {
-      "cancelButton": "Ghairi"
-    },
-    "modalTitle": "Ongeza kwenye Tukio"
-  },
   "errorMessages": {
     "accordionHeaderButton": {
       "closed": "Ona maelezo",
@@ -18,6 +7,20 @@
   },
   "eventIcon": {
     "collectionTitle": "Ukusanyaji"
+  },
+  "eventLinking": {
+    "addedToIncidentMessage": "Tukio {{eventSerialNumber}} limeongezwa kwenye tukio {{incidentSerialNumber}}.",
+    "addedToNewIncidentMessage": "Tukio {{eventSerialNumber}} limeongezwa kwenye tukio jipya {{incidentSerialNumber}}.",
+    "addedToPatrolMessage": "Tukio {{eventSerialNumber}} limeongezwa kwenye doria {{patrolSerialNumber}}.",
+    "addToIncidentErrorMessage": "Haikuweza kuongeza tukio kwenye tukio. Tafadhali jaribu tena.",
+    "addToNewIncidentErrorMessage": "Haikuweza kuongeza tukio kwenye tukio jipya. Tafadhali jaribu tena.",
+    "addToPatrolErrorMessage": "Haikuweza kuongeza tukio kwenye doria. Tafadhali jaribu tena.",
+    "removedFromIncidentMessage": "Tukio {{eventSerialNumber}} limeondolewa kwenye tukio {{incidentSerialNumber}}.",
+    "removedFromPatrolMessage": "Tukio {{eventSerialNumber}} limeondolewa kwenye doria {{patrolSerialNumber}}.",
+    "removedFromUnloadedIncidentMessage": "Tukio {{eventSerialNumber}} limeondolewa kwenye tukio.",
+    "removedFromUnloadedPatrolMessage": "Tukio {{eventSerialNumber}} limeondolewa kwenye doria.",
+    "removeFromIncidentErrorMessage": "Haikuweza kuondoa tukio kwenye tukio. Tafadhali jaribu tena.",
+    "removeFromPatrolErrorMessage": "Haikuweza kuondoa tukio kwenye doria. Tafadhali jaribu tena."
   },
   "eventsManager": {
     "eventOverview": {
@@ -43,7 +46,9 @@
           "copyLinkOption": "Nakili Kiungo cha Tukio",
           "jumpToLocationOption": "Enda mahali",
           "moreOptionsButtonLabel": "Chaguo zaidi",
-          "printOption": "Chapisha Maelezo ya Tukio"
+          "printOption": "Chapisha Maelezo ya Tukio",
+          "removeFromIncidentOption": "Ondoa kwenye Tukio",
+          "removeFromPatrolOption": "Ondoa kwenye Doria"
         },
         "statusSelect": {
           "states": {
@@ -69,6 +74,8 @@
       "eventListLabel": "Orodha ya matukio",
       "eventRow": {
         "actions": {
+          "addToIncidentOption": "Ongeza kwenye Tukio",
+          "addToPatrolOption": "Ongeza kwenye Doria",
           "copyLinkMessage": "Kiungo kimenakiliwa",
           "copyLinkOption": "Nakili kiungo cha tukio",
           "jumpToLocationButtonLabel": "Enda mahali",
@@ -87,6 +94,8 @@
               "review": "Inakaguliwa"
             }
           },
+          "removeFromIncidentOption": "Ondoa kwenye Tukio",
+          "removeFromPatrolOption": "Ondoa kwenye Doria",
           "states": {
             "active": "tendaji",
             "resolved": "imetatuliwa",
@@ -121,6 +130,51 @@
       "loadingMoreLabel": "Inapakia matukio zaidi",
       "retryButton": "Jaribu tena"
     }
+  },
+  "linkEventModal": {
+    "addButton": "Ongeza",
+    "cancelButtonLabel": "Ghairi",
+    "closeButtonLabel": "Funga",
+    "createIncidentButtonLabel": "Unda tukio jipya",
+    "incident": {
+      "emptyStateMessage": "Hakuna matukio ya kuonyesha.",
+      "fetchErrorMessage": "Haikuweza kupakia matukio. Tafadhali jaribu tena.",
+      "loadingLabel": "Inapakia matukio",
+      "loadingMoreLabel": "Inapakia matukio zaidi",
+      "resultsCountMessage_one": "Tukio {{count}}",
+      "resultsCountMessage_other": "Matukio {{count}}",
+      "resultsListLabel": "Matukio",
+      "searchBarLabel": "Tafuta matukio",
+      "title": "Ongeza kwenye Tukio"
+    },
+    "incidentOption": {
+      "addButtonLabel": "Ongeza kwenye tukio {{serialNumber}} {{title}}",
+      "eventCountLabel_one": "Tukio {{count}}",
+      "eventCountLabel_other": "Matukio {{count}}",
+      "states": {
+        "active": "Tendaji",
+        "resolved": "Imetatuliwa",
+        "review": "Inakaguliwa"
+      }
+    },
+    "noMatchesMessage": "Rekebisha utafutaji wako ili kupata kile unachotafuta.",
+    "noMatchesMessageTitle": "Hakuna matokeo yaliyopatikana.",
+    "patrol": {
+      "emptyStateMessage": "Hakuna doria za kuonyesha.",
+      "fetchErrorMessage": "Haikuweza kupakia doria. Tafadhali jaribu tena.",
+      "loadingLabel": "Inapakia doria",
+      "loadingMoreLabel": "Inapakia doria zaidi",
+      "resultsCountMessage_one": "Doria {{count}}",
+      "resultsCountMessage_other": "Doria {{count}}",
+      "resultsListLabel": "Doria",
+      "searchBarLabel": "Tafuta doria",
+      "title": "Ongeza kwenye Doria"
+    },
+    "patrolOption": {
+      "addButtonLabel": "Ongeza kwenye doria {{serialNumber}} {{title}}",
+      "legLabel": "Kipande {{number}}"
+    },
+    "retryButtonLabel": "Jaribu tena"
   },
   "reportGeometryDrawer": {
     "cancelationConfirmationModal": {
@@ -196,6 +250,11 @@
       "timeLabel": "Muda wa Tukio"
     },
     "linksSection": {
+      "linkItem": {
+        "removeButtonLabel": "Ondoa",
+        "removeFromIncidentButtonLabel": "Ondoa kwenye tukio {{serialNumber}}",
+        "removeFromPatrolButtonLabel": "Ondoa kwenye doria {{serialNumber}}"
+      },
       "linksHeader": "Viungo"
     },
     "reportDetailView": {

@@ -1,19 +1,54 @@
+import { createRef } from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION, TAB_KEYS } from '../../../constants';
-import { fetchNextEventFeedPage } from '../../../ducks/events';
+import {
+  DEFAULT_EVENT_SORT,
+  EVENT_LINK_TARGET_TYPES,
+  EVENT_SORT_OPTIONS,
+  SORT_DIRECTION,
+  TAB_KEYS,
+} from '../../../constants';
+import { fetchNextEventFeedPage, removeEventFromIncident, removeEventFromPatrol } from '../../../ducks/events';
 import { mockStore } from '../../../__test-helpers/MockStore';
-import { render, screen, within } from '../../../test-utils';
+import { render, screen, waitFor, within } from '../../../test-utils';
 import { report } from '../../../__test-helpers/fixtures/reports';
-import { SidebarScrollProvider } from '../../../SidebarScrollContext';
+import { SidebarScrollContext, SidebarScrollProvider } from '../../../SidebarScrollContext';
+import { TrackerContext } from '../../../utils/analytics';
 
 import EventsFeed from './';
 
 jest.mock('../../../ducks/events', () => ({
   ...jest.requireActual('../../../ducks/events'),
   fetchNextEventFeedPage: jest.fn(),
+  removeEventFromIncident: jest.fn(),
+  removeEventFromPatrol: jest.fn(),
 }));
+
+jest.mock('../../../LinkEventModal', () => {
+  const React = jest.requireActual('react');
+
+  const LinkEventModal = ({ event, onExited, onHide, show, type }) => {
+    React.useEffect(() => {
+      if (!show) {
+        onExited();
+      }
+    }, [onExited, show]);
+
+    React.useEffect(() => {
+      const onKeyDown = (keyboardEvent) => keyboardEvent.key === 'Escape' && onHide();
+      globalThis.document.addEventListener('keydown', onKeyDown);
+
+      return () => globalThis.document.removeEventListener('keydown', onKeyDown);
+    }, [onHide]);
+
+    return show && <div aria-label={`Add #${event.serial_number} to ${type}`} role="dialog">
+      <button onClick={onHide} type="button">Close</button>
+    </div>;
+  };
+
+  return LinkEventModal;
+});
 
 jest.mock('../../../EventFilter', () => {
   const EventFilter = ({ children, isSortable }) => <div data-sortable={isSortable} data-testid="eventFilter">
@@ -36,7 +71,34 @@ jest.mock('./SortControls', () => {
 });
 
 jest.mock('./EventRow', () => {
-  const EventRow = ({ displayTimeProp, event }) => <li>{`#${event.serial_number} by ${displayTimeProp}`}</li>;
+  const EventRow = ({
+    displayTimeProp,
+    event,
+    isChangingLinks,
+    onOpenLinkModal,
+    onRemoveFromIncident,
+    onRemoveFromPatrol,
+  }) => <li aria-busy={isChangingLinks}>
+    {`#${event.serial_number} by ${displayTimeProp}`}
+
+    <button
+      aria-label={`Add #${event.serial_number} to incident`}
+      onClick={() => onOpenLinkModal('incident', event)}
+      type="button"
+    />
+
+    <button
+      aria-label={`Remove #${event.serial_number} from incident`}
+      onClick={() => onRemoveFromIncident(event)}
+      type="button"
+    />
+
+    <button
+      aria-label={`Remove #${event.serial_number} from patrol`}
+      onClick={() => onRemoveFromPatrol(event)}
+      type="button"
+    />
+  </li>;
 
   return EventRow;
 });
@@ -48,8 +110,13 @@ describe('SideBar - EventsManager - EventsFeed', () => {
   let secondEvent;
   let thirdEvent;
 
+  let tracker;
+
   beforeEach(() => {
     fetchNextEventFeedPage.mockImplementation(() => () => {});
+    removeEventFromIncident.mockImplementation(() => () => Promise.resolve());
+    removeEventFromPatrol.mockImplementation(() => () => Promise.resolve());
+    tracker = { track: jest.fn() };
 
     firstEvent = {
       ...report,
@@ -94,14 +161,25 @@ describe('SideBar - EventsManager - EventsFeed', () => {
     jest.restoreAllMocks();
   });
 
-  const renderEventsFeed = (eventsFeedOverrides, view = {}) => render(
-    <Provider store={mockStore({ data: {}, view })}>
-      <SidebarScrollProvider>
-        <EventsFeed eventsFeed={{ ...eventsFeed, ...eventsFeedOverrides }} />
-      </SidebarScrollProvider>
-    </Provider>,
-    { initialEntries: [`/${TAB_KEYS.EVENTS}`] }
-  );
+  const renderEventsFeed = (eventsFeedOverrides, view = {}) => {
+    const store = mockStore({ data: { eventCategories: {}, eventTypes: [], user: {} }, view: { systemConfig: {}, ...view } });
+    const renderEventsFeedElement = (overrides) => <Provider store={store}>
+      <TrackerContext.Provider value={tracker}>
+        <SidebarScrollProvider>
+          <EventsFeed eventsFeed={{ ...eventsFeed, ...overrides }} />
+        </SidebarScrollProvider>
+      </TrackerContext.Provider>
+    </Provider>;
+
+    const renderResult = render(renderEventsFeedElement(eventsFeedOverrides), {
+      initialEntries: [`/${TAB_KEYS.EVENTS}`],
+    });
+
+    return {
+      ...renderResult,
+      rerenderEventsFeed: (overrides) => renderResult.rerender(renderEventsFeedElement(overrides)),
+    };
+  };
 
   test('shows the feed as a table under the same filter in the table view', async () => {
     renderEventsFeed(undefined, { feedTableView: { events: true } });
@@ -238,9 +316,119 @@ describe('SideBar - EventsManager - EventsFeed', () => {
     expect(fetchNextEventFeedPage).toHaveBeenCalledWith('https://das/events?page=2');
   });
 
+  test('hands its scroll container to the sidebar, which keeps its scroll position', () => {
+    const scrollContext = { scrollRef: createRef(), scrollToLastPosition: jest.fn(), setScrollPosition: jest.fn() };
+    const store = mockStore({ data: { eventCategories: {}, eventTypes: [], user: {} }, view: { systemConfig: {} } });
+    render(<Provider store={store}>
+      <TrackerContext.Provider value={tracker}>
+        <SidebarScrollContext.Provider value={scrollContext}>
+          <EventsFeed eventsFeed={eventsFeed} />
+        </SidebarScrollContext.Provider>
+      </TrackerContext.Provider>
+    </Provider>, { initialEntries: [`/${TAB_KEYS.EVENTS}`] });
+
+    expect(scrollContext.scrollRef.current).toContainElement(screen.getByRole('list', { name: 'Event list' }));
+  });
+
   test('does not show a loading more spinner without a next page', () => {
     renderEventsFeed();
 
     expect(screen.queryByRole('status')).toBeNull();
+  });
+
+  describe('linking', () => {
+    const removedEvent = (event) => ({
+      ...event,
+      is_contained_in: [{ related_event: { id: 'incident-id' } }],
+      patrols: ['patrol-id'],
+    });
+
+    test('opens one link modal for the event of the row the user picks', async () => {
+      renderEventsFeed();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add #3 to incident' }));
+
+      expect(screen.getAllByRole('dialog')).toHaveLength(1);
+      expect(screen.getByRole('dialog', { name: `Add #3 to ${EVENT_LINK_TARGET_TYPES.INCIDENT}` })).toBeVisible();
+      expect(tracker.track).toHaveBeenCalledWith('Open the add to incident modal');
+    });
+
+    test('removes the event of a row from its incident and from its patrol', async () => {
+      renderEventsFeed({ events: { ...eventsFeed.events, results: [removedEvent(firstEvent)] } });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Remove #1 from incident' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Remove #1 from patrol' }));
+
+      expect(removeEventFromIncident).toHaveBeenCalledWith('first', 'incident-id');
+      expect(removeEventFromPatrol).toHaveBeenCalledWith('first', 'patrol-id');
+    });
+
+    test('flags only the row whose links are changing', async () => {
+      let resolveRemoval;
+      removeEventFromIncident.mockImplementation(() => () => new Promise((resolve) => {
+        resolveRemoval = resolve;
+      }));
+      renderEventsFeed({ events: { ...eventsFeed.events, results: [removedEvent(firstEvent), secondEvent] } });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Remove #1 from incident' }));
+
+      expect(screen.getByText(/#1 by/)).toHaveAttribute('aria-busy', 'true');
+      expect(screen.getByText(/#2 by/)).toHaveAttribute('aria-busy', 'false');
+
+      resolveRemoval();
+
+      await waitFor(() => expect(screen.getByText(/#1 by/)).toHaveAttribute('aria-busy', 'false'));
+    });
+
+    test('keeps the modal open when the row it opened from leaves the feed', async () => {
+      const { rerenderEventsFeed } = renderEventsFeed();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add #3 to incident' }));
+      rerenderEventsFeed({ events: { ...eventsFeed.events, results: [firstEvent, secondEvent] } });
+
+      expect(screen.getByRole('dialog', { name: 'Add #3 to incident' })).toBeVisible();
+    });
+
+    test('moves the focus to the event list when the modal closes after its row left the feed', async () => {
+      const { rerenderEventsFeed } = renderEventsFeed();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add #3 to incident' }));
+      rerenderEventsFeed({ events: { ...eventsFeed.events, results: [firstEvent, secondEvent] } });
+      await userEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+      expect(screen.getByRole('list', { name: 'Event list' })).toHaveFocus();
+    });
+
+    test('leaves the focus alone when the modal closes while its row is still in the feed', async () => {
+      renderEventsFeed();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add #3 to incident' }));
+      screen.getByRole('button', { name: 'Add #1 to incident' }).focus();
+      await userEvent.keyboard('{Escape}');
+
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(screen.getByRole('button', { name: 'Add #1 to incident' })).toHaveFocus();
+    });
+
+    test('moves the focus to the event list once the row of the modal left the feed, wherever the focus is', async () => {
+      const { rerenderEventsFeed } = renderEventsFeed();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add #3 to incident' }));
+      rerenderEventsFeed({ events: { ...eventsFeed.events, results: [firstEvent, secondEvent] } });
+      screen.getByRole('button', { name: 'Add #1 to incident' }).focus();
+      await userEvent.keyboard('{Escape}');
+
+      expect(screen.getByRole('list', { name: 'Event list' })).toHaveFocus();
+    });
+
+    test('moves the focus to the empty state when the modal closes after the last row left the feed', async () => {
+      const { rerenderEventsFeed } = renderEventsFeed();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Add #3 to incident' }));
+      rerenderEventsFeed({ events: { ...eventsFeed.events, results: [] } });
+      await userEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+      expect(screen.getByText('No events to display.')).toHaveFocus();
+    });
   });
 });

@@ -4,6 +4,7 @@ import union from 'lodash/union';
 import { API_URL, API_V2_URL, PREVIEW_FEATURES, REALTIME_OVERLAY_WINDOW_MS, TAB_KEYS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { addRealtimeOverlayEvent, removeRealtimeOverlayEvent } from './events-realtime-overlay';
+import { fetchPatrol, LINK_TARGETS_PAGE_SIZE, PATROLS_API_URL } from './patrols';
 import { generateErrorMessageForRequest } from '../utils/request';
 import { getBboxParamsFromMap, objectToParamString } from '../utils/query';
 import { getPreviewFeatureValue } from '../utils/feature-flags';
@@ -19,6 +20,11 @@ import { getCurrentIdFromURL, getCurrentTabFromURL } from '../utils/navigation';
 export const EVENTS_API_URL = `${API_URL}activity/events`;
 export const EVENT_API_URL = `${API_URL}activity/event/`;
 
+export const EVENT_RELATIONSHIPS_API_URL = (incidentId) => `${EVENT_API_URL}${incidentId}/relationships/`;
+export const INCIDENT_EVENT_API_URL = (incidentId, eventId) =>
+  `${EVENT_API_URL}${incidentId}/relationship/contains/${eventId}/`;
+export const PATROL_EVENT_API_URL = (patrolId, eventId) => `${PATROLS_API_URL}${patrolId}/events/${eventId}/`;
+
 export const COMMUNITY_EVENTS_API_URL = (communityValue) =>
   `${API_V2_URL}community/${communityValue}/activity/events/`;
 export const COMMUNITY_EVENT_NOTES_URL = (communityValue, eventId) =>
@@ -27,6 +33,8 @@ export const COMMUNITY_EVENT_FILES_URL = (communityValue, eventId) =>
   `${API_V2_URL}community/${communityValue}/activity/events/${eventId}/files/`;
 
 // actions
+export const ADD_EVENT_TO_FEEDS = 'EVENTS.ADD_EVENT_TO_FEEDS';
+
 const CLEAR_EVENT_DATA = 'CLEAR_EVENT_DATA';
 
 const CREATE_EVENT_START = 'CREATE_EVENT_START';
@@ -53,7 +61,6 @@ const ADD_EVENT_NOTE_SUCCESS = 'ADD_EVENT_NOTE_SUCCESS';
 const ADD_EVENT_NOTE_ERROR = 'ADD_EVENT_NOTE_ERROR';
 
 const EVENT_FEED_NAME = 'EVENT_FEED';
-const INCIDENT_FEED_NAME = 'INCIDENT_FEED';
 
 const FEED_FETCH_START = 'FEED_FETCH_START';
 const FEED_FETCH_SUCCESS = 'FEED_FETCH_SUCCESS';
@@ -270,18 +277,129 @@ export const addNoteToEvent = (event_id, note, communityInputValue = null) => (d
     });
 };
 
-export const addEventToIncident = (event_id, incident_id) => (_dispatch, getState) => {
-  const params = {};
-  const state = getState();
+const calcLocationParams = (state) => shouldAppendLocationToRequest(state)
+  ? { location: calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords) }
+  : {};
 
-  if (shouldAppendLocationToRequest(state)) {
-    params.location = calcLocationParamStringForUserLocationCoords(state.view.userLocation.coords);
+// The link change already holds, so a refresh that fails is only logged.
+const refreshLinkedRecords = async (refreshes) => {
+  const results = await Promise.allSettled(refreshes);
+
+  results
+    .filter((result) => result.status === 'rejected')
+    .forEach((result) => console.warn('Error refreshing a record after a link change', result.reason));
+
+  return results.map((result) => result.value);
+};
+
+export const addEventToIncident = (eventId, incidentId) => async (dispatch, getState) => {
+  try {
+    await axios.post(
+      EVENT_RELATIONSHIPS_API_URL(incidentId),
+      { to_event_id: eventId, type: 'contains' },
+      { params: calcLocationParams(getState()) }
+    );
+  } catch (error) {
+    console.warn('Error adding an event to an incident', error);
+
+    throw error;
   }
 
-  return axios.post(`${EVENT_API_URL}${incident_id}/relationships`, {
-    type: 'contains',
-    to_event_id: event_id,
-  }, { params });
+  const [, incidentResponse] = await refreshLinkedRecords([
+    dispatch(fetchEvent(eventId)),
+    dispatch(fetchEvent(incidentId)),
+  ]);
+
+  return incidentResponse;
+};
+
+// Without a leg, the server picks the one for the event's time.
+export const addEventToPatrol = (eventId, patrolId, patrolSegmentId = null) => async (dispatch, getState) => {
+  try {
+    await axios.post(
+      PATROL_EVENT_API_URL(patrolId, eventId),
+      patrolSegmentId ? { patrol_segment: patrolSegmentId } : null,
+      { params: calcLocationParams(getState()) }
+    );
+  } catch (error) {
+    console.warn('Error adding an event to a patrol', error);
+
+    throw error;
+  }
+
+  await refreshLinkedRecords([
+    dispatch(fetchEvent(eventId)),
+    ...(getState().data.patrolStore[patrolId] ? [dispatch(fetchPatrol(patrolId))] : []),
+  ]);
+};
+
+export const removeEventFromIncident = (eventId, incidentId) => async (dispatch, getState) => {
+  try {
+    await axios.delete(INCIDENT_EVENT_API_URL(incidentId, eventId), { params: calcLocationParams(getState()) });
+  } catch (error) {
+    console.warn('Error removing an event from an incident', error);
+
+    throw error;
+  }
+
+  const [eventResponse] = await refreshLinkedRecords([
+    dispatch(fetchEvent(eventId)),
+    dispatch(fetchEvent(incidentId)),
+  ]);
+
+  // The feed left the event out while the incident held it, and no socket push
+  // says that it left.
+  if (eventResponse && validateReportAgainstCurrentEventFilter(eventResponse.data.data)) {
+    dispatch({ payload: eventId, type: ADD_EVENT_TO_FEEDS });
+  }
+
+  return getState().data.eventStore[incidentId] ?? null;
+};
+
+export const removeEventFromPatrol = (eventId, patrolId) => async (dispatch, getState) => {
+  try {
+    await axios.delete(PATROL_EVENT_API_URL(patrolId, eventId), { params: calcLocationParams(getState()) });
+  } catch (error) {
+    console.warn('Error removing an event from a patrol', error);
+
+    throw error;
+  }
+
+  // Fetched even when no screen holds it, as callers name the patrol it left.
+  await refreshLinkedRecords([dispatch(fetchEvent(eventId)), dispatch(fetchPatrol(patrolId))]);
+
+  return getState().data.patrolStore[patrolId] ?? null;
+};
+
+export const fetchIncidentLinkTargets = (searchText, { nextPageUrl = null, signal } = {}) => async (_, getState) => {
+  try {
+    const response = nextPageUrl
+      ? await axios.get(nextPageUrl, { signal })
+      : await axios.get(EVENTS_API_URL, {
+        params: {
+          ...calcLocationParams(getState()),
+          ...(searchText && { filter: JSON.stringify({ text: searchText }) }),
+          include_details: false,
+          include_files: false,
+          include_notes: false,
+          // The list leaves out what an incident contains unless asked.
+          include_related_events: true,
+          include_updates: false,
+          is_collection: true,
+          page_size: LINK_TARGETS_PAGE_SIZE,
+          sort_by: '-updated_at',
+        },
+        signal,
+      });
+
+    return response.data.data;
+  } catch (error) {
+    if (!isCancel(error)) {
+      console.warn('Error fetching the incidents an event can be added to', error);
+    }
+
+    throw error;
+  }
 };
 
 export const fetchEvent = (event_id, parameters = {}) =>
@@ -428,9 +546,8 @@ export const uploadEventFile = (event_id, file, communityInputValue = null) => (
 };
 
 const [fetchEventFeed, fetchNextEventFeedPage, fetchEventFeedCancelToken] = fetchNamedFeedActionCreator(EVENT_FEED_NAME);
-const [fetchIncidentFeed, fetchNextIncidentFeedPage] = fetchNamedFeedActionCreator(INCIDENT_FEED_NAME);
 
-export { fetchEventFeed, fetchEventFeedCancelToken, fetchNextEventFeedPage, fetchIncidentFeed, fetchNextIncidentFeedPage };
+export { fetchEventFeed, fetchEventFeedCancelToken, fetchNextEventFeedPage };
 
 const generateNewCancelToken = () => new CancelToken(function executor(cancelFn) {
   mapEventsCancelFn = cancelFn;
@@ -625,6 +742,10 @@ const namedFeedReducer = (name, reducer = state => state) => globallyResettableR
     return reducer(stateUpdate, action);
   }
 
+  if (type === ADD_EVENT_TO_FEEDS) {
+    return { ...state, results: union([payload], state.results) };
+  }
+
   if (type === REMOVE_EVENT_BY_ID) {
     return {
       ...state,
@@ -740,20 +861,6 @@ export const eventFeedReducer = namedFeedReducer(EVENT_FEED_NAME, (state, { type
   }
   return state;
 });
-
-export const incidentFeedReducer = namedFeedReducer(INCIDENT_FEED_NAME, (state, { type, payload }) => {
-  if (type === SOCKET_EVENT_DATA) {
-
-    if (!payload.event_data.is_collection) {
-      return {
-        ...state,
-        results: state.results.filter(id => id !== payload.event_data.id),
-      };
-    }
-  }
-  return state;
-});
-
 
 // const INITIAL_MAP_EVENTS_STATE = [];
 

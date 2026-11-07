@@ -1,15 +1,4 @@
 {
-  "addToIncidentModal": {
-    "modalBody": {
-      "addToNewIncidentButton": "Agregar a nuevo incidente",
-      "loadingItem": "Cargando...",
-      "noMoreEventsItem": "No hay más incidentes que mostrar."
-    },
-    "modalFooter": {
-      "cancelButton": "Cancelar"
-    },
-    "modalTitle": "Agregar a Incidente"
-  },
   "errorMessages": {
     "accordionHeaderButton": {
       "closed": "Ver detalles",
@@ -18,6 +7,20 @@
   },
   "eventIcon": {
     "collectionTitle": "Colección"
+  },
+  "eventLinking": {
+    "addedToIncidentMessage": "Evento {{eventSerialNumber}} agregado al incidente {{incidentSerialNumber}}.",
+    "addedToNewIncidentMessage": "Evento {{eventSerialNumber}} agregado al nuevo incidente {{incidentSerialNumber}}.",
+    "addedToPatrolMessage": "Evento {{eventSerialNumber}} agregado a la patrulla {{patrolSerialNumber}}.",
+    "addToIncidentErrorMessage": "No se pudo agregar el evento al incidente. Por favor intente de nuevo.",
+    "addToNewIncidentErrorMessage": "No se pudo agregar el evento a un nuevo incidente. Por favor intente de nuevo.",
+    "addToPatrolErrorMessage": "No se pudo agregar el evento a la patrulla. Por favor intente de nuevo.",
+    "removedFromIncidentMessage": "Evento {{eventSerialNumber}} quitado del incidente {{incidentSerialNumber}}.",
+    "removedFromPatrolMessage": "Evento {{eventSerialNumber}} quitado de la patrulla {{patrolSerialNumber}}.",
+    "removedFromUnloadedIncidentMessage": "Evento {{eventSerialNumber}} quitado del incidente.",
+    "removedFromUnloadedPatrolMessage": "Evento {{eventSerialNumber}} quitado de la patrulla.",
+    "removeFromIncidentErrorMessage": "No se pudo quitar el evento del incidente. Por favor intente de nuevo.",
+    "removeFromPatrolErrorMessage": "No se pudo quitar el evento de la patrulla. Por favor intente de nuevo."
   },
   "eventsManager": {
     "eventOverview": {
@@ -43,7 +46,9 @@
           "copyLinkOption": "Copiar enlace del evento",
           "jumpToLocationOption": "Ir a la ubicación",
           "moreOptionsButtonLabel": "Más opciones",
-          "printOption": "Imprimir Evento"
+          "printOption": "Imprimir Evento",
+          "removeFromIncidentOption": "Quitar de Incidente",
+          "removeFromPatrolOption": "Quitar de Patrulla"
         },
         "statusSelect": {
           "states": {
@@ -69,6 +74,8 @@
       "eventListLabel": "Lista de eventos",
       "eventRow": {
         "actions": {
+          "addToIncidentOption": "Agregar a Incidente",
+          "addToPatrolOption": "Agregar a Patrulla",
           "copyLinkMessage": "Enlace copiado",
           "copyLinkOption": "Copiar enlace del evento",
           "jumpToLocationButtonLabel": "Ir a la ubicación",
@@ -87,6 +94,8 @@
               "review": "en revisión"
             }
           },
+          "removeFromIncidentOption": "Quitar de Incidente",
+          "removeFromPatrolOption": "Quitar de Patrulla",
           "states": {
             "active": "activo",
             "resolved": "resuelto",
@@ -121,6 +130,51 @@
       "loadingMoreLabel": "Cargando más eventos",
       "retryButton": "Intentar de nuevo"
     }
+  },
+  "linkEventModal": {
+    "addButton": "Agregar",
+    "cancelButtonLabel": "Cancelar",
+    "closeButtonLabel": "Cerrar",
+    "createIncidentButtonLabel": "Crear nuevo incidente",
+    "incident": {
+      "emptyStateMessage": "No hay incidentes que mostrar.",
+      "fetchErrorMessage": "No se pudieron cargar los incidentes. Por favor intente de nuevo.",
+      "loadingLabel": "Cargando incidentes",
+      "loadingMoreLabel": "Cargando más incidentes",
+      "resultsCountMessage_one": "{{count}} incidente",
+      "resultsCountMessage_other": "{{count}} incidentes",
+      "resultsListLabel": "Incidentes",
+      "searchBarLabel": "Buscar incidentes",
+      "title": "Agregar a Incidente"
+    },
+    "incidentOption": {
+      "addButtonLabel": "Agregar al incidente {{serialNumber}} {{title}}",
+      "eventCountLabel_one": "{{count}} evento",
+      "eventCountLabel_other": "{{count}} eventos",
+      "states": {
+        "active": "Activo",
+        "resolved": "Resuelto",
+        "review": "En revisión"
+      }
+    },
+    "noMatchesMessage": "Ajusta tu búsqueda para encontrar lo que estás buscando.",
+    "noMatchesMessageTitle": "No se encontraron resultados.",
+    "patrol": {
+      "emptyStateMessage": "No hay patrullas que mostrar.",
+      "fetchErrorMessage": "No se pudieron cargar las patrullas. Por favor intente de nuevo.",
+      "loadingLabel": "Cargando patrullas",
+      "loadingMoreLabel": "Cargando más patrullas",
+      "resultsCountMessage_one": "{{count}} patrulla",
+      "resultsCountMessage_other": "{{count}} patrullas",
+      "resultsListLabel": "Patrullas",
+      "searchBarLabel": "Buscar patrullas",
+      "title": "Agregar a Patrulla"
+    },
+    "patrolOption": {
+      "addButtonLabel": "Agregar a la patrulla {{serialNumber}} {{title}}",
+      "legLabel": "Tramo {{number}}"
+    },
+    "retryButtonLabel": "Intentar de nuevo"
   },
   "reportGeometryDrawer": {
     "cancelationConfirmationModal": {
@@ -196,6 +250,11 @@
       "timeLabel": "Hora del evento"
     },
     "linksSection": {
+      "linkItem": {
+        "removeButtonLabel": "Quitar",
+        "removeFromIncidentButtonLabel": "Quitar del incidente {{serialNumber}}",
+        "removeFromPatrolButtonLabel": "Quitar de la patrulla {{serialNumber}}"
+      },
       "linksHeader": "Enlaces"
     },
     "reportDetailView": {

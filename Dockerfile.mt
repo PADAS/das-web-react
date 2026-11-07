@@ -2,6 +2,8 @@
 ARG NODE_VERSION
 FROM europe-west3-docker.pkg.dev/serca-artifact-registry/virtual-docker/node:${NODE_VERSION}-alpine AS build
 ARG ENV_FILE=.env.production
+# Node 26 images no longer ship Yarn, so Corepack provides the one we pin.
+RUN npm install --global corepack@0.36.0 && corepack enable
 COPY . /app
 WORKDIR /app
 RUN yarn install --immutable

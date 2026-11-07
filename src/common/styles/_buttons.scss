@@ -344,6 +344,29 @@ $chip-height-small: 1.75rem;
   }
 }
 
+// A busy button stays focusable, so it is aria-disabled rather than disabled.
+@mixin chip-danger-state {
+  background-color: colors.$high-priority-bg-hover;
+  border-color: colors.$high-priority-bg-hover;
+  color: colors.$bright-red;
+
+  &:hover {
+    background-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
+    border-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
+  }
+
+  &[aria-disabled='true'] {
+    cursor: default;
+    opacity: 0.5;
+  }
+
+  &:disabled:hover,
+  &[aria-disabled='true']:hover {
+    background-color: colors.$high-priority-bg-hover;
+    border-color: colors.$high-priority-bg-hover;
+  }
+}
+
 @mixin chip-text-button-small {
   @include chip-text-button;
 

@@ -2,9 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { API_URL, EVENT_FORM_STATES, EVENT_SORT_OPTIONS, SORT_DIRECTION, TAB_KEYS } from '../../constants';
 import {
-  addPatrolSegmentToEvent,
+  API_URL,
+  EVENT_FORM_STATES,
+  EVENT_LINK_TARGET_TYPES,
+  EVENT_SORT_OPTIONS,
+  SORT_DIRECTION,
+  TAB_KEYS,
+} from '../../constants';
+import {
   calcDisplayPriorityForReport,
   createNewIncidentCollection,
   displayTitleForEvent,
@@ -19,8 +25,7 @@ import { calcEventFilterForRequest } from '../../utils/event-filter';
 import { addModal } from '../../ducks/modals';
 import { downloadFileFromUrl } from '../../utils/download';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
-import { addEventToIncident, createEvent, fetchNextEventFeedPage, setEventState } from '../../ducks/events';
-import { governingPatrolSegment } from '../../utils/patrols';
+import { addEventToIncident, addEventToPatrol, createEvent, fetchNextEventFeedPage, setEventState } from '../../ducks/events';
 import { selectCoordinatesRepresentation } from '../../selectors/location';
 import { selectEventSchema } from '../../selectors/event-schemas';
 import { showToast } from '../../utils/toast';
@@ -29,11 +34,11 @@ import useJumpToLocation from '../../hooks/useJumpToLocation';
 import useNavigate from '../../hooks/useNavigate';
 import calcEventTypeFields from './utils/calcEventTypeFields';
 
-import AddToIncidentModal from '../../AddToIncidentModal';
-import AddToPatrolModal from '../../AddToPatrolModal';
 import CollectionViewModal from './CollectionViewModal';
+import DelayedUnmount from '../../DelayedUnmount';
 import EventIcon from '../../EventIcon';
 import FeedTable, { formatDateValue, ICON_COLUMN, IconCell } from '..';
+import LinkEventModal from '../../LinkEventModal';
 import ObjectViewModal, { ObjectValueLink } from '../ObjectViewModal';
 
 import * as styles from './styles.module.scss';
@@ -109,6 +114,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   // page to sort them all. A new feed sort, from the sort controls or a
   // header, takes over.
   const [clientSortState, setClientSortState] = useState(null);
+  const [linkModal, setLinkModal] = useState({ events: [], show: false, type: EVENT_LINK_TARGET_TYPES.PATROL });
   const [updatingState, setUpdatingState] = useState(false);
 
   const clientSort = clientSortState?.feedSort === eventSort ? clientSortState : null;
@@ -326,16 +332,13 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
 
   // The same rules as the event's own menu: an event joins one patrol, and an
   // incident can't join another or be in two.
-  const onStartAddSelectedToPatrol = (selectedEvents, clearSelection) => dispatch(addModal({
-    content: AddToPatrolModal,
-    onAddToPatrol: (patrol) => {
-      const patrolSegmentId = governingPatrolSegment(patrol)?.id;
-
-      return updateSelectedEvents(selectedEvents, (event) => !patrolSegmentId || eventBelongsToPatrol(event)
-        ? Promise.reject(new Error('The event cannot be added to this patrol'))
-        : addPatrolSegmentToEvent(patrolSegmentId, event.id), clearSelection);
-    },
-  }));
+  const addSelectedToPatrol = (selectedEvents, patrol, clearSelection) => updateSelectedEvents(
+    selectedEvents,
+    (event) => eventBelongsToPatrol(event)
+      ? Promise.reject(new Error('The event cannot be added to this patrol'))
+      : dispatch(addEventToPatrol(event.id, patrol.id)),
+    clearSelection
+  );
 
   const addSelectedToIncident = async (selectedEvents, existingIncident, clearSelection) => {
     const canJoinIncident = (event) => !event.is_collection && !eventBelongsToCollection(event);
@@ -355,11 +358,28 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       : Promise.reject(new Error('The event cannot be added to an incident')), clearSelection);
   };
 
-  const onStartAddSelectedToIncident = (selectedEvents, clearSelection) => dispatch(addModal({
-    content: AddToIncidentModal,
-    onAddToExistingIncident: (incident) => addSelectedToIncident(selectedEvents, incident, clearSelection),
-    onAddToNewIncident: () => addSelectedToIncident(selectedEvents, null, clearSelection),
-  }));
+  const openLinkModal = (type, selectedEvents, clearSelection) => setLinkModal({
+    clearSelection,
+    events: selectedEvents,
+    show: true,
+    type,
+  });
+
+  const closeLinkModal = () => setLinkModal((currentLinkModal) => ({ ...currentLinkModal, show: false }));
+
+  const onAddToLinkTarget = async (target) => {
+    closeLinkModal();
+
+    await (linkModal.type === EVENT_LINK_TARGET_TYPES.PATROL
+      ? addSelectedToPatrol(linkModal.events, target, linkModal.clearSelection)
+      : addSelectedToIncident(linkModal.events, target, linkModal.clearSelection));
+  };
+
+  const onCreateIncident = async () => {
+    closeLinkModal();
+
+    await addSelectedToIncident(linkModal.events, null, linkModal.clearSelection);
+  };
 
   const renderBulkActions = (selectedEvents, clearSelection) => <>
     <button
@@ -383,7 +403,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     <button
       className={styles.bulkActionButton}
       disabled={updatingState}
-      onClick={() => onStartAddSelectedToPatrol(selectedEvents, clearSelection)}
+      onClick={() => openLinkModal(EVENT_LINK_TARGET_TYPES.PATROL, selectedEvents, clearSelection)}
       type="button"
     >
       {tReportMenu('addToPatrolOption')}
@@ -392,30 +412,46 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     <button
       className={styles.bulkActionButton}
       disabled={updatingState}
-      onClick={() => onStartAddSelectedToIncident(selectedEvents, clearSelection)}
+      onClick={() => openLinkModal(EVENT_LINK_TARGET_TYPES.INCIDENT, selectedEvents, clearSelection)}
       type="button"
     >
       {tReportMenu('addToIncidentOption')}
     </button>
   </>;
 
-  return <FeedTable
-    ariaLabel={tSideBar('eventsLink')}
-    columnDefs={columnDefs}
-    getRowClass={getRowClass}
-    getRowId={(params) => params.data.id}
-    layoutScope={eventTypeFilter.length === 1 ? eventTypeFilter[0] : undefined}
-    loading={eventsFeed.loadingEventFeed}
-    onExport={onExport}
-    onLoadMore={onLoadMore}
-    onOpenRow={onOpenRow}
-    onSortChanged={onSortChanged}
-    renderBulkActions={renderBulkActions}
-    rowData={events}
-    tableKey={TAB_KEYS.EVENTS}
-    toolbarContainer={toolbarContainer}
-    totalCount={eventsFeed.events.count}
-  />;
+  return <>
+    <FeedTable
+      ariaLabel={tSideBar('eventsLink')}
+      columnDefs={columnDefs}
+      getRowClass={getRowClass}
+      getRowId={(params) => params.data.id}
+      layoutScope={eventTypeFilter.length === 1 ? eventTypeFilter[0] : undefined}
+      loading={eventsFeed.loadingEventFeed}
+      onExport={onExport}
+      onLoadMore={onLoadMore}
+      onOpenRow={onOpenRow}
+      onSortChanged={onSortChanged}
+      renderBulkActions={renderBulkActions}
+      rowData={events}
+      tableKey={TAB_KEYS.EVENTS}
+      toolbarContainer={toolbarContainer}
+      totalCount={eventsFeed.events.count}
+    />
+
+    {/* The modal names the selection where it would name a single event. */}
+    <DelayedUnmount isMounted={linkModal.show}>
+      <LinkEventModal
+        canCreateIncident
+        event={{ title: t('selectedCountMessage', { count: linkModal.events.length }) }}
+        isLinking={updatingState}
+        onAdd={onAddToLinkTarget}
+        onCreateIncident={onCreateIncident}
+        onHide={closeLinkModal}
+        show={linkModal.show}
+        type={linkModal.type}
+      />
+    </DelayedUnmount>
+  </>;
 };
 
 export default EventsTable;

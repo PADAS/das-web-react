@@ -22,12 +22,6 @@
     },
     "timeLabel": "समय"
   },
-  "addToPatrolModal": {
-    "cancel": "रद्द गर्नुहोस्",
-    "loading": "लोड हुँदैछ…",
-    "noMorePatrols": "प्रदर्शनीका लागि कुनै गस्ती छैन ।",
-    "title": "गस्तीमा थप्नुहोस्"
-  },
   "detailView": {
     "addEmptyNoteAlert": "नयाँ नोट सुरक्षित गर्न सकिएन: पुरानै नोट सुरक्षित हुन बाँकी छ",
     "formButtons": {

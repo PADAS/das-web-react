@@ -12,8 +12,7 @@ import { calcEventFilterForRequest } from '../../utils/event-filter';
 import { downloadFileFromUrl } from '../../utils/download';
 import { GPS_FORMATS } from '../../utils/location';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
-import { addEventToIncident, createEvent, setEventState } from '../../ducks/events';
-import { addPatrolSegmentToEvent } from '../../utils/events';
+import { addEventToIncident, addEventToPatrol, createEvent, setEventState } from '../../ducks/events';
 import { updateEventFilter } from '../../ducks/event-filter';
 import useJumpToLocation from '../../hooks/useJumpToLocation';
 import useNavigate from '../../hooks/useNavigate';
@@ -38,6 +37,13 @@ jest.mock('ag-grid-react', () => ({
   },
 }));
 
+const mockLinkModalProps = [];
+jest.mock('../../LinkEventModal', () => function LinkEventModalStub(props) {
+  mockLinkModalProps.push(props);
+
+  return props.show ? <div data-testid="linkEventModal">{props.event.title}</div> : null;
+});
+
 jest.mock('../../ducks/event-filter', () => ({
   ...jest.requireActual('../../ducks/event-filter'),
   updateEventFilter: jest.fn(),
@@ -51,13 +57,9 @@ jest.mock('../../ducks/event-schemas', () => ({
 jest.mock('../../ducks/events', () => ({
   ...jest.requireActual('../../ducks/events'),
   addEventToIncident: jest.fn(),
+  addEventToPatrol: jest.fn(),
   createEvent: jest.fn(),
   setEventState: jest.fn(),
-}));
-
-jest.mock('../../utils/events', () => ({
-  ...jest.requireActual('../../utils/events'),
-  addPatrolSegmentToEvent: jest.fn(),
 }));
 
 jest.mock('../../utils/event-filter', () => ({
@@ -103,7 +105,7 @@ describe('EventsTable', () => {
     setEventState.mockImplementation(() => () => Promise.resolve());
     fetchEventTypeSchema.mockImplementation(() => () => {});
     addEventToIncident.mockImplementation(() => () => Promise.resolve());
-    addPatrolSegmentToEvent.mockResolvedValue();
+    addEventToPatrol.mockImplementation(() => () => Promise.resolve());
     createEvent.mockImplementation(() => () => Promise.resolve({ data: { data: { id: 'new-incident' } } }));
 
     eventsFeed = {
@@ -446,18 +448,23 @@ describe('EventsTable', () => {
     lastGridProps().onSelectionChanged({ api: { getSelectedRows: () => selectedEvents } });
   });
 
+  const linkModal = () => mockLinkModalProps[mockLinkModalProps.length - 1];
   const openedModal = () => store.getActions().find((action) => action.type === 'ADD_MODAL').payload;
 
   test('adds the selected events to a patrol, except those already on one', async () => {
-    const onPatrol = { ...report, id: 'on-patrol', patrol_segments: [{ id: 'other-segment' }] };
+    const onPatrol = { ...report, id: 'on-patrol', patrols: ['other-patrol'] };
     renderEventsTable([report, onPatrol]);
     selectEvents([report, onPatrol]);
 
     await userEvent.click(screen.getByRole('button', { name: 'Add to Patrol' }));
-    await act(() => openedModal().onAddToPatrol({ id: 'patrol', patrol_segments: [{ id: 'segment' }] }));
 
-    expect(addPatrolSegmentToEvent).toHaveBeenCalledTimes(1);
-    expect(addPatrolSegmentToEvent).toHaveBeenCalledWith('segment', report.id);
+    expect(screen.getByTestId('linkEventModal')).toHaveTextContent('2 selected');
+    expect(linkModal().type).toBe('patrol');
+
+    await act(() => linkModal().onAdd({ id: 'patrol' }));
+
+    expect(addEventToPatrol).toHaveBeenCalledTimes(1);
+    expect(addEventToPatrol).toHaveBeenCalledWith(report.id, 'patrol');
     expect(showToast).toHaveBeenCalledWith({ message: '1 event could not be updated' });
     expect(eventsFeed.loadFeedEvents).toHaveBeenCalledWith(true);
   });
@@ -468,7 +475,7 @@ describe('EventsTable', () => {
     selectEvents([report, second]);
 
     await userEvent.click(screen.getByRole('button', { name: 'Add to Incident' }));
-    await act(() => openedModal().onAddToNewIncident());
+    await act(() => linkModal().onCreateIncident());
 
     expect(createEvent).toHaveBeenCalledWith(expect.objectContaining({ event_type: 'incident_collection' }));
     expect(addEventToIncident).toHaveBeenCalledWith(report.id, 'new-incident');
@@ -482,7 +489,7 @@ describe('EventsTable', () => {
     selectEvents([inIncident]);
 
     await userEvent.click(screen.getByRole('button', { name: 'Add to Incident' }));
-    await act(() => openedModal().onAddToNewIncident());
+    await act(() => linkModal().onCreateIncident());
 
     expect(createEvent).not.toHaveBeenCalled();
     expect(addEventToIncident).not.toHaveBeenCalled();
@@ -494,7 +501,8 @@ describe('EventsTable', () => {
     selectEvents([report]);
 
     await userEvent.click(screen.getByRole('button', { name: 'Add to Incident' }));
-    await act(() => openedModal().onAddToExistingIncident({ id: 'incident' }));
+    expect(linkModal().type).toBe('incident');
+    await act(() => linkModal().onAdd({ id: 'incident' }));
 
     expect(createEvent).not.toHaveBeenCalled();
     expect(addEventToIncident).toHaveBeenCalledWith(report.id, 'incident');

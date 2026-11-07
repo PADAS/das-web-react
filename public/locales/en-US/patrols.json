@@ -22,12 +22,6 @@
     },
     "timeLabel": "Time"
   },
-  "addToPatrolModal": {
-    "cancel": "Cancel",
-    "loading": "Loading...",
-    "noMorePatrols": "No more patrols to display.",
-    "title": "Add to Patrol"
-  },
   "detailView": {
     "addEmptyNoteAlert": "Can not add a new note: there's an empty note not saved yet",
     "formButtons": {

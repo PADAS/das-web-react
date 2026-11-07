@@ -1,7 +1,7 @@
 import { memo, useContext } from 'react';
 import { toast } from 'react-toastify';
-import { useDispatch } from 'react-redux';
 import { useReactToPrint } from 'react-to-print';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ClipIcon } from '../../../../../common/images/icons/link.svg';
@@ -10,22 +10,12 @@ import { ReactComponent as MarkerFeedIcon } from '../../../../../common/images/i
 import { ReactComponent as PatrolIcon } from '../../../../../common/images/icons/patrol.svg';
 import { ReactComponent as PrinterIcon } from '../../../../../common/images/icons/printer-outline.svg';
 
-import { addEventToIncident, createEvent, fetchEvent } from '../../../../../ducks/events';
-import { addModal, removeModal } from '../../../../../ducks/modals';
-import {
-  addPatrolSegmentToEvent,
-  createNewIncidentCollection,
-  eventBelongsToCollection,
-  eventBelongsToPatrol,
-  getReportLink,
-} from '../../../../../utils/events';
 import { basePrintingStyles } from '../../../../../utils/styles';
-import { governingPatrolSegment } from '../../../../../utils/patrols';
-import { TAB_KEYS } from '../../../../../constants';
+import { EVENT_LINK_TARGET_TYPES } from '../../../../../constants';
+import { getReportLink } from '../../../../../utils/events';
+import { selectEventLinkPermissions } from '../../../../../selectors/event-links';
 import { TrackerContext } from '../../../../../utils/analytics';
 
-import AddToIncidentModal from '../../../../../AddToIncidentModal';
-import AddToPatrolModal from '../../../../../AddToPatrolModal';
 import KebabMenu from '../../../../../KebabMenu';
 
 import * as styles from './styles.module.scss';
@@ -33,15 +23,18 @@ import * as styles from './styles.module.scss';
 const COPY_LINK_TOAST_AUTOCLOSE = 2000;
 
 const ReportMenu = ({
+  canLinkReport = false,
   hasLocation,
+  isChangingLinks = false,
   onJumpToLocation,
-  onSaveReport,
+  onOpenLinkModal,
+  onRemoveFromIncident,
+  onRemoveFromPatrol,
+  onSaveNewReport = null,
   printableContentRef,
   report,
-  setRedirectTo,
   title,
 }) => {
-  const dispatch = useDispatch();
   const onPrint = useReactToPrint({
     contentRef: printableContentRef,
     documentTitle: `${report.serial_number ?? ''} ${title}`.trim(),
@@ -49,58 +42,9 @@ const ReportMenu = ({
   });
   const { t } = useTranslation('reports', { keyPrefix: 'eventsManager.eventOverview.header.reportMenu' });
 
+  const eventLinkPermissions = useSelector((state) => selectEventLinkPermissions(state, report));
+
   const tracker = useContext(TrackerContext);
-
-  const belongsToPatrol = eventBelongsToPatrol(report);
-  const canAddToIncident = !report.is_collection && !eventBelongsToCollection(report);
-
-  const onAddToIncident = async (existingIncident) => {
-    const parallelOperations = [onSaveReport(undefined, false)];
-    if (!existingIncident) {
-      const newIncident = createNewIncidentCollection({ priority: report.priority });
-      parallelOperations.push(dispatch(createEvent(newIncident)));
-    }
-    const [[{ data: { data: savedReport } }], createIncidentResponse] = await Promise.all(parallelOperations);
-
-    const incident = existingIncident || createIncidentResponse.data.data;
-
-    await dispatch(addEventToIncident(savedReport.id, incident.id));
-
-    tracker.track(`Added report to ${existingIncident ? 'existing' : 'new'} incident`);
-
-    dispatch(fetchEvent(savedReport.id));
-    dispatch(fetchEvent(incident.id)).then(({ data: { data } }) => {
-      removeModal();
-      setRedirectTo(`/${TAB_KEYS.EVENTS}/${data.id}`);
-    });
-  };
-
-  const onStartAddToIncident = () => {
-    dispatch(addModal({
-      content: AddToIncidentModal,
-      onAddToNewIncident: onAddToIncident,
-      onAddToExistingIncident: onAddToIncident,
-    }));
-
-    tracker.track('Click \'Add to Incident\'');
-  };
-
-  const onAddToPatrol = async (patrol) => {
-    const patrolSegmentId = governingPatrolSegment(patrol)?.id;
-    if (!patrolSegmentId) return;
-
-    const [{ data: { data: savedReport } }] = await onSaveReport(undefined, false);
-
-    await addPatrolSegmentToEvent(patrolSegmentId, savedReport.id)
-      .catch((error) => console.warn('add segment error', error));
-
-    tracker.track(`Added ${report.is_collection ? 'Incident':'Event'} to Patrol`);
-
-    dispatch(fetchEvent(savedReport.id)).then(() => {
-      removeModal();
-      setRedirectTo(`/${TAB_KEYS.PATROLS}/${patrol.id}`);
-    });
-  };
 
   const onCopyLink = async () => {
     try {
@@ -117,13 +61,12 @@ const ReportMenu = ({
     }
   };
 
-  const onStartAddToPatrol = () => {
-    dispatch(addModal({ content: AddToPatrolModal, onAddToPatrol }));
-
-    tracker.track('Click \'Add to Patrol\' button');
-  };
-
-  return <KebabMenu align="end" aria-label={t('moreOptionsButtonLabel')} title={t('moreOptionsButtonLabel')}>
+  return <KebabMenu
+    align="end"
+    aria-label={t('moreOptionsButtonLabel')}
+    isLoading={isChangingLinks}
+    title={t('moreOptionsButtonLabel')}
+  >
     <KebabMenu.Option className={styles.mobileOnlyOption} disabled={!hasLocation} onClick={onJumpToLocation}>
       <MarkerFeedIcon aria-hidden="true" />
 
@@ -132,16 +75,36 @@ const ReportMenu = ({
 
     <KebabMenu.Divider className={styles.mobileOnlyOption} />
 
-    {canAddToIncident && <KebabMenu.Option onClick={onStartAddToIncident}>
+    {canLinkReport && eventLinkPermissions.canAddToIncident && <KebabMenu.Option
+      onClick={() => onOpenLinkModal(EVENT_LINK_TARGET_TYPES.INCIDENT, report, onSaveNewReport)}
+    >
       <IncidentIcon aria-hidden="true" />
 
       {t('addToIncidentOption')}
     </KebabMenu.Option>}
 
-    {!belongsToPatrol && <KebabMenu.Option onClick={onStartAddToPatrol}>
+    {canLinkReport && eventLinkPermissions.canRemoveFromIncident && <KebabMenu.Option
+      onClick={() => onRemoveFromIncident(report)}
+    >
+      <IncidentIcon aria-hidden="true" />
+
+      {t('removeFromIncidentOption')}
+    </KebabMenu.Option>}
+
+    {canLinkReport && eventLinkPermissions.canAddToPatrol && <KebabMenu.Option
+      onClick={() => onOpenLinkModal(EVENT_LINK_TARGET_TYPES.PATROL, report, onSaveNewReport)}
+    >
       <PatrolIcon aria-hidden="true" />
 
       {t('addToPatrolOption')}
+    </KebabMenu.Option>}
+
+    {canLinkReport && eventLinkPermissions.canRemoveFromPatrol && <KebabMenu.Option
+      onClick={() => onRemoveFromPatrol(report)}
+    >
+      <PatrolIcon aria-hidden="true" />
+
+      {t('removeFromPatrolOption')}
     </KebabMenu.Option>}
 
     {!!report.id && <KebabMenu.Option onClick={onCopyLink}>

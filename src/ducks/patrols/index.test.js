@@ -16,6 +16,7 @@ import {
   FETCH_PATROLS_FEED_SUCCESS,
   fetchPatrol,
   fetchNextPatrolsFeedPage,
+  fetchPatrolLinkTargets,
   fetchPatrolsFeed,
   fetchPatrolTeamAndTrackingOptions,
   PATROL_CONFIG_API_URL,
@@ -124,6 +125,59 @@ describe('Ducks - Patrols', () => {
     test('deletes the patrol even when it does not match the patrol filter', () => {
       expect(dispatchAndGetActions(socketDeletePatrol({ patrol_id: PATROL_A_ID, matches_current_filter: false })))
         .toEqual([{ type: DELETE_PATROL_BY_ID, payload: PATROL_A_ID }]);
+    });
+  });
+
+  describe('fetchPatrolLinkTargets', () => {
+    test('requests the patrols that may have begun, matching the search text', async () => {
+      let searchParams;
+      server.use(http.get(PATROLS_API_URL, ({ request }) => {
+        searchParams = new URL(request.url).searchParams;
+
+        return HttpResponse.json({ data: { count: 1, next: null, results: [patrolA] } });
+      }));
+
+      const page = await mockStore({ data: {}, view: {} }).dispatch(fetchPatrolLinkTargets('boat'));
+
+      expect(page.results).toEqual([patrolA]);
+      expect(searchParams.getAll('status')).toEqual(['active', 'done', 'cancelled']);
+      expect(searchParams.get('filter')).toBe(JSON.stringify({ text: 'boat' }));
+      expect(searchParams.get('exclude_empty_patrols')).toBe('true');
+      expect(searchParams.get('include_pauses')).toBe('true');
+      expect(searchParams.get('include_segment_events')).toBe('false');
+      expect(searchParams.get('page_size')).toBe('25');
+    });
+
+    test('does not filter by text when there is no search', async () => {
+      let searchParams;
+      server.use(http.get(PATROLS_API_URL, ({ request }) => {
+        searchParams = new URL(request.url).searchParams;
+
+        return HttpResponse.json({ data: { count: 0, next: null, results: [] } });
+      }));
+
+      await mockStore({ data: {}, view: {} }).dispatch(fetchPatrolLinkTargets(''));
+
+      expect(searchParams.has('filter')).toBe(false);
+    });
+
+    test('requests the next page by its url', async () => {
+      const nextPageUrl = `${PATROLS_API_URL}?page=2`;
+      server.use(http.get(PATROLS_API_URL, ({ request }) => HttpResponse.json({
+        data: { count: 2, next: null, results: new URL(request.url).searchParams.get('page') === '2' ? [patrolB] : [] },
+      })));
+
+      const page = await mockStore({ data: {}, view: {} }).dispatch(fetchPatrolLinkTargets('', { nextPageUrl }));
+
+      expect(page.results).toEqual([patrolB]);
+    });
+
+    test('rejects and warns when the request fails', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      server.use(http.get(PATROLS_API_URL, () => new HttpResponse(null, { status: 500 })));
+
+      await expect(mockStore({ data: {}, view: {} }).dispatch(fetchPatrolLinkTargets(''))).rejects.toThrow();
+      expect(console.warn).toHaveBeenCalled();
     });
   });
 

@@ -1,4 +1,4 @@
-@use '../../../_shared' as shared;
+@use '../../../shared';
 
 .titleBarMain {
   @include shared.header-title-bar-main;

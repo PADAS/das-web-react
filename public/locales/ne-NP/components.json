@@ -235,6 +235,11 @@
     "recentRadiosGroupLabel": "हालैका रेडियोहरू",
     "restrictedReporterLabel": "प्रतिबन्धित"
   },
+  "rootErrorBoundary": {
+    "errorTitle": "केही समस्या उत्पन्न भएको छ",
+    "reloadButtonLabel": "फेरी लोड गर्नुहोस्",
+    "reloadMessage": "अर्थरेन्जरमा अप्रत्याशित समस्या आयो । जारी राख्न पृष्ठ फेरी लोड गर्नुहोस् ।"
+  },
   "schemaFields": {
     "addButton": {
       "content": "नयाँ",
