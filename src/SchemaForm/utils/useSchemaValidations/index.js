@@ -4,6 +4,7 @@ import Ajv2020 from 'ajv/dist/2020';
 import { useTranslation } from 'react-i18next';
 
 import { TEXT_ELEMENT_ALPHANUMERIC_FORMAT_VALIDATION_PATTERN } from '../../../utils/form-schemas/constants';
+import getRenderedJsonSchema from '../getRenderedJsonSchema';
 
 const ajv = new Ajv2020({ allErrors: true });
 addFormats(ajv);
@@ -33,10 +34,13 @@ const insertErrorRecursively = (fieldName, message, errorPath, errors, t) => {
   }
 };
 
-const useSchemaValidations = (schema) => {
+const useSchemaValidations = (schema, formElements) => {
   const { t } = useTranslation('schema-form', { keyPrefix: 'errors' });
 
-  const validate = useMemo(() => ajv.compile(schema.json), [schema.json]);
+  const validate = useMemo(
+    () => ajv.compile(getRenderedJsonSchema(schema.json, formElements)),
+    [formElements, schema.json]
+  );
 
   const runValidations = useCallback((formData) => {
     if (!validate(formData)) {

@@ -3,6 +3,7 @@ import { I18nextProvider } from 'react-i18next';
 import { renderHook } from '../../../test-utils';
 import i18n from '../../../i18nForTests';
 import { TEXT_ELEMENT_ALPHANUMERIC_FORMAT_VALIDATION_PATTERN } from '../../../utils/form-schemas/constants';
+import transformSchemaToFormElements from '../../../utils/form-schemas/transformSchemaToFormElements';
 
 import useSchemaValidations from '.';
 
@@ -60,7 +61,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { text: 'Valid text value' };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -89,7 +90,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { text: 'invalid' };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -120,7 +121,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { dateTime: 'invalid' };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -151,7 +152,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { dateTime: 'invalid' };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -182,7 +183,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { dateTime: 'invalid' };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -215,7 +216,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { text: 'invalid' };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -248,7 +249,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { text: 'invalid' };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -281,7 +282,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { text: 'invalid uri-reference' };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -312,7 +313,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { number: 11 };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -354,7 +355,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { collection: [{}, {}, {}, {}] };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -385,7 +386,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { number: 2 };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -427,7 +428,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { collection: [{}, {}] };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -460,7 +461,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { text: 'invalid $' };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -493,7 +494,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { text: 'invalid' };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -527,7 +528,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { text: undefined };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -561,7 +562,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { text: ['Invalid text value'] };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -595,7 +596,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { knownField: 'ok', unexpectedKey: 1 };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -606,18 +607,12 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     });
   });
 
-  it('returns the default keyword validation error for unhandled AJV keywords when the error params include unevaluatedProperty', () => {
+  it('returns no errors for a stored value the form does not render', () => {
     const formData = { rogueField: 123 };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
-    const runValidations = result.current;
-
-    expect(runValidations(formData)).toEqual({
-      rogueField: {
-        message: 'Invalid value.',
-      },
-    });
+    expect(result.current(formData)).toBeNull();
   });
 
   it('returns the default keyword validation error for unhandled AJV keywords when the error params include propertyName', () => {
@@ -626,7 +621,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     schema.json.additionalProperties = true;
     const formData = { BadKey: 1 };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -679,7 +674,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
     ];
     const formData = { trigger: 'yes' };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 
@@ -786,7 +781,7 @@ describe('SchemaForm - Utils - useSchemaValidations', () => {
       }],
     };
 
-    const { result } = renderHook(() => useSchemaValidations(schema), { wrapper: Wrapper });
+    const { result } = renderHook(() => useSchemaValidations(schema, transformSchemaToFormElements(schema)), { wrapper: Wrapper });
 
     const runValidations = result.current;
 

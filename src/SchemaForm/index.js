@@ -11,7 +11,6 @@ import { FormInstanceContext } from './utils/useFormElementDomId';
 import getDefaultFormData from './utils/getDefaultFormData';
 import normalizeChoiceListValues from '../utils/form-schemas/normalizeChoiceListValues';
 import normalizeDateTimeFieldValue from './utils/normalizeDateTimeFieldValue';
-import pruneHiddenFieldErrors from './utils/pruneHiddenFieldErrors';
 import transformSchemaToFormElements from '../utils/form-schemas/transformSchemaToFormElements';
 import useMapLocationMarkers from './utils/useMapLocationMarkers';
 import useSchemaValidations from './utils/useSchemaValidations';
@@ -100,17 +99,13 @@ const SchemaForm = ({
 
   const normalizedFormData = useMemo(() => normalizeChoiceListValues(formData, formElements), [formData, formElements]);
 
-  const runSchemaValidations = useSchemaValidations(schema);
+  const runSchemaValidations = useSchemaValidations(schema, formElements);
   const runUploadValidations = useUploadValidations(formElements);
 
   const validate = ({ shouldFocusFirstError = true } = {}) => {
     const schemaErrors = runSchemaValidations(normalizedFormData) || {};
     const uploadErrors = runUploadValidations(normalizedFormData);
-    const fieldErrors = pruneHiddenFieldErrors(
-      merge({}, schemaErrors, uploadErrors),
-      formElements,
-      t('errors.collectionItems')
-    );
+    const fieldErrors = merge({}, schemaErrors, uploadErrors);
     if (Object.keys(fieldErrors).length > 0) {
       const erroneousFields = Object.keys(fieldErrors);
 
@@ -320,8 +315,8 @@ const SchemaForm = ({
         <p>{t('validationErrorsAnnouncement')}</p>
 
         <ul>
-          {lastSubmissionErroneousFields.map((fieldId) => <li key={fieldId}>
-            {formElements[fieldId]?.details.label ?? fieldId}
+          {lastSubmissionErroneousFields.filter((fieldId) => formElements[fieldId]).map((fieldId) => <li key={fieldId}>
+            {formElements[fieldId].details.label}
           </li>)}
         </ul>
       </>}

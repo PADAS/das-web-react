@@ -571,15 +571,39 @@ describe('SchemaForm', () => {
     expect(inputField).toHaveFocus();
   });
 
-  describe('with fields the form does not render', () => {
+  describe('with deprecated fields the form does not render', () => {
     beforeEach(() => {
       schema.json.properties.tags = { deprecated: true, title: 'Tags', type: 'string' };
+      schema.ui.fields.tags = {
+        conditionalDependents: [],
+        inputType: 'SHORT_TEXT',
+        placeholder: '',
+        type: 'TEXT',
+        parent: 'section-3',
+      };
+      schema.ui.sections['section-3'].leftColumn.push({ name: 'tags', type: 'field' });
+
+      schema.json.properties.collection_field.items.properties.tags = {
+        deprecated: true,
+        title: 'Item Tags',
+        type: 'string',
+      };
+      schema.ui.fields['collection_field.tags'] = {
+        conditionalDependents: [],
+        inputType: 'SHORT_TEXT',
+        placeholder: '',
+        type: 'TEXT',
+        parent: 'collection_field',
+      };
+      schema.ui.fields.collection_field.leftColumn.push('collection_field.tags');
     });
+
+    const submit = () => userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     test('submits the form when a hidden field has a value of the wrong type', async () => {
       renderSchemaForm({ formData: { text_field: 'a text value', tags: ['a', 'b'] } });
 
-      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+      await submit();
 
       expect(onFormSubmit).toHaveBeenCalledTimes(1);
       expect(screen.getByRole('alert')).not.toHaveTextContent('There are validation errors in the following fields:');
@@ -589,7 +613,28 @@ describe('SchemaForm', () => {
       schema.json.required.push('tags');
       renderSchemaForm();
 
-      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+      await submit();
+
+      expect(onFormSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    test('submits the form when a hidden field of a collection item has a value of the wrong type', async () => {
+      renderSchemaForm({
+        formData: {
+          collection_field: [{ location_field_2: { latitude: 1, longitude: 1 }, tags: ['a', 'b'] }],
+          text_field: 'a text value',
+        },
+      });
+
+      await submit();
+
+      expect(onFormSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    test('submits the form when a section whose conditions do not pass has a stored value', async () => {
+      renderSchemaForm({ formData: { text_field: 'a text value', text_field_2: 'a stale value' } });
+
+      await submit();
 
       expect(onFormSubmit).toHaveBeenCalledTimes(1);
     });
@@ -597,7 +642,7 @@ describe('SchemaForm', () => {
     test('submits the form when the form data has a key the schema does not declare', async () => {
       renderSchemaForm({ formData: { text_field: 'a text value', not_in_schema: 'value' } });
 
-      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+      await submit();
 
       expect(onFormSubmit).toHaveBeenCalledTimes(1);
     });
@@ -605,13 +650,28 @@ describe('SchemaForm', () => {
     test('keeps the visible field errors when a hidden field also has an error', async () => {
       renderSchemaForm({ formData: { text_field: undefined, tags: ['a', 'b'] } });
 
-      await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+      await submit();
 
       const alert = screen.getByRole('alert');
       expect(onFormSubmit).not.toHaveBeenCalled();
       expect(alert).toHaveTextContent('Text Field');
       expect(alert).not.toHaveTextContent('Tags');
       expect(screen.getByRole('textbox', { name: 'Text Field' })).toBeInvalid();
+    });
+
+    test('keeps the error of a visible field in a collection item when a hidden field also has an error', async () => {
+      renderSchemaForm({
+        formData: {
+          collection_field: [{ location_field_2: { latitude: 100, longitude: 1 }, tags: ['a', 'b'] }],
+          text_field: 'a text value',
+        },
+      });
+
+      await submit();
+
+      expect(onFormSubmit).not.toHaveBeenCalled();
+      expect(screen.getByRole('alert')).toHaveTextContent('Collection Field');
+      expect(screen.getByRole('alert')).not.toHaveTextContent('Item Tags');
     });
 
     test('does not leave the form invalid when its validate method is called with only hidden field errors', () => {
