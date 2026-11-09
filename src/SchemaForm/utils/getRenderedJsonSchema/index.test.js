@@ -108,6 +108,7 @@ describe('SchemaForm - utils - getRenderedJsonSchema', () => {
   });
 
   test('returns the same schema object for the same JSON schema', () => {
-    expect(getRenderedJsonSchema(jsonSchema, formElements)).toBe(getRenderedJsonSchema(jsonSchema, { ...formElements }));
+    expect(getRenderedJsonSchema(jsonSchema, formElements))
+      .toBe(getRenderedJsonSchema(jsonSchema, { ...formElements }));
   });
 });

@@ -577,9 +577,9 @@ describe('SchemaForm', () => {
       schema.ui.fields.tags = {
         conditionalDependents: [],
         inputType: 'SHORT_TEXT',
+        parent: 'section-3',
         placeholder: '',
         type: 'TEXT',
-        parent: 'section-3',
       };
       schema.ui.sections['section-3'].leftColumn.push({ name: 'tags', type: 'field' });
 
@@ -591,9 +591,9 @@ describe('SchemaForm', () => {
       schema.ui.fields['collection_field.tags'] = {
         conditionalDependents: [],
         inputType: 'SHORT_TEXT',
+        parent: 'collection_field',
         placeholder: '',
         type: 'TEXT',
-        parent: 'collection_field',
       };
       schema.ui.fields.collection_field.leftColumn.push('collection_field.tags');
     });
@@ -601,7 +601,7 @@ describe('SchemaForm', () => {
     const submit = () => userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
     test('submits the form when a hidden field has a value of the wrong type', async () => {
-      renderSchemaForm({ formData: { text_field: 'a text value', tags: ['a', 'b'] } });
+      renderSchemaForm({ formData: { tags: ['a', 'b'], text_field: 'a text value' } });
 
       await submit();
 
@@ -640,7 +640,7 @@ describe('SchemaForm', () => {
     });
 
     test('submits the form when the form data has a key the schema does not declare', async () => {
-      renderSchemaForm({ formData: { text_field: 'a text value', not_in_schema: 'value' } });
+      renderSchemaForm({ formData: { not_in_schema: 'value', text_field: 'a text value' } });
 
       await submit();
 
@@ -648,7 +648,7 @@ describe('SchemaForm', () => {
     });
 
     test('keeps the visible field errors when a hidden field also has an error', async () => {
-      renderSchemaForm({ formData: { text_field: undefined, tags: ['a', 'b'] } });
+      renderSchemaForm({ formData: { tags: ['a', 'b'], text_field: undefined } });
 
       await submit();
 
@@ -676,7 +676,7 @@ describe('SchemaForm', () => {
 
     test('does not leave the form invalid when its validate method is called with only hidden field errors', () => {
       const validateRef = { current: null };
-      renderSchemaForm({ formData: { text_field: 'a text value', tags: ['a', 'b'] }, validateRef });
+      renderSchemaForm({ formData: { tags: ['a', 'b'], text_field: 'a text value' }, validateRef });
 
       let isValid;
       act(() => {

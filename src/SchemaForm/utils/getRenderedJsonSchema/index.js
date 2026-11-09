@@ -1,54 +1,59 @@
-import { omit } from 'lodash-es';
+import omit from 'lodash/omit';
 
 import { FORM_ELEMENT_TYPES } from '../../../utils/form-schemas/constants';
 
-// The ajv instance caches a validator for each schema object it compiles, so the same derived schema object must be
-// returned for the same JSON schema.
-const renderedJsonSchemas = new WeakMap();
+const EMPTY_ARRAY = [];
+const EMPTY_OBJECT = {};
 
-const getFieldId = (fieldName, parentCollectionId) => parentCollectionId ? `${parentCollectionId}.${fieldName}` : fieldName;
+// Ajv keeps a validator per schema object, so the derived one is reused.
+const RENDERED_JSON_SCHEMAS = new WeakMap();
+
+const getFieldId = (fieldName, parentCollectionId) =>
+  parentCollectionId ? `${parentCollectionId}.${fieldName}` : fieldName;
 
 const getRenderedObjectSchema = (objectSchema, formElements, parentCollectionId = null) => {
   const properties = {};
 
-  Object.keys(objectSchema.properties ?? {}).forEach((fieldName) => {
+  Object.keys(objectSchema.properties ?? EMPTY_OBJECT).forEach((fieldName) => {
     const fieldId = getFieldId(fieldName, parentCollectionId);
-    const fieldSchema = objectSchema.properties[fieldName];
 
-    if (!formElements[fieldId]) {
+    if (formElements[fieldId]?.type === FORM_ELEMENT_TYPES.COLLECTION) {
+      properties[fieldName] = {
+        ...objectSchema.properties[fieldName],
+        items: getRenderedObjectSchema(objectSchema.properties[fieldName].items, formElements, fieldId),
+      };
+    } else if (formElements[fieldId]) {
+      properties[fieldName] = objectSchema.properties[fieldName];
+    } else {
       // The form does not render this field, so any value is valid.
       properties[fieldName] = true;
-    } else if (formElements[fieldId].type === FORM_ELEMENT_TYPES.COLLECTION) {
-      properties[fieldName] = { ...fieldSchema, items: getRenderedObjectSchema(fieldSchema.items, formElements, fieldId) };
-    } else {
-      properties[fieldName] = fieldSchema;
     }
   });
 
   return {
-    // Without it, the stored values the form does not render are not errors.
+    // Stored values the form does not render must not be errors.
     ...omit(objectSchema, 'unevaluatedProperties'),
     properties,
-    required: (objectSchema.required ?? [])
-      .filter((fieldName) => !!formElements[getFieldId(fieldName, parentCollectionId)]),
+    required: (objectSchema.required ?? EMPTY_ARRAY)
+      .filter((fieldName) => formElements[getFieldId(fieldName, parentCollectionId)]),
   };
 };
 
 const getRenderedJsonSchema = (jsonSchema, formElements) => {
-  if (!renderedJsonSchemas.has(jsonSchema)) {
+  if (!RENDERED_JSON_SCHEMAS.has(jsonSchema)) {
     const renderedJsonSchema = getRenderedObjectSchema(jsonSchema, formElements);
 
     if (jsonSchema.allOf) {
-      // The "if" subschemas are left as they are, so the section conditions read the real form data.
-      renderedJsonSchema.allOf = jsonSchema.allOf.map((conditionalSectionSubschema) => conditionalSectionSubschema.then
-        ? { ...conditionalSectionSubschema, then: getRenderedObjectSchema(conditionalSectionSubschema.then, formElements) }
-        : conditionalSectionSubschema);
+      // The if subschemas stay as they are to read the real form data.
+      renderedJsonSchema.allOf = jsonSchema.allOf.map((subschema) => subschema.then
+        ? { ...subschema, then: getRenderedObjectSchema(subschema.then, formElements) }
+        : subschema);
     }
 
-    renderedJsonSchemas.set(jsonSchema, renderedJsonSchema);
+    RENDERED_JSON_SCHEMAS.set(jsonSchema, renderedJsonSchema);
   }
 
-  return renderedJsonSchemas.get(jsonSchema);
+  return RENDERED_JSON_SCHEMAS.get(jsonSchema);
 };
 
 export default getRenderedJsonSchema;

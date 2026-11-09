@@ -3,8 +3,8 @@ import addFormats from 'ajv-formats';
 import Ajv2020 from 'ajv/dist/2020';
 import { useTranslation } from 'react-i18next';
 
-import { TEXT_ELEMENT_ALPHANUMERIC_FORMAT_VALIDATION_PATTERN } from '../../../utils/form-schemas/constants';
 import getRenderedJsonSchema from '../getRenderedJsonSchema';
+import { TEXT_ELEMENT_ALPHANUMERIC_FORMAT_VALIDATION_PATTERN } from '../../../utils/form-schemas/constants';
 
 const ajv = new Ajv2020({ allErrors: true });
 addFormats(ajv);
