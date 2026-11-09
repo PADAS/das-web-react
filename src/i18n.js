@@ -37,15 +37,6 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    fallbackLng: 'en-US',
-    interpolation: {
-      escapeValue: false, // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape
-    },
-    react: {
-      useSuspense: false,
-    },
-    supportedLngs: Object.keys(SUPPORTED_LANGUAGES),
-    ns: preloadNamespaces,
     backend: {
       backends: [
         LocalStorageBackend,
@@ -61,4 +52,15 @@ i18n
         queryStringParams: { v: I18N_FILES_VERSION },
       }],
     },
+    fallbackLng: 'en-US',
+    interpolation: {
+      escapeValue: false, // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape
+    },
+    ns: preloadNamespaces,
+    react: {
+      useSuspense: false,
+    },
+    // Some translations, such as an event's age prefix, are empty on purpose.
+    returnEmptyString: true,
+    supportedLngs: Object.keys(SUPPORTED_LANGUAGES),
   });
