@@ -64,10 +64,9 @@ const patrolsFeedPage = (data) => ({
   results: data.results.map((patrol) => patrol.id),
 });
 
-const patrolFeedMembership = (patrolId, matchesCurrentFilter) => ({
-  payload: patrolId,
-  type: matchesCurrentFilter ? ADD_PATROL_TO_FEED : REMOVE_PATROL_FROM_FEED,
-});
+const patrolFeedMembership = (patrolId, matchesCurrentFilter, isNewPatrol) => matchesCurrentFilter
+  ? { payload: { isNewPatrol, patrolId }, type: ADD_PATROL_TO_FEED }
+  : { payload: patrolId, type: REMOVE_PATROL_FROM_FEED };
 
 export const socketCreatePatrol = ({ matches_current_filter, patrol_data }) => (dispatch) => {
   dispatch({
@@ -75,7 +74,7 @@ export const socketCreatePatrol = ({ matches_current_filter, patrol_data }) => (
     type: CREATE_PATROL_REALTIME,
   });
 
-  dispatch(patrolFeedMembership(patrol_data.id, matches_current_filter));
+  dispatch(patrolFeedMembership(patrol_data.id, matches_current_filter, true));
 };
 
 export const socketUpdatePatrol = ({ matches_current_filter, patrol_data }) => (dispatch) => {
@@ -84,7 +83,7 @@ export const socketUpdatePatrol = ({ matches_current_filter, patrol_data }) => (
     type: UPDATE_PATROL_REALTIME,
   });
 
-  dispatch(patrolFeedMembership(patrol_data.id, matches_current_filter));
+  dispatch(patrolFeedMembership(patrol_data.id, matches_current_filter, false));
 };
 
 export const socketDeletePatrol = ({ patrol_id }) => ({
@@ -422,11 +421,12 @@ export const patrolsFeedReducer = globallyResettableReducer((state, { type, payl
   case FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS:
     return { ...payload, results: uniq([...state.results, ...payload.results]) };
 
+  // An updated patrol may sit in a page not loaded yet, already in the count.
   case ADD_PATROL_TO_FEED:
-    return state.results.includes(payload) ? state : {
+    return state.results.includes(payload.patrolId) ? state : {
       ...state,
-      count: state.count === null ? null : state.count + 1,
-      results: [payload, ...state.results],
+      count: state.count !== null && (payload.isNewPatrol || !state.next) ? state.count + 1 : state.count,
+      results: [payload.patrolId, ...state.results],
     };
 
   case DELETE_PATROL_BY_ID:

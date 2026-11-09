@@ -85,7 +85,7 @@ describe('Ducks - Patrols', () => {
       expect(dispatchAndGetActions(socketUpdatePatrol({ patrol_data: patrolA, matches_current_filter: true })))
         .toEqual([
           { type: UPDATE_PATROL_REALTIME, payload: patrolA },
-          { type: ADD_PATROL_TO_FEED, payload: PATROL_A_ID },
+          { type: ADD_PATROL_TO_FEED, payload: { isNewPatrol: false, patrolId: PATROL_A_ID } },
         ]);
     });
 
@@ -103,7 +103,7 @@ describe('Ducks - Patrols', () => {
       expect(dispatchAndGetActions(socketCreatePatrol({ patrol_data: patrolA, matches_current_filter: true })))
         .toEqual([
           { type: CREATE_PATROL_REALTIME, payload: patrolA },
-          { type: ADD_PATROL_TO_FEED, payload: PATROL_A_ID },
+          { type: ADD_PATROL_TO_FEED, payload: { isNewPatrol: true, patrolId: PATROL_A_ID } },
         ]);
     });
 
@@ -701,13 +701,38 @@ describe('Ducks - Patrols', () => {
     });
 
     test('adds a patrol that matches the filter to the top of the feed, only once', () => {
-      const state = patrolsFeedReducer(
-        { count: 1, next: null, results: [PATROL_B_ID] },
-        { type: ADD_PATROL_TO_FEED, payload: PATROL_A_ID }
-      );
+      const addPatrolA = { type: ADD_PATROL_TO_FEED, payload: { isNewPatrol: true, patrolId: PATROL_A_ID } };
+      const state = patrolsFeedReducer({ count: 1, next: null, results: [PATROL_B_ID] }, addPatrolA);
 
       expect(state).toEqual(loadedFeed);
-      expect(patrolsFeedReducer(state, { type: ADD_PATROL_TO_FEED, payload: PATROL_A_ID })).toBe(state);
+      expect(patrolsFeedReducer(state, addPatrolA)).toBe(state);
+    });
+
+    test('counts an updated patrol that starts matching once every page is loaded', () => {
+      const state = patrolsFeedReducer(
+        { count: 1, next: null, results: [PATROL_B_ID] },
+        { type: ADD_PATROL_TO_FEED, payload: { isNewPatrol: false, patrolId: PATROL_A_ID } }
+      );
+
+      expect(state.count).toBe(2);
+    });
+
+    test('does not count an updated patrol again while pages are left, as it may be on one', () => {
+      const state = patrolsFeedReducer(
+        { count: 500, next: 'page-2', results: [PATROL_B_ID] },
+        { type: ADD_PATROL_TO_FEED, payload: { isNewPatrol: false, patrolId: PATROL_A_ID } }
+      );
+
+      expect(state).toEqual({ count: 500, next: 'page-2', results: [PATROL_A_ID, PATROL_B_ID] });
+    });
+
+    test('counts a new patrol while pages are left', () => {
+      const state = patrolsFeedReducer(
+        { count: 500, next: 'page-2', results: [PATROL_B_ID] },
+        { type: ADD_PATROL_TO_FEED, payload: { isNewPatrol: true, patrolId: PATROL_A_ID } }
+      );
+
+      expect(state.count).toBe(501);
     });
 
     test('holds on to the feed it has when a patrol it never listed leaves or is deleted', () => {
