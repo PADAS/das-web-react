@@ -19,6 +19,7 @@ import * as styles from './styles.module.scss';
 const KEYBOARD_RESIZE_STEP_PIXELS = 16;
 
 export const ATLAS_COMMANDS = { NEW_THREAD: 'new-thread', TOGGLE_THREADS: 'toggle-threads' };
+// The Atlas app still uses its former name in these message types.
 export const ATLAS_MESSAGE_TYPES = {
   COMMAND: 'otus:command',
   CONNECT: 'otus:connect',
@@ -163,7 +164,7 @@ const AtlasTab = ({ isActive, url }) => {
     window.addEventListener('message', onMessage);
 
     return () => window.removeEventListener('message', onMessage);
-  }, [frameKey, atlasOrigin, postConnect, token]);
+  }, [atlasOrigin, frameKey, postConnect, token]);
 
   useEffect(() => {
     if (isWaitingForReady) {

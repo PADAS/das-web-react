@@ -409,7 +409,7 @@ All application source is `.js`, including JSX — Vite compiles every source `.
 
 ### Routing
 
-The app is mounted under `REACT_APP_ROUTE_PREFIX`. `constants/routes.js` holds the top-level routes: login, EULA and community sit above the shell, and everything else falls through to the authenticated app. Inside it, `SideBar/` routes each tab by its `TAB_KEYS` segment (`events`, `patrols`, `gear`, `layers`, `atlas` for the Atlas tab, `settings`), and the Events and Patrols managers nest their own routes. Elsewhere, read the tab and item from the URL with `getCurrentTabFromURL` / `getCurrentIdFromURL` in `utils/navigation.js`.
+The app is mounted under `REACT_APP_ROUTE_PREFIX`. `constants/routes.js` holds the top-level routes: login, EULA and community sit above the shell, and everything else falls through to the authenticated app. Inside it, `SideBar/` routes each tab by its `TAB_KEYS` segment (`events`, `patrols`, `gear`, `layers`, `atlas`, `settings`), and the Events and Patrols managers nest their own routes. Elsewhere, read the tab and item from the URL with `getCurrentTabFromURL` / `getCurrentIdFromURL` in `utils/navigation.js`.
 
 Navigate with the app's `hooks/useNavigate`, not React Router's, so a form with unsaved changes can prompt before the user leaves.
 
