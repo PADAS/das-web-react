@@ -3,6 +3,11 @@ import { Provider } from 'react-redux';
 
 import { activePatrol } from '../../__test-helpers/fixtures/patrols';
 import { fetchNextPatrolsFeedPage } from '../../ducks/patrols';
+import {
+  INITIAL_STATE as INITIAL_FEED_TABLE_SORT_STATE,
+  setFeedTableClientSort,
+  START_FEED_TABLE_FULL_LOAD,
+} from '../../ducks/feed-table-sort';
 import { governingPatrolSegment, iconIdForPatrolSegment } from '../../utils/patrols';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
@@ -33,7 +38,7 @@ const lastGridProps = () => mockGridProps[mockGridProps.length - 1];
 const columnById = (colId) => lastGridProps().columnDefs.find((column) => column.colId === colId);
 
 describe('FeedTable - PatrolsTable', () => {
-  let navigate, resolveNextPage, state;
+  let navigate, resolveNextPage, state, store;
 
   beforeEach(() => {
     mockGridProps.length = 0;
@@ -54,7 +59,11 @@ describe('FeedTable - PatrolsTable', () => {
         patrolTypes,
         tracks: {},
       },
-      view: { patrolTrackState: { pinned: [], visible: [] }, timeSliderState: { active: false } },
+      view: {
+        feedTableSort: INITIAL_FEED_TABLE_SORT_STATE,
+        patrolTrackState: { pinned: [], visible: [] },
+        timeSliderState: { active: false },
+      },
     };
   });
 
@@ -62,8 +71,10 @@ describe('FeedTable - PatrolsTable', () => {
     const toolbarContainer = document.createElement('div');
     document.body.appendChild(toolbarContainer);
 
+    store = mockStore(state);
+
     return render(
-      <Provider store={mockStore(state)}>
+      <Provider store={store}>
         <PatrolsTable loading={false} patrols={patrols} toolbarContainer={toolbarContainer} />
       </Provider>
     );
@@ -105,13 +116,63 @@ describe('FeedTable - PatrolsTable', () => {
     state.data.patrolsFeed = { count: 400, next: 'page-2', results: [activePatrol.id] };
     renderPatrolsTable();
 
-    expect(screen.getByRole('status')).toHaveTextContent('Showing 1 of 400 patrols');
+    expect(screen.getByText('Showing 1 of 400 patrols')).toHaveAttribute('role', 'status');
   });
 
   test('says nothing about loading once every patrol is loaded', () => {
     renderPatrolsTable();
 
-    expect(screen.queryByRole('status')).toBeNull();
+    expect(screen.queryByText(/Showing/)).toBeNull();
+  });
+
+  const sortInTable = (colId) => {
+    state.view.feedTableSort = {
+      ...INITIAL_FEED_TABLE_SORT_STATE,
+      patrols: { ...INITIAL_FEED_TABLE_SORT_STATE.patrols, clientSort: { colId, sort: 'asc' } },
+    };
+  };
+
+  test('keeps the sort of the table, so it outlasts an open patrol', () => {
+    renderPatrolsTable();
+
+    act(() => lastGridProps().onSortChanged({
+      api: { getColumnState: () => [{ colId: 'title', sort: 'asc' }] },
+      source: 'uiColumnSorted',
+    }));
+
+    expect(store.getActions()).toContainEqual(setFeedTableClientSort('patrols', { colId: 'title', sort: 'asc' }));
+  });
+
+  test('shows the sort it keeps', () => {
+    sortInTable('title');
+    renderPatrolsTable();
+
+    expect(columnById('title').sort).toBe('asc');
+    expect(columnById('state').sort).toBeNull();
+  });
+
+  test('loads every patrol of the filter behind a sort, in cursor pages', () => {
+    state.data.patrolsFeed = { count: 400, next: 'page-2', results: [activePatrol.id] };
+    sortInTable('title');
+    renderPatrolsTable();
+
+    const url = new URL(store.getActions().find((action) => action.type === START_FEED_TABLE_FULL_LOAD).payload.url);
+
+    expect(url.searchParams.get('use_cursor')).toBe('true');
+    expect(url.searchParams.get('include_pauses')).toBe('true');
+  });
+
+  test('does not page the feed on scroll behind a sort', () => {
+    state.data.patrolsFeed = { count: 400, next: 'page-2', results: [activePatrol.id] };
+    sortInTable('title');
+    renderPatrolsTable();
+
+    act(() => lastGridProps().onBodyScroll({
+      api: { getDisplayedRowCount: () => 1, getLastDisplayedRowIndex: () => 0 },
+      direction: 'vertical',
+    }));
+
+    expect(fetchNextPatrolsFeedPage).not.toHaveBeenCalled();
   });
 
   test('offers no row selection, as patrols have no bulk actions', () => {

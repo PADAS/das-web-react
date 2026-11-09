@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import omit from 'lodash/omit';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -25,11 +26,22 @@ import { calcEventFilterForRequest } from '../../utils/event-filter';
 import { addModal } from '../../ducks/modals';
 import { downloadFileFromUrl } from '../../utils/download';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
-import { addEventToIncident, addEventToPatrol, createEvent, fetchNextEventFeedPage, setEventState } from '../../ducks/events';
+import {
+  addEventToIncident,
+  addEventToPatrol,
+  createEvent,
+  EVENTS_API_URL,
+  fetchFeedTableEventsPage,
+  fetchNextEventFeedPage,
+  setEventState,
+} from '../../ducks/events';
+import { objectToParamString } from '../../utils/query';
 import { selectCoordinatesRepresentation } from '../../selectors/location';
 import { selectEventSchema } from '../../selectors/event-schemas';
+import { setFeedTableClientSort } from '../../ducks/feed-table-sort';
 import { showToast } from '../../utils/toast';
 import { updateEventFilter } from '../../ducks/event-filter';
+import useFeedTableFullLoad from '../useFeedTableFullLoad';
 import useJumpToLocation from '../../hooks/useJumpToLocation';
 import useNavigate from '../../hooks/useNavigate';
 import calcEventTypeFields from './utils/calcEventTypeFields';
@@ -45,6 +57,8 @@ import * as styles from './styles.module.scss';
 
 const EMPTY_COLUMNS = [];
 const EMPTY_EVENTS = [];
+
+export const FULL_LOAD_PAGE_SIZE = 1000;
 
 const STATE_KEY_BY_EVENT_STATE = {
   [EVENT_FORM_STATES.ACTIVE]: EVENT_FORM_STATES.ACTIVE,
@@ -81,6 +95,8 @@ const EventTypeCell = ({ data, value }) => <span className={styles.typeCell}>
   <span className={styles.typeName}>{value}</span>
 </span>;
 
+const selectEventStore = (state) => state.data.eventStore;
+
 const PriorityCell = ({ value, valueFormatted }) => <span className={styles.priorityCell}>
   <span
     aria-hidden
@@ -100,6 +116,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   const { t: tSideBar } = useTranslation('components', { keyPrefix: 'sideBar' });
   const { t: tStates } = useTranslation('reports', { keyPrefix: 'eventsManager.eventsFeed.eventRow.states' });
 
+  const clientSortState = useSelector((state) => state.view.feedTableSort[TAB_KEYS.EVENTS].clientSort);
   const eventSort = useSelector((state) => state.data.eventFilter.filter.sort);
   const eventTypeFilter = useSelector((state) => state.data.eventFilter.filter.event_type);
   const eventTypes = useSelector((state) => state.data.eventTypes);
@@ -113,17 +130,33 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     ? selectEventSchema(state, filteredEventType.value)
     : null);
 
-  const loadingMoreRef = useRef({ next: null, promise: null });
+  const loadingPageUrlRef = useRef(null);
 
-  // A sort on a column the events API can't order by; the table loads every
-  // page to sort them all. A new feed sort, from the sort controls or a
-  // header, takes over.
-  const [clientSortState, setClientSortState] = useState(null);
   const [linkModal, setLinkModal] = useState({ events: [], show: false, type: EVENT_LINK_TARGET_TYPES.PATROL });
   const [updatingState, setUpdatingState] = useState(false);
 
+  // A new feed sort, from the sort controls or a header, takes over.
   const clientSort = clientSortState?.feedSort === eventSort ? clientSortState : null;
   const [sortDirection, sortOption] = eventSort;
+
+  // The cursor keeps its place while events change, and its fixed order
+  // doesn't matter to a sort made in the browser.
+  const fullLoadUrl = eventsFeed.feedRequest.params && `${EVENTS_API_URL}?${objectToParamString({
+    ...omit(eventsFeed.feedRequest.params, 'sort_by'),
+    page_size: FULL_LOAD_PAGE_SIZE,
+    use_cursor: true,
+  })}`;
+
+  const fullLoad = useFeedTableFullLoad({
+    fetchPage: fetchFeedTableEventsPage,
+    firstPageUrl: fullLoadUrl,
+    hasMorePages: !!eventsFeed.events.next,
+    isEnabled: !!clientSort && !!fullLoadUrl,
+    loadId: eventsFeed.feedRequest.id,
+    rows: events,
+    selectStore: selectEventStore,
+    tab: TAB_KEYS.EVENTS,
+  });
 
   // What the events API orders by is the feed's own sort, and covers every page.
   const serverSortable = useCallback((sortValue) => ({
@@ -275,27 +308,29 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     const option = EVENT_SORT_OPTIONS.find((sortOption) => sortOption.value === sortedColumn?.colId);
     if (option) {
       const direction = sortedColumn.sort === 'asc' ? SORT_DIRECTION.up : SORT_DIRECTION.down;
-      setClientSortState(null);
+      dispatch(setFeedTableClientSort(TAB_KEYS.EVENTS, null));
       dispatch(updateEventFilter({ filter: { sort: [direction, option] } }));
     } else {
       // A cleared sort falls back to the feed's own.
-      setClientSortState(sortedColumn ? { colId: sortedColumn.colId, feedSort: eventSort, sort: sortedColumn.sort } : null);
+      dispatch(setFeedTableClientSort(
+        TAB_KEYS.EVENTS,
+        sortedColumn ? { colId: sortedColumn.colId, feedSort: eventSort, sort: sortedColumn.sort } : null
+      ));
     }
   };
 
-  // A page asked for again, before its rows arrive, gets the same request.
   const onLoadMore = () => {
-    const { next } = eventsFeed.events;
-    if (!next) return undefined;
-    if (loadingMoreRef.current.next === next) return loadingMoreRef.current.promise;
+    const nextPageUrl = eventsFeed.events.next;
+    if (nextPageUrl && loadingPageUrlRef.current !== nextPageUrl) {
+      const releasePageUrl = () => {
+        if (loadingPageUrlRef.current === nextPageUrl) {
+          loadingPageUrlRef.current = null;
+        }
+      };
 
-    const promise = dispatch(fetchNextEventFeedPage(next));
-    loadingMoreRef.current = { next, promise };
-    // A failed page can be asked for again.
-    promise.catch(() => {
-      if (loadingMoreRef.current.promise === promise) loadingMoreRef.current = { next: null, promise: null };
-    });
-    return promise;
+      loadingPageUrlRef.current = nextPageUrl;
+      dispatch(fetchNextEventFeedPage(nextPageUrl)).then(releasePageUrl, releasePageUrl);
+    }
   };
 
   // The same export as the menu's Field Events report: every event matching the feed filter, with its details.
@@ -427,17 +462,17 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     <FeedTable
       ariaLabel={tSideBar('eventsLink')}
       columnDefs={columnDefs}
+      fullLoad={fullLoad}
       getRowClass={getRowClass}
       getRowId={(params) => params.data.id}
-      hasMorePages={!!eventsFeed.events.next}
       layoutScope={eventTypeFilter.length === 1 ? eventTypeFilter[0] : undefined}
       loading={eventsFeed.loadingEventFeed}
       onExport={onExport}
-      onLoadMore={onLoadMore}
+      onLoadMore={clientSort ? undefined : onLoadMore}
       onOpenRow={onOpenRow}
       onSortChanged={onSortChanged}
       renderBulkActions={renderBulkActions}
-      rowData={events}
+      rowData={fullLoad.rows}
       tableKey={TAB_KEYS.EVENTS}
       toolbarContainer={toolbarContainer}
       totalCount={eventsFeed.events.count}

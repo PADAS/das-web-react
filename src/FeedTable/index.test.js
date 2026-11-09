@@ -2,9 +2,9 @@ import { act } from 'react';
 import { getGridApi, ModuleRegistry, ValidationModule } from 'ag-grid-community';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen, waitFor } from '../test-utils';
+import { fireEvent, render, screen, waitFor } from '../test-utils';
 
-import FeedTable, { BACKGROUND_LOAD_RETRY_DELAY, formatDateValue, ICON_COLUMN, IconCell } from '.';
+import FeedTable, { formatDateValue, ICON_COLUMN, IconCell } from '.';
 
 const COLUMNS = [
   { colId: 'a', field: 'a', headerName: 'A' },
@@ -216,71 +216,55 @@ describe('FeedTable', () => {
   test('shows a status message in the toolbar', async () => {
     await renderFeedTable(COLUMNS, undefined, ROWS, { statusMessage: 'Showing 1 of 3' });
 
-    expect(screen.getByRole('status')).toHaveTextContent('Showing 1 of 3');
+    expect(screen.getByText('Showing 1 of 3')).toHaveAttribute('role', 'status');
   });
 
-  test('loads every page behind a sort of its own and says how far it got', async () => {
-    const onLoadMore = jest.fn()
-      .mockReturnValueOnce(Promise.resolve())
-      .mockReturnValueOnce(Promise.resolve())
-      .mockReturnValue(undefined);
-    await renderFeedTable([{ ...COLUMNS[0], sortable: true }, COLUMNS[1]], undefined, ROWS, { hasMorePages: true, onLoadMore, totalCount: 3 });
+  const SORTED_BY_A_COLUMNS = [{ ...COLUMNS[0], sort: 'asc', sortable: true }, COLUMNS[1]];
 
-    act(() => gridApi.applyColumnState({ state: [{ colId: 'a', sort: 'asc' }] }));
+  test('shows how far the load behind a sort of its own got, announcing only that it started', async () => {
+    await renderFeedTable(SORTED_BY_A_COLUMNS, undefined, ROWS, { fullLoad: { isLoading: true }, totalCount: 3 });
 
-    await waitFor(() => expect(onLoadMore).toHaveBeenCalledTimes(3));
-    expect(screen.getByRole('status')).toHaveTextContent('Sorting by A: loaded 1 of 3');
+    expect(screen.getByText('Sorting by A: loaded 1 of 3')).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByRole('status')).toHaveTextContent(/^Loading every row to sort by A$/);
   });
 
-  test('retries a page that fails to load behind a sort, then pauses until retried', async () => {
-    let failFirstPage;
-    const onLoadMore = jest.fn()
-      .mockReturnValueOnce(new Promise((resolve, reject) => {
-        failFirstPage = reject;
-      }))
-      .mockImplementation(() => Promise.reject(new Error('offline')));
-    await renderFeedTable([{ ...COLUMNS[0], sortable: true }, COLUMNS[1]], undefined, ROWS, { hasMorePages: true, onLoadMore, totalCount: 3 });
+  test('announces when the load behind a sort of its own is done', async () => {
+    await renderFeedTable(SORTED_BY_A_COLUMNS, undefined, ROWS, { fullLoad: { isLoading: false }, totalCount: 1 });
 
-    act(() => gridApi.applyColumnState({ state: [{ colId: 'a', sort: 'asc' }] }));
-    expect(await screen.findByRole('status')).toHaveTextContent('Sorting by A: loaded 1 of 3');
-
-    jest.useFakeTimers();
-    try {
-      await act(async () => failFirstPage(new Error('offline')));
-      for (const delay of [1, 2, 4]) {
-        expect(screen.getByRole('status')).toHaveTextContent('Sorting by A: loaded 1 of 3');
-        await act(async () => jest.advanceTimersByTime(BACKGROUND_LOAD_RETRY_DELAY * delay));
-      }
-
-      expect(onLoadMore).toHaveBeenCalledTimes(4);
-      expect(screen.getByRole('status')).toHaveTextContent('Sorting paused: loaded 1 of 3');
-
-      await act(async () => jest.advanceTimersByTime(BACKGROUND_LOAD_RETRY_DELAY * 8));
-      expect(onLoadMore).toHaveBeenCalledTimes(4);
-
-      onLoadMore.mockReturnValue(undefined);
-      await act(async () => screen.getByRole('button', { name: 'Retry' }).click());
-
-      expect(onLoadMore).toHaveBeenCalledTimes(5);
-      expect(screen.getByRole('status')).toHaveTextContent('Sorting by A: loaded 1 of 3');
-    } finally {
-      jest.useRealTimers();
-    }
+    expect(screen.queryByText(/loaded 1 of/)).toBeNull();
+    expect(screen.getByRole('status')).toHaveTextContent(/^Sorted by A: every row loaded$/);
   });
 
-  test('loads no pages behind a sort the API makes', async () => {
-    const onLoadMore = jest.fn(() => Promise.resolve());
+  test('offers to retry a paused load behind a sort of its own', async () => {
+    const retry = jest.fn();
+    await renderFeedTable(SORTED_BY_A_COLUMNS, undefined, ROWS, { fullLoad: { isPaused: true, retry }, totalCount: 3 });
+
+    expect(screen.getByText(/Sorting paused: loaded 1 of 3/)).toHaveAttribute('role', 'status');
+    await userEvent.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(retry).toHaveBeenCalled();
+  });
+
+  test('says nothing about loading behind a sort the API makes', async () => {
     await renderFeedTable(
-      [{ ...COLUMNS[0], serverSorted: true, sortable: true }, COLUMNS[1]],
+      [{ ...COLUMNS[0], serverSorted: true, sort: 'asc', sortable: true }, COLUMNS[1]],
       undefined,
       ROWS,
-      { hasMorePages: true, onLoadMore, statusMessage: 'Status', totalCount: 3 }
+      { fullLoad: { isLoading: false }, statusMessage: 'Status', totalCount: 3 }
     );
 
-    await act(async () => gridApi.applyColumnState({ state: [{ colId: 'a', sort: 'asc' }] }));
+    expect(screen.getByText('Status')).toHaveAttribute('role', 'status');
+    expect(screen.queryByText(/every row/)).toBeNull();
+  });
 
-    expect(onLoadMore).not.toHaveBeenCalled();
-    expect(screen.getByRole('status')).toHaveTextContent('Status');
+  test('sorts by one column only, even when a header is shift-clicked', async () => {
+    await renderFeedTable(COLUMNS.map((column) => ({ ...column, sortable: true })));
+
+    await userEvent.click(await screen.findByText('A'));
+    fireEvent.click(screen.getByText('B'), { shiftKey: true });
+
+    await waitFor(() => expect(gridApi.getColumnState().filter((column) => column.sort).map((column) => column.colId))
+      .toEqual(['b']));
   });
 
   test('says when there are no rows in the app language', async () => {

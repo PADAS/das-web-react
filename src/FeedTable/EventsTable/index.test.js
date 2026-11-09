@@ -12,13 +12,24 @@ import { calcEventFilterForRequest } from '../../utils/event-filter';
 import { downloadFileFromUrl } from '../../utils/download';
 import { GPS_FORMATS } from '../../utils/location';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
-import { addEventToIncident, addEventToPatrol, createEvent, setEventState } from '../../ducks/events';
+import {
+  addEventToIncident,
+  addEventToPatrol,
+  createEvent,
+  fetchNextEventFeedPage,
+  setEventState,
+} from '../../ducks/events';
+import {
+  INITIAL_STATE as INITIAL_FEED_TABLE_SORT_STATE,
+  setFeedTableClientSort,
+  START_FEED_TABLE_FULL_LOAD,
+} from '../../ducks/feed-table-sort';
 import { updateEventFilter } from '../../ducks/event-filter';
 import useJumpToLocation from '../../hooks/useJumpToLocation';
 import useNavigate from '../../hooks/useNavigate';
 import { showToast } from '../../utils/toast';
 
-import EventsTable from './';
+import EventsTable, { FULL_LOAD_PAGE_SIZE } from './';
 
 const mockGridProps = [];
 const mockGridApi = {
@@ -59,6 +70,7 @@ jest.mock('../../ducks/events', () => ({
   addEventToIncident: jest.fn(),
   addEventToPatrol: jest.fn(),
   createEvent: jest.fn(),
+  fetchNextEventFeedPage: jest.fn(),
   setEventState: jest.fn(),
 }));
 
@@ -108,8 +120,11 @@ describe('EventsTable', () => {
     addEventToPatrol.mockImplementation(() => () => Promise.resolve());
     createEvent.mockImplementation(() => () => Promise.resolve({ data: { data: { id: 'new-incident' } } }));
 
+    fetchNextEventFeedPage.mockImplementation(() => () => Promise.resolve());
+
     eventsFeed = {
       events: { next: null, results: [report] },
+      feedRequest: { id: 1, params: { page_size: 50, sort_by: '-updated_at', state: ['active'] } },
       loadFeedEvents: jest.fn(),
       loadingEventFeed: false,
     };
@@ -120,7 +135,11 @@ describe('EventsTable', () => {
         eventTypes: [],
         feedEvents: { results: [report] },
       },
-      view: { coordinateReferenceSystems: { storedSystems: [] }, userPreferences: { gpsFormat: GPS_FORMATS.DEG } },
+      view: {
+        coordinateReferenceSystems: { storedSystems: [] },
+        feedTableSort: INITIAL_FEED_TABLE_SORT_STATE,
+        userPreferences: { gpsFormat: GPS_FORMATS.DEG },
+      },
     };
   });
 
@@ -168,7 +187,14 @@ describe('EventsTable', () => {
     expect(columnById('title')).toMatchObject({ sort: null, sortable: true });
   });
 
-  test('sorts a column the events API cannot order by in the table, keeping the feed sort', () => {
+  const sortInTable = (colId, feedSort = INITIAL_FILTER_STATE.filter.sort) => {
+    state.view.feedTableSort = {
+      ...INITIAL_FEED_TABLE_SORT_STATE,
+      events: { ...INITIAL_FEED_TABLE_SORT_STATE.events, clientSort: { colId, feedSort, sort: 'desc' } },
+    };
+  };
+
+  test('keeps a sort the events API cannot make for the table, apart from the feed sort', () => {
     renderEventsTable();
 
     act(() => lastGridProps().onSortChanged({
@@ -177,21 +203,114 @@ describe('EventsTable', () => {
     }));
 
     expect(updateEventFilter).not.toHaveBeenCalled();
+    expect(store.getActions()).toContainEqual(setFeedTableClientSort(
+      'events',
+      { colId: 'priority', feedSort: INITIAL_FILTER_STATE.filter.sort, sort: 'desc' }
+    ));
+  });
+
+  test('shows the table sort it keeps instead of the feed sort, such as after an event was open', () => {
+    sortInTable('priority');
+    renderEventsTable();
+
     expect(columnById('priority').sort).toBe('desc');
     expect(columnById(DEFAULT_EVENT_SORT[1].value).sort).toBeNull();
   });
 
-  test('goes back to the feed sort when the table sort is cleared', () => {
+  test('shows the feed sort again once the feed is sorted another way', () => {
+    sortInTable('priority', [SORT_DIRECTION.up, EVENT_SORT_OPTIONS[0]]);
     renderEventsTable();
-
-    act(() => lastGridProps().onSortChanged({
-      api: { getColumnState: () => [{ colId: 'priority', sort: 'desc' }] },
-      source: 'uiColumnSorted',
-    }));
-    act(() => lastGridProps().onSortChanged({ api: { getColumnState: () => [{ colId: 'priority' }] }, source: 'uiColumnSorted' }));
 
     expect(columnById('priority').sort).toBeNull();
     expect(columnById(DEFAULT_EVENT_SORT[1].value).sort).toBe('desc');
+  });
+
+  test('goes back to the feed sort when the table sort is cleared', () => {
+    sortInTable('priority');
+    renderEventsTable();
+
+    act(() => lastGridProps().onSortChanged({ api: { getColumnState: () => [{ colId: 'priority' }] }, source: 'uiColumnSorted' }));
+
+    expect(store.getActions()).toContainEqual(setFeedTableClientSort('events', null));
+  });
+
+  const startedFullLoad = () => store.getActions().find((action) => action.type === START_FEED_TABLE_FULL_LOAD);
+
+  test('loads every event of the feed filter behind a table sort, in large cursor pages', () => {
+    eventsFeed.events.next = 'https://das/events?page=2';
+    sortInTable('priority');
+    renderEventsTable();
+
+    const url = new URL(startedFullLoad().payload.url);
+
+    expect(url.searchParams.get('use_cursor')).toBe('true');
+    expect(url.searchParams.get('page_size')).toBe(`${FULL_LOAD_PAGE_SIZE}`);
+    expect(url.searchParams.get('state')).toBe('active');
+    expect(url.searchParams.has('sort_by')).toBe(false);
+    expect(startedFullLoad().payload.key).toBe(`1 ${startedFullLoad().payload.url}`);
+  });
+
+  test('loads nothing behind the feed sort', () => {
+    eventsFeed.events.next = 'https://das/events?page=2';
+    renderEventsTable();
+
+    expect(startedFullLoad()).toBeUndefined();
+  });
+
+  test('lists the events loaded behind a table sort with the feed events', () => {
+    eventsFeed.events.next = 'https://das/events?page=2';
+    sortInTable('priority');
+    renderEventsTable();
+    const { url } = startedFullLoad().payload;
+
+    state.data.eventStore = { 'other-event': { id: 'other-event' } };
+    state.view.feedTableSort = {
+      ...state.view.feedTableSort,
+      events: {
+        ...state.view.feedTableSort.events,
+        fullLoad: { ids: ['other-event'], key: `1 ${url}`, loadingIds: [], next: null, url },
+      },
+    };
+    renderEventsTable();
+
+    expect(lastGridProps().rowData.map((event) => event.id)).toEqual([report.id, 'other-event']);
+  });
+
+  const scrollToEnd = () => act(() => lastGridProps().onBodyScroll({
+    api: { getDisplayedRowCount: () => 1, getLastDisplayedRowIndex: () => 0 },
+    direction: 'vertical',
+  }));
+
+  test('loads the next page once when scrolled again while it loads', () => {
+    eventsFeed.events.next = 'https://das/events?page=2';
+    fetchNextEventFeedPage.mockImplementation(() => () => new Promise(() => {}));
+    renderEventsTable();
+
+    scrollToEnd();
+    scrollToEnd();
+
+    expect(fetchNextEventFeedPage).toHaveBeenCalledTimes(1);
+  });
+
+  test('loads a page again when a refreshed feed asks for one it loaded before', async () => {
+    eventsFeed.events.next = 'https://das/events?page=2';
+    renderEventsTable();
+
+    scrollToEnd();
+    await act(async () => {});
+    scrollToEnd();
+
+    expect(fetchNextEventFeedPage).toHaveBeenCalledTimes(2);
+  });
+
+  test('does not page the feed on scroll behind a table sort', () => {
+    eventsFeed.events.next = 'https://das/events?page=2';
+    sortInTable('priority');
+    renderEventsTable();
+
+    scrollToEnd();
+
+    expect(fetchNextEventFeedPage).not.toHaveBeenCalled();
   });
 
   const rerenderWithNewEvents = (rerender) => rerender(<Provider store={store}>

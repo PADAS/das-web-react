@@ -144,6 +144,15 @@ export const fetchPatrolLinkTargets = (searchText, { nextPageUrl = null, signal 
   }
 };
 
+export const calcPatrolsFeedUrl = (state, params) => `${PATROLS_API_URL}?${calcPatrolFilterForRequest({
+  params: {
+    ...PATROL_REQUEST_PARAMS,
+    // The legacy detail view reads these without refetching the patrol.
+    ...(getPreviewFeatureValue(state, PREVIEW_FEATURES.PATROL_SCHEMAS) && PATROLS_FEED_EXCLUDED_DETAILS_PARAMS),
+    ...params,
+  },
+})}`;
+
 export const fetchPatrolsFeed = () => (dispatch, getState) => {
   const cancelToken = CancelToken.source();
 
@@ -151,15 +160,7 @@ export const fetchPatrolsFeed = () => (dispatch, getState) => {
   nextPatrolsFeedPageCancelToken.cancel();
 
   const request = axios.get(
-    `${PATROLS_API_URL}?${calcPatrolFilterForRequest({
-      params: {
-        ...PATROL_REQUEST_PARAMS,
-        // The legacy detail view reads these without refetching the patrol.
-        ...(getPreviewFeatureValue(getState(), PREVIEW_FEATURES.PATROL_SCHEMAS)
-          && PATROLS_FEED_EXCLUDED_DETAILS_PARAMS),
-        page_size: PATROLS_FEED_PAGE_SIZE,
-      },
-    })}`,
+    calcPatrolsFeedUrl(getState(), { page_size: PATROLS_FEED_PAGE_SIZE }),
     { cancelToken: cancelToken.token }
   )
     .then((response) => {
@@ -204,6 +205,23 @@ export const fetchNextPatrolsFeedPage = (url) => (dispatch) => {
 
       throw error;
     });
+};
+
+// A page of the table's own load of every feed patrol, apart from the feed.
+export const fetchFeedTablePatrolsPage = (url, cancelToken) => async (dispatch) => {
+  try {
+    const response = await axios.get(url, { cancelToken });
+
+    dispatch(updatePatrolStore(response.data.data));
+
+    return response.data.data;
+  } catch (error) {
+    if (!isCancel(error)) {
+      console.warn('error fetching a page of the patrols table', error);
+    }
+
+    throw error;
+  }
 };
 
 export const fetchPatrolTeamAndTrackingOptions = () => async (dispatch) => {

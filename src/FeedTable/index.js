@@ -43,11 +43,6 @@ ModuleRegistry.registerModules([
 // How close to the last loaded row a scroll asks for the next page.
 const LOAD_MORE_EDGE_ROWS = 10;
 
-// A page loaded behind a sort is retried after 2, 4 and 8 seconds, then the
-// loading pauses until the user retries it.
-export const BACKGROUND_LOAD_RETRY_DELAY = 2000;
-const BACKGROUND_LOAD_RETRIES = 3;
-
 const SELECTION_COLUMN_ID = 'ag-Grid-SelectionColumn';
 
 const CELL_CONTROLS = 'a[href], button';
@@ -195,15 +190,13 @@ export const formatDateValue = (params) => {
 
 // `layoutScoped` columns, such as an event type's fields, keep their own order.
 // `menuName` names a column without a header, such as the icon, in the menu.
-// `serverSorted` columns are sorted by the API; any other sort is the grid's
-// own, so the table loads every page behind it while `hasMorePages`. `onLoadMore` returns the
-// page's promise, or nothing when there is no page left.
+// A sorted column that is not `serverSorted` is sorted by the grid.
 const FeedTable = ({
   ariaLabel,
   columnDefs,
+  fullLoad,
   getRowClass,
   getRowId,
-  hasMorePages = false,
   layoutScope = '',
   loading = false,
   onLoadMore,
@@ -220,7 +213,6 @@ const FeedTable = ({
   const { t } = useTranslation('components', { keyPrefix: 'feedTable' });
 
   const columnsMenuItemRefs = useRef([]);
-  const onLoadMoreRef = useRef(onLoadMore);
 
   const columnsMenuId = useId();
   const moveColumnHintId = useId();
@@ -235,9 +227,7 @@ const FeedTable = ({
   const [hiddenColumns, setHiddenColumns] = useState(
     () => readStored(storageKey('hiddenColumns', tableKey), isPlainObject, {})
   );
-  const [clientSortColId, setClientSortColId] = useState(null);
   const [isColumnsMenuOpen, setIsColumnsMenuOpen] = useState(false);
-  const [backgroundLoad, setBackgroundLoad] = useState({ failures: 0, tick: 0 });
   const [selectedRows, setSelectedRows] = useState([]);
 
   const localeText = useMemo(() => ({
@@ -378,62 +368,9 @@ const FeedTable = ({
     }
   };
 
-  const serverSortedColIds = useMemo(
-    () => new Set(columnDefs.filter((column) => column.serverSorted).map((column) => column.colId)),
-    [columnDefs]
-  );
-
-  const onGridSortChanged = (event) => {
-    const sortedColumn = event.api.getColumnState().find((column) => !!column.sort);
-    const nextClientSortColId = sortedColumn && !serverSortedColIds.has(sortedColumn.colId) ? sortedColumn.colId : null;
-    if (nextClientSortColId !== clientSortColId) {
-      setClientSortColId(nextClientSortColId);
-      // A new sort starts its loading afresh.
-      setBackgroundLoad(({ tick }) => ({ failures: 0, tick }));
-    }
-
-    onSortChanged?.(event);
-  };
-
-  // A sort of the grid's own covers only the loaded rows, so while one is on
-  // the table loads the remaining pages, one at a time, and the rows reflow in.
-  useEffect(() => {
-    onLoadMoreRef.current = onLoadMore;
-  });
-
-  const isBackgroundLoadPaused = backgroundLoad.failures > BACKGROUND_LOAD_RETRIES;
-
-  useEffect(() => {
-    if (!clientSortColId || loading || isBackgroundLoadPaused) return undefined;
-
-    let cancelled = false;
-    let retryTimeout;
-    onLoadMoreRef.current?.()?.then(() => {
-      if (!cancelled) setBackgroundLoad(({ tick }) => ({ failures: 0, tick: tick + 1 }));
-    }, () => {
-      if (cancelled) return;
-
-      const failures = backgroundLoad.failures + 1;
-      if (failures > BACKGROUND_LOAD_RETRIES) {
-        setBackgroundLoad(({ tick }) => ({ failures, tick }));
-      } else {
-        retryTimeout = setTimeout(
-          () => setBackgroundLoad(({ tick }) => ({ failures, tick: tick + 1 })),
-          BACKGROUND_LOAD_RETRY_DELAY * 2 ** (failures - 1)
-        );
-      }
-    });
-
-    return () => {
-      cancelled = true;
-      clearTimeout(retryTimeout);
-    };
-  }, [backgroundLoad, clientSortColId, isBackgroundLoadPaused, loading]);
-
-  const retryBackgroundLoad = () => setBackgroundLoad(({ tick }) => ({ failures: 0, tick: tick + 1 }));
-
-  const clientSortColumn = columnDefs.find((column) => column.colId === clientSortColId);
-  const isLoadingForClientSort = !!clientSortColumn && !loading && hasMorePages;
+  const clientSortColumn = columnDefs.find((column) => !!column.sort && !column.serverSorted);
+  const isLoadingForClientSort = !!clientSortColumn && !loading && !!fullLoad?.isLoading;
+  const isClientSortPaused = !!clientSortColumn && !loading && !!fullLoad?.isPaused;
   const clientSortMessageValues = clientSortColumn && {
     column: clientSortColumn.menuName ?? clientSortColumn.headerName,
     loaded: rowData.length,
@@ -474,20 +411,31 @@ const FeedTable = ({
         </button>
       </div>}
 
-      {isLoadingForClientSort && isBackgroundLoadPaused && <span className={styles.statusMessage} role="status">
+      {/* The count changes with every page, so only the start and the end of
+          the load are announced. */}
+      <span className="sr-only" role="status">
+        {isLoadingForClientSort && t('clientSortStartedMessage', clientSortMessageValues)}
+        {!!clientSortColumn && !loading && !fullLoad?.isLoading && !isClientSortPaused
+          && t('clientSortFinishedMessage', clientSortMessageValues)}
+      </span>
+
+      {isClientSortPaused && <span className={styles.statusMessage} role="status">
         {t('clientSortPausedMessage', clientSortMessageValues)}
 
-        <button className={styles.toolbarButton} onClick={retryBackgroundLoad} type="button">
+        <button className={styles.toolbarButton} onClick={fullLoad.retry} type="button">
           {t('clientSortRetryButtonLabel')}
         </button>
       </span>}
 
-      {isLoadingForClientSort && !isBackgroundLoadPaused && <span className={styles.statusMessage} role="status">
+      {isLoadingForClientSort && <span aria-hidden="true" className={styles.statusMessage}>
         <MoonLoader size={12} />
         {t('clientSortLoadingMessage', clientSortMessageValues)}
       </span>}
 
-      {!isLoadingForClientSort && !!statusMessage && <span className={styles.statusMessage} role="status">
+      {!isLoadingForClientSort && !isClientSortPaused && !!statusMessage && <span
+        className={styles.statusMessage}
+        role="status"
+      >
         {statusMessage}
       </span>}
 
@@ -576,10 +524,11 @@ const FeedTable = ({
         onColumnResized={onColumnResized}
         onGridReady={(event) => setGridApi(event.api)}
         onSelectionChanged={(event) => setSelectedRows(event.api.getSelectedRows())}
-        onSortChanged={onGridSortChanged}
+        onSortChanged={onSortChanged}
         rowClass={styles.row}
         rowData={rowData}
         rowSelection={renderBulkActions ? ROW_SELECTION : undefined}
+        suppressMultiSort
         theme={gridTheme}
       />
     </div>

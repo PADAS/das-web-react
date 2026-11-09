@@ -12,9 +12,11 @@ import {
   governingPatrolSegment,
   iconIdForPatrolSegment,
 } from '../../utils/patrols';
-import { fetchNextPatrolsFeedPage } from '../../ducks/patrols';
+import { calcPatrolsFeedUrl, fetchFeedTablePatrolsPage, fetchNextPatrolsFeedPage } from '../../ducks/patrols';
 import { selectPatrolTrackData } from '../../selectors/patrols';
+import { setFeedTableClientSort } from '../../ducks/feed-table-sort';
 import { TAB_KEYS } from '../../constants';
+import useFeedTableFullLoad from '../useFeedTableFullLoad';
 import useJumpToLocation from '../../hooks/useJumpToLocation';
 import useNavigate from '../../hooks/useNavigate';
 
@@ -22,6 +24,11 @@ import FeedTable, { formatDateValue, ICON_COLUMN, IconCell } from '..';
 import SvgIcon from '../../SvgIcon';
 
 import * as styles from './styles.module.scss';
+
+// Patrols carry their legs, so a page of them weighs more than one of events.
+const FULL_LOAD_PARAMS = { page_size: 500, use_cursor: true };
+
+const selectPatrolStore = (state) => state.data.patrolStore;
 
 const PatrolIconCell = ({ value }) => <IconCell><SvgIcon iconId={value} type="patrols" /></IconCell>;
 
@@ -34,10 +41,28 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   const { t: tPatrolState } = useTranslation('patrols', { keyPrefix: 'statusPill.uiStateTitles' });
   const { t: tSideBar } = useTranslation('components', { keyPrefix: 'sideBar' });
 
+  const clientSort = useSelector((state) => state.view.feedTableSort[TAB_KEYS.PATROLS].clientSort);
+  const fullLoadUrl = useSelector((state) => calcPatrolsFeedUrl(state, FULL_LOAD_PARAMS));
   const patrolsFeed = useSelector((state) => state.data.patrolsFeed);
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
-  const loadingMoreRef = useRef({ next: null, promise: null });
+  const loadingPageUrlRef = useRef(null);
+
+  // The patrols API has no ordering, so the grid sorts every column.
+  const fullLoad = useFeedTableFullLoad({
+    fetchPage: fetchFeedTablePatrolsPage,
+    firstPageUrl: fullLoadUrl,
+    hasMorePages: !!patrolsFeed.next,
+    isEnabled: !!clientSort,
+    rows: patrols,
+    selectStore: selectPatrolStore,
+    tab: TAB_KEYS.PATROLS,
+  });
+
+  const sortable = useCallback((colId) => ({
+    sort: clientSort?.colId === colId ? clientSort.sort : null,
+    sortable: true,
+  }), [clientSort]);
 
   const columnDefs = useMemo(() => [
     {
@@ -49,20 +74,27 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
         return segment ? iconIdForPatrolSegment(patrolTypes, segment) : null;
       },
     },
-    { colId: 'serial_number', field: 'serial_number', headerName: t('serialColumnTitle'), minWidth: 80, sortable: true, width: 100 },
+    {
+      colId: 'serial_number',
+      field: 'serial_number',
+      headerName: t('serialColumnTitle'),
+      minWidth: 80,
+      ...sortable('serial_number'),
+      width: 100,
+    },
     {
       colId: 'title',
       flex: 2,
       headerName: t('titleColumnTitle'),
       minWidth: 180,
-      sortable: true,
+      ...sortable('title'),
       valueGetter: (params) => calcTitleAndSubtitleForPatrol(params.data, patrolTypes).title ?? '',
     },
     {
       colId: 'patrol_type',
       headerName: t('patrolTypeColumnTitle'),
       minWidth: 140,
-      sortable: true,
+      ...sortable('patrol_type'),
       valueGetter: (params) => {
         const segment = governingPatrolSegment(params.data);
         return segment ? displayNameForPatrolSegment(patrolTypes, segment) ?? '' : '';
@@ -72,14 +104,14 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
       colId: 'state',
       headerName: t('stateColumnTitle'),
       minWidth: 120,
-      sortable: true,
+      ...sortable('state'),
       valueGetter: (params) => tPatrolState(calcPatrolState(params.data).key),
     },
     {
       colId: 'leader',
       headerName: t('leaderColumnTitle'),
       minWidth: 140,
-      sortable: true,
+      ...sortable('leader'),
       valueGetter: (params) => governingPatrolSegment(params.data)?.leader?.name ?? '',
     },
     {
@@ -87,7 +119,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
       colId: 'start',
       headerName: t('patrolStartColumnTitle'),
       minWidth: 170,
-      sortable: true,
+      ...sortable('start'),
       valueGetter: (params) => displayStartTimeForPatrol(params.data)?.toISOString() ?? '',
     },
     {
@@ -95,7 +127,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
       colId: 'end',
       headerName: t('patrolEndColumnTitle'),
       minWidth: 170,
-      sortable: true,
+      ...sortable('end'),
       valueGetter: (params) => displayEndTimeForPatrol(params.data)?.toISOString() ?? '',
     },
     {
@@ -103,28 +135,36 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
       defaultHidden: true,
       headerName: t('legsColumnTitle'),
       maxWidth: 100,
-      sortable: true,
+      ...sortable('legs'),
       valueGetter: (params) => params.data?.patrol_segments?.length ?? 0,
     },
-  ], [patrolTypes, t, tPatrolState]);
+  ], [patrolTypes, sortable, t, tPatrolState]);
 
   const getRowClass = useCallback((params) => styles[calcPatrolState(params.data).key], []);
 
-  // The patrols API has no ordering, so the grid sorts every column, and the
-  // table loads every page behind a sort. A page asked for again, before its
-  // rows arrive, gets the same request.
   const onLoadMore = () => {
-    const { next } = patrolsFeed;
-    if (!next) return undefined;
-    if (loadingMoreRef.current.next === next) return loadingMoreRef.current.promise;
+    const nextPageUrl = patrolsFeed.next;
+    if (nextPageUrl && loadingPageUrlRef.current !== nextPageUrl) {
+      const releasePageUrl = () => {
+        if (loadingPageUrlRef.current === nextPageUrl) {
+          loadingPageUrlRef.current = null;
+        }
+      };
 
-    const promise = dispatch(fetchNextPatrolsFeedPage(next));
-    loadingMoreRef.current = { next, promise };
-    // A failed page can be asked for again.
-    promise.catch(() => {
-      if (loadingMoreRef.current.promise === promise) loadingMoreRef.current = { next: null, promise: null };
-    });
-    return promise;
+      loadingPageUrlRef.current = nextPageUrl;
+      dispatch(fetchNextPatrolsFeedPage(nextPageUrl)).then(releasePageUrl, releasePageUrl);
+    }
+  };
+
+  const onSortChanged = (event) => {
+    if (event.source === 'uiColumnSorted') {
+      const sortedColumn = event.api.getColumnState().find((column) => !!column.sort);
+
+      dispatch(setFeedTableClientSort(
+        TAB_KEYS.PATROLS,
+        sortedColumn ? { colId: sortedColumn.colId, sort: sortedColumn.sort } : null
+      ));
+    }
   };
 
   const onOpenRow = (patrol) => {
@@ -139,15 +179,16 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   return <FeedTable
     ariaLabel={tSideBar('patrolsLink')}
     columnDefs={columnDefs}
+    fullLoad={fullLoad}
     getRowClass={getRowClass}
     getRowId={(params) => params.data.id}
-    hasMorePages={!!patrolsFeed.next}
     loading={loading}
-    onLoadMore={onLoadMore}
+    onLoadMore={clientSort ? undefined : onLoadMore}
     onOpenRow={onOpenRow}
-    rowData={patrols}
-    statusMessage={patrolsFeed.count > patrols.length
-      ? t('loadedPatrolsMessage', { count: patrolsFeed.count, loaded: patrols.length })
+    onSortChanged={onSortChanged}
+    rowData={fullLoad.rows}
+    statusMessage={patrolsFeed.count > fullLoad.rows.length
+      ? t('loadedPatrolsMessage', { count: patrolsFeed.count, loaded: fullLoad.rows.length })
       : null}
     tableKey={TAB_KEYS.PATROLS}
     toolbarContainer={toolbarContainer}
