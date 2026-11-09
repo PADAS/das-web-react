@@ -331,7 +331,7 @@ Either way the client gets an access token, Auth0's used as is, kept in a cookie
 **Conversations** belong to Otus, per user and site, so they survive a reload. Since Otus starts a sandbox per user, the frame loads on the tab's first visit, then stays alive while the user switches tabs.
 
 **UI**
-- **Otus tab** (`/atlas`): the client's own header, whose New conversation and Recent buttons it relays to the frame, above the Otus frame. On medium layouts and up the panel resizes by drag or keyboard, its width survives a reload, and the map's padding follows it.
+- **Otus tab** (`/atlas`): the client's own header, whose New conversation and Recent buttons it relays to the frame, and whose Recent button shows pressed while Otus reports its conversation list open, above the Otus frame. On medium layouts and up the panel resizes by drag or keyboard, its width survives a reload, and the map's padding follows it.
 
 **Key files**
 - `SideBar/OtusTab/`: the frame, the handshake, the resizing, and the header.
