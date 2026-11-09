@@ -1,7 +1,6 @@
 import { lazy, memo, Suspense, useContext, useMemo, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import MoonLoader from 'react-spinners/MoonLoader';
-import uniq from 'lodash/uniq';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -31,11 +30,11 @@ const LOADING_MORE_SPINNER_SIZE = 20;
 
 // A collection already lists the events it contains, so they are left out.
 const excludeContainedEvents = (events) => {
-  const containedEventIds = uniq(events
+  const containedEventIds = new Set(events
     .filter((event) => !!event.is_collection)
     .flatMap((collection) => collection.contains?.map((containedEvent) => containedEvent.related_event.id) ?? []));
 
-  return events.filter((event) => !containedEventIds.includes(event.id) && !event.is_contained_in?.length);
+  return events.filter((event) => !containedEventIds.has(event.id) && !event.is_contained_in?.length);
 };
 
 const EventsFeed = ({ eventsFeed }) => {
@@ -80,7 +79,8 @@ const EventsFeed = ({ eventsFeed }) => {
 
   const onLoadMoreEvents = () => {
     if (eventsFeed.events.next) {
-      dispatch(fetchNextEventFeedPage(eventsFeed.events.next));
+      // A failed page is asked for again on the next scroll.
+      dispatch(fetchNextEventFeedPage(eventsFeed.events.next)).catch(() => {});
     }
   };
 

@@ -9,7 +9,7 @@ import { generateErrorMessageForRequest } from '../utils/request';
 import { getBboxParamsFromMap, objectToParamString } from '../utils/query';
 import { getPreviewFeatureValue } from '../utils/feature-flags';
 import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
-  uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
+  validateReportAgainstCurrentEventFilter } from '../utils/events';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
 import { calcEventFilterForRequest } from '../utils/event-filter';
@@ -60,12 +60,12 @@ const ADD_EVENT_NOTE_START = 'ADD_EVENT_NOTE_START';
 const ADD_EVENT_NOTE_SUCCESS = 'ADD_EVENT_NOTE_SUCCESS';
 const ADD_EVENT_NOTE_ERROR = 'ADD_EVENT_NOTE_ERROR';
 
-const EVENT_FEED_NAME = 'EVENT_FEED';
+export const EVENT_FEED_NAME = 'EVENT_FEED';
 
 const FEED_FETCH_START = 'FEED_FETCH_START';
-const FEED_FETCH_SUCCESS = 'FEED_FETCH_SUCCESS';
-const FEED_FETCH_NEXT_PAGE_SUCCESS = 'FEED_FETCH_NEXT_PAGE_SUCCESS';
-const FEED_FETCH_ERROR = 'FEED_FETCH_ERROR';
+export const FEED_FETCH_SUCCESS = 'FEED_FETCH_SUCCESS';
+export const FEED_FETCH_NEXT_PAGE_SUCCESS = 'FEED_FETCH_NEXT_PAGE_SUCCESS';
+export const FEED_FETCH_ERROR = 'FEED_FETCH_ERROR';
 
 const FETCH_MAP_EVENTS_START = 'FETCH_MAP_EVENTS_START';
 const FETCH_MAP_EVENTS_COMPLETE = 'FETCH_MAP_EVENTS_COMPLETE';
@@ -134,12 +134,15 @@ export const socketEventData = (payload) => (dispatch, getState) => {
 // higher-order action creators
 const fetchNamedFeedActionCreator = (name) => {
   let cancelToken = CancelToken.source();
+  let nextPageCancelToken = CancelToken.source();
 
   const fetchFn = (config, paramString) => (dispatch, getState) => {
     const state = getState();
 
     cancelToken.cancel();
     cancelToken = CancelToken.source();
+    // A page of the feed being replaced must not land in the new one.
+    nextPageCancelToken.cancel();
 
     dispatch({
       name,
@@ -162,7 +165,7 @@ const fetchNamedFeedActionCreator = (name) => {
           dispatch({
             name,
             type: FEED_FETCH_SUCCESS,
-            payload: response.data.data,
+            payload: { ...response.data.data, isExcludingContained: paramString.includes('exclude_contained=true') },
           });
         }
         return response;
@@ -177,28 +180,27 @@ const fetchNamedFeedActionCreator = (name) => {
       });
   };
 
-  const fetchNextPageFn = url => (dispatch, getState) => {
-    cancelToken.cancel();
-    cancelToken = CancelToken.source();
+  // A failed page leaves the feed's error alone: the rows loaded so far stay,
+  // and the page can be asked for again.
+  const fetchNextPageFn = (url) => (dispatch, getState) => {
+    nextPageCancelToken.cancel();
+    nextPageCancelToken = CancelToken.source();
 
-    return axios.get(url, {
-      cancelToken: cancelToken.token,
-    })
-      .then(response => {
-        dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, getState().data.eventStore)));
+    return axios.get(url, { cancelToken: nextPageCancelToken.token })
+      .then((response) => {
+        const eventStore = getState().data.eventStore;
+        dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, eventStore)));
         dispatch({
           name,
           type: FEED_FETCH_NEXT_PAGE_SUCCESS,
-          payload: response.data.data,
+          payload: { ...response.data.data, url },
         });
         return response;
       })
       .catch((error) => {
-        dispatch({
-          name,
-          type: FEED_FETCH_ERROR,
-          payload: error,
-        });
+        if (!isCancel(error)) {
+          console.warn('Failed to fetch the next page of the event feed', error);
+        }
         return Promise.reject(error);
       });
   };
@@ -549,6 +551,26 @@ const [fetchEventFeed, fetchNextEventFeedPage, fetchEventFeedCancelToken] = fetc
 
 export { fetchEventFeed, fetchEventFeedCancelToken, fetchNextEventFeedPage };
 
+// A page of the table's own load of every feed event, apart from the feed.
+export const fetchFeedTableEventsPage = (url, cancelToken) => async (dispatch, getState) => {
+  try {
+    const response = await axios.get(url, { cancelToken });
+
+    dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(
+      response.data.data.results,
+      getState().data.eventStore
+    )));
+
+    return response.data.data;
+  } catch (error) {
+    if (!isCancel(error)) {
+      console.warn('Failed to fetch a page of the events table', error);
+    }
+
+    throw error;
+  }
+};
+
 const generateNewCancelToken = () => new CancelToken(function executor(cancelFn) {
   mapEventsCancelFn = cancelFn;
 });
@@ -769,14 +791,15 @@ const namedFeedReducer = (name, reducer = state => state) => globallyResettableR
       error: generateErrorMessageForRequest(payload),
     };
   }
-  if (type === FEED_FETCH_NEXT_PAGE_SUCCESS) {
-    const { results: events, count, next, previous } = payload;
+  // A page asked for before the feed was refreshed belongs to the old feed.
+  if (type === FEED_FETCH_NEXT_PAGE_SUCCESS && payload.url === state.next) {
+    const loadedIds = new Set(state.results);
     return {
       ...state,
-      count,
-      next,
-      previous,
-      results: [...state.results, ...events.map(event => event.id)].filter( uniqueEventIds ),
+      count: payload.count,
+      next: payload.next,
+      previous: payload.previous,
+      results: [...state.results, ...payload.results.map((event) => event.id).filter((id) => !loadedIds.has(id))],
     };
   }
 
@@ -847,7 +870,7 @@ export const INITIAL_EVENT_FEED_STATE = {
 
 export const eventFeedReducer = namedFeedReducer(EVENT_FEED_NAME, (state, { type, payload }) => {
   if (type === SOCKET_EVENT_DATA) {
-    if (eventBelongsToCollection(payload.event_data)) {
+    if (state.isExcludingContained && eventBelongsToCollection(payload.event_data)) {
       return {
         ...state,
         results: state.results.filter(id => id !== payload.event_data.id),

@@ -30,13 +30,15 @@ const useReportsFeed = () => {
   const { isTableView } = useFeedTableView(TAB_KEYS.EVENTS);
   const includeDetails = isTableView && eventFilter.filter.event_type.length === 1;
 
+  const [feedRequest, setFeedRequest] = useState({ id: 0, params: null });
   const [loadingEventFeed, setEventLoadState] = useState(true);
 
+  // The list nests an incident's events under it; the table has a row for each.
   const shouldExcludeContained = useMemo(() => {
     const { _persist, ...restEventFilter } = eventFilter;
 
-    return isEqual(restEventFilter, INITIAL_FILTER_STATE);
-  }, [eventFilter]);
+    return !isTableView && isEqual(restEventFilter, INITIAL_FILTER_STATE);
+  }, [eventFilter, isTableView]);
   const eventParams = useRef(calcEventFilterForRequest({
     params: {
       exclude_contained: shouldExcludeContained,
@@ -60,6 +62,7 @@ const useReportsFeed = () => {
     if (!silent) {
       setEventLoadState(true);
     }
+    setFeedRequest((currentFeedRequest) => ({ id: currentFeedRequest.id + 1, params: eventParams.current }));
 
     return dispatch(fetchEventFeed({}, objectToParamString(eventParams.current)))
       .catch((error) => {
@@ -116,8 +119,8 @@ const useReportsFeed = () => {
 
   // The events feed is memoized, so it needs the same object between changes.
   return useMemo(
-    () => ({ events, feedSort, loadFeedEvents, loadingEventFeed, shouldExcludeContained }),
-    [events, feedSort, loadFeedEvents, loadingEventFeed, shouldExcludeContained]
+    () => ({ events, feedRequest, feedSort, loadFeedEvents, loadingEventFeed, shouldExcludeContained }),
+    [events, feedRequest, feedSort, loadFeedEvents, loadingEventFeed, shouldExcludeContained]
   );
 };
 

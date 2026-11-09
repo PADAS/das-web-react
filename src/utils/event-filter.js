@@ -18,16 +18,12 @@ export const sortEventsBySortConfig = (events, sortConfig) => {
   const sortValue = (event) => comparisonProp === 'serial_number'
     ? Number(event.serial_number)
     : new Date(event[comparisonProp]).getTime();
+  const sign = direction === SORT_DIRECTION.up ? 1 : -1;
 
-  return [...events].sort((a, b) => {
-    const value1 = sortValue(a);
-    const value2 = sortValue(b);
-
-    if (direction === SORT_DIRECTION.up) {
-      return value1 - value2;
-    }
-    return value2 - value1;
-  });
+  return events
+    .map((event) => ({ event, value: sortValue(event) }))
+    .sort((sortable, otherSortable) => sign * (sortable.value - otherSortable.value))
+    .map((sortable) => sortable.event);
 };
 
 export const calcEventFilterForRequest = (options = {}, sortConfig = DEFAULT_EVENT_SORT) => {

@@ -113,7 +113,7 @@ describe('SideBar - EventsManager - EventsFeed', () => {
   let tracker;
 
   beforeEach(() => {
-    fetchNextEventFeedPage.mockImplementation(() => () => {});
+    fetchNextEventFeedPage.mockImplementation(() => () => Promise.resolve());
     removeEventFromIncident.mockImplementation(() => () => Promise.resolve());
     removeEventFromPatrol.mockImplementation(() => () => Promise.resolve());
     tracker = { track: jest.fn() };

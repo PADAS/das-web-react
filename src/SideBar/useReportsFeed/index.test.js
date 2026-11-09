@@ -121,6 +121,35 @@ describe('useReportsFeed', () => {
     expect(includeDetailsParams).not.toContain('true');
   });
 
+  test('leaves out the events incidents contain only in the list without filters', async () => {
+    const excludeContainedParams = [];
+    server.use(http.get(EVENTS_API_URL, ({ request }) => {
+      excludeContainedParams.push(new URL(request.url).searchParams.get('exclude_contained'));
+
+      return HttpResponse.json(eventFeedResponse);
+    }));
+
+    renderUseReportsFeed(mockStore(store));
+
+    await waitFor(() => expect(excludeContainedParams.at(-1)).toBe('true'));
+  });
+
+  test('keeps the events incidents contain in the table view without filters', async () => {
+    showEventsTable();
+    const excludeContainedParams = [];
+    server.use(http.get(EVENTS_API_URL, ({ request }) => {
+      excludeContainedParams.push(new URL(request.url).searchParams.get('exclude_contained'));
+
+      return HttpResponse.json(eventFeedResponse);
+    }));
+
+    const { result } = renderUseReportsFeed(mockStore(store));
+
+    await waitFor(() => expect(excludeContainedParams.length).toBeGreaterThan(0));
+    expect(excludeContainedParams).not.toContain('true');
+    expect(result.current.shouldExcludeContained).toBe(false);
+  });
+
   test('returns the reportsFetchFeed properties and methods', async () => {
     const { result } = renderUseReportsFeed();
 
@@ -213,5 +242,16 @@ describe('useReportsFeed', () => {
 
     expect(builtStore.getActions().map((action) => action.type)).toContain('FEED_FETCH_ERROR');
     expect(consoleWarnSpy).not.toHaveBeenCalled();
+  });
+
+  test('hands out each feed request with its params, silent refreshes too', async () => {
+    const { result } = renderUseReportsFeed();
+    await waitFor(() => expect(result.current.feedRequest.id).toBeGreaterThan(0));
+    const feedRequestId = result.current.feedRequest.id;
+
+    result.current.loadFeedEvents(true);
+
+    await waitFor(() => expect(result.current.feedRequest.id).toBe(feedRequestId + 1));
+    expect(result.current.feedRequest.params).toMatchObject({ page_size: 50 });
   });
 });
