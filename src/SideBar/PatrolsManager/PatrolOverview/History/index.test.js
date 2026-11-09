@@ -10,8 +10,13 @@ import History from './';
 describe('SideBar - PatrolsManager - PatrolOverview - History', () => {
   const patrolWithLeader = patrols[1];
 
+  let track;
+  beforeEach(() => {
+    track = jest.fn();
+  });
+
   const renderHistory = (props) => render(
-    <TrackerContext.Provider value={{ track: jest.fn() }}>
+    <TrackerContext.Provider value={{ track }}>
       <History patrol={patrolWithLeader} {...props} />
     </TrackerContext.Provider>
   );
@@ -40,8 +45,11 @@ describe('SideBar - PatrolsManager - PatrolOverview - History', () => {
 
     const toggledButton = screen.getByRole('button', { name: 'Sort history in descending order' });
     expect(toggledButton).toHaveAttribute('aria-pressed', 'true');
+    expect(track).toHaveTrackedAction('Sort history section in asc order');
 
     await userEvent.click(toggledButton);
+
+    expect(track).toHaveTrackedAction('Sort history section in desc order');
 
     expect(screen.getByRole('button', { name: 'Sort history in ascending order' })).toHaveAttribute('aria-pressed', 'false');
   });

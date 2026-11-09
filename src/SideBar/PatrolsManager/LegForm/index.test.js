@@ -16,7 +16,7 @@ import { MapContext } from '../../../MapContext';
 import { mockStore } from '../../../__test-helpers/MockStore';
 import patrolTypes, { dogPatrol, routinePatrol } from '../../../__test-helpers/fixtures/patrol-types';
 import { render, screen, waitFor, within } from '../../../test-utils';
-import { TrackerContext } from '../../../utils/analytics';
+import { TrackerContext, trackEventFactory } from '../../../utils/analytics';
 
 import LegForm from './';
 
@@ -42,7 +42,9 @@ describe('SideBar - PatrolsManager - LegForm', () => {
   const onSubmit = jest.fn();
 
   let map, reduxStore, store;
+  let tracker;
   beforeEach(() => {
+    tracker = trackEventFactory('Test', jest.fn());
     fetchDefaultPatrolSegmentTypeSchema.mockImplementation(() => () => {});
     fetchPatrolTypeSchema.mockImplementation(() => () => {});
 
@@ -91,7 +93,7 @@ describe('SideBar - PatrolsManager - LegForm', () => {
     return render(
       <Provider store={reduxStore}>
         <MapContext.Provider value={map}>
-          <TrackerContext.Provider value={{ track: jest.fn() }}>
+          <TrackerContext.Provider value={tracker}>
             <ControlledLegForm
               earliestStartDateTime={earliestStartDateTime}
               initialLeg={{
