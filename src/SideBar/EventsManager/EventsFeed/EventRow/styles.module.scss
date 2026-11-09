@@ -3,12 +3,8 @@
 @use '../../../shared';
 
 @mixin event-row-theme($theme) {
-  $theme-color: map.get($theme, 'base');
-
-  --event-row-hover-background: #{colors.tint($theme-color, colors.$row-tint)};
-
   .icon {
-    background-color: $theme-color;
+    background-color: map.get($theme, 'base');
   }
 }
 
@@ -25,8 +21,9 @@
     / 3rem auto minmax(0, 1fr) auto auto;
   padding: 0.25rem 0.5rem 0.25rem 0.25rem;
 
+  // One hover for every row, rather than a tint of the row's own priority.
   &:hover:not(:has(button:hover)) {
-    background-color: var(--event-row-hover-background);
+    background-color: var(--er-ui-background-selected-background);
   }
 
   .icon {

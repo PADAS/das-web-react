@@ -9,8 +9,8 @@
   }
   
   &[class*="pinned"] {
-    border: 0.06px solid var(--er-teal-t100);
-    background-color: colors.with-opacity(var(--er-teal-t100), 10%);
+    border: 0.06px solid var(--er-green-9);
+    background-color: colors.with-opacity(var(--er-green-9), 10%);
   }
 
   .button {
@@ -32,7 +32,7 @@
     }
 
     &.pinned {
-      background-color: var(--er-teal-t100);
+      background-color: var(--er-green-9);
     }
   }
 

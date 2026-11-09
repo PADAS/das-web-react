@@ -1,4 +1,4 @@
-@use '../common/styles/colors';
+@use '../common/styles/buttons';
 
 .form {
   border-bottom: 1px solid var(--er-ui-field-outline);
@@ -16,39 +16,20 @@
     justify-content: flex-end;
     width: 60%;
 
+    // The same chip as the events, map layers and subjects feeds.
     .button {
-      align-items: center;
-      border-radius: 0.25rem;
-      display: flex;
-      font-size: 0.875rem;
-      font-weight: 500;
-      height: 2rem;
-      padding: 0 0.5rem;
+      @include buttons.chip-text-button;
+      @include buttons.chip-active-state;
+      @include buttons.chip-open-state;
 
-      &.active {
-        background-color: var(--er-ui-cta-primary);
-        border: 1px solid var(--er-ui-cta-primary);
-        color: var(--er-ui-text-primary-text-reversed);
-
-        &:hover {
-          background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
-          border-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
-        }
-
-        &:focus-visible:not(:disabled) {
-          background-color: var(--er-ui-background-primary-background);
-          border-color: var(--er-ui-cta-primary);
-          color: var(--er-ui-cta-primary);
-          outline: 1px solid var(--er-ui-cta-primary);
-        }
-      }
+      flex-shrink: 0;
     }
   }
 }
 
 .filterPopover {
   > [class*="arrow"]::after {
-    border-bottom-color: var(--er-teal-t100);
+    border-bottom-color: var(--er-greyscale-3);
   }
 
   [class*="popover-header"] {

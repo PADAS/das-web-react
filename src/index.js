@@ -16,6 +16,7 @@ import './index.scss';
 
 import { APP_ROUTES } from './constants/routes';
 import appConfig from './config';
+import { applyErLegacyTheme } from './utils/er-legacy-theme';
 import { Auth0Provider } from '@auth0/auth0-react';
 import { EXTERNAL_SAME_DOMAIN_ROUTES, REACT_APP_GA4_TRACKING_ID, REACT_APP_ROUTE_PREFIX } from './constants';
 import { fetchSystemStatus } from './ducks/system-status';
@@ -37,6 +38,9 @@ import RequireAccessToken from './RequireAccessToken';
 import RequireEulaConfirmation from './RequireEulaConfirmation';
 import RootErrorBoundary, { RootErrorFallback } from './RootErrorBoundary';
 import useWebVitals from './hooks/useWebVitals';
+
+// Local er-legacy theme, applied over the design system's light theme.
+applyErLegacyTheme();
 
 const App = lazy(() => import('./App'));
 const CommunityPage = lazy(() => import('./CommunityPage'));

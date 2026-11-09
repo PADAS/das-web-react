@@ -169,6 +169,11 @@ $chip-height-small: 1.75rem;
   svg {
     height: 1.75rem;
     width: 1.75rem;
+
+    // Icons that draw with currentColor follow this rather than the button's
+    // own text colour. Ones that hard-code a fill or stroke set it on the
+    // element, which beats an inherited value, so they override it themselves.
+    color: var(--er-ui-icons);
     fill: var(--er-ui-icons);
   }
 }
@@ -455,16 +460,16 @@ $chip-height-small: 1.75rem;
 @mixin secondary-action-button {
   @include primary-action-button;
 
-  background-color: var(--er-ui-background-selected-background);
-  color: colors.shade(var(--er-ui-cta-primary), 15%);
+  background-color: var(--er-ui-cta-secondary-blue);
+  color: var(--er-ui-cta-primary);
   text-decoration: none;
 
   &:hover:not(:disabled, :focus-visible) {
-    background-color: colors.shade(var(--er-ui-background-selected-background), colors.$surface-hover-shade);
-    color: colors.shade(var(--er-ui-cta-primary), 15%);
+    background-color: colors.shade(var(--er-ui-cta-secondary-blue), colors.$surface-hover-shade);
+    color: var(--er-ui-cta-primary);
   }
 
   &:focus-visible {
-    background-color: var(--er-ui-background-selected-background);
+    background-color: var(--er-ui-cta-secondary-blue);
   }
 }

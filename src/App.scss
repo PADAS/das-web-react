@@ -685,7 +685,7 @@ div.mapboxgl-popup-tip {
       margin-top: 0;
 
       .arrow::after {
-        border-bottom-color: var(--er-teal-t100);
+        border-bottom-color: var(--er-greyscale-3);
       }
     }
 
@@ -717,7 +717,7 @@ div.mapboxgl-popup-tip {
       text-align: center;
 
       &:not(.active) {
-        background: colors.tint(var(--er-teal-t100), 19%);
+        background: colors.tint(var(--er-greyscale-3), 19%);
         color: var(--er-ui-text-primary-text-reversed);
 
         &:hover {
@@ -734,8 +734,8 @@ div.mapboxgl-popup-tip {
     .handle {
       @include buttons.unstyled-button;
 
-      background-color: var(--er-teal-t100);
-      border: 1px solid colors.tint(var(--er-teal-t100), 38%);
+      background-color: var(--er-greyscale-3);
+      border: 1px solid colors.tint(var(--er-greyscale-3), 38%);
       border-right: none;
       border-radius: 0.5rem 0 0 0.5rem;
       color: var(--er-ui-text-primary-text-reversed);
@@ -749,16 +749,16 @@ div.mapboxgl-popup-tip {
 
       &:hover,
       &:active {
-        border: 1px solid colors.tint(var(--er-teal-t100), 31%);
+        border: 1px solid colors.tint(var(--er-greyscale-3), 31%);
         border-right: none;
       }
 
       &:hover {
-        background-color: colors.shade(var(--er-teal-t100), 50%);
+        background-color: colors.shade(var(--er-greyscale-3), 50%);
       }
 
       &:active {
-        background-color: colors.shade(var(--er-teal-t100), 79%);
+        background-color: colors.shade(var(--er-greyscale-3), 79%);
       }
 
       span {

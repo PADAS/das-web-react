@@ -4,6 +4,7 @@ import mapValues from 'lodash/mapValues';
 import { compileString } from 'sass';
 
 import { COLOR_STEPS, COLOR_TOKENS, shade, themeReactSelect, tint, tokenVar, withOpacity } from './colors';
+import { ER_LEGACY_COLORS } from './er-legacy-theme';
 
 const SASS_COLOR_VARIABLES = Object.fromEntries(
   [...compileString(
@@ -25,9 +26,16 @@ const TOKEN_REFERENCE_REGEX = /--er-([a-z0-9-]+)|COLOR_TOKENS\['([^']+)'\]|token
 describe('utils - colors', () => {
   describe('COLOR_TOKENS', () => {
     test('keys the light values of tokens.css by their names without the --er- prefix', () => {
-      expect(COLOR_TOKENS['ui-cta-primary']).toBe('#0f865d');
-      expect(COLOR_TOKENS['ui-text-primary-text']).toBe('#0a3235');
       expect(COLOR_TOKENS['teal-3-05']).toBe('#f2f9f9');
+    });
+
+    test('takes the er-legacy value for a token the local theme overrides', () => {
+      expect(COLOR_TOKENS['ui-cta-primary']).toBe('#0056c7');
+      expect(COLOR_TOKENS['ui-text-primary-text']).toBe('#000000');
+    });
+
+    test('overrides only tokens the design system publishes', () => {
+      expect(Object.keys(ER_LEGACY_COLORS).filter((token) => !LIGHT_THEME_TOKEN_NAMES.includes(token))).toEqual([]);
     });
 
     test('names every color token as tokens.css does', () => {

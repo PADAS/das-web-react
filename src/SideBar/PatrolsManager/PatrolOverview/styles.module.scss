@@ -46,7 +46,7 @@
 
     // stylelint-disable-next-line selector-class-pattern -- Bootstrap names it.
     :global(.tab-content) {
-      background: var(--er-ui-background-tertiary-background);
+      background: var(--er-ui-background-secondary-background);
       display: flex;
       flex: 1;
       flex-direction: column;

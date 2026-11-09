@@ -89,6 +89,15 @@
     color: var(--er-ui-text-primary-text-reversed);
   }
 
+  // The only status badge on a dark surface, so it takes the dark-theme value
+  // of ui-status-success, which the palette names green-4. The badges in the
+  // dropdown below sit on white and keep the light value.
+  [class*="green"] {
+    background: var(--er-green-4);
+    border-color: colors.tint(var(--er-green-4), 21%);
+    box-shadow: 0 0 .1rem colors.tint(var(--er-green-4), 21%);
+  }
+
   > * {
     margin: 0 0.125rem;
   }

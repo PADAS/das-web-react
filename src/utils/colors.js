@@ -1,5 +1,7 @@
 import tokens from '@allenai/design-system/earthranger/tokens.json';
 
+import { ER_LEGACY_COLORS } from './er-legacy-theme';
+
 const BLACK_CHANNELS = [0, 0, 0];
 const CSS_VARIABLE_REGEX = /^var\(--[a-z0-9-]+\)$/;
 const HEX_COLOR_REGEX = /^#[0-9a-f]{6}$/i;
@@ -15,10 +17,14 @@ const toTokenName = (specName) => specName.toLowerCase().replace(/[^a-z0-9]+/g, 
 
 // The light values of the tokens tokens.css declares, keyed by their names
 // without the --er- prefix, for Mapbox paint and drawn images.
-export const COLOR_TOKENS = Object.fromEntries(Object.keys(tokens.color).map((specName) => [
-  toTokenName(specName),
-  (tokens.color[specName].light ?? tokens.color[specName]).$value.hex,
-]));
+export const COLOR_TOKENS = {
+  ...Object.fromEntries(Object.keys(tokens.color).map((specName) => [
+    toTokenName(specName),
+    (tokens.color[specName].light ?? tokens.color[specName]).$value.hex,
+  ])),
+  // Mapbox and drawn images need hex, so the er-legacy overrides apply here too.
+  ...ER_LEGACY_COLORS,
+};
 
 // Token names, so the map draws them as hex and the styles as var().
 export const PRIORITY_COLOR_MAP = {

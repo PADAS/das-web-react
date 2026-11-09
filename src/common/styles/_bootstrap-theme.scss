@@ -41,7 +41,7 @@
   --bs-danger-bg-subtle: var(--er-ui-status-bg-error-bg);
   --bs-danger-border-subtle: #{colors.tint(var(--er-ui-status-error-destructive), 65%)};
   --bs-danger-text-emphasis: var(--er-ui-status-error-destructive);
-  --bs-dark: var(--er-teal-t100);
+  --bs-dark: var(--er-greyscale-3);
   --bs-emphasis-color: var(--er-ui-text-primary-text);
   --bs-focus-ring-color: #{colors.with-opacity(var(--er-ui-cta-primary), 25%)};
   --bs-form-invalid-border-color: var(--er-ui-status-error-destructive);
@@ -130,7 +130,7 @@ a {
 }
 
 .btn-dark {
-  @include button-variant(var(--er-teal-t100), var(--er-ui-text-primary-text-reversed));
+  @include button-variant(var(--er-greyscale-3), var(--er-ui-text-primary-text-reversed));
 }
 
 .btn-outline-primary {
@@ -203,7 +203,7 @@ a {
 }
 
 .tooltip {
-  --bs-tooltip-bg: var(--er-teal-t100);
+  --bs-tooltip-bg: var(--er-greyscale-3);
   --bs-tooltip-color: var(--er-ui-text-primary-text-reversed);
 }
 

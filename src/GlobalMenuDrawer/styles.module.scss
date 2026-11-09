@@ -2,7 +2,7 @@
 @use '../common/styles/layout';
 
 .globalMenuDrawer {
-  background-color: var(--er-teal-t100);
+  background-color: var(--er-greyscale-3);
   color: var(--er-ui-text-primary-text-reversed);
   display: flex;
   flex-direction: column;
@@ -45,7 +45,7 @@
       width: buttons.$chip-height;
 
       &:focus-visible {
-        outline: 2px solid var(--er-green-7);
+        outline: 2px solid var(--er-blue-7);
       }
 
       &:hover {
@@ -93,7 +93,7 @@
         width: fit-content;
 
         &:focus-visible {
-          outline: 2px solid var(--er-green-7);
+          outline: 2px solid var(--er-blue-7);
         }
 
         &:hover {
@@ -137,14 +137,16 @@
 
         a {
           border-radius: 0.125rem;
-          color: var(--er-green-7);
+          color: var(--er-blue-7);
           filter: brightness(1.25);
           font-size: 0.75rem;
           padding: 0;
           text-decoration: underline;
 
+          // Lighter on hover, since these sit on the dark drawer. Legacy went
+          // the other way, to the darker blue, which reads at only 2.7:1 here.
           &:hover {
-            color: var(--er-green-7);
+            color: var(--er-blue-3);
           }
         }
       }

@@ -53,20 +53,20 @@ $footer-button-min-width: 4.375rem;
   }
 
   &.pinned {
-    background-color: var(--er-teal-t100);
-    border-color: var(--er-teal-t100);
+    background-color: var(--er-green-9);
+    border-color: var(--er-green-9);
     color: var(--er-ui-text-primary-text-reversed);
 
     &:hover {
-      background-color: colors.shade(var(--er-teal-t100), colors.$hover-shade);
-      border-color: colors.shade(var(--er-teal-t100), colors.$hover-shade);
+      background-color: colors.shade(var(--er-green-9), colors.$hover-shade);
+      border-color: colors.shade(var(--er-green-9), colors.$hover-shade);
     }
 
     &:focus-visible {
       background-color: var(--er-ui-background-primary-background);
-      border-color: var(--er-teal-t100);
-      color: var(--er-teal-t100);
-      outline: 1px solid var(--er-teal-t100);
+      border-color: var(--er-green-9);
+      color: var(--er-green-9);
+      outline: 1px solid var(--er-green-9);
     }
   }
 }
@@ -200,7 +200,7 @@ $footer-button-min-width: 4.375rem;
   }
 
   .provenancePill {
-    background: var(--er-teal-t100);
+    background: var(--er-greyscale-3);
   }
 
   .statePill {

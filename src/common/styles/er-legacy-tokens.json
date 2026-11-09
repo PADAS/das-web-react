@@ -1,0 +1,37 @@
+{
+  "$name": "er-legacy",
+  "$description": "The EarthRanger legacy palette, as drawn in the Ecoscope Figma file (node 9810-2108). Values only: every token name is the one @allenai/design-system already publishes, so nothing in the app changes but the color. Edit a hex here and the whole app follows, CSS and map alike.",
+  "$source": "https://www.figma.com/design/0W4QLZWryZdOqgYHpwrr9H/Ecoscope?node-id=9810-2108",
+  "color": {
+    "ui-cta-primary": { "hex": "#0056c7", "figma": "UI/CTA Primary Blue", "dark": "#3089ff", "darkFigma": "Blue/7", "note": "On dark surfaces use the dark value, as the design system does: its CTA pairs Green/12 (light) with Green/7 (dark), so the legacy blue pairs Blue/1 with Blue/7. GlobalMenuDrawer sits on #333333 and reads var(--er-blue-7) directly, since marking it [data-theme=dark] would also flip its reversed text tokens." },
+    "ui-cta-secondary-blue": { "hex": "#dde8f8", "figma": "UI/CTA Secondary Blue" },
+
+    "ui-text-primary-text": { "hex": "#000000", "figma": "UI/Text/Primary Text" },
+    "ui-text-secondary-text": { "hex": "#63666a", "figma": "UI/Text/Secondary Text" },
+    "ui-text-form-labels": { "hex": "#767676", "figma": "UI/Text/Form Labels" },
+    "ui-text-tabs": { "hex": "#767676", "figma": "UI/Text/Tabs" },
+
+    "ui-icons": { "hex": "#63666a", "figma": "Greyscale/5", "divergesFromFigma": "Figma sets UI/Icons to #767676 (Greyscale/6). Tiffany chose Greyscale/5 instead, so icons match the secondary text colour and read a little stronger." },
+    "ui-field-outline": { "hex": "#b1b3b3", "figma": "UI/Field Outline" },
+    "ui-divider-lines": { "hex": "#dddddd", "figma": "UI/Divider Lines" },
+
+    "ui-background-secondary-background": { "hex": "#f9f9f9", "figma": "UI/Background/Secondary Background" },
+
+    "ui-status-success": { "hex": "#00882e", "figma": "UI/Status/Success" },
+
+    "ui-data-categorical-category-1": { "hex": "#3e35a3", "figma": "UI/Data/Categorical/Category 1" },
+    "ui-data-categorical-category-2": { "hex": "#488a00", "figma": "UI/Data/Categorical/Category 2" },
+    "ui-data-categorical-category-3": { "hex": "#00958f", "figma": "UI/Data/Categorical/Category 3" },
+    "ui-data-categorical-category-7": { "hex": "#78d811", "figma": "UI/Data/Categorical/Category 7" },
+    "ui-data-categorical-category-8": { "hex": "#5c4fe7", "figma": "UI/Data/Categorical/Category 8" },
+
+    "brand-accent-green": { "hex": "#0fcb8c", "figma": "Brand/Accent Green" },
+    "brand-background-primary-background": { "hex": "#faf2e9", "figma": "Brand/Background/Primary Background" },
+    "brand-background-secondary-background": { "hex": "#ffffff", "figma": "Brand/Background/Secondary Background" },
+    "brand-text-primary-text": { "hex": "#ffffff", "figma": "Brand/Text/Primary Text" },
+
+    "ui-background-tertiary-background": { "hex": "#f3f3f3", "figma": "Greyscale/10", "proposed": "No legacy equivalent in the Figma frame. The old app derived this from a gray near #eaeaea; this is the nearest neutral in the palette." },
+    "ui-background-selected-background": { "hex": "#f4f7fd", "figma": "Blue/4", "proposed": "The old app used two blues here, #e8f0fb and #f4f7fd. Only the second is in the palette." },
+    "ui-text-secondary-text-reversed": { "hex": "#b1b3b3", "figma": "Greyscale/8", "proposed": "The old app used a light gray on dark surfaces; the shipped token is the cream #faf2e9." }
+  }
+}

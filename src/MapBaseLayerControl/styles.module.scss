@@ -8,8 +8,13 @@
 .button {
   @include buttons.mapbox-control-button;
 
+  // This icon mixes the two: a filled top layer over stroked groups below.
   svg path {
     fill: var(--er-ui-icons);
+  }
+
+  svg g {
+    stroke: var(--er-ui-icons);
   }
 }
 
