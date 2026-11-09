@@ -37,7 +37,7 @@ import calcEventTypeFields from './utils/calcEventTypeFields';
 import CollectionViewModal from './CollectionViewModal';
 import DelayedUnmount from '../../DelayedUnmount';
 import EventIcon from '../../EventIcon';
-import FeedTable, { formatDateValue, ICON_COLUMN, IconCell } from '..';
+import FeedTable, { formatDateValue, IconCell } from '..';
 import LinkEventModal from '../../LinkEventModal';
 import ObjectViewModal, { ObjectValueLink } from '../ObjectViewModal';
 
@@ -74,7 +74,12 @@ const ComplexDetailCell = ({ colDef, eventSchema, fieldName, value }) => {
   />;
 };
 
-const EventIconCell = ({ data }) => <IconCell><EventIcon report={data} /></IconCell>;
+// The type leads with the event's icon, as the feed rows do.
+const EventTypeCell = ({ data, value }) => <span className={styles.typeCell}>
+  <IconCell><EventIcon report={data} /></IconCell>
+
+  <span className={styles.typeName}>{value}</span>
+</span>;
 
 const PriorityCell = ({ value, valueFormatted }) => <span className={styles.priorityCell}>
   <span
@@ -167,14 +172,10 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
 
   const columnDefs = useMemo(() => [
     {
-      ...ICON_COLUMN,
-      cellRenderer: EventIconCell,
-      menuName: t('iconColumnTitle'),
-    },
-    {
       cellRenderer: PriorityCell,
       colId: 'priority',
       ...clientSortable('priority'),
+      defaultHidden: true,
       headerName: t('priorityColumnTitle'),
       minWidth: 110,
       valueFormatter: (params) => tPriorities((PRIORITY_COLOR_MAP[params.value] ?? PRIORITY_COLOR_MAP[0]).key),
@@ -198,16 +199,19 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       valueGetter: (params) => displayTitleForEvent(params.data, eventTypes) ?? '',
     },
     {
+      cellClass: styles.typeColumnCell,
+      cellRenderer: EventTypeCell,
       colId: 'event_type',
       ...clientSortable('event_type'),
       flex: 1,
       headerName: t('eventTypeColumnTitle'),
-      minWidth: 140,
+      minWidth: 180,
       valueGetter: (params) => eventTypeTitleForEvent(params.data, eventTypes) ?? '',
     },
     {
       colId: 'state',
       ...clientSortable('state'),
+      defaultHidden: true,
       headerName: t('stateColumnTitle'),
       minWidth: 100,
       valueGetter: (params) => {

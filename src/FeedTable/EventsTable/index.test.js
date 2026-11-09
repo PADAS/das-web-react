@@ -166,7 +166,6 @@ describe('EventsTable', () => {
     expect(columnById(DEFAULT_EVENT_SORT[1].value)).toMatchObject({ sort: 'desc', sortable: true });
     expect(columnById('event_time')).toMatchObject({ sort: null, sortable: true });
     expect(columnById('title')).toMatchObject({ sort: null, sortable: true });
-    expect(columnById('icon').sortable).toBeUndefined();
   });
 
   test('sorts a column the events API cannot order by in the table, keeping the feed sort', () => {
@@ -219,11 +218,19 @@ describe('EventsTable', () => {
     expect(lastGridProps().columnDefs).toBe(columnDefs);
   });
 
-  test('leads with an icon column named in the Columns menu but not in its header', () => {
+  test('shows the event icon in the type column, with no icon column of its own', () => {
     renderEventsTable();
 
-    expect(lastGridProps().columnDefs[0]).toEqual(expect.objectContaining({ colId: 'icon', headerName: '' }));
-    expect(columnById('icon')).not.toHaveProperty('menuName');
+    expect(columnById('icon')).toBeUndefined();
+    expect(columnById('event_type').cellRenderer).toEqual(expect.any(Function));
+  });
+
+  test('hides the state and priority columns until they are shown', () => {
+    renderEventsTable();
+
+    expect(columnById('state').hide).toBe(true);
+    expect(columnById('priority').hide).toBe(true);
+    expect(columnById('title').hide).toBe(false);
   });
 
   test('names priorities the way the rest of the app does', () => {
