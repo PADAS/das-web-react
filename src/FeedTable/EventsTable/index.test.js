@@ -225,6 +225,21 @@ describe('EventsTable', () => {
     expect(columnById('event_type').cellRenderer).toEqual(expect.any(Function));
   });
 
+  test('orders the columns ID, type, title, reporter, updated and event time first', () => {
+    renderEventsTable();
+
+    expect(lastGridProps().columnDefs.slice(0, 6).map((column) => column.colId))
+      .toEqual(['serial_number', 'event_type', 'title', 'reported_by', 'updated_at', 'event_time']);
+  });
+
+  test('ignores column choices saved before the default columns changed', () => {
+    window.localStorage.setItem('feedTable.hiddenColumns.events', JSON.stringify({ priority: false, state: false }));
+    renderEventsTable();
+
+    expect(columnById('state').hide).toBe(true);
+    expect(columnById('priority').hide).toBe(true);
+  });
+
   test('hides the state and priority columns until they are shown', () => {
     renderEventsTable();
 
@@ -430,7 +445,7 @@ describe('EventsTable', () => {
     await userEvent.click(screen.getByRole('menuitemcheckbox', { name: 'Title' }));
 
     expect(columnById('title').hide).toBe(true);
-    expect(JSON.parse(window.localStorage.getItem('feedTable.hiddenColumns.events'))).toEqual({ title: true });
+    expect(JSON.parse(window.localStorage.getItem('feedTable.v2.hiddenColumns.events'))).toEqual({ title: true });
   });
 
   test('resolves the selected events', async () => {

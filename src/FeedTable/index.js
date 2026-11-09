@@ -113,7 +113,10 @@ const gridTheme = themeQuartz.withParams({
 // Resizes the user made, as opposed to the grid fitting flex columns.
 const USER_RESIZE_SOURCES = ['autosizeColumns', 'uiColumnResized'];
 
-const storageKey = (setting, tableKey, scope) => `feedTable.${setting}.${tableKey}${scope ? `.${scope}` : ''}`;
+// The version resets saved column choices when the default columns change.
+const STORAGE_VERSION = 'v2';
+
+const storageKey = (setting, tableKey, scope) => `feedTable.${STORAGE_VERSION}.${setting}.${tableKey}${scope ? `.${scope}` : ''}`;
 
 const readStored = (key, isValid, fallback) => {
   try {

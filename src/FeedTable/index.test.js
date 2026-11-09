@@ -130,8 +130,8 @@ describe('FeedTable', () => {
     await dragCToFront();
     await userArranges(() => gridApi.setColumnWidths([{ key: 'b', newWidth: 321 }], true, 'uiColumnResized'));
 
-    expect(stored('feedTable.columnOrder.test')).toEqual(['c', 'a', 'b']);
-    expect(stored('feedTable.columnWidths.test')).toEqual({ b: 321 });
+    expect(stored('feedTable.v2.columnOrder.test')).toEqual(['c', 'a', 'b']);
+    expect(stored('feedTable.v2.columnWidths.test')).toEqual({ b: 321 });
 
     await remountFeedTable(unmount);
 
@@ -140,7 +140,7 @@ describe('FeedTable', () => {
   });
 
   test('ignores saved columns that are gone and puts unknown columns last', async () => {
-    window.localStorage.setItem('feedTable.columnOrder.test', JSON.stringify(['gone', 'c', 'a']));
+    window.localStorage.setItem('feedTable.v2.columnOrder.test', JSON.stringify(['gone', 'c', 'a']));
 
     await renderFeedTable();
 
@@ -148,8 +148,8 @@ describe('FeedTable', () => {
   });
 
   test('treats unreadable saved columns as none', async () => {
-    window.localStorage.setItem('feedTable.columnOrder.test', '{broken');
-    window.localStorage.setItem('feedTable.columnWidths.test', '[1]');
+    window.localStorage.setItem('feedTable.v2.columnOrder.test', '{broken');
+    window.localStorage.setItem('feedTable.v2.columnWidths.test', '[1]');
 
     await renderFeedTable();
 
@@ -162,8 +162,8 @@ describe('FeedTable', () => {
     await dragCToFront();
 
     expect(shownColumnOrder().slice(-5)).toEqual(['c', 'y', 'a', 'b', 'x']);
-    expect(stored('feedTable.columnOrder.test')).toEqual(['c', 'a', 'b']);
-    expect(stored('feedTable.columnOrder.test.type-1')).toEqual(['c', 'y', 'a', 'b', 'x']);
+    expect(stored('feedTable.v2.columnOrder.test')).toEqual(['c', 'a', 'b']);
+    expect(stored('feedTable.v2.columnOrder.test.type-1')).toEqual(['c', 'y', 'a', 'b', 'x']);
 
     const otherTypeColumns = [{ colId: 'z', field: 'z', headerName: 'Z', layoutScoped: true }];
     const { unmount: unmountOtherType } = await remountFeedTable(unmount, [...COLUMNS, ...otherTypeColumns], 'type-2');
@@ -333,7 +333,7 @@ describe('FeedTable', () => {
 
     await userEvent.keyboard('{Alt>}{ArrowLeft}{/Alt}');
 
-    expect(stored('feedTable.columnOrder.test')).toEqual(['a', 'c', 'b']);
+    expect(stored('feedTable.v2.columnOrder.test')).toEqual(['a', 'c', 'b']);
     await waitFor(() => expect(shownColumnOrder().slice(-3)).toEqual(['a', 'c', 'b']));
     expect(headerCell('c')).toHaveFocus();
   });
@@ -344,7 +344,7 @@ describe('FeedTable', () => {
 
     await userEvent.keyboard('{Alt>}{ArrowLeft}{/Alt}');
 
-    expect(stored('feedTable.columnOrder.test')).toBeNull();
+    expect(stored('feedTable.v2.columnOrder.test')).toBeNull();
   });
 
   test('describes how to move columns from the keyboard', async () => {
@@ -356,7 +356,7 @@ describe('FeedTable', () => {
   });
 
   test('lets the last shown column fill the width when every column has a fixed one', async () => {
-    window.localStorage.setItem('feedTable.columnWidths.test', JSON.stringify({ a: 100, b: 100, c: 100 }));
+    window.localStorage.setItem('feedTable.v2.columnWidths.test', JSON.stringify({ a: 100, b: 100, c: 100 }));
     await renderFeedTable();
 
     await waitFor(() => expect(gridApi.getColumn('c').getFlex()).toBe(1));
@@ -387,7 +387,7 @@ describe('FeedTable', () => {
 
     expect(screen.getByRole('menuitemcheckbox', { name: 'A' })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByRole('menuitemcheckbox', { name: 'B' })).toHaveAttribute('aria-checked', 'false');
-    expect(stored('feedTable.hiddenColumns.test')).toEqual({ b: true });
+    expect(stored('feedTable.v2.hiddenColumns.test')).toEqual({ b: true });
   });
 
   test('returns focus to the grid when the selection is cleared', async () => {

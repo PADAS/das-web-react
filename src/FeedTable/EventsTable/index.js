@@ -172,31 +172,12 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
 
   const columnDefs = useMemo(() => [
     {
-      cellRenderer: PriorityCell,
-      colId: 'priority',
-      ...clientSortable('priority'),
-      defaultHidden: true,
-      headerName: t('priorityColumnTitle'),
-      minWidth: 110,
-      valueFormatter: (params) => tPriorities((PRIORITY_COLOR_MAP[params.value] ?? PRIORITY_COLOR_MAP[0]).key),
-      valueGetter: (params) => calcDisplayPriorityForReport(params.data, eventTypes) || 0,
-      width: 120,
-    },
-    {
       colId: 'serial_number',
       field: 'serial_number',
       headerName: t('serialColumnTitle'),
       minWidth: 80,
       width: 100,
       ...serverSortable('serial_number'),
-    },
-    {
-      colId: 'title',
-      ...clientSortable('title'),
-      flex: 2,
-      headerName: t('titleColumnTitle'),
-      minWidth: 180,
-      valueGetter: (params) => displayTitleForEvent(params.data, eventTypes) ?? '',
     },
     {
       cellClass: styles.typeColumnCell,
@@ -209,16 +190,12 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       valueGetter: (params) => eventTypeTitleForEvent(params.data, eventTypes) ?? '',
     },
     {
-      colId: 'state',
-      ...clientSortable('state'),
-      defaultHidden: true,
-      headerName: t('stateColumnTitle'),
-      minWidth: 100,
-      valueGetter: (params) => {
-        const stateKey = STATE_KEY_BY_EVENT_STATE[params.data?.state];
-        return stateKey ? tStates(stateKey) : params.data?.state ?? '';
-      },
-      width: 110,
+      colId: 'title',
+      ...clientSortable('title'),
+      flex: 2,
+      headerName: t('titleColumnTitle'),
+      minWidth: 180,
+      valueGetter: (params) => displayTitleForEvent(params.data, eventTypes) ?? '',
     },
     {
       colId: 'reported_by',
@@ -229,6 +206,14 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     },
     {
       valueFormatter: formatDateValue,
+      colId: 'updated_at',
+      field: 'updated_at',
+      headerName: t('updatedAtColumnTitle'),
+      minWidth: 170,
+      ...serverSortable('updated_at'),
+    },
+    {
+      valueFormatter: formatDateValue,
       colId: 'event_time',
       headerName: t('eventTimeColumnTitle'),
       minWidth: 170,
@@ -236,12 +221,27 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       ...serverSortable('event_time'),
     },
     {
-      valueFormatter: formatDateValue,
-      colId: 'updated_at',
-      field: 'updated_at',
-      headerName: t('updatedAtColumnTitle'),
-      minWidth: 170,
-      ...serverSortable('updated_at'),
+      cellRenderer: PriorityCell,
+      colId: 'priority',
+      ...clientSortable('priority'),
+      defaultHidden: true,
+      headerName: t('priorityColumnTitle'),
+      minWidth: 110,
+      valueFormatter: (params) => tPriorities((PRIORITY_COLOR_MAP[params.value] ?? PRIORITY_COLOR_MAP[0]).key),
+      valueGetter: (params) => calcDisplayPriorityForReport(params.data, eventTypes) || 0,
+      width: 120,
+    },
+    {
+      colId: 'state',
+      ...clientSortable('state'),
+      defaultHidden: true,
+      headerName: t('stateColumnTitle'),
+      minWidth: 100,
+      valueGetter: (params) => {
+        const stateKey = STATE_KEY_BY_EVENT_STATE[params.data?.state];
+        return stateKey ? tStates(stateKey) : params.data?.state ?? '';
+      },
+      width: 110,
     },
     {
       valueFormatter: formatDateValue,
