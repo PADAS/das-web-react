@@ -309,7 +309,7 @@ describe('calcSidebarPaddingLeft', () => {
     expect(calcSidebarPaddingLeft({ pathname: '/patrols/some-patrol-id', isMediumLayoutOrLarger: true })).toBe(806);
   });
 
-  test('pads for the Otus panel width, plus the vertical nav rail, when the Otus tab is open', () => {
-    expect(calcSidebarPaddingLeft({ isMediumLayoutOrLarger: true, otusTabWidth: 900, pathname: '/atlas' })).toBe(970);
+  test('pads for the Atlas panel width, plus the vertical nav rail, when the Atlas tab is open', () => {
+    expect(calcSidebarPaddingLeft({ atlasTabWidth: 900, isMediumLayoutOrLarger: true, pathname: '/atlas' })).toBe(970);
   });
 });

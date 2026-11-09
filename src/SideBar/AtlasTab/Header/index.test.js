@@ -4,7 +4,7 @@ import { render, screen } from '../../../test-utils';
 
 import Header from './';
 
-describe('SideBar - OtusTab - Header', () => {
+describe('SideBar - AtlasTab - Header', () => {
   let onClose, onNewConversation, onToggleRecent;
   beforeEach(() => {
     onClose = jest.fn();

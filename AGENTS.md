@@ -322,21 +322,21 @@ Either way the client gets an access token, Auth0's used as is, kept in a cookie
 - `utils/geo-perms.js`: which users are geographically restricted.
 - `UserMenu/`, `ProfilePINModal/`: the user menu and the profile PIN prompt.
 
-### Otus
+### Atlas
 
-**Otus** is EarthRanger's field-intelligence agent: a chat where users ask operational questions about their site, such as which collars went quiet or how a patrol covered its area, and get answers drawn from the site's live data, sometimes with a map, chart, table or file. It is a separate web app with its own repository and deployment; the client only embeds it, as it does the alerts page.
+**Atlas** is EarthRanger's field-intelligence agent: a chat where users ask operational questions about their site, such as which collars went quiet or how a patrol covered its area, and get answers drawn from the site's live data, sometimes with a map, chart, table or file. It is a separate web app with its own repository and deployment; the client only embeds it, as it does the alerts page.
 
-**Connection.** Each cluster runs one Otus, and the server sends its URL in the system status's `otus_settings.url` only to superusers, and only where the `otus` preview feature is on; the client clears it on sign-out, and `REACT_APP_OTUS_URL` overrides it for local development. The client frames that URL in embedded mode and, once Otus says it is ready, hands it the site URL and the user's access token over `postMessage`, again whenever the token is renewed. Otus then reads the site as the signed-in user, never as an active profile, and never writes to it. Otus accepts being framed only by origins it allows, so an embed that stays blank is usually Otus's configuration, not this client's.
+**Connection.** Each cluster runs one Atlas, and the server sends its URL in the system status's `otus_settings.url` only to superusers, and only where the `otus` preview feature is on; the client clears it on sign-out, and `REACT_APP_OTUS_URL` overrides it for local development. The client frames that URL in embedded mode and, once Atlas says it is ready, hands it the site URL and the user's access token over `postMessage`, again whenever the token is renewed. Atlas then reads the site as the signed-in user, never as an active profile, and never writes to it. Atlas accepts being framed only by origins it allows, so an embed that stays blank is usually Atlas's configuration, not this client's.
 
-**Conversations** belong to Otus, per user and site, so they survive a reload. Since Otus starts a sandbox per user, the frame loads on the tab's first visit, then stays alive while the user switches tabs.
+**Conversations** belong to Atlas, per user and site, so they survive a reload. Since Atlas starts a sandbox per user, the frame loads on the tab's first visit, then stays alive while the user switches tabs.
 
 **UI**
-- **Otus tab** (`/atlas`): the client's own header, whose New conversation and Recent buttons it relays to the frame, and whose Recent button shows pressed while Otus reports its conversation list open, above the Otus frame. On medium layouts and up the panel resizes by drag or keyboard, its width survives a reload, and the map's padding follows it.
+- **Atlas tab** (`/atlas`): the client's own header, whose New conversation and Recent buttons it relays to the frame, and whose Recent button shows pressed while Atlas reports its conversation list open, above the Atlas frame. On medium layouts and up the panel resizes by drag or keyboard, its width survives a reload, and the map's padding follows it.
 
 **Key files**
-- `SideBar/OtusTab/`: the frame, the handshake, the resizing, and the header.
-- `ducks/system-config/`: the Otus URL.
-- `selectors/otus/`, `utils/otus.js`: the panel width and its bounds.
+- `SideBar/AtlasTab/`: the frame, the handshake, the resizing, and the header.
+- `ducks/system-config/`: the Atlas URL.
+- `selectors/atlas/`, `utils/atlas.js`: the panel width and its bounds.
 
 ### App Chrome
 
@@ -354,7 +354,7 @@ The map fills the screen, framed by a top bar, a sidebar and a global menu. On s
 | **Patrols** | `PATROL_MANAGEMENT` flag + patrol read permission |
 | **Gear** | the site has gear |
 | **Map Layers** | `ANALYZERS`, `SPATIAL_FEATURES`, `SUBJECTS` or `EVENTS` flag |
-| **Otus** | an Otus URL; see Otus |
+| **Atlas** | an Atlas URL; see Atlas |
 | **Settings** | always |
 
 **Map Layers** has Subjects, Features, Analyzers and Events sub-tabs, each behind its own flag; the first three share one search. Events shows or hides events on the map and toggles their heatmap. What a user hides survives a reload only if they chose to restore map layers in Settings → General.
@@ -409,7 +409,7 @@ All application source is `.js`, including JSX — Vite compiles every source `.
 
 ### Routing
 
-The app is mounted under `REACT_APP_ROUTE_PREFIX`. `constants/routes.js` holds the top-level routes: login, EULA and community sit above the shell, and everything else falls through to the authenticated app. Inside it, `SideBar/` routes each tab by its `TAB_KEYS` segment (`events`, `patrols`, `gear`, `layers`, `atlas` for the Otus tab, `settings`), and the Events and Patrols managers nest their own routes. Elsewhere, read the tab and item from the URL with `getCurrentTabFromURL` / `getCurrentIdFromURL` in `utils/navigation.js`.
+The app is mounted under `REACT_APP_ROUTE_PREFIX`. `constants/routes.js` holds the top-level routes: login, EULA and community sit above the shell, and everything else falls through to the authenticated app. Inside it, `SideBar/` routes each tab by its `TAB_KEYS` segment (`events`, `patrols`, `gear`, `layers`, `atlas` for the Atlas tab, `settings`), and the Events and Patrols managers nest their own routes. Elsewhere, read the tab and item from the URL with `getCurrentTabFromURL` / `getCurrentIdFromURL` in `utils/navigation.js`.
 
 Navigate with the app's `hooks/useNavigate`, not React Router's, so a form with unsaved changes can prompt before the user leaves.
 

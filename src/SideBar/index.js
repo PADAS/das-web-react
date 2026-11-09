@@ -4,13 +4,13 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-left.svg';
+import { ReactComponent as AtlasIcon } from '../common/images/icons/atlas.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
 import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
-import { ReactComponent as OtusIcon } from '../common/images/icons/otus.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 
 import { detailViewPattern, getCurrentIdFromURL, getCurrentTabFromURL, tabPath } from '../utils/navigation';
@@ -28,10 +28,10 @@ import Link from '../Link';
 import PatrolDetailView from '../PatrolDetailView';
 import SoundNotificationsPlayer from '../SoundNotificationsPlayer';
 
+import AtlasTab from './AtlasTab';
 import EventsManager from './EventsManager';
 import GearTab from './GearTab';
 import MapLayersTab from './MapLayersTab';
-import OtusTab from './OtusTab';
 import PatrolsFeed from './PatrolsFeed';
 import PatrolsManager from './PatrolsManager';
 import SettingsPane from './SettingsPane';
@@ -55,6 +55,7 @@ const SideBar = () => {
   const eventsFeed = useReportsFeed();
 
   const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
+  const atlasUrl = useSelector((state) => state.view.systemConfig.atlasUrl);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
   const {
     gearEndpointUnavailable,
@@ -62,7 +63,6 @@ const SideBar = () => {
     initialLoadInProgress,
     loading: gearLoading,
   } = useSelector((state) => state.data.gear);
-  const otusUrl = useSelector((state) => state.view.systemConfig.otusUrl);
   const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const sideBar = useSelector((state) => state.view.sideBar);
   const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
@@ -85,27 +85,27 @@ const SideBar = () => {
     && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), location.pathname);
 
   const showGearTab = hasGear;
-  const showOtusTab = !!otusUrl;
+  const showAtlasTab = !!atlasUrl;
 
-  const isOtusTabActive = showOtusTab && currentTab === TAB_KEYS.OTUS;
+  const isAtlasTabActive = showAtlasTab && currentTab === TAB_KEYS.ATLAS;
 
   const gearStillResolving = !gearEndpointUnavailable
     && (initialLoadInProgress || (gearLoading && !hasGear));
 
   const enabledTabKeys = useMemo(() => ({
     ...TAB_KEYS,
+    ATLAS: showAtlasTab ? TAB_KEYS.ATLAS : undefined,
     EVENTS: eventsEnabled ? TAB_KEYS.EVENTS : undefined,
     GEAR: showGearTab ? TAB_KEYS.GEAR : undefined,
     LAYERS: showLayersTab ? TAB_KEYS.LAYERS : undefined,
-    OTUS: showOtusTab ? TAB_KEYS.OTUS : undefined,
     PATROLS: canReadPatrols ? TAB_KEYS.PATROLS : undefined,
-  }), [canReadPatrols, eventsEnabled, showGearTab, showLayersTab, showOtusTab]);
+  }), [canReadPatrols, eventsEnabled, showAtlasTab, showGearTab, showLayersTab]);
 
   // If there is a current tab and it is in the enabled tab keys, the side bar
   // is open.
   const isSideBarOpen = currentTab && Object.values(enabledTabKeys).includes(currentTab.toLowerCase());
 
-  const onClickActiveOtusLink = useCallback((event) => {
+  const onClickActiveAtlasLink = useCallback((event) => {
     if (event.button === 0 && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
       event.preventDefault();
 
@@ -126,7 +126,7 @@ const SideBar = () => {
     && canReadPatrols
     && !!matchPath(detailViewPattern(TAB_KEYS.PATROLS), displayedPathname))
     || (eventsEnabled && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), displayedPathname))
-    || (showOtusTab && displayedTab === TAB_KEYS.OTUS);
+    || (showAtlasTab && displayedTab === TAB_KEYS.ATLAS);
 
   const onClickBackFromDetailView = useCallback(() => {
     if (location.key === 'default' || location.state?.comesFromLogin || location.state?.comesFromLngLatRedirection) {
@@ -243,14 +243,14 @@ const SideBar = () => {
         <span>{t('layersLink')}</span>
       </Link>}
 
-      {showOtusTab && <Link
-        className={`${styles.navItem} ${currentTab === TAB_KEYS.OTUS ? styles.active : ''}`}
-        onClick={isOtusTabActive ? onClickActiveOtusLink : undefined}
-        to={tabPath(TAB_KEYS.OTUS)}
+      {showAtlasTab && <Link
+        className={`${styles.navItem} ${currentTab === TAB_KEYS.ATLAS ? styles.active : ''}`}
+        onClick={isAtlasTabActive ? onClickActiveAtlasLink : undefined}
+        to={tabPath(TAB_KEYS.ATLAS)}
       >
-        <OtusIcon />
+        <AtlasIcon />
 
-        <span>{t('otusLink')}</span>
+        <span>{t('atlasLink')}</span>
       </Link>}
 
       <Link
@@ -315,7 +315,7 @@ const SideBar = () => {
 
         <div className={`${styles.tabBody} ${hideDefaultHeader ? styles.noHeader : ''}`}>
           {/* Outside the routes so a tab switch keeps the frame mounted. */}
-          {showOtusTab && <OtusTab isActive={displayedTab === TAB_KEYS.OTUS} url={otusUrl} />}
+          {showAtlasTab && <AtlasTab isActive={displayedTab === TAB_KEYS.ATLAS} url={atlasUrl} />}
 
           <Routes location={tabLocation ?? location}>
             {/* Gets rid of warning */}
@@ -345,7 +345,7 @@ const SideBar = () => {
 
             {showLayersTab && <Route path={TAB_KEYS.LAYERS} element={<MapLayersTab />} />}
 
-            {showOtusTab && <Route path={TAB_KEYS.OTUS} element={null} />}
+            {showAtlasTab && <Route path={TAB_KEYS.ATLAS} element={null} />}
 
             <Route path={TAB_KEYS.SETTINGS} element={<SettingsPane />} />
           </Routes>

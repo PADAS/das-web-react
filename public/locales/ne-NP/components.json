@@ -220,6 +220,21 @@
     "addEventButtonTitle": "घटना सिर्जना गर्नुहोस्",
     "addPatrolButtonLabel": "गस्ती सिर्जना गर्नुहोस्",
     "addPatrolButtonTitle": "गस्ती सिर्जना गर्नुहोस्",
+    "atlasLink": "Atlas",
+    "atlasTab": {
+      "header": {
+        "betaBadgeLabel": "बिटा",
+        "closeButtonLabel": "Atlas बन्द गर्नुहोस्",
+        "newConversationButtonLabel": "नयाँ कुराकानी",
+        "recentButtonLabel": "हालका",
+        "title": "Atlas"
+      },
+      "iframeTitle": "Atlas सँग च्याट",
+      "loadErrorMessage": "यो साइटमा Atlas लोड हुन सकेन। फेरि प्रयास गर्नुहोस्, वा यस्तो भइरहेमा सहायताका लागि सम्पर्क गर्नुहोस्।",
+      "loadingMessage": "Atlas लोड हुँदैछ…",
+      "resizeHandleLabel": "Atlas प्यानलको आकार बदल्नुहोस्",
+      "retryButtonLabel": "फेरि प्रयास गर्नुहोस्"
+    },
     "backButtonLabel": "पछाडी फर्कनुहोस्",
     "backButtonTitle": "फर्कनुहोस्",
     "closeButtonLabel": "साइडबार बन्द गर्नुहोस्",
@@ -248,21 +263,6 @@
       "eventsTabTitle": "घटनाहरु",
       "featuresTabTitle": "विशेषताहरु",
       "subjectsTabTitle": "विषयहरु"
-    },
-    "otusLink": "Atlas",
-    "otusTab": {
-      "header": {
-        "betaBadgeLabel": "बिटा",
-        "closeButtonLabel": "Atlas बन्द गर्नुहोस्",
-        "newConversationButtonLabel": "नयाँ कुराकानी",
-        "recentButtonLabel": "हालका",
-        "title": "Atlas"
-      },
-      "iframeTitle": "Atlas सँग च्याट",
-      "loadErrorMessage": "यो साइटमा Atlas लोड हुन सकेन। फेरि प्रयास गर्नुहोस्, वा यस्तो भइरहेमा सहायताका लागि सम्पर्क गर्नुहोस्।",
-      "loadingMessage": "Atlas लोड हुँदैछ…",
-      "resizeHandleLabel": "Atlas प्यानलको आकार बदल्नुहोस्",
-      "retryButtonLabel": "फेरि प्रयास गर्नुहोस्"
     },
     "patrolsLink": "गस्ती",
     "settingsLink": "सेटिङ",

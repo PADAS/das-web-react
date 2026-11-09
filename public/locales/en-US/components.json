@@ -225,6 +225,21 @@
     "addEventButtonTitle": "Create Event",
     "addPatrolButtonLabel": "Create Patrol",
     "addPatrolButtonTitle": "Create Patrol",
+    "atlasLink": "Atlas",
+    "atlasTab": {
+      "header": {
+        "betaBadgeLabel": "Beta",
+        "closeButtonLabel": "Close Atlas",
+        "newConversationButtonLabel": "New conversation",
+        "recentButtonLabel": "Recent",
+        "title": "Atlas"
+      },
+      "iframeTitle": "Atlas chat",
+      "loadErrorMessage": "Atlas couldn't load on this site. Try again, or contact support if this keeps happening.",
+      "loadingMessage": "Loading Atlas…",
+      "resizeHandleLabel": "Resize Atlas panel",
+      "retryButtonLabel": "Try again"
+    },
     "backButtonLabel": "Go Back",
     "backButtonTitle": "Back",
     "closeButtonLabel": "Close sidebar",
@@ -253,21 +268,6 @@
       "eventsTabTitle": "Events",
       "featuresTabTitle": "Features",
       "subjectsTabTitle": "Subjects"
-    },
-    "otusLink": "Atlas",
-    "otusTab": {
-      "header": {
-        "betaBadgeLabel": "Beta",
-        "closeButtonLabel": "Close Atlas",
-        "newConversationButtonLabel": "New conversation",
-        "recentButtonLabel": "Recent",
-        "title": "Atlas"
-      },
-      "iframeTitle": "Atlas chat",
-      "loadErrorMessage": "Atlas couldn't load on this site. Try again, or contact support if this keeps happening.",
-      "loadingMessage": "Loading Atlas…",
-      "resizeHandleLabel": "Resize Atlas panel",
-      "retryButtonLabel": "Try again"
     },
     "patrolsLink": "Patrols",
     "settingsLink": "Settings",

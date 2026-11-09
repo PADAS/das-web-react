@@ -14,13 +14,13 @@ import { format, formatEventSymbolDate } from './datetime';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from './navigation';
 import { imgElFromSrc, calcUrlForImage, calcImgIdFromUrlForMapImages } from './img';
 
-export const calcSidebarPaddingLeft = ({ isMediumLayoutOrLarger, otusTabWidth, pathname }) => {
+export const calcSidebarPaddingLeft = ({ atlasTabWidth, isMediumLayoutOrLarger, pathname }) => {
   if (isMediumLayoutOrLarger) {
     const currentTab = getCurrentTabFromURL(pathname);
     const itemId = getCurrentIdFromURL(pathname);
 
-    if (currentTab === TAB_KEYS.OTUS) {
-      return otusTabWidth + VERTICAL_NAV_RAIL_WIDTH_PIXELS;
+    if (currentTab === TAB_KEYS.ATLAS) {
+      return atlasTabWidth + VERTICAL_NAV_RAIL_WIDTH_PIXELS;
     }
 
     if (currentTab || itemId) {

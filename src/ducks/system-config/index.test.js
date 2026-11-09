@@ -78,7 +78,7 @@ describe('Ducks - System config', () => {
         [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
         [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
         [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
-        otusUrl: null,
+        atlasUrl: null,
         previewFeatures: { [PREVIEW_FEATURES.EVENTS_VECTOR_TILES]: true },
         require_idp: false,
         site_slug: null,
@@ -134,21 +134,21 @@ describe('Ducks - System config', () => {
     }));
   });
 
-  test('setSystemConfigFromSystemStatus sets the Otus URL from the system status payload', async () => {
+  test('setSystemConfigFromSystemStatus sets the Atlas URL from the system status payload', async () => {
     const dispatch = jest.fn();
 
     setSystemConfigFromSystemStatus({
-      otus_settings: { url: 'https://otus.pamdas.org' },
+      otus_settings: { url: 'https://atlas.pamdas.org' },
       site_name: 'Site name',
     })(dispatch);
 
     expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
-      payload: expect.objectContaining({ otusUrl: 'https://otus.pamdas.org' }),
+      payload: expect.objectContaining({ atlasUrl: 'https://atlas.pamdas.org' }),
       type: SET_SYSTEM_CONFIG,
     }));
   });
 
-  test('setSystemConfigFromSystemStatus keeps an Otus URL served over http', async () => {
+  test('setSystemConfigFromSystemStatus keeps an Atlas URL served over http', async () => {
     const dispatch = jest.fn();
 
     setSystemConfigFromSystemStatus({
@@ -157,36 +157,36 @@ describe('Ducks - System config', () => {
     })(dispatch);
 
     expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
-      payload: expect.objectContaining({ otusUrl: 'http://localhost:8080' }),
+      payload: expect.objectContaining({ atlasUrl: 'http://localhost:8080' }),
       type: SET_SYSTEM_CONFIG,
     }));
   });
 
-  test('setSystemConfigFromSystemStatus ignores a relative Otus URL', async () => {
+  test('setSystemConfigFromSystemStatus ignores a relative Atlas URL', async () => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
     const dispatch = jest.fn();
 
-    setSystemConfigFromSystemStatus({ otus_settings: { url: '/otus' }, site_name: 'Site name' })(dispatch);
+    setSystemConfigFromSystemStatus({ otus_settings: { url: '/atlas' }, site_name: 'Site name' })(dispatch);
 
     expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
-      payload: expect.objectContaining({ otusUrl: null }),
+      payload: expect.objectContaining({ atlasUrl: null }),
       type: SET_SYSTEM_CONFIG,
     }));
   });
 
-  test('setSystemConfigFromSystemStatus ignores an Otus URL that carries no scheme', async () => {
+  test('setSystemConfigFromSystemStatus ignores an Atlas URL that carries no scheme', async () => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
     const dispatch = jest.fn();
 
-    setSystemConfigFromSystemStatus({ otus_settings: { url: 'otus.pamdas.org' }, site_name: 'Site name' })(dispatch);
+    setSystemConfigFromSystemStatus({ otus_settings: { url: 'atlas.pamdas.org' }, site_name: 'Site name' })(dispatch);
 
     expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
-      payload: expect.objectContaining({ otusUrl: null }),
+      payload: expect.objectContaining({ atlasUrl: null }),
       type: SET_SYSTEM_CONFIG,
     }));
   });
 
-  test('setSystemConfigFromSystemStatus ignores an Otus URL whose scheme is not http or https', async () => {
+  test('setSystemConfigFromSystemStatus ignores an Atlas URL whose scheme is not http or https', async () => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
     const dispatch = jest.fn();
 
@@ -196,44 +196,44 @@ describe('Ducks - System config', () => {
     })(dispatch);
 
     expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
-      payload: expect.objectContaining({ otusUrl: null }),
+      payload: expect.objectContaining({ atlasUrl: null }),
       type: SET_SYSTEM_CONFIG,
     }));
   });
 
-  test('setSystemConfigFromSystemStatus warns about the invalid Otus URL it ignores', async () => {
+  test('setSystemConfigFromSystemStatus warns about the invalid Atlas URL it ignores', async () => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-    setSystemConfigFromSystemStatus({ otus_settings: { url: 'otus.pamdas.org' }, site_name: 'Site name' })(jest.fn());
+    setSystemConfigFromSystemStatus({ otus_settings: { url: 'atlas.pamdas.org' }, site_name: 'Site name' })(jest.fn());
 
     expect(console.warn).toHaveBeenCalledTimes(1);
     expect(console.warn)
-      .toHaveBeenCalledWith('Ignoring an invalid Otus URL from the system status', 'otus.pamdas.org');
+      .toHaveBeenCalledWith('Ignoring an invalid Atlas URL from the system status', 'atlas.pamdas.org');
   });
 
-  test('setSystemConfigFromSystemStatus reports a null Otus URL on a server that does not send Otus settings', async () => {
+  test('setSystemConfigFromSystemStatus reports a null Atlas URL on a server that does not send Atlas settings', async () => {
     const dispatch = jest.fn();
 
     setSystemConfigFromSystemStatus({ site_name: 'Site name' })(dispatch);
 
     expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
-      payload: expect.objectContaining({ otusUrl: null }),
+      payload: expect.objectContaining({ atlasUrl: null }),
       type: SET_SYSTEM_CONFIG,
     }));
   });
 
-  test('setSystemConfigFromSystemStatus reports a null Otus URL when the Otus settings carry an empty URL', async () => {
+  test('setSystemConfigFromSystemStatus reports a null Atlas URL when the Atlas settings carry an empty URL', async () => {
     const dispatch = jest.fn();
 
     setSystemConfigFromSystemStatus({ otus_settings: { url: '' }, site_name: 'Site name' })(dispatch);
 
     expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
-      payload: expect.objectContaining({ otusUrl: null }),
+      payload: expect.objectContaining({ atlasUrl: null }),
       type: SET_SYSTEM_CONFIG,
     }));
   });
 
-  test('setSystemConfigFromSystemStatus does not warn about the empty Otus URL of a tenant without Otus', async () => {
+  test('setSystemConfigFromSystemStatus does not warn about the empty Atlas URL of a tenant without Atlas', async () => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
 
     setSystemConfigFromSystemStatus({ otus_settings: { url: '' }, site_name: 'Site name' })(jest.fn());
@@ -241,17 +241,17 @@ describe('Ducks - System config', () => {
     expect(console.warn).not.toHaveBeenCalled();
   });
 
-  test('setSystemConfigFromSystemStatus prefers the environment override over the Otus URL in the status payload', async () => {
+  test('setSystemConfigFromSystemStatus prefers the environment override over the Atlas URL in the status payload', async () => {
     jest.doMock('../../constants', () => ({
       ...jest.requireActual('../../constants'),
-      REACT_APP_OTUS_URL: 'https://otus.local.pamdas.org',
+      REACT_APP_OTUS_URL: 'https://atlas.local.pamdas.org',
     }));
     const dispatch = jest.fn();
 
     try {
       jest.isolateModules(() => {
         require('./').setSystemConfigFromSystemStatus({
-          otus_settings: { url: 'https://otus.pamdas.org' },
+          otus_settings: { url: 'https://atlas.pamdas.org' },
           site_name: 'Site name',
         })(dispatch);
       });
@@ -260,7 +260,7 @@ describe('Ducks - System config', () => {
     }
 
     expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
-      payload: expect.objectContaining({ otusUrl: 'https://otus.local.pamdas.org' }),
+      payload: expect.objectContaining({ atlasUrl: 'https://atlas.local.pamdas.org' }),
       type: SET_SYSTEM_CONFIG,
     }));
   });
@@ -347,8 +347,8 @@ describe('Ducks - System config', () => {
       expect(systemConfigReducer(undefined, {})).toEqual(INITIAL_STATE);
     });
 
-    test('clears the Otus URL when the user signs out', () => {
-      const state = { ...INITIAL_STATE, otusUrl: 'https://otus.pamdas.org', sitename: 'Site name' };
+    test('clears the Atlas URL when the user signs out', () => {
+      const state = { ...INITIAL_STATE, atlasUrl: 'https://atlas.pamdas.org', sitename: 'Site name' };
 
       expect(systemConfigReducer(state, { payload: {}, type: CLEAR_AUTH })).toEqual({
         ...INITIAL_STATE,
@@ -388,7 +388,7 @@ describe('Ducks - System config', () => {
         [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
         [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
         [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
-        otusUrl: null,
+        atlasUrl: null,
         previewFeatures: { [PREVIEW_FEATURES.EVENTS_VECTOR_TILES]: true },
         require_idp: null,
         showTrackDays: true,

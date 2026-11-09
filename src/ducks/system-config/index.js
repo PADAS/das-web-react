@@ -8,13 +8,13 @@ import { setDefaultDateRange as setDefaultPatrolDateRange } from '../patrol-filt
 import { setSitenameDimension } from '../../utils/analytics';
 
 // A malformed URL would throw from the component that builds the frame source.
-const parseOtusUrl = (value) => {
+const parseAtlasUrl = (value) => {
   if (value) {
     if (getIsValidWebUrl(value)) {
       return value;
     }
 
-    console.warn('Ignoring an invalid Otus URL from the system status', value);
+    console.warn('Ignoring an invalid Atlas URL from the system status', value);
   }
 
   return null;
@@ -46,7 +46,7 @@ export const setSystemConfigFromSystemStatus = (systemStatus) => (dispatch) => {
       [SYSTEM_CONFIG_FLAGS.TABLEAU]: systemStatus[SYSTEM_CONFIG_FLAGS.TABLEAU] ?? true,
       [SYSTEM_CONFIG_FLAGS.GEO_SPAN]: systemStatus[SYSTEM_CONFIG_FLAGS.GEO_SPAN] ?? null,
       // The env override wins here, unlike default_event_filter_from_days.
-      otusUrl: parseOtusUrl(REACT_APP_OTUS_URL || systemStatus.otus_settings?.url),
+      atlasUrl: parseAtlasUrl(REACT_APP_OTUS_URL || systemStatus.otus_settings?.url),
       previewFeatures: systemStatus.preview_features || {},
       require_idp: !!systemStatus.require_idp,
       site_slug: systemStatus.site_slug || null,
@@ -93,7 +93,7 @@ export const INITIAL_STATE = {
   [SYSTEM_CONFIG_FLAGS.SUBJECTS]: false,
   [SYSTEM_CONFIG_FLAGS.TABLEAU]: false,
   [SYSTEM_CONFIG_FLAGS.GEO_SPAN]: null,
-  otusUrl: parseOtusUrl(REACT_APP_OTUS_URL),
+  atlasUrl: parseAtlasUrl(REACT_APP_OTUS_URL),
   previewFeatures: {},
   require_idp: null,
   site_slug: null,
@@ -104,9 +104,9 @@ export const INITIAL_STATE = {
 
 const systemConfigReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
-  // Only superusers get the Otus URL, so it must not outlive the user.
+  // Only superusers get the Atlas URL, so it must not outlive the user.
   case CLEAR_AUTH:
-    return { ...state, otusUrl: INITIAL_STATE.otusUrl };
+    return { ...state, atlasUrl: INITIAL_STATE.atlasUrl };
 
   case SET_SYSTEM_CONFIG:
     return { ...state, ...action.payload };

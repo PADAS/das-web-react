@@ -220,6 +220,21 @@
     "addEventButtonTitle": "Ajouter un Événement",
     "addPatrolButtonLabel": "Ajouter une Patrouille",
     "addPatrolButtonTitle": "Ajouter une Patrouille",
+    "atlasLink": "Atlas",
+    "atlasTab": {
+      "header": {
+        "betaBadgeLabel": "Bêta",
+        "closeButtonLabel": "Fermer Atlas",
+        "newConversationButtonLabel": "Nouvelle conversation",
+        "recentButtonLabel": "Récentes",
+        "title": "Atlas"
+      },
+      "iframeTitle": "Discussion avec Atlas",
+      "loadErrorMessage": "Atlas n’a pas pu se charger sur ce site. Réessayez ou contactez l’équipe de Soutien si le problème persiste.",
+      "loadingMessage": "Chargement d’Atlas…",
+      "resizeHandleLabel": "Redimensionner le panneau Atlas",
+      "retryButtonLabel": "Réessayer"
+    },
     "backButtonLabel": "Revenir en arrière",
     "backButtonTitle": "Retour",
     "closeButtonLabel": "Fermer la barre latérale",
@@ -248,21 +263,6 @@
       "eventsTabTitle": "Événements",
       "featuresTabTitle": "Calques",
       "subjectsTabTitle": "Appareils Suivis"
-    },
-    "otusLink": "Atlas",
-    "otusTab": {
-      "header": {
-        "betaBadgeLabel": "Bêta",
-        "closeButtonLabel": "Fermer Atlas",
-        "newConversationButtonLabel": "Nouvelle conversation",
-        "recentButtonLabel": "Récentes",
-        "title": "Atlas"
-      },
-      "iframeTitle": "Discussion avec Atlas",
-      "loadErrorMessage": "Atlas n’a pas pu se charger sur ce site. Réessayez ou contactez l’équipe de Soutien si le problème persiste.",
-      "loadingMessage": "Chargement d’Atlas…",
-      "resizeHandleLabel": "Redimensionner le panneau Atlas",
-      "retryButtonLabel": "Réessayer"
     },
     "patrolsLink": "Patrouilles",
     "settingsLink": "Réglages",
