@@ -15,7 +15,7 @@
       width: 60%;
 
       @media (min-width: layout.$md-layout-width-min) {
-        width: 40%;
+        @include layout.feed-search-bar-width(0.75rem);
       }
     }
 
