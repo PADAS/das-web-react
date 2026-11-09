@@ -36,11 +36,15 @@ $dark-gold: #C6880C;
 
 /* design system tokens */
 
-$palette-green-6: #f5f7f3;
+$teal-t20: #cfdcdd;
+$teal-t40: #9fbabc;
+$teal-t100: #105257;
 $ui-background-secondary: #faf2e9;
 $ui-cta-primary: #0f865d;
+$ui-divider-lines: $teal-t20;
 $ui-text-primary: #0a3235;
 $ui-text-primary-reversed: $white;
+$ui-text-secondary: $teal-t100;
 
 /* semantic variables */
 

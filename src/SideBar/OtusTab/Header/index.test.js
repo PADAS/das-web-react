@@ -22,7 +22,7 @@ describe('SideBar - OtusTab - Header', () => {
   test('shows the title', () => {
     renderHeader();
 
-    expect(screen.getByRole('heading', { name: 'Otus' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Atlas' })).toBeVisible();
   });
 
   test('shows the beta badge', () => {
@@ -36,7 +36,7 @@ describe('SideBar - OtusTab - Header', () => {
 
     expect(screen.getByRole('button', { name: 'New conversation' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Recent' })).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Close Otus' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Close Atlas' })).toBeVisible();
   });
 
   test('starts a new conversation when the user clicks the new conversation button', async () => {
@@ -55,10 +55,22 @@ describe('SideBar - OtusTab - Header', () => {
     expect(onToggleRecent).toHaveBeenCalledTimes(1);
   });
 
+  test('shows the recent button as not pressed when the recent conversations are closed', () => {
+    renderHeader();
+
+    expect(screen.getByRole('button', { name: 'Recent' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  test('shows the recent button as pressed when the recent conversations are open', () => {
+    renderHeader({ isRecentOpen: true });
+
+    expect(screen.getByRole('button', { name: 'Recent' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
   test('closes the tab when the user clicks the close button', async () => {
     renderHeader();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Close Otus' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Close Atlas' }));
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
