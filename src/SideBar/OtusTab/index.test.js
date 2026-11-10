@@ -51,11 +51,11 @@ describe('SideBar - OtusTab', () => {
     return render(otusTabTree(props));
   };
 
-  const getFrame = () => screen.getByTitle('Otus chat');
+  const getFrame = () => screen.getByTitle('Atlas chat');
 
-  const getPanel = () => screen.getByRole('region', { name: 'Otus' });
+  const getPanel = () => screen.getByRole('region', { name: 'Atlas' });
 
-  const getResizeHandle = () => screen.getByRole('separator', { name: 'Resize Otus panel' });
+  const getResizeHandle = () => screen.getByRole('separator', { name: 'Resize Atlas panel' });
 
   const mockFramePostMessage = () => {
     const postMessage = jest.fn();
@@ -71,7 +71,14 @@ describe('SideBar - OtusTab', () => {
     ...overrides,
   })));
 
-  const LOAD_ERROR_MESSAGE = 'Otus couldn\'t load on this site. Try again, or contact support if this keeps happening.';
+  const dispatchThreadsMessage = (data, overrides = {}) => act(() => window.dispatchEvent(new MessageEvent('message', {
+    data: { type: 'otus:threads', ...data },
+    origin: OTUS_URL,
+    source: getFrame().contentWindow,
+    ...overrides,
+  })));
+
+  const LOAD_ERROR_MESSAGE = 'Atlas couldn\'t load on this site. Try again, or contact support if this keeps happening.';
 
   const movePointerTo = (clientX) => user.pointer({ coords: { clientX }, target: getResizeHandle() });
 
@@ -103,7 +110,7 @@ describe('SideBar - OtusTab', () => {
   test('does not load the frame until the tab is first activated', () => {
     renderOtusTab({ isActive: false });
 
-    expect(screen.queryByTitle('Otus chat')).toBeNull();
+    expect(screen.queryByTitle('Atlas chat')).toBeNull();
   });
 
   test('loads the frame when the tab becomes active', () => {
@@ -140,7 +147,7 @@ describe('SideBar - OtusTab', () => {
   test('shows a loading message until the frame has loaded', () => {
     renderOtusTab();
 
-    expect(screen.getByRole('status')).toHaveTextContent('Loading Otus…');
+    expect(screen.getByRole('status')).toHaveTextContent('Loading Atlas…');
 
     fireEvent.load(getFrame());
 
@@ -159,14 +166,14 @@ describe('SideBar - OtusTab', () => {
   test('shows the header before the frame has been loaded', () => {
     renderOtusTab({ isActive: false });
 
-    expect(screen.getByRole('heading', { name: 'Otus' })).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Close Otus' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Atlas' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Close Atlas' })).toBeVisible();
   });
 
   test('closes the sidebar when the header close button is clicked', async () => {
     renderOtusTab();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Close Otus' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Close Atlas' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith('/');
@@ -190,6 +197,39 @@ describe('SideBar - OtusTab', () => {
 
     expect(postMessage).toHaveBeenCalledTimes(1);
     expect(postMessage).toHaveBeenCalledWith({ command: 'toggle-threads', type: 'otus:command' }, OTUS_URL);
+  });
+
+  test('shows the recent button as pressed once the frame reports the recent conversations are open', () => {
+    renderOtusTab();
+
+    dispatchThreadsMessage({ open: true });
+
+    expect(screen.getByRole('button', { name: 'Recent' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  test('shows the recent button as not pressed once the frame reports the recent conversations are closed', () => {
+    renderOtusTab();
+    dispatchThreadsMessage({ open: true });
+
+    dispatchThreadsMessage({ open: false });
+
+    expect(screen.getByRole('button', { name: 'Recent' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  test('ignores a recent conversations message that does not come from the frame origin', () => {
+    renderOtusTab();
+
+    dispatchThreadsMessage({ open: true }, { origin: 'https://evil.example.com' });
+
+    expect(screen.getByRole('button', { name: 'Recent' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  test('ignores a recent conversations message that does not come from the frame window', () => {
+    renderOtusTab();
+
+    dispatchThreadsMessage({ open: true }, { source: window });
+
+    expect(screen.getByRole('button', { name: 'Recent' })).toHaveAttribute('aria-pressed', 'false');
   });
 
   test('posts the site and token to the frame when it announces it is ready', () => {
@@ -407,7 +447,18 @@ describe('SideBar - OtusTab', () => {
 
       expect(screen.queryByRole('alert')).toBeNull();
       expect(getFrame()).toHaveAttribute('src', 'https://otus.example.com/?embed=1&titlebar=0');
-      expect(screen.getByRole('status')).toHaveTextContent('Loading Otus…');
+      expect(screen.getByRole('status')).toHaveTextContent('Loading Atlas…');
+    });
+
+    test('shows the recent button as not pressed once the user reloads the frame', async () => {
+      renderOtusTab();
+      fireEvent.load(getFrame());
+      dispatchThreadsMessage({ open: true });
+      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+
+      await user.click(screen.getByRole('button', { name: 'Try again' }));
+
+      expect(screen.getByRole('button', { name: 'Recent' })).toHaveAttribute('aria-pressed', 'false');
     });
 
     test('moves focus to the frame wrapper when the user clicks try again', async () => {

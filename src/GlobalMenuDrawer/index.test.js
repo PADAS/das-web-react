@@ -155,14 +155,14 @@ describe('GlobalMenuDrawer', () => {
     store.view.systemConfig.otusUrl = 'https://otus.example.com';
     renderGlobalMenuDrawer();
 
-    expect(within(screen.getByRole('navigation')).getByRole('link', { name: 'Otus' })).toBeVisible();
+    expect(within(screen.getByRole('navigation')).getByRole('link', { name: 'Atlas' })).toBeVisible();
   });
 
   test('does not show the Otus link in small screens when there is no Otus URL', async () => {
     useMatchMedia.mockImplementation(() => false);
     renderGlobalMenuDrawer();
 
-    expect(screen.queryByRole('link', { name: 'Otus' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Atlas' })).not.toBeInTheDocument();
   });
 
   test('does not show the Events link if events are not enabled', async () => {
