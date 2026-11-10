@@ -17,6 +17,7 @@
     "alertsModal": {
       "title": "सुचना"
     },
+    "closeButtonLabel": "मुख्य मेनु बन्द गर्नुहोस्",
     "communityButton": "समाज",
     "contactSupport": {
       "body": "तपाईंलाई हामीले कसरी सहयोग गर्न सक्छौं ?",
@@ -26,16 +27,16 @@
     "dailyReportModal": {
       "title": "दैनिक रिपोर्ट"
     },
+    "ecoscopeAnalysisLink": "विश्लेषण",
+    "ecoscopeAnalysisLinkAriaLabel": "Ecoscope सँग विश्लेषण",
+    "ecoscopeDownloaderMigrationGuideLink": "डाउनलोड",
+    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Ecoscope डाउनलोडर",
+    "ecoscopeHeading": "Ecoscope",
     "exportsHeader": "निर्यात",
     "fieldReportsModal": {
       "content": "घटना ट्याबमा हाल सेट गरिएका फिल्टर मापदण्डसँग मेल खाने घटनाहरु मात्रै निर्यात घटनामा समावेश हुनेछन् ।",
       "title": "फिल्ड रिपोर्ट"
     },
-    "ecoscopeAnalysisLinkAriaLabel": "Ecoscope सँग विश्लेषण",
-    "ecoscopeAnalysisLink": "विश्लेषण",
-    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Ecoscope डाउनलोडर",
-    "ecoscopeDownloaderMigrationGuideLink": "डाउनलोड",
-    "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "वेब ग्राहक संस्करण: {{version}}",
       "copyright": "©{{year}} अर्थरेन्जर",
@@ -64,9 +65,7 @@
       "title": "टिप्पणी"
     },
     "tableauButton": "झांकी",
-    "usersGuideButton": "प्रयोगकर्ताका लागि गाईड",
-    "closeButtonLabel": "मुख्य मेनु बन्द गर्नुहोस्",
-    "closeButtonTitle": "बन्द गर्नुहोस्"
+    "usersGuideButton": "प्रयोगकर्ताका लागि गाईड"
   },
   "kmlExportModal": {
     "dataExportModalTitle": "विषय KML फाइल निर्यात गर्नुहोस्",

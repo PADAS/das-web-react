@@ -1,77 +1,54 @@
-@use 'sass:color';
+@use '../../common/styles/buttons';
 @use '../../common/styles/layout';
-@use '../../common/styles/vars/colors';
 
-header {
+.navHomeMenu {
+  display: flex;
+  min-width: 0;
+
   .toggle {
-    img {
-      height: 2rem;
-      margin-right: 1rem;
+    @include buttons.top-bar-button;
 
-      +h6 {
-        display: none;
+    max-width: 100%;
 
-        @media (min-width: layout.$md-layout-width-min) {
-          display: initial;
-        }
+    .icon {
+      flex-shrink: 0;
+      height: 1.75rem;
+    }
+
+    .title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .arrow {
+      flex-shrink: 0;
+      height: 0.3125rem;
+      width: 0.625rem;
+
+      path {
+        fill: currentcolor;
       }
     }
 
-    h6 {
-      margin: 0 0.25rem;
+    &[aria-expanded='true'] .arrow {
+      transform: rotate(180deg);
     }
 
-    &:hover,
-    &:hover::after {
-      color: color.adjust(white, $lightness: -7%);
+    &.hasIcon .title {
+      display: none;
     }
 
-    &::after {
-      display: inline-block;
-    }
-  }
-
-  .listItem, .currentLocationJump {
-    display: flex;
-    height: 3rem;
-    justify-content: space-between;
-    padding: 0.25rem 1rem;
-
-    img {
-      height: 2.5rem;
-      margin-right: 1rem;
-    }
-
-    h6 {
-      flex-grow: 1;
-      font-size: 0.9rem;
-      margin: 0;
-    }
-
-    &[class*="active"] {
-      background: colors.$light-gray !important;
-      color: unset !important;
-      font-weight: bold;
-
-      &::after {
-        content: "\2713";
-        display: block;
-        float: right;
+    @media (min-width: layout.$md-layout-width-min) {
+      &.hasIcon .title {
+        display: initial;
       }
     }
-
-    svg {
-      height: 1rem;
-      width: 1.25rem;
-    }
   }
+}
 
-  .menu {
-    margin: 0;
-    max-height: 75vh;
-    max-width: 96vw;
-    overflow-y: auto;
-    padding-bottom: 0;
-    padding-top: 0;
-  }
+.menu {
+  max-height: 75vh;
+  max-width: 96vw;
+  overflow-y: auto;
 }

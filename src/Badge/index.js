@@ -1,37 +1,26 @@
 import { memo } from 'react';
+
 import { STATUSES } from '../constants';
+
 import * as styles from './styles.module.scss';
 
-const { HEALTHY_STATUS, WARNING_STATUS, UNHEALTHY_STATUS } = STATUSES;
+export const MAX_DISPLAYED_COUNT = 9;
 
-const calcBadgeColorFromStatus = status => {
-  if (!status) return 'red';
-
-  switch (status) {
-  case (UNHEALTHY_STATUS): {
-    return 'red';
-  }
-  case WARNING_STATUS: {
-    return 'orange';
-  }
-  case HEALTHY_STATUS: {
-    return 'green';
-  }
-  default: {
-    return 'gray';
-  }
-  }
+const COLOR_BY_STATUS = {
+  [STATUSES.HEALTHY_STATUS]: 'green',
+  [STATUSES.UNHEALTHY_STATUS]: 'red',
+  [STATUSES.WARNING_STATUS]: 'orange',
 };
 
-const BadgeIcon = (props) => {
-  const { count, status, className, ...rest } = props;
-  return <span
-    className={`${styles[calcBadgeColorFromStatus(status)]} ${styles.badge} ${className}`}
-    data-testid="badgeIcon"
-    {...rest}
-    >
-    {count && <span>{count}</span>}
-  </span>;
-};
+// A badge with no status flags something new, so it takes the alert color.
+const getBadgeColor = (status) => status ? COLOR_BY_STATUS[status] ?? 'gray' : 'red';
 
-export default memo(BadgeIcon);
+const Badge = ({ className = '', count, status, ...otherProps }) => <span
+  className={`${styles.badge} ${styles[getBadgeColor(status)]} ${className}`}
+  data-testid="badgeIcon"
+  {...otherProps}
+>
+  {!!count && <span>{count > MAX_DISPLAYED_COUNT ? `${MAX_DISPLAYED_COUNT}+` : count}</span>}
+</span>;
+
+export default memo(Badge);

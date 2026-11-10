@@ -90,7 +90,7 @@ describe('GlobalMenuDrawer', () => {
 
     expect(hideDrawer).toHaveBeenCalledTimes(0);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Close Main Menu' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Close main menu' }));
 
     expect(hideDrawer).toHaveBeenCalledTimes(1);
   });
@@ -325,7 +325,7 @@ describe('GlobalMenuDrawer', () => {
   test('when the global menu drawer is open the close button gets focused and there is a focus trap', async () => {
     const { rerender } = renderGlobalMenuDrawer();
 
-    const closeButton = screen.getByRole('button', { name: 'Close Main Menu' });
+    const closeButton = screen.getByRole('button', { name: 'Close main menu' });
 
     expect(closeButton).not.toBe(document.activeElement);
 
@@ -360,5 +360,48 @@ describe('GlobalMenuDrawer', () => {
     await userEvent.keyboard('[Tab]');
 
     expect(closeButton).toBe(document.activeElement);
+  });
+
+  test('names the close button after the menu it closes, in its title too', () => {
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('button', { name: 'Close main menu' })).toHaveAttribute('title', 'Close main menu');
+  });
+
+  test('returns focus to the element that opened it when it closes', () => {
+    const renderWithOpener = () => <Provider store={mockStore(store)}>
+      <button type="button">Opener</button>
+
+      <GlobalMenuDrawer />
+    </Provider>;
+
+    const { rerender } = render(renderWithOpener());
+
+    screen.getByRole('button', { name: 'Opener' }).focus();
+
+    store.view.drawer = { drawerId: 'global-menu', isOpen: true };
+    rerender(renderWithOpener());
+
+    expect(screen.getByRole('button', { name: 'Close main menu' })).toHaveFocus();
+
+    store.view.drawer = { drawerId: 'global-menu', isOpen: false };
+    rerender(renderWithOpener());
+
+    expect(screen.getByRole('button', { name: 'Opener' })).toHaveFocus();
+  });
+
+  test('does not leave empty list items for the options it does not offer', () => {
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.ALERTS] = false;
+    store.view.systemConfig[SYSTEM_CONFIG_FLAGS.TABLEAU] = false;
+    renderGlobalMenuDrawer();
+
+    screen.getAllByRole('listitem').forEach((listItem) => expect(listItem).not.toBeEmptyDOMElement());
+  });
+
+  test('names the exports and Ecoscope headings in plain case for assistive technology', () => {
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('heading', { name: 'Exports' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Ecoscope' })).toBeInTheDocument();
   });
 });

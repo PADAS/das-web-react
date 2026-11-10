@@ -44,7 +44,7 @@ const DataExportModal = lazy(() => import('../DataExportModal'));
 const KMLExportModal = lazy(() => import('../KMLExportModal'));
 
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
-const tableuAnalysisTracker = trackEventFactory(TABLEAU_ANALYSIS_CATEGORY);
+const tableauAnalysisTracker = trackEventFactory(TABLEAU_ANALYSIS_CATEGORY);
 
 export const COMMUNITY_SITE_URL = 'https://Community.EarthRanger.com';
 export const CONTACT_SUPPORT_EMAIL_ADDRESS = 'support@pamdas.org';
@@ -60,32 +60,31 @@ const GlobalMenuDrawer = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation('menu-drawer', { keyPrefix: 'globalMenuDrawer' });
 
+  const { hasObservationsExportPermission } = useObservationsPermissions();
+  const { hasPatrolsReadPermission } = usePatrolsPermissions();
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
+  const accessToken = useSelector((state) => state.data.token.access_token);
   const alertsEnabled = useSelector(getAlertsEnabled);
   const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
   const dailyReportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.DAILY_REPORT]);
-  const drawer = useSelector((state) => state.view.drawer);
-  const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
   const eventFilter = useSelector((state) => state.data.eventFilter);
+  const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
   const eventTypes = useSelector((state) => state.data.eventTypes);
   const hasGear = useSelector((state) => state.data.gear.hasGear);
+  const isDrawerOpen = useSelector((state) => state.view.drawer.isOpen);
   const kmlExportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT]);
   const otusUrl = useSelector((state) => state.view.systemConfig.otusUrl);
   const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
-  const serverData = useSelector((state) => state.data.systemStatus.server);
+  const serverVersion = useSelector((state) => state.data.systemStatus.server.version);
   const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
   const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
   const tableauEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.TABLEAU]);
-  const token = useSelector((state) => state.data.token);
   const user = useSelector((state) => state.data.user);
 
-  const { hasObservationsExportPermission } = useObservationsPermissions();
-  const { hasPatrolsReadPermission } = usePatrolsPermissions();
-
-  const closeButtonRef = useRef();
-  const dataPrivacyPolicyLinkRef = useRef();
+  const closeButtonRef = useRef(null);
+  const dataPrivacyPolicyLinkRef = useRef(null);
 
   const canReadPatrols = patrolManagementEnabled && hasPatrolsReadPermission;
 
@@ -94,8 +93,6 @@ const GlobalMenuDrawer = () => {
     return jiraWidgetIframe?.contentDocument?.querySelector(JIRA_IFRAME_HELP_BUTTON_SELECTOR);
   }, []);
 
-  // Calculate the export modals buttons that should be rendered based on if
-  // they are enabled or not.
   const exportModals = useMemo(() => {
     const exportModals = [];
 
@@ -153,23 +150,26 @@ const GlobalMenuDrawer = () => {
     t,
   ]);
 
-  const openTableauReport = () => {
-    tableuAnalysisTracker.track('Click Analysis (via Tableau) menu item');
+  const openTableauReport = async () => {
+    tableauAnalysisTracker.track('Click Analysis (via Tableau) menu item');
 
-    dispatch(fetchTableauDashboard())
-      .then(({ display_url }) => {
-        const newWindow = window.open(display_url, '_blank', 'noopener,noreferrer');
-        if (newWindow) newWindow.opener = null;
-      });
+    try {
+      const tableauDashboard = await dispatch(fetchTableauDashboard());
+
+      const newWindow = window.open(tableauDashboard.display_url, '_blank', 'noopener,noreferrer');
+      if (newWindow) {
+        newWindow.opener = null;
+      }
+    } catch (error) {
+      console.warn('error opening the Tableau dashboard', error);
+    }
   };
 
   const onContactSupportClick = () => {
     mainToolbarTracker.track('Click \'Contact Support\'');
 
-    // Forward the click to the JIRA help button.
     jiraIframeHelpButton.click();
 
-    // Prefill the site and user inputs if possible.
     const siteInput = selectSupportFormFieldByLabelText('ER Site');
     if (siteInput) {
       siteInput.value = window.location.hostname;
@@ -187,48 +187,45 @@ const GlobalMenuDrawer = () => {
   }, [dispatch]);
 
   const onOpenAlertsModalClick = useCallback(() => {
-    document.cookie = `token=${token.access_token};path=/`;
+    document.cookie = `token=${accessToken};path=/`;
 
     onModalClick({
       content: AlertsModal,
       modalProps: { className: 'alerts-modal' },
       title: t('alertsModal.title'),
     }, ALERTS_CATEGORY);
-  }, [onModalClick, t, token.access_token]);
+  }, [accessToken, onModalClick, t]);
 
-  // Calculate the navigation links to show based on the enabled features.
   const navigationItems = useMemo(() => [
     ...(eventsEnabled
-      ? [{ icon: <DocumentIcon />, sidebarTab: TAB_KEYS.EVENTS, title: t('navigationButton.reports') }]
+      ? [{ Icon: DocumentIcon, sidebarTab: TAB_KEYS.EVENTS, title: t('navigationButton.reports') }]
       : []),
     ...(canReadPatrols
-      ? [{ icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: t('navigationButton.patrols') }]
+      ? [{ Icon: PatrolIcon, sidebarTab: TAB_KEYS.PATROLS, title: t('navigationButton.patrols') }]
       : []),
     ...(hasGear
-      ? [{ icon: <MarkerFeedIcon />, sidebarTab: TAB_KEYS.GEAR, title: t('navigationButton.gear') }]
+      ? [{ Icon: MarkerFeedIcon, sidebarTab: TAB_KEYS.GEAR, title: t('navigationButton.gear') }]
       : []),
     ...(analyzersEnabled || spatialFeaturesEnabled || subjectsEnabled || eventsEnabled
-      ? [{ icon: <LayersIcon />, sidebarTab: TAB_KEYS.LAYERS, title: t('navigationButton.mapLayers') }]
+      ? [{ Icon: LayersIcon, sidebarTab: TAB_KEYS.LAYERS, title: t('navigationButton.mapLayers') }]
       : []),
-    ...(otusUrl ? [{ icon: <OtusIcon />, sidebarTab: TAB_KEYS.OTUS, title: t('navigationButton.otus') }] : []),
-    { icon: <GearIcon />, sidebarTab: TAB_KEYS.SETTINGS, title: t('navigationButton.settings') },
+    ...(otusUrl ? [{ Icon: OtusIcon, sidebarTab: TAB_KEYS.OTUS, title: t('navigationButton.otus') }] : []),
+    { Icon: GearIcon, sidebarTab: TAB_KEYS.SETTINGS, title: t('navigationButton.settings') },
   ], [analyzersEnabled, canReadPatrols, eventsEnabled, hasGear, otusUrl, spatialFeaturesEnabled, subjectsEnabled, t]);
 
   useEffect(() => {
-    if (drawer.drawerId === 'global-menu' && drawer.isOpen) {
-      // Focus the close button when the global menu drawer gets opened.
+    if (isDrawerOpen) {
+      const openerElement = document.activeElement;
+
       closeButtonRef.current.focus();
 
-      // And create a focus trap so only internal elements are focused when
-      // pressing tab.
+      // Tab wraps between the first and the last control, keeping focus inside.
       const onKeyDown = (event) => {
         if (event.key === 'Tab') {
           if (event.shiftKey && document.activeElement === closeButtonRef.current) {
-            if (document.activeElement === closeButtonRef.current) {
-              event.preventDefault();
+            event.preventDefault();
 
-              dataPrivacyPolicyLinkRef.current.focus();
-            }
+            dataPrivacyPolicyLinkRef.current.focus();
           } else if (!event.shiftKey && document.activeElement === dataPrivacyPolicyLinkRef.current) {
             event.preventDefault();
 
@@ -239,9 +236,13 @@ const GlobalMenuDrawer = () => {
 
       document.addEventListener('keydown', onKeyDown);
 
-      return () => document.removeEventListener('keydown', onKeyDown);
+      return () => {
+        document.removeEventListener('keydown', onKeyDown);
+
+        openerElement?.focus();
+      };
     }
-  }, [drawer.drawerId, drawer.isOpen]);
+  }, [isDrawerOpen]);
 
   return <div
       aria-labelledby="global-menu-drawer-heading"
@@ -259,22 +260,22 @@ const GlobalMenuDrawer = () => {
         className={styles.closeButton}
         onClick={() => dispatch(hideDrawer())}
         ref={closeButtonRef}
-        title={t('closeButtonTitle')}
+        title={t('closeButtonLabel')}
         type="button"
       >
-        <CrossIcon aria-hidden />
+        <CrossIcon aria-hidden="true" className={styles.closeButtonIcon} />
       </button>
     </header>
 
-    {/* Only show the nav in small devices. */}
+    {/* On small layouts the sidebar's icon rail moves into this menu. */}
     {!isMediumLayoutOrLarger && <>
-      <hr aria-hidden className={styles.separator} />
+      <hr aria-hidden="true" className={styles.separator} />
 
       <nav>
         <ul>
           {navigationItems.map((navigationItem) => <li key={navigationItem.title}>
             <Link onClick={() => dispatch(hideDrawer())} to={`/${navigationItem.sidebarTab}`}>
-              {navigationItem.icon}
+              <navigationItem.Icon aria-hidden="true" />
 
               <span>{navigationItem.title}</span>
             </Link>
@@ -283,20 +284,16 @@ const GlobalMenuDrawer = () => {
       </nav>
     </>}
 
-    <hr aria-hidden className={styles.separator} />
+    <hr aria-hidden="true" className={styles.separator} />
 
     <ul>
-      <li>
-        {!!tableauEnabled && <button onClick={() => openTableauReport()} type="button">
-          {t('tableauButton')}
-        </button>}
-      </li>
+      {!!tableauEnabled && <li>
+        <button onClick={openTableauReport} type="button">{t('tableauButton')}</button>
+      </li>}
 
-      <li>
-        {!!alertsEnabled && !!eventTypes.length && <button onClick={onOpenAlertsModalClick} type="button">
-          {t('alertsButton')}
-        </button>}
-      </li>
+      {!!alertsEnabled && !!eventTypes.length && <li>
+        <button onClick={onOpenAlertsModalClick} type="button">{t('alertsButton')}</button>
+      </li>}
 
       <li>
         {jiraIframeHelpButton ? <button onClick={onContactSupportClick} type="button">
@@ -343,7 +340,7 @@ const GlobalMenuDrawer = () => {
       </li>
     </ul>
 
-    <hr aria-hidden className={styles.separator} />
+    <hr aria-hidden="true" className={styles.separator} />
 
     <h3>{t('exportsHeader')}</h3>
 
@@ -385,7 +382,7 @@ const GlobalMenuDrawer = () => {
 
     <footer className={styles.footer}>
       <p className={styles.versionsAndCopyright}>
-        {t('footer.serverVersion', { version: serverData.version })}
+        {t('footer.serverVersion', { version: serverVersion })}
 
         <br />
 

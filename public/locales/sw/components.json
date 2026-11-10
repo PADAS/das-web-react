@@ -232,6 +232,8 @@
       "closeButtonLabel": "Funga upau wa pembeni"
     },
     "eventsLink": "Matukio",
+    "eventsLinkWithUpdatesLabel_one": "Matukio, {{count}} jipya au lililosasishwa",
+    "eventsLinkWithUpdatesLabel_other": "Matukio, {{count}} mapya au yaliyosasishwa",
     "gearLink": "Vifaa",
     "gearTab": {
       "loadErrorFallback": "Ombi halikufaulu",

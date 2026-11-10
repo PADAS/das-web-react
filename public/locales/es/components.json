@@ -227,6 +227,8 @@
       "closeButtonLabel": "Cerrar barra lateral"
     },
     "eventsLink": "Eventos",
+    "eventsLinkWithUpdatesLabel_one": "Eventos, {{count}} nuevo o actualizado",
+    "eventsLinkWithUpdatesLabel_other": "Eventos, {{count}} nuevos o actualizados",
     "gearLink": "Aparejos",
     "gearTab": {
       "loadErrorFallback": "Error en la solicitud",

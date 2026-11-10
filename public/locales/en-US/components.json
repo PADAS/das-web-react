@@ -232,6 +232,8 @@
       "closeButtonLabel": "Close sidebar"
     },
     "eventsLink": "Events",
+    "eventsLinkWithUpdatesLabel_one": "Events, {{count}} new or updated",
+    "eventsLinkWithUpdatesLabel_other": "Events, {{count}} new or updated",
     "gearLink": "Gear",
     "gearTab": {
       "loadErrorFallback": "Request failed",

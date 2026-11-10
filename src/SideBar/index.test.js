@@ -254,6 +254,23 @@ describe('SideBar', () => {
     });
   });
 
+  test('counts each event created or updated through the socket once, naming the events link with the count',
+    async () => {
+      useLocationMock = jest.fn((() => ({ pathname: '/' })));
+      useLocation.mockImplementation(useLocationMock);
+
+      renderSideBar();
+
+      mockedSocket.socketClient.emit('new_event', { event_id: 'event-1', matches_current_filter: true });
+      mockedSocket.socketClient.emit('update_event', { event_id: 'event-1', matches_current_filter: true });
+      mockedSocket.socketClient.emit('update_event', { event_id: 'event-2', matches_current_filter: true });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('badgeIcon')).toHaveTextContent('2');
+      });
+      expect(screen.getByRole('link', { name: 'Events, 2 new or updated' })).toBeInTheDocument();
+    });
+
   test('does not show the report badge if sidebar is open in reports tab', async () => {
     renderSideBar();
 
@@ -523,7 +540,7 @@ describe('SideBar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/patrols', {});
+    expect(navigate).toHaveBeenCalledWith('/patrols');
   });
 
   test('navigates to current tab when user clicks the back button in the patrol detail view and location.state.comesFromLogin is true', async () => {
@@ -541,7 +558,7 @@ describe('SideBar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/patrols', {});
+    expect(navigate).toHaveBeenCalledWith('/patrols');
   });
 
   test('navigates to current tab when user clicks the back button in the patrol detail view and location.state.comesFromLngLatRedirection is true', async () => {
@@ -559,7 +576,7 @@ describe('SideBar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/patrols', {});
+    expect(navigate).toHaveBeenCalledWith('/patrols');
   });
 
   test('navigates back when user clicks the back button in the patrol detail view and none of the special conditions are met', async () => {
@@ -577,7 +594,7 @@ describe('SideBar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith(-1, {});
+    expect(navigate).toHaveBeenCalledWith(-1);
   });
 
   test('sets the tab title for the Events tab', async () => {

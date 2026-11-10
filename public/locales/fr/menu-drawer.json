@@ -17,6 +17,7 @@
     "alertsModal": {
       "title": "Alertes"
     },
+    "closeButtonLabel": "Fermer le menu principal",
     "communityButton": "Communauté",
     "contactSupport": {
       "body": "Que pouvons-nous faire pour vous ?",
@@ -26,16 +27,16 @@
     "dailyReportModal": {
       "title": "Rapport Quotidien"
     },
-    "exportsHeader": "EXPORTER",
+    "ecoscopeAnalysisLink": "Analyse",
+    "ecoscopeAnalysisLinkAriaLabel": "Analyse avec Ecoscope",
+    "ecoscopeDownloaderMigrationGuideLink": "Télécharger",
+    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Téléchargeur d’Ecoscope",
+    "ecoscopeHeading": "Ecoscope",
+    "exportsHeader": "Exporter",
     "fieldReportsModal": {
       "content": "Les informations exportées inclueront uniquement les informations filtrées selon les critères dans la rubrique des Événements ",
       "title": "Événements"
     },
-    "ecoscopeAnalysisLinkAriaLabel": "Analyse avec Ecoscope",
-    "ecoscopeAnalysisLink": "Analyse",
-    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Téléchargeur d’Ecoscope",
-    "ecoscopeDownloaderMigrationGuideLink": "Télécharger",
-    "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Version du client web: {{version}}",
       "copyright": "©{{year}} EarthRanger",

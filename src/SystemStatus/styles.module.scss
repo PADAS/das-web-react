@@ -1,96 +1,43 @@
+@use '../common/styles/buttons';
 
-@use '../common/styles/vars/colors';
-@use '../common/styles/layout';
-
-.listItem {
-  border-bottom: 1px solid colors.$light-gray;
-  cursor: default;
-  line-height: normal;
-
-  // border-bottom: 1px solid $light-gray;
-  justify-content: space-between;
-
-  &:hover {
-    background: none;
-  }
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.menu {
-  padding-bottom: 0;
-  padding-top: 0;
-  min-width: 90vw;
-  max-width: 98vw;
-  margin-top: 0.125rem;
-
-  @media (min-width: layout.$md-layout-width-min) {
-    min-width: 28rem;
-    max-width: unset;
-  }
-}
-
-.listItem, .summary, .details {
+.systemStatus {
   align-items: center;
   display: flex;
-  font-size: 0.85rem;
-}
+  height: buttons.$chip-height;
 
-.itemTitle {
-  white-space: normal;
+  .toggle {
+    @include buttons.top-bar-button;
 
-  @media (min-width: layout.$md-layout-width-min) {
-    white-space: nowrap;
-  }
-}
+    background-color: rgb(white, 0.1);
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    height: 1.875rem;
+    padding: 0 0.75rem;
 
-.badge {
-  --badge-dimensions: 0.666rem;
+    .toggleBadge {
+      flex-shrink: 0;
+    }
 
-  height: var(--badge-dimensions);
-  width: var(--badge-dimensions);
+    .arrow {
+      flex-shrink: 0;
+      height: 0.3125rem;
+      width: 0.625rem;
 
-  @media (min-width:  layout.$md-layout-width-min) {
-    --badge-dimensions: 0.95rem;
-  }
-}
+      path {
+        fill: currentcolor;
+      }
+    }
 
-.badge {
-  margin-right: 0.666rem;
-}
+    &:hover {
+      background-color: rgb(white, 0.2);
+    }
 
-.details {
-  align-items: flex-end;
-  color: colors.$light-font-color;
-  flex-flow: column;
-  font-size: .8rem;
-  margin-left: 0.5rem;
-  text-align: right;
-  white-space: normal;
-}
+    &[aria-expanded='true'] {
+      background-color: rgb(white, 0.25);
 
-.timestamp {
-  color: colors.$secondary-medium-gray;
-  margin-left: .5rem;
-}
-
-.indicator {
-  display: flex;
-  align-items: center;
-  font-size: 0.875rem;
-  color: colors.$secondary-light-gray;
-  background-color: rgb(white, 0.1);
-  border-radius: 1.375rem;
-  padding: 0.25rem 0.75rem;
-  margin: 0 1rem;
-
-  &[class*="open"] {
-    color: white;
-  }
-
-  > * {
-    margin: 0 0.125rem;
+      .arrow {
+        transform: rotate(180deg);
+      }
+    }
   }
 }

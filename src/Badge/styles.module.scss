@@ -1,41 +1,23 @@
 @use '../common/styles/vars/colors';
 
-@mixin badge-box-shadow($color: colors.$unknown-border) {
-  box-shadow: 0 0 .1rem $color;
-}
-
 .badge {
-  @include badge-box-shadow;
-
   align-items: center;
+  background-color: colors.$unknown;
   border-radius: 100%;
-  background: colors.$unknown;
-  border: 2px solid colors.$unknown-border;
-  border-style: solid;
-  box-shadow: 0 0 .5rem colors.$unknown-border;
   display: flex;
   height: 1rem;
   justify-content: center;
   width: 1rem;
 
-  &.red {
-    background: colors.$error;
-    border-color: colors.$error-border;
-
-    @include badge-box-shadow(colors.$error-border);
+  &.green {
+    background-color: colors.$healthy;
   }
 
   &.orange {
-    background: colors.$warning;
-    border-color: colors.$warning-border;
-
-    @include badge-box-shadow(colors.$warning-border);
+    background-color: colors.$warning;
   }
 
-  &.green {
-    background: colors.$healthy;
-    border-color: colors.$healthy-border;
-
-    @include badge-box-shadow(colors.$healthy-border);
+  &.red {
+    background-color: colors.$error;
   }
 }

@@ -18,7 +18,6 @@
       "title": "Arifa"
     },
     "closeButtonLabel": "Funga Menyu Kuu",
-    "closeButtonTitle": "Funga",
     "communityButton": "Jumuiya",
     "contactSupport": {
       "body": "Tunawezaje kukusaidia?",
@@ -28,16 +27,16 @@
     "dailyReportModal": {
       "title": "Ripoti ya Kila Siku"
     },
+    "ecoscopeAnalysisLink": "Uchambuzi",
+    "ecoscopeAnalysisLinkAriaLabel": "Uchambuzi na Ecoscope",
+    "ecoscopeDownloaderMigrationGuideLink": "Pakua",
+    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Upakuaji wa Ecoscope",
+    "ecoscopeHeading": "Ecoscope",
     "exportsHeader": "Nakili",
     "fieldReportsModal": {
       "content": "Matukio yaliyonakiliwa yatajumuisha tu yale yanayolingana na vigezo vya uchujaji vilivyowekwa kwa sasa kwenye kichupo cha Matukio.",
       "title": "Matukio ya Uwanja"
     },
-    "ecoscopeAnalysisLinkAriaLabel": "Uchambuzi na Ecoscope",
-    "ecoscopeAnalysisLink": "Uchambuzi",
-    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Upakuaji wa Ecoscope",
-    "ecoscopeDownloaderMigrationGuideLink": "Pakua",
-    "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Toleo la Wavuti: {{version}}",
       "copyright": "©{{year}} EarthRanger",

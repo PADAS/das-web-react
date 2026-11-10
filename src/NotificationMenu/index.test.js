@@ -3,68 +3,163 @@ import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
-import { NEWS_API_URL } from '../ducks/news';
-
 import { mockStore } from '../__test-helpers/MockStore';
-import SocketProvider, { mockedSocket } from '../__test-helpers/MockSocketContext';
 import mockNewsData from '../__test-helpers/fixtures/news';
-import { render, waitFor, screen } from '../test-utils';
+import { NEWS_API_URL } from '../ducks/news';
+import { render, screen, waitFor, within } from '../test-utils';
 
-import NotificationMenu from '../NotificationMenu';
+import SocketProvider, { mockedSocket } from '../__test-helpers/MockSocketContext';
 
-const server = setupServer(
-  http.get(NEWS_API_URL, () => {
-    return HttpResponse.json({
-      data: {
-        results: mockNewsData,
-      }
-    });
-  }),
-  http.post(NEWS_API_URL, () => {
-    return HttpResponse.json(null, { status: 201 });
-  })
-);
+import NotificationMenu from './';
 
-let store = mockStore({ view: { } });
+const UNREAD_NEWS_COUNT = mockNewsData.filter((newsItem) => !newsItem.read).length;
 
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+describe('NotificationMenu', () => {
+  let readNewsRequests;
+  let server;
+  let store;
 
+  beforeAll(() => {
+    server = setupServer();
+    server.listen();
+  });
 
-test('rendering without crashing', () => {
-  expect(() => render(<Provider store={store} >
+  beforeEach(() => {
+    readNewsRequests = [];
+    store = { view: {} };
+
+    server.use(
+      http.get(NEWS_API_URL, () => HttpResponse.json({ data: { results: mockNewsData } })),
+      http.post(NEWS_API_URL, ({ request }) => {
+        readNewsRequests.push(new URL(request.url).searchParams.get('read'));
+
+        return HttpResponse.json(null, { status: 201 });
+      }),
+    );
+  });
+
+  afterEach(() => server.resetHandlers());
+
+  afterAll(() => server.close());
+
+  const renderNotificationMenu = () => render(<Provider store={mockStore(store)}>
     <SocketProvider>
       <NotificationMenu />
     </SocketProvider>
-  </Provider>)).not.toThrow();
-});
+  </Provider>);
 
-describe('listing news items', () => {
-  let rendered;
-  beforeEach(async () => {
-    rendered = render(<Provider store={store}>
-      <SocketProvider>
-        <NotificationMenu />
-      </SocketProvider>
-    </Provider>);
+  const findToggle = () => screen.findByRole('button', { name: /^Notifications/ });
 
-    const toggle = await screen.findByTestId('notification-toggle');
-    await userEvent.click(toggle);
-  });
-  afterEach(() => {
-    store = mockStore({ view: { } });
-    rendered.unmount();
-  });
+  const openPopover = async () => {
+    await userEvent.click(await findToggle());
 
-  test('showing news items from the news API', async () => {
-    const items = await waitFor(() => screen.getAllByRole('listitem'));
+    return screen.findByRole('dialog', { name: 'Notifications' });
+  };
 
-    expect(items[0]).toHaveTextContent(mockNewsData[0].description);
+  const findNotificationItems = async () => within(await screen.findByRole('dialog')).findAllByRole('listitem');
+
+  test('names the toggle with the count of unread notifications', async () => {
+    renderNotificationMenu();
+
+    expect(await screen.findByRole('button', {
+      name: `Notifications, ${UNREAD_NEWS_COUNT} unread`,
+    })).toHaveAttribute('title', 'Notifications');
   });
 
-  test('lists an announcement that arrives over the socket', async () => {
-    await waitFor(() => screen.getAllByRole('listitem'));
+  test('shows the count of unread notifications over the bell', async () => {
+    renderNotificationMenu();
+
+    expect(await screen.findByTestId('notificationMenu-unreadBadge')).toHaveTextContent(`${UNREAD_NEWS_COUNT}`);
+  });
+
+  test('does not show a reminder of the unread notifications outside the toggle', async () => {
+    renderNotificationMenu();
+
+    await screen.findByRole('button', { name: `Notifications, ${UNREAD_NEWS_COUNT} unread` });
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  test('names the toggle without a count when every notification is read', async () => {
+    server.use(http.get(NEWS_API_URL, () => HttpResponse.json({
+      data: { results: mockNewsData.map((newsItem) => ({ ...newsItem, read: true })) },
+    })));
+
+    renderNotificationMenu();
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Notifications' })).toBeInTheDocument());
+    expect(screen.queryByTestId('notificationMenu-unreadBadge')).not.toBeInTheDocument();
+  });
+
+  test('shows the toggle collapsed, with the popover closed, by default', async () => {
+    renderNotificationMenu();
+
+    const toggle = await findToggle();
+
+    expect(toggle).toHaveAttribute('aria-haspopup', 'dialog');
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  test('opens the popover and focuses it when the user clicks the toggle', async () => {
+    renderNotificationMenu();
+
+    const popover = await openPopover();
+
+    expect(popover).toHaveFocus();
+    expect(await findToggle()).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('lists the news, marking the unread items as text', async () => {
+    renderNotificationMenu();
+
+    await openPopover();
+
+    const notificationItems = await findNotificationItems();
+
+    expect(notificationItems).toHaveLength(mockNewsData.length);
+    expect(within(notificationItems[0]).getByRole('heading', { name: mockNewsData[0].title })).toBeInTheDocument();
+    expect(notificationItems[0]).toHaveTextContent(mockNewsData[0].description);
+    expect(notificationItems[0]).toHaveTextContent('Unread');
+    expect(within(notificationItems[0]).getByTestId('badgeIcon')).toBeInTheDocument();
+    expect(notificationItems[1]).not.toHaveTextContent('Unread');
+    expect(within(notificationItems[1]).queryByTestId('badgeIcon')).not.toBeInTheDocument();
+  });
+
+  test('links each news item to its article in a new tab', async () => {
+    renderNotificationMenu();
+
+    await openPopover();
+
+    const readMoreLink = within((await findNotificationItems())[0]).getByRole('link', { name: 'Read more' });
+
+    expect(readMoreLink).toHaveAttribute('href', mockNewsData[0].link);
+    expect(readMoreLink).toHaveAttribute('target', '_blank');
+  });
+
+  test('describes each read more link by the title of its news item', async () => {
+    renderNotificationMenu();
+
+    await openPopover();
+
+    const readMoreLink = within((await findNotificationItems())[0]).getByRole('link', { name: 'Read more' });
+
+    expect(readMoreLink).toHaveAccessibleDescription(mockNewsData[0].title);
+  });
+
+  test('links to all the news', async () => {
+    renderNotificationMenu();
+
+    await openPopover();
+
+    expect(await screen.findByRole('link', { name: 'See all news' })).toHaveAttribute('target', '_blank');
+  });
+
+  test('lists an announcement that arrives over the socket first', async () => {
+    renderNotificationMenu();
+
+    await openPopover();
+    await findNotificationItems();
 
     mockedSocket.socketClient.emit('new_announcement', {
       data: {
@@ -77,190 +172,112 @@ describe('listing news items', () => {
       },
     });
 
-    const items = await screen.findAllByRole('listitem');
-
-    expect(items[0]).toHaveTextContent('A new announcement just arrived');
-    expect(items[0]).toHaveTextContent('Read more');
+    await waitFor(async () => expect((await findNotificationItems())[0])
+      .toHaveTextContent('A new announcement just arrived'));
   });
 
-  test('opening a new tab with a link when clicking "read more"', async () => {
-    global.open = jest.fn();
+  test('closes the popover, returns focus to the toggle and marks the news read when the user presses escape',
+    async () => {
+      renderNotificationMenu();
 
-    const items = await waitFor(() => screen.getAllByRole('listitem'));
-    const readMoreBtn = items[0].querySelector('button');
-    await userEvent.click(readMoreBtn);
+      await openPopover();
+      await userEvent.keyboard('{Escape}');
 
-    expect(global.open).toHaveBeenCalledWith(mockNewsData[0].link, '_blank', 'noopener,noreferrer');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(await findToggle()).toHaveFocus();
+
+      await waitFor(() => expect(readNewsRequests).toEqual([
+        mockNewsData.filter((newsItem) => !newsItem.read).map((newsItem) => newsItem.id).join(','),
+      ]));
+      expect(await screen.findByRole('button', { name: 'Notifications' })).toBeInTheDocument();
+    });
+
+  test('closes the popover when the user clicks outside it', async () => {
+    renderNotificationMenu();
+
+    await openPopover();
+    await userEvent.click(document.body);
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  test('showing a badge with the count of unread items', async () => {
-    const unreadBadge = await screen.findByTestId('unread-count');
+  describe('with a notification from the app', () => {
+    let appNotification;
 
-    expect(unreadBadge.textContent).toEqual(mockNewsData.filter(n => !n.read).length.toString());
+    beforeEach(() => {
+      appNotification = {
+        confirmText: 'Reload',
+        id: 'new-version',
+        message: 'A new version is available',
+        onConfirm: jest.fn(),
+        onDismiss: jest.fn(),
+      };
+      store = { view: { userNotifications: [appNotification] } };
+    });
+
+    test('lists it above the news and counts it as unread', async () => {
+      renderNotificationMenu();
+
+      await openPopover();
+
+      await waitFor(async () => expect(await findNotificationItems()).toHaveLength(mockNewsData.length + 1));
+      expect((await findNotificationItems())[0]).toHaveTextContent('A new version is available');
+      expect(await findToggle()).toHaveAccessibleName(`Notifications, ${UNREAD_NEWS_COUNT + 1} unread`);
+    });
+
+    test('confirms it when the user clicks its confirm button', async () => {
+      renderNotificationMenu();
+
+      await openPopover();
+      await userEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Reload' }));
+
+      expect(appNotification.onConfirm).toHaveBeenCalledWith(expect.anything(), appNotification);
+    });
+
+    test('dismisses it when the user clicks its dismiss button', async () => {
+      renderNotificationMenu();
+
+      await openPopover();
+      await userEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Dismiss' }));
+
+      expect(appNotification.onDismiss).toHaveBeenCalledWith(expect.anything(), appNotification);
+    });
   });
 
-  describe('with user notifications', () => {
-    let userNotificationListItem;
-    const storeWithUserNotification = {
-      view: {
-        userNotifications: [
-          {
-            message: 'howdy doody',
-            onConfirm: jest.fn(),
-            onDismiss: jest.fn(),
-          }
-        ]
-      }
-    };
-    beforeEach(async () => {
-      store = mockStore(() => storeWithUserNotification);
+  describe('when the news fail to load', () => {
+    beforeEach(() => {
+      let hasFailed = false;
 
-      rendered.unmount();
-
-      rendered = render(<Provider store={store}>
-        <SocketProvider>
-          <NotificationMenu />
-        </SocketProvider>
-      </Provider>);
-
-      const toggle = await screen.findByTestId('notification-toggle');
-      await userEvent.click(toggle);
-
-      await waitFor(() => {
-        const listItemCount = screen.getAllByRole('listitem').length;
-        if (listItemCount !== 4) {
-          throw new Error(`Expected 4 list items, found ${listItemCount}.`);
+      server.use(http.get(NEWS_API_URL, () => {
+        if (hasFailed) {
+          return HttpResponse.json({ data: { results: mockNewsData } });
         }
-      });
 
-      userNotificationListItem = screen.getAllByRole('listitem')[0];
-    });
+        hasFailed = true;
 
-    afterEach(() => {
-      store = mockStore({ view: { } });
-    });
-
-    test('user notifications are listed above news items', async () => {
-      expect(userNotificationListItem).toHaveTextContent('howdy doody');
-
-      const unreadBadge = await screen.findByTestId('unread-count');
-      expect(unreadBadge.textContent).toEqual(`${mockNewsData.filter(n => !n.read).length + 1}`);
-
-    });
-
-    test('clicking confirm', async () => {
-      const [, confirmBtn] = userNotificationListItem.querySelectorAll('button');
-
-      expect(storeWithUserNotification.view.userNotifications[0].onConfirm).not.toHaveBeenCalled();
-      await userEvent.click(confirmBtn);
-      expect(storeWithUserNotification.view.userNotifications[0].onConfirm).toHaveBeenCalled();
-    });
-
-    test('clicking dismiss', async  () => {
-      const dismissBtn = userNotificationListItem.querySelector('button');
-
-      expect(storeWithUserNotification.view.userNotifications[0].onDismiss).not.toHaveBeenCalled();
-      await userEvent.click(dismissBtn);
-      expect(storeWithUserNotification.view.userNotifications[0].onDismiss).toHaveBeenCalled();
-
-    });
-  });
-});
-
-describe('handling failed news requests', () => {
-  beforeEach(async () => {
-    let secondCall = false;
-    server.use(
-      http.get(NEWS_API_URL, () => {
-        if (secondCall) {
-          return HttpResponse.json({
-            data: {
-              results: mockNewsData,
-            }
-          });
-        }
-        secondCall = true;
         return HttpResponse.json(null, { status: 500 });
-      })
-    );
-    render(<Provider store={store}>
-      <SocketProvider>
-        <NotificationMenu />
-      </SocketProvider>
-    </Provider>);
+      }));
+    });
 
-    const toggle = await screen.findByTestId('notification-toggle');
-    await userEvent.click(toggle);
+    test('shows an error message and no link to all the news', async () => {
+      renderNotificationMenu();
+
+      await openPopover();
+
+      expect(await screen.findByText('Error fetching recent announcements.')).toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'See all news' })).not.toBeInTheDocument();
+    });
+
+    test('loads the news again and keeps focus in the popover when the user clicks retry', async () => {
+      renderNotificationMenu();
+
+      const popover = await openPopover();
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Try again' }));
+
+      expect(popover).toHaveFocus();
+      expect((await findNotificationItems())[0]).toHaveTextContent(mockNewsData[0].description);
+    });
   });
 
-  test('showing an error message', async () => {
-    expect(await screen.findByTestId('error-message')).toBeInTheDocument();
-  });
-
-  test('presenting a retry button which attempts to re-fetch news', async () => {
-    const newsFetchRetryBtn = await screen.findByTestId('news-fetch-retry-btn');
-    await userEvent.click(newsFetchRetryBtn);
-
-    const items = await waitFor(() => screen.getAllByRole('listitem'));
-    expect(items[0]).toHaveTextContent(mockNewsData[0].description);
-  });
-});
-
-describe('reminding users of unread messages', () => {
-  const unread = mockNewsData.filter(n => Object.hasOwn(n, 'read') && !n.read);
-  let rendered;
-
-  beforeEach(async () => {
-    rendered = render(<Provider store={store}>
-      <SocketProvider>
-        <NotificationMenu />
-      </SocketProvider>
-    </Provider>);
-  });
-
-  afterEach(() => {
-    rendered.unmount();
-  });
-
-  test('showing a popup if notifications have aged without being read', async () => {
-    const popup = await screen.findByRole('alert');
-    expect(popup).toHaveTextContent(`You have ${unread.length} unread notifications.`);
-  });
-
-  test('not showing a popup if notifications are relatively recent', () => {
-    rendered.unmount();
-
-    const newsItemsWithRecentMessages = mockNewsData.reduce((accumulator, item) => {
-      if (item.read) return [...accumulator, item];
-      return [
-        ...accumulator,
-        {
-          ...item,
-          additional: {
-            ...item.additional,
-            created_at: new Date().toISOString(),
-          }
-        }
-      ];
-    }, []);
-
-    server.use(
-      http.get(NEWS_API_URL, () => {
-        return HttpResponse.json({
-          data: {
-            results: newsItemsWithRecentMessages,
-          },
-        });
-      })
-    );
-
-    rendered = render(<Provider store={store}>
-      <SocketProvider>
-        <NotificationMenu />
-      </SocketProvider>
-    </Provider>);
-
-    const popup = screen.queryByRole('alert');
-    expect(popup).not.toBeInTheDocument();
-  });
 });
