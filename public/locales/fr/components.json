@@ -311,19 +311,19 @@
       "featuresTabTitle": "Calques",
       "subjectsTabTitle": "Appareils Suivis"
     },
-    "otusLink": "Otus",
+    "otusLink": "Atlas",
     "otusTab": {
       "header": {
         "betaBadgeLabel": "Bêta",
-        "closeButtonLabel": "Fermer Otus",
+        "closeButtonLabel": "Fermer Atlas",
         "newConversationButtonLabel": "Nouvelle conversation",
         "recentButtonLabel": "Récentes",
-        "title": "Otus"
+        "title": "Atlas"
       },
-      "iframeTitle": "Discussion avec Otus",
-      "loadErrorMessage": "Otus n’a pas pu se charger sur ce site. Réessayez ou contactez l’équipe de Soutien si le problème persiste.",
-      "loadingMessage": "Chargement d’Otus…",
-      "resizeHandleLabel": "Redimensionner le panneau Otus",
+      "iframeTitle": "Discussion avec Atlas",
+      "loadErrorMessage": "Atlas n’a pas pu se charger sur ce site. Réessayez ou contactez l’équipe de Soutien si le problème persiste.",
+      "loadingMessage": "Chargement d’Atlas…",
+      "resizeHandleLabel": "Redimensionner le panneau Atlas",
       "retryButtonLabel": "Réessayer"
     },
     "patrolsLink": "Patrouilles",

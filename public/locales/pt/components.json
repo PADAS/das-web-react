@@ -311,19 +311,19 @@
       "featuresTabTitle": "Feições",
       "subjectsTabTitle": "Indivíduos rastreados"
     },
-    "otusLink": "Otus",
+    "otusLink": "Atlas",
     "otusTab": {
       "header": {
         "betaBadgeLabel": "Beta",
-        "closeButtonLabel": "Fechar Otus",
+        "closeButtonLabel": "Fechar Atlas",
         "newConversationButtonLabel": "Nova conversa",
         "recentButtonLabel": "Recentes",
-        "title": "Otus"
+        "title": "Atlas"
       },
-      "iframeTitle": "Chat com o Otus",
-      "loadErrorMessage": "Não foi possível carregar o Otus neste site. Tente novamente ou fale com o suporte se o problema continuar.",
-      "loadingMessage": "Carregando Otus…",
-      "resizeHandleLabel": "Redimensionar o painel do Otus",
+      "iframeTitle": "Chat com o Atlas",
+      "loadErrorMessage": "Não foi possível carregar o Atlas neste site. Tente novamente ou fale com o suporte se o problema continuar.",
+      "loadingMessage": "Carregando Atlas…",
+      "resizeHandleLabel": "Redimensionar o painel do Atlas",
       "retryButtonLabel": "Tentar novamente"
     },
     "patrolsLink": "Patrulhas",
