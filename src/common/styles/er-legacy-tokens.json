@@ -29,8 +29,8 @@
     "brand-background-primary-background": { "hex": "#faf2e9", "figma": "Brand/Background/Primary Background" },
     "brand-background-secondary-background": { "hex": "#ffffff", "figma": "Brand/Background/Secondary Background" },
 
-    "ui-background-tertiary-background": { "hex": "#f3f3f3", "figma": "Greyscale/10", "proposed": "No legacy equivalent in the Figma frame. The old app derived this from a gray near #eaeaea; this is the nearest neutral in the palette." },
-    "ui-background-selected-background": { "hex": "#f4f7fd", "figma": "Blue/4", "proposed": "The old app used two blues here, #e8f0fb and #f4f7fd. Only the second is in the palette." },
-    "ui-text-secondary-text-reversed": { "hex": "#b1b3b3", "figma": "Greyscale/8", "proposed": "The old app used a light gray on dark surfaces; the shipped token is the cream #faf2e9." }
+    "ui-background-tertiary-background": { "hex": "#f9f9f9", "figma": "Greyscale/11", "note": "The same value as the secondary background: ER Legacy has no third surface tone." },
+    "ui-background-selected-background": { "hex": "#f4f7fd", "figma": "Blue/4" },
+    "ui-text-secondary-text-reversed": { "hex": "#ffffff", "figma": "Greyscale/White" }
   }
 }
