@@ -967,6 +967,18 @@ describe('SideBar', () => {
       expect(tableViewActions(mockedStore)).toEqual([setFeedTableView('events', true)]);
     });
 
+    test('marks the button as active only while the table is shown', () => {
+      renderWithFeedTable({ events: true });
+
+      expect(screen.getByRole('button', { name: 'Show as list' })).toHaveClass('active');
+    });
+
+    test('leaves the button inactive in the list', () => {
+      renderWithFeedTable();
+
+      expect(screen.getByRole('button', { name: 'Show as table' })).not.toHaveClass('active');
+    });
+
     test('shows the table as a list again', async () => {
       const mockedStore = renderWithFeedTable({ events: true });
 

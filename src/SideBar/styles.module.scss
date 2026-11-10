@@ -259,8 +259,10 @@
     gap: 0.25rem;
   }
 
+  // Blue while the table is shown, as other controls are off their default.
   .tableViewButton {
     @include buttons.icon-button;
+    @include buttons.chip-active-state;
 
     .tableViewButtonIcon {
       height: 1rem;

@@ -315,7 +315,7 @@ const SideBar = () => {
           <div className={styles.headerActions}>
             {isFeedDisplayed && canShowTableView && <button
               aria-label={t(isTableView ? 'showListButtonLabel' : 'showTableButtonLabel')}
-              className={styles.tableViewButton}
+              className={`${styles.tableViewButton} ${isTableView ? styles.active : ''}`}
               data-testid="sideBar-tableViewButton"
               onClick={toggleTableView}
               title={t(isTableView ? 'showListButtonLabel' : 'showTableButtonLabel')}
