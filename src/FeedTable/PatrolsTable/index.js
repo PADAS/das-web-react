@@ -27,7 +27,7 @@ import SvgIcon from '../../SvgIcon';
 import * as styles from './styles.module.scss';
 
 // Patrols carry their legs, so a page of them weighs more than one of events.
-const FULL_LOAD_PARAMS = { page_size: 500, use_cursor: true };
+const FULL_LOAD_PARAMS = { page_size: 100, use_cursor: true };
 
 const selectPatrolStore = (state) => state.data.patrolStore;
 

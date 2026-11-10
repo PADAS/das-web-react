@@ -62,7 +62,8 @@ const BULK_UPDATE_BATCH_SIZE = 5;
 const EMPTY_COLUMNS = [];
 const EMPTY_EVENTS = [];
 
-export const FULL_LOAD_PAGE_SIZE = 1000;
+// Small pages lose little to a failed request on a weak connection.
+export const FULL_LOAD_PAGE_SIZE = 200;
 
 const STATE_KEY_BY_EVENT_STATE = {
   [EVENT_FORM_STATES.ACTIVE]: EVENT_FORM_STATES.ACTIVE,
