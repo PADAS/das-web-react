@@ -138,6 +138,15 @@
   @media (width: layout.$md-layout-width-min) {
     left: var(--vertical-nav-width);
   }
+
+  // A closing table keeps its width while it slides out, instead of being
+  // cut to the list's width first.
+  &.tableView:not([class*="open"]) {
+    @media (min-width: layout.$md-layout-width-min) {
+      min-width: calc(100vw - var(--vertical-nav-width));
+      transition: none;
+    }
+  }
 }
 
 .tab {

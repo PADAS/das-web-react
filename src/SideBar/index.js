@@ -125,7 +125,8 @@ const SideBar = () => {
   const displayedPathname = (tabLocation ?? location).pathname;
   const displayedTab = getCurrentTabFromURL(displayedPathname);
 
-  const { canShowTableView, isTableView, toggleTableView } = useFeedTableView();
+  // The tab that slides out keeps its view, table or list, until it is gone.
+  const { canShowTableView, isTableView, toggleTableView } = useFeedTableView(displayedTab);
   useTableViewLink();
   const isFeedDisplayed = (displayedTab === TAB_KEYS.EVENTS || displayedTab === TAB_KEYS.PATROLS)
     && !getCurrentIdFromURL(displayedPathname);
@@ -271,7 +272,7 @@ const SideBar = () => {
       </Link>
     </div>
 
-    <div className={`${styles.tabsContainer} ${isSideBarOpen ? 'open' : ''}`}>
+    <div className={`${styles.tabsContainer} ${isSideBarOpen ? 'open' : ''} ${isTableView ? styles.tableView : ''}`}>
       <div
         className={`${styles.tab} ${isSideBarOpen ? 'open' : ''}`}
         data-testid="sideBar-tab"

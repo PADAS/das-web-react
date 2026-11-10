@@ -894,6 +894,27 @@ describe('SideBar', () => {
       await waitFor(() => expect(screen.queryByTestId('settingsPane')).toBeNull());
     });
 
+    test('keeps the table view of the feed while the sidebar slides out', () => {
+      store.view.feedTableView = { events: true };
+      render(
+        <Provider store={mockStore(store)}>
+          <MockSocketProvider>
+            <MapContext.Provider value={map}>
+              <RouterNavigateCapture />
+
+              <SideBar />
+            </MapContext.Provider>
+          </MockSocketProvider>
+        </Provider>,
+        { initialEntries: ['/events'] }
+      );
+
+      navigateTo('/');
+
+      expect(screen.getByTestId('sideBar-tab').parentElement).toHaveClass('tableView');
+      expect(screen.getByRole('button', { name: 'Show as list' })).toBeInTheDocument();
+    });
+
     test('renders the new tab when the sidebar opens again while it slides out', () => {
       renderOpenSideBar();
 
