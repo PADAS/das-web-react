@@ -2,7 +2,14 @@ import { act } from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../../constants';
+import {
+  DEFAULT_EVENT_SORT,
+  EVENT_SORT_OPTIONS,
+  PERMISSION_KEYS,
+  PERMISSIONS,
+  SORT_DIRECTION,
+  SYSTEM_CONFIG_FLAGS,
+} from '../../constants';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { mockStore } from '../../__test-helpers/MockStore';
 import { render, screen, within } from '../../test-utils';
@@ -130,14 +137,20 @@ describe('EventsTable', () => {
     };
     state = {
       data: {
+        eventCategories: {},
         eventFilter: INITIAL_FILTER_STATE,
         eventSchemas: {},
-        eventTypes: [],
+        eventTypes: [
+          { category: { value: 'security' }, value: report.event_type, version: 1 },
+          { category: { value: 'security' }, is_collection: true, value: 'incident_collection', version: 1 },
+        ],
         feedEvents: { results: [report] },
+        user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] } },
       },
       view: {
         coordinateReferenceSystems: { storedSystems: [] },
         feedTableSort: INITIAL_FEED_TABLE_SORT_STATE,
+        systemConfig: { [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true },
         userPreferences: { gpsFormat: GPS_FORMATS.DEG },
       },
     };
@@ -596,6 +609,64 @@ describe('EventsTable', () => {
   const linkModal = () => mockLinkModalProps[mockLinkModalProps.length - 1];
   const openedModal = () => store.getActions().find((action) => action.type === 'ADD_MODAL').payload;
 
+  test('resolves an incident with the events it contains, once each', async () => {
+    const contained = { ...report, id: 'contained' };
+    const incident = {
+      ...report,
+      contains: [{ related_event: contained }],
+      event_type: 'incident_collection',
+      id: 'incident',
+      is_collection: true,
+    };
+    renderEventsTable([incident, contained]);
+    selectEvents([incident, contained]);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Resolve' }));
+
+    expect(setEventState).toHaveBeenCalledTimes(2);
+    expect(setEventState).toHaveBeenCalledWith('incident', 'resolved');
+    expect(setEventState).toHaveBeenCalledWith('contained', 'resolved');
+    expect(showToast).toHaveBeenCalledWith({ message: '2 events updated', toastConfig: { type: 'success' } });
+  });
+
+  test('sends at most five updates at a time', async () => {
+    const pending = [];
+    setEventState.mockImplementation(() => () => new Promise((resolve) => pending.push(resolve)));
+    const selectedEvents = Array.from({ length: 7 }, (_, index) => ({ ...report, id: `event-${index}` }));
+    renderEventsTable(selectedEvents);
+    selectEvents(selectedEvents);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Resolve' }));
+
+    expect(setEventState).toHaveBeenCalledTimes(5);
+
+    await act(async () => pending.splice(0).forEach((resolve) => resolve()));
+
+    expect(setEventState).toHaveBeenCalledTimes(7);
+  });
+
+  test('offers only the bulk actions the user may take', () => {
+    state.data.eventTypes[0].category = { flag: 'user', permissions: ['read'], value: 'security' };
+    state.view.systemConfig = {};
+    renderEventsTable();
+    selectEvents([report]);
+
+    expect(screen.queryByRole('button', { name: 'Resolve' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Reopen' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Add to Patrol' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Add to Incident' })).toBeNull();
+  });
+
+  test('offers a new incident only to a user who may create one', async () => {
+    state.data.eventTypes[1].category = { flag: 'user', permissions: ['read'], value: 'security' };
+    renderEventsTable();
+    selectEvents([report]);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Add to Incident' }));
+
+    expect(linkModal().canCreateIncident).toBe(false);
+  });
+
   test('adds the selected events to a patrol, except those already on one', async () => {
     const onPatrol = { ...report, id: 'on-patrol', patrols: ['other-patrol'] };
     renderEventsTable([report, onPatrol]);
@@ -628,16 +699,25 @@ describe('EventsTable', () => {
     expect(showToast).toHaveBeenCalledWith({ message: '2 events updated', toastConfig: { type: 'success' } });
   });
 
-  test('does not create an incident when none of the selected events can join one', async () => {
+  test('does not offer an incident when none of the selected events can join one', () => {
     const inIncident = { ...report, is_contained_in: [{ related_event: { id: 'incident' } }] };
     renderEventsTable([inIncident]);
     selectEvents([inIncident]);
 
+    expect(screen.queryByRole('button', { name: 'Add to Incident' })).toBeNull();
+  });
+
+  test('adds to a new incident only the selected events that can join one', async () => {
+    const inIncident = { ...report, id: 'in-incident', is_contained_in: [{ related_event: { id: 'incident' } }] };
+    renderEventsTable([report, inIncident]);
+    selectEvents([report, inIncident]);
+
     await userEvent.click(screen.getByRole('button', { name: 'Add to Incident' }));
     await act(() => linkModal().onCreateIncident());
 
-    expect(createEvent).not.toHaveBeenCalled();
-    expect(addEventToIncident).not.toHaveBeenCalled();
+    expect(createEvent).toHaveBeenCalledTimes(1);
+    expect(addEventToIncident).toHaveBeenCalledTimes(1);
+    expect(addEventToIncident).toHaveBeenCalledWith(report.id, 'new-incident');
     expect(showToast).toHaveBeenCalledWith({ message: '1 event could not be updated' });
   });
 

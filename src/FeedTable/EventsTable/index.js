@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import omit from 'lodash/omit';
-import { useDispatch, useSelector } from 'react-redux';
+import uniqBy from 'lodash/uniqBy';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -15,8 +16,6 @@ import {
   calcDisplayPriorityForReport,
   createNewIncidentCollection,
   displayTitleForEvent,
-  eventBelongsToCollection,
-  eventBelongsToPatrol,
   eventTypeTitleForEvent,
   getCoordinatesForCollection,
   getCoordinatesForEvent,
@@ -37,6 +36,8 @@ import {
 } from '../../ducks/events';
 import { objectToParamString } from '../../utils/query';
 import { selectCoordinatesRepresentation } from '../../selectors/location';
+import { selectEventCategoryPermissions } from '../../selectors/event-types';
+import { selectEventLinkPermissions } from '../../selectors/event-links';
 import { selectEventSchema } from '../../selectors/event-schemas';
 import { setFeedTableClientSort } from '../../ducks/feed-table-sort';
 import { showToast } from '../../utils/toast';
@@ -55,6 +56,8 @@ import ObjectViewModal, { ObjectValueLink } from '../ObjectViewModal';
 
 import * as styles from './styles.module.scss';
 
+const BULK_UPDATE_BATCH_SIZE = 5;
+
 const EMPTY_COLUMNS = [];
 const EMPTY_EVENTS = [];
 
@@ -65,6 +68,18 @@ const STATE_KEY_BY_EVENT_STATE = {
   [EVENT_FORM_STATES.NEW_LEGACY]: EVENT_FORM_STATES.ACTIVE,
   [EVENT_FORM_STATES.RESOLVED]: EVENT_FORM_STATES.RESOLVED,
   [EVENT_FORM_STATES.REVIEW]: EVENT_FORM_STATES.REVIEW,
+};
+
+// A collection's state carries to the events it contains, as in the feed.
+const getContainedEvents = (event) => (event.contains ?? []).map(({ related_event: relatedEvent }) => relatedEvent);
+
+// Settles like Promise.allSettled, but sends only a few updates at a time.
+const settleInBatches = async (items, update) => {
+  const results = [];
+  for (let index = 0; index < items.length; index += BULK_UPDATE_BATCH_SIZE) {
+    results.push(...await Promise.allSettled(items.slice(index, index + BULK_UPDATE_BATCH_SIZE).map(update)));
+  }
+  return results;
 };
 
 const formatCoordinates = (coordinates) => {
@@ -107,6 +122,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   const dispatch = useDispatch();
   const jumpToLocation = useJumpToLocation();
   const navigate = useNavigate();
+  const store = useStore();
   const { t } = useTranslation('components', { keyPrefix: 'feedTable' });
   const { t: tPriorities } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.priorities' });
   const { t: tReportMenu } = useTranslation('reports', { keyPrefix: 'eventsManager.eventOverview.header.reportMenu' });
@@ -129,8 +145,8 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
 
   const loadingPageUrlRef = useRef(null);
 
+  const [isUpdatingState, setIsUpdatingState] = useState(false);
   const [linkModal, setLinkModal] = useState({ events: [], show: false, type: EVENT_LINK_TARGET_TYPES.PATROL });
-  const [updatingState, setUpdatingState] = useState(false);
 
   // A new feed sort, from the sort controls or a header, takes over.
   const clientSort = clientSortState?.feedSort === eventSort ? clientSortState : null;
@@ -342,39 +358,49 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     }
   };
 
-  const updateSelectedEvents = async (selectedEvents, updateEvent, clearSelection) => {
-    setUpdatingState(true);
+  // The same rules as the event's own menu.
+  const getLinkPermissions = (event) => selectEventLinkPermissions(store.getState(), event);
 
-    const results = await Promise.allSettled(selectedEvents.map(updateEvent));
+  const canUpdateEvent = (event) => selectEventCategoryPermissions(store.getState(), event).hasUpdatePermission;
+
+  const updateSelectedEvents = async (selectedEvents, updateEvent, clearSelection) => {
+    setIsUpdatingState(true);
+
+    const results = await settleInBatches(selectedEvents, updateEvent);
     const failedCount = results.filter((result) => result.status === 'rejected').length;
 
     showToast(failedCount
       ? { message: t('bulkUpdateErrorMessage', { count: failedCount }) }
       : { message: t('bulkUpdateSuccessMessage', { count: selectedEvents.length }), toastConfig: { type: 'success' } });
 
-    setUpdatingState(false);
+    setIsUpdatingState(false);
     clearSelection();
     eventsFeed.loadFeedEvents(true);
   };
 
-  const setSelectedEventsState = (selectedEvents, state, clearSelection) => updateSelectedEvents(
-    selectedEvents,
-    (event) => dispatch(setEventState(event.id, state)),
-    clearSelection
-  );
+  const setSelectedEventsState = (selectedEvents, state, clearSelection) => {
+    const updatableEvents = selectedEvents.filter(canUpdateEvent);
+    const containedEvents = updatableEvents.flatMap(getContainedEvents);
 
-  // The same rules as the event's own menu: an event joins one patrol, and an
-  // incident can't join another or be in two.
+    return updateSelectedEvents(
+      uniqBy([...selectedEvents, ...containedEvents], 'id'),
+      (event) => selectedEvents.includes(event) && !updatableEvents.includes(event)
+        ? Promise.reject(new Error('The event cannot be updated'))
+        : dispatch(setEventState(event.id, state)),
+      clearSelection
+    );
+  };
+
   const addSelectedToPatrol = (selectedEvents, patrol, clearSelection) => updateSelectedEvents(
     selectedEvents,
-    (event) => eventBelongsToPatrol(event)
-      ? Promise.reject(new Error('The event cannot be added to this patrol'))
-      : dispatch(addEventToPatrol(event.id, patrol.id)),
+    (event) => getLinkPermissions(event).canAddToPatrol
+      ? dispatch(addEventToPatrol(event.id, patrol.id))
+      : Promise.reject(new Error('The event cannot be added to this patrol')),
     clearSelection
   );
 
   const addSelectedToIncident = async (selectedEvents, existingIncident, clearSelection) => {
-    const canJoinIncident = (event) => !event.is_collection && !eventBelongsToCollection(event);
+    const canJoinIncident = (event) => getLinkPermissions(event).canAddToIncident;
 
     let incident = existingIncident;
     if (!incident && selectedEvents.some(canJoinIncident)) {
@@ -392,6 +418,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   };
 
   const openLinkModal = (type, selectedEvents, clearSelection) => setLinkModal({
+    canCreateIncident: selectedEvents.some((event) => getLinkPermissions(event).canCreateIncident),
     clearSelection,
     events: selectedEvents,
     show: true,
@@ -414,43 +441,48 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     await addSelectedToIncident(linkModal.events, null, linkModal.clearSelection);
   };
 
-  const renderBulkActions = (selectedEvents, clearSelection) => <>
-    <button
-      className={styles.bulkActionButton}
-      disabled={updatingState}
-      onClick={() => setSelectedEventsState(selectedEvents, EVENT_FORM_STATES.RESOLVED, clearSelection)}
-      type="button"
-    >
-      {t('resolveButtonLabel')}
-    </button>
+  const renderBulkActions = (selectedEvents, clearSelection) => {
+    const canUpdate = selectedEvents.some(canUpdateEvent);
+    const linkPermissions = selectedEvents.map(getLinkPermissions);
 
-    <button
-      className={styles.bulkActionButton}
-      disabled={updatingState}
-      onClick={() => setSelectedEventsState(selectedEvents, EVENT_FORM_STATES.ACTIVE, clearSelection)}
-      type="button"
-    >
-      {t('reopenButtonLabel')}
-    </button>
+    return <>
+      {canUpdate && <button
+        className={styles.bulkActionButton}
+        disabled={isUpdatingState}
+        onClick={() => setSelectedEventsState(selectedEvents, EVENT_FORM_STATES.RESOLVED, clearSelection)}
+        type="button"
+      >
+        {t('resolveButtonLabel')}
+      </button>}
 
-    <button
-      className={styles.bulkActionButton}
-      disabled={updatingState}
-      onClick={() => openLinkModal(EVENT_LINK_TARGET_TYPES.PATROL, selectedEvents, clearSelection)}
-      type="button"
-    >
-      {tReportMenu('addToPatrolOption')}
-    </button>
+      {canUpdate && <button
+        className={styles.bulkActionButton}
+        disabled={isUpdatingState}
+        onClick={() => setSelectedEventsState(selectedEvents, EVENT_FORM_STATES.ACTIVE, clearSelection)}
+        type="button"
+      >
+        {t('reopenButtonLabel')}
+      </button>}
 
-    <button
-      className={styles.bulkActionButton}
-      disabled={updatingState}
-      onClick={() => openLinkModal(EVENT_LINK_TARGET_TYPES.INCIDENT, selectedEvents, clearSelection)}
-      type="button"
-    >
-      {tReportMenu('addToIncidentOption')}
-    </button>
-  </>;
+      {linkPermissions.some((permissions) => permissions.canAddToPatrol) && <button
+        className={styles.bulkActionButton}
+        disabled={isUpdatingState}
+        onClick={() => openLinkModal(EVENT_LINK_TARGET_TYPES.PATROL, selectedEvents, clearSelection)}
+        type="button"
+      >
+        {tReportMenu('addToPatrolOption')}
+      </button>}
+
+      {linkPermissions.some((permissions) => permissions.canAddToIncident) && <button
+        className={styles.bulkActionButton}
+        disabled={isUpdatingState}
+        onClick={() => openLinkModal(EVENT_LINK_TARGET_TYPES.INCIDENT, selectedEvents, clearSelection)}
+        type="button"
+      >
+        {tReportMenu('addToIncidentOption')}
+      </button>}
+    </>;
+  };
 
   return <>
     <FeedTable
@@ -476,9 +508,9 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     {/* The modal names the selection where it would name a single event. */}
     <DelayedUnmount isMounted={linkModal.show}>
       <LinkEventModal
-        canCreateIncident
+        canCreateIncident={!!linkModal.canCreateIncident}
         event={{ title: t('selectedCountMessage', { count: linkModal.events.length }) }}
-        isLinking={updatingState}
+        isLinking={isUpdatingState}
         onAdd={onAddToLinkTarget}
         onCreateIncident={onCreateIncident}
         onHide={closeLinkModal}
