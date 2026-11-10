@@ -272,7 +272,7 @@ const SideBar = () => {
       </Link>
     </div>
 
-    <div className={`${styles.tabsContainer} ${isSideBarOpen ? 'open' : ''} ${isTableView ? styles.tableView : ''}`}>
+    <div className={`${styles.tabsContainer} ${isSideBarOpen ? 'open' : ''} ${isFeedDisplayed && isTableView ? styles.tableView : ''}`}>
       <div
         className={`${styles.tab} ${isSideBarOpen ? 'open' : ''}`}
         data-testid="sideBar-tab"

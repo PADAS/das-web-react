@@ -915,6 +915,26 @@ describe('SideBar', () => {
       expect(screen.getByRole('button', { name: 'Show as list' })).toBeInTheDocument();
     });
 
+    test('slides out at the detail view\'s width from an event opened from the table', () => {
+      store.view.feedTableView = { events: true };
+      render(
+        <Provider store={mockStore(store)}>
+          <MockSocketProvider>
+            <MapContext.Provider value={map}>
+              <RouterNavigateCapture />
+
+              <SideBar />
+            </MapContext.Provider>
+          </MockSocketProvider>
+        </Provider>,
+        { initialEntries: ['/events/123'] }
+      );
+
+      navigateTo('/');
+
+      expect(screen.getByTestId('sideBar-tab').parentElement).not.toHaveClass('tableView');
+    });
+
     test('renders the new tab when the sidebar opens again while it slides out', () => {
       renderOpenSideBar();
 
