@@ -81,16 +81,11 @@
     "exportButtonLabel": "सबै फिल्डहरू निर्यात गर्नुहोस् (CSV)",
     "exportErrorMessage": "CSV निर्यात गर्न सकिएन",
     "grid": {
-      "allRowsCheckboxLabel": "सबै पङ्क्तिहरू चयन गर्नुहोस्",
-      "checkedStateLabel": "चयन गरिएको",
-      "indeterminateStateLabel": "केही चयन गरिएका",
-      "noRowsMessage": "देखाउन केही छैन",
-      "rowCheckboxLabel": "पङ्क्ति चयन गर्नुहोस्",
-      "rowDeselectMessage": "यो पङ्क्तिको चयन हटाउन space थिच्नुहोस्",
-      "rowSelectMessage": "यो पङ्क्ति चयन गर्न space थिच्नुहोस्",
-      "uncheckedStateLabel": "चयन नगरिएको"
+      "noRowsMessage": "देखाउन केही छैन"
     },
-    "iconColumnTitle": "आइकन",
+    "headerCell": {
+      "allRowsCheckboxLabel": "सबै पङ्क्तिहरू चयन गर्नुहोस्"
+    },
     "leaderColumnTitle": "नेता",
     "legsColumnTitle": "खण्डहरू",
     "loadedPatrolsMessage_one": "{{count}} गस्तीमध्ये {{loaded}} देखाइँदै",
@@ -114,6 +109,9 @@
     "selectedCountMessage_other": "{{count}} चयन गरियो",
     "serialColumnTitle": "आईडी",
     "stateColumnTitle": "अवस्था",
+    "titleCell": {
+      "rowCheckboxLabel": "{{title}} चयन गर्नुहोस्"
+    },
     "titleColumnTitle": "शीर्षक",
     "updatedAtColumnTitle": "अद्यावधिक गरिएको"
   },

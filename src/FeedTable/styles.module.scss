@@ -8,9 +8,7 @@
   backgroundColor: white;
   borderColor: colors.$light-gray-lines;
   foregroundColor: colors.$primary-font-color;
-  headerBackgroundColor: colors.$very-light-blue;
-  headerTextColor: colors.$off-black;
-  oddRowBackgroundColor: colors.$off-white;
+  headerTextColor: colors.$secondary-medium-gray;
   selectedRowBackgroundColor: colors.$blue-highlight;
 }
 
@@ -133,64 +131,19 @@
   flex: 1;
   min-height: 0;
 
-  .iconColumnCell {
-    --ag-cell-horizontal-padding: 1px;
-
-    [class~='ag-cell-wrapper'], [class~='ag-cell-value'] {
-      align-items: center;
-      display: flex;
-      height: 100%;
-      justify-content: center;
-      overflow: visible;
-    }
-  }
-
   .headerCell {
     cursor: grab;
-
-    [class~='ag-header-cell-label']::before {
-      background-color: colors.$secondary-light-gray;
-      content: '';
-      flex-shrink: 0;
-      height: 0.875rem;
-      margin-right: 0.25rem;
-      mask: url('../common/images/icons/grip-dots-vertical.svg') center / contain no-repeat;
-      width: 0.875rem;
-    }
-
-    &:hover {
-      background-color: color.adjust(colors.$very-light-blue, $lightness: -2%);
-
-      [class~='ag-header-cell-label']::before {
-        background-color: colors.$secondary-medium-gray;
-      }
-    }
 
     &:active {
       cursor: grabbing;
     }
-
-    &:focus-visible {
-      outline: 1px solid colors.$bright-blue;
-      outline-offset: -1px;
-    }
   }
-}
 
-.iconCell {
-  align-items: center;
-  background-color: var(--feed-table-icon-background, #{colors.$secondary-medium-light-gray});
-  border-radius: 0.25rem;
-  color: var(--feed-table-icon-color, white);
-  display: flex;
-  height: 1.75rem;
-  justify-content: center;
-  width: 1.75rem;
-
-  svg, img {
-    fill: currentcolor;
-    height: 1.25rem;
-    width: 1.25rem;
+  .titleColumnCell {
+    [class~='ag-cell-wrapper'], [class~='ag-cell-value'] {
+      height: 100%;
+      min-width: 0;
+    }
   }
 }
 

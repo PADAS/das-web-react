@@ -49,7 +49,7 @@ import calcEventTypeFields from './utils/calcEventTypeFields';
 import CollectionViewModal from './CollectionViewModal';
 import DelayedUnmount from '../../DelayedUnmount';
 import EventIcon from '../../EventIcon';
-import FeedTable, { formatDateValue, IconCell } from '..';
+import FeedTable, { formatDateValue, TITLE_COLUMN } from '..';
 import LinkEventModal from '../../LinkEventModal';
 import ObjectViewModal, { ObjectValueLink } from '../ObjectViewModal';
 
@@ -88,14 +88,11 @@ const ComplexDetailCell = ({ colDef, eventSchema, fieldName, value }) => {
   />;
 };
 
-// The type leads with the event's icon, as the feed rows do.
-const EventTypeCell = ({ data, value }) => <span className={styles.typeCell}>
-  <IconCell><EventIcon report={data} /></IconCell>
-
-  <span className={styles.typeName}>{value}</span>
-</span>;
+const getEventPath = (event) => `/${TAB_KEYS.EVENTS}/${event.id}`;
 
 const selectEventStore = (state) => state.data.eventStore;
+
+const renderEventIcon = (event) => <EventIcon report={event} />;
 
 const PriorityCell = ({ value, valueFormatted }) => <span className={styles.priorityCell}>
   <span
@@ -205,6 +202,13 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
 
   const columnDefs = useMemo(() => [
     {
+      ...TITLE_COLUMN,
+      cellRendererParams: { renderIcon: renderEventIcon },
+      ...clientSortable('title'),
+      headerName: t('titleColumnTitle'),
+      valueGetter: (params) => displayTitleForEvent(params.data, eventTypes) ?? '',
+    },
+    {
       colId: 'serial_number',
       field: 'serial_number',
       headerName: t('serialColumnTitle'),
@@ -213,22 +217,12 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       ...serverSortable('serial_number'),
     },
     {
-      cellClass: styles.typeColumnCell,
-      cellRenderer: EventTypeCell,
       colId: 'event_type',
       ...clientSortable('event_type'),
       flex: 1,
       headerName: t('eventTypeColumnTitle'),
-      minWidth: 180,
+      minWidth: 160,
       valueGetter: (params) => eventTypeTitleForEvent(params.data, eventTypes) ?? '',
-    },
-    {
-      colId: 'title',
-      ...clientSortable('title'),
-      flex: 2,
-      headerName: t('titleColumnTitle'),
-      minWidth: 180,
-      valueGetter: (params) => displayTitleForEvent(params.data, eventTypes) ?? '',
     },
     {
       colId: 'reported_by',
@@ -340,7 +334,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   );
 
   const onOpenRow = (event) => {
-    navigate(`/${TAB_KEYS.EVENTS}/${event.id}`);
+    navigate(getEventPath(event));
 
     const coordinates = event.is_collection ? getCoordinatesForCollection(event) : getCoordinatesForEvent(event);
     if (coordinates?.length) {
@@ -465,6 +459,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       fullLoad={fullLoad}
       getRowClass={getRowClass}
       getRowId={(params) => params.data.id}
+      getRowPath={getEventPath}
       layoutScope={eventTypeFilter.length === 1 ? eventTypeFilter[0] : undefined}
       loading={eventsFeed.loadingEventFeed}
       onExport={onExport}

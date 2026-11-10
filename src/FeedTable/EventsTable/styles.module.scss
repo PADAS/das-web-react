@@ -14,28 +14,6 @@
   flex-shrink: 0;
 }
 
-.typeColumnCell {
-  [class~='ag-cell-wrapper'], [class~='ag-cell-value'] {
-    align-items: center;
-    display: flex;
-    height: 100%;
-    min-width: 0;
-  }
-}
-
-.typeCell {
-  align-items: center;
-  display: flex;
-  gap: 0.5rem;
-  min-width: 0;
-}
-
-.typeName {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .priorityCell {
   align-items: center;
   display: flex;

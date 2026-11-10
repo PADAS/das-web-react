@@ -86,16 +86,11 @@
     "exportButtonLabel": "Export all fields (CSV)",
     "exportErrorMessage": "Could not export the CSV",
     "grid": {
-      "allRowsCheckboxLabel": "Select all rows",
-      "checkedStateLabel": "selected",
-      "indeterminateStateLabel": "some selected",
-      "noRowsMessage": "Nothing to show",
-      "rowCheckboxLabel": "Select row",
-      "rowDeselectMessage": "Press Space to deselect this row",
-      "rowSelectMessage": "Press Space to select this row",
-      "uncheckedStateLabel": "not selected"
+      "noRowsMessage": "Nothing to show"
     },
-    "iconColumnTitle": "Icon",
+    "headerCell": {
+      "allRowsCheckboxLabel": "Select all rows"
+    },
     "leaderColumnTitle": "Leader",
     "legsColumnTitle": "Legs",
     "loadedPatrolsMessage_one": "Showing {{loaded}} of {{count}} patrol",
@@ -119,6 +114,9 @@
     "selectedCountMessage_other": "{{count}} selected",
     "serialColumnTitle": "ID",
     "stateColumnTitle": "State",
+    "titleCell": {
+      "rowCheckboxLabel": "Select {{title}}"
+    },
     "titleColumnTitle": "Title",
     "updatedAtColumnTitle": "Updated"
   },

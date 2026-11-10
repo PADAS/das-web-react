@@ -86,16 +86,11 @@
     "exportButtonLabel": "Nakili sehemu zote (CSV)",
     "exportErrorMessage": "Imeshindwa kunakili CSV",
     "grid": {
-      "allRowsCheckboxLabel": "Chagua safu mlalo zote",
-      "checkedStateLabel": "imechaguliwa",
-      "indeterminateStateLabel": "baadhi zimechaguliwa",
-      "noRowsMessage": "Hakuna cha kuonyesha",
-      "rowCheckboxLabel": "Chagua safu mlalo",
-      "rowDeselectMessage": "Bonyeza space kuondoa uteuzi wa safu mlalo hii",
-      "rowSelectMessage": "Bonyeza space kuchagua safu mlalo hii",
-      "uncheckedStateLabel": "haijachaguliwa"
+      "noRowsMessage": "Hakuna cha kuonyesha"
     },
-    "iconColumnTitle": "Ikoni",
+    "headerCell": {
+      "allRowsCheckboxLabel": "Chagua safu mlalo zote"
+    },
     "leaderColumnTitle": "Kiongozi",
     "legsColumnTitle": "Vipande",
     "loadedPatrolsMessage_one": "Inaonyesha doria {{loaded}} kati ya {{count}}",
@@ -119,6 +114,9 @@
     "selectedCountMessage_other": "{{count}} vimechaguliwa",
     "serialColumnTitle": "Kitambulisho",
     "stateColumnTitle": "Hali",
+    "titleCell": {
+      "rowCheckboxLabel": "Chagua {{title}}"
+    },
     "titleColumnTitle": "Kichwa",
     "updatedAtColumnTitle": "Imesasishwa"
   },

@@ -20,7 +20,7 @@ import useFeedTableFullLoad from '../useFeedTableFullLoad';
 import useJumpToLocation from '../../hooks/useJumpToLocation';
 import useNavigate from '../../hooks/useNavigate';
 
-import FeedTable, { formatDateValue, ICON_COLUMN, IconCell } from '..';
+import FeedTable, { formatDateValue, TITLE_COLUMN } from '..';
 import SvgIcon from '../../SvgIcon';
 
 import * as styles from './styles.module.scss';
@@ -30,7 +30,7 @@ const FULL_LOAD_PARAMS = { page_size: 500, use_cursor: true };
 
 const selectPatrolStore = (state) => state.data.patrolStore;
 
-const PatrolIconCell = ({ value }) => <IconCell><SvgIcon iconId={value} type="patrols" /></IconCell>;
+const getPatrolPath = (patrol) => `/${TAB_KEYS.PATROLS}/${patrol.id}`;
 
 const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   const dispatch = useDispatch();
@@ -66,13 +66,16 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
 
   const columnDefs = useMemo(() => [
     {
-      ...ICON_COLUMN,
-      cellRenderer: PatrolIconCell,
-      menuName: t('iconColumnTitle'),
-      valueGetter: (params) => {
-        const segment = governingPatrolSegment(params.data);
-        return segment ? iconIdForPatrolSegment(patrolTypes, segment) : null;
+      ...TITLE_COLUMN,
+      cellRendererParams: {
+        renderIcon: (patrol) => {
+          const segment = governingPatrolSegment(patrol);
+          return <SvgIcon iconId={segment ? iconIdForPatrolSegment(patrolTypes, segment) : null} type="patrols" />;
+        },
       },
+      headerName: t('titleColumnTitle'),
+      ...sortable('title'),
+      valueGetter: (params) => calcTitleAndSubtitleForPatrol(params.data, patrolTypes).title ?? '',
     },
     {
       colId: 'serial_number',
@@ -81,14 +84,6 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
       minWidth: 80,
       ...sortable('serial_number'),
       width: 100,
-    },
-    {
-      colId: 'title',
-      flex: 2,
-      headerName: t('titleColumnTitle'),
-      minWidth: 180,
-      ...sortable('title'),
-      valueGetter: (params) => calcTitleAndSubtitleForPatrol(params.data, patrolTypes).title ?? '',
     },
     {
       colId: 'patrol_type',
@@ -168,7 +163,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   };
 
   const onOpenRow = (patrol) => {
-    navigate(`/${TAB_KEYS.PATROLS}/${patrol.id}`);
+    navigate(getPatrolPath(patrol));
 
     const coordinates = getPatrolLocationCoordinates(selectPatrolTrackData(store.getState(), patrol));
     if (coordinates?.length) {
@@ -182,6 +177,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
     fullLoad={fullLoad}
     getRowClass={getRowClass}
     getRowId={(params) => params.data.id}
+    getRowPath={getPatrolPath}
     loading={loading}
     onLoadMore={clientSort ? undefined : onLoadMore}
     onOpenRow={onOpenRow}

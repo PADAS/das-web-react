@@ -81,16 +81,11 @@
     "exportButtonLabel": "Exporter tous les champs (CSV)",
     "exportErrorMessage": "Le CSV n'a pas pu être exporté",
     "grid": {
-      "allRowsCheckboxLabel": "Sélectionner toutes les lignes",
-      "checkedStateLabel": "sélectionnée",
-      "indeterminateStateLabel": "certaines sélectionnées",
-      "noRowsMessage": "Rien à afficher",
-      "rowCheckboxLabel": "Sélectionner la ligne",
-      "rowDeselectMessage": "Appuyez sur la barre d’espace pour désélectionner cette ligne",
-      "rowSelectMessage": "Appuyez sur la barre d’espace pour sélectionner cette ligne",
-      "uncheckedStateLabel": "non sélectionnée"
+      "noRowsMessage": "Rien à afficher"
     },
-    "iconColumnTitle": "Icône",
+    "headerCell": {
+      "allRowsCheckboxLabel": "Sélectionner toutes les lignes"
+    },
     "leaderColumnTitle": "Chef",
     "legsColumnTitle": "Étapes",
     "loadedPatrolsMessage_one": "{{loaded}} patrouille affichée sur {{count}}",
@@ -114,6 +109,9 @@
     "selectedCountMessage_other": "{{count}} sélectionnés",
     "serialColumnTitle": "ID",
     "stateColumnTitle": "Statut",
+    "titleCell": {
+      "rowCheckboxLabel": "Sélectionner {{title}}"
+    },
     "titleColumnTitle": "Titre",
     "updatedAtColumnTitle": "Actualisé"
   },

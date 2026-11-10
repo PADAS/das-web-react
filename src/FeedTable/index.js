@@ -1,14 +1,10 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import isPlainObject from 'lodash/isPlainObject';
-import { createPortal } from 'react-dom';
-import MoonLoader from 'react-spinners/MoonLoader';
-import Overlay from 'react-bootstrap/Overlay';
-import Popover from 'react-bootstrap/Popover';
 import { AgGridReact } from 'ag-grid-react';
 import {
   CellStyleModule,
   ClientSideRowModelModule,
   ColumnApiModule,
+  EventApiModule,
   LocaleModule,
   ModuleRegistry,
   RenderApiModule,
@@ -18,13 +14,23 @@ import {
   ScrollApiModule,
   themeQuartz,
 } from 'ag-grid-community';
+import { createPortal } from 'react-dom';
+import isPlainObject from 'lodash/isPlainObject';
+import MoonLoader from 'react-spinners/MoonLoader';
+import omit from 'lodash/omit';
+import Overlay from 'react-bootstrap/Overlay';
+import Popover from 'react-bootstrap/Popover';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CheckIcon } from '../common/images/icons/check-light.svg';
 
+import FeedTableContext from './FeedTableContext';
 import { format, STANDARD_DATE_FORMAT } from '../utils/datetime';
 import navigateMenuWithKeyboard from '../SideBar/utils/navigateMenuWithKeyboard';
 import { showToast } from '../utils/toast';
+
+import HeaderCell from './HeaderCell';
+import TitleCell from './TitleCell';
 
 import * as styles from './styles.module.scss';
 
@@ -32,6 +38,7 @@ ModuleRegistry.registerModules([
   CellStyleModule,
   ClientSideRowModelModule,
   ColumnApiModule,
+  EventApiModule,
   LocaleModule,
   RenderApiModule,
   RowApiModule,
@@ -43,67 +50,50 @@ ModuleRegistry.registerModules([
 // How close to the last loaded row a scroll asks for the next page.
 const LOAD_MORE_EDGE_ROWS = 10;
 
-const SELECTION_COLUMN_ID = 'ag-Grid-SelectionColumn';
-
-const CELL_CONTROLS = 'a[href], button';
-const CONTROL_KEYS = ['Enter', ' '];
-
-const COLUMN_MOVE_OFFSET_BY_KEY = { ArrowLeft: -1, ArrowRight: 1 };
+// Keys pressed on a control in a cell or a header are the control's, so Tab
+// moves through the controls as it does anywhere else in the page.
+const CONTROLS = 'a[href], button, input, label';
 
 const ROW_SELECTION = {
-  checkboxes: true,
+  checkboxes: false,
   enableClickSelection: false,
-  headerCheckbox: true,
+  headerCheckbox: false,
   mode: 'multiRow',
 };
 
-// Alt and an arrow move the focused header's column, the keyboard's drag.
-const moveColumnWithKeyboard = ({ api, column, event }) => {
-  const offset = COLUMN_MOVE_OFFSET_BY_KEY[event.key];
-  if (!event.altKey || !offset) return false;
-
-  if (event.type === 'keydown') {
-    const colIds = api.getAllDisplayedColumns().map((displayedColumn) => displayedColumn.getColId());
-    const targetIndex = colIds.indexOf(column.getColId()) + offset;
-
-    if (targetIndex >= 0 && targetIndex < colIds.length && colIds[targetIndex] !== SELECTION_COLUMN_ID) {
-      event.preventDefault();
-      api.moveColumns([column], targetIndex);
-      api.setFocusedHeader(column);
-    }
-  }
-  return true;
-};
+const isFromControl = (params) => !!params.event.target.closest(CONTROLS);
 
 const DEFAULT_COL_DEF = {
-  // The drag handle is drawn in CSS: a header component would be remounted,
-  // and flicker, each time the grid is given new column definitions.
   headerClass: styles.headerCell,
+  headerComponent: HeaderCell,
   resizable: true,
   sortable: false,
-  // A control in a cell answers Enter and Space itself, not the grid.
-  suppressKeyboardEvent: ({ event }) => CONTROL_KEYS.includes(event.key) && !!event.target.closest(CELL_CONTROLS),
-  suppressHeaderKeyboardEvent: moveColumnWithKeyboard,
-  // Marks sortable columns with an arrow even before they're sorted.
-  unSortIcon: true,
+  suppressHeaderKeyboardEvent: isFromControl,
+  suppressKeyboardEvent: isFromControl,
 };
 
 const gridTheme = themeQuartz.withParams({
   accentColor: styles.accentColor,
   backgroundColor: styles.backgroundColor,
   borderColor: styles.borderColor,
+  cellHorizontalPadding: 8,
   fontFamily: 'inherit',
   fontSize: 14,
   foregroundColor: styles.foregroundColor,
-  headerBackgroundColor: styles.headerBackgroundColor,
-  headerFontSize: 13,
-  headerFontWeight: 600,
+  headerBackgroundColor: styles.backgroundColor,
+  headerCellHoverBackgroundColor: styles.backgroundColor,
+  headerColumnBorder: false,
+  headerColumnResizeHandleColor: 'transparent',
+  headerFontSize: 14,
+  headerFontWeight: 400,
   headerTextColor: styles.headerTextColor,
-  oddRowBackgroundColor: styles.oddRowBackgroundColor,
   selectedRowBackgroundColor: styles.selectedRowBackgroundColor,
-  wrapperBorderRadius: 0,
   wrapperBorder: false,
+  wrapperBorderRadius: 0,
 });
+
+// Keys that describe a column to the table, not to the grid.
+const TABLE_ONLY_COLUMN_KEYS = ['defaultHidden', 'layoutScoped', 'menuName', 'serverSorted'];
 
 // Resizes the user made, as opposed to the grid fitting flex columns.
 const USER_RESIZE_SOURCES = ['autosizeColumns', 'uiColumnResized'];
@@ -111,7 +101,9 @@ const USER_RESIZE_SOURCES = ['autosizeColumns', 'uiColumnResized'];
 // The version resets saved column choices when the default columns change.
 const STORAGE_VERSION = 'v2';
 
-const storageKey = (setting, tableKey, scope) => `feedTable.${STORAGE_VERSION}.${setting}.${tableKey}${scope ? `.${scope}` : ''}`;
+const storageKey = (setting, tableKey, scope) => [`feedTable.${STORAGE_VERSION}.${setting}.${tableKey}`, scope]
+  .filter(Boolean)
+  .join('.');
 
 const readStored = (key, isValid, fallback) => {
   try {
@@ -166,21 +158,22 @@ const fillWidthWithLastColumn = (columns) => {
     : column);
 };
 
-const controlInCell = (element) => element.classList?.contains('ag-cell')
-  ? element.querySelector(CELL_CONTROLS)
-  : null;
-
-export const ICON_COLUMN = {
-  cellClass: styles.iconColumnCell,
-  colId: 'icon',
-  headerName: '',
-  maxWidth: 52,
-  minWidth: 52,
-  resizable: false,
+// Leads every row and is always shown. Its `cellRendererParams` give
+// `renderIcon(row)`; the icon takes its colors from the row's theme.
+export const TITLE_COLUMN = {
+  cellClass: styles.titleColumnCell,
+  cellRenderer: TitleCell,
+  colId: 'title',
+  headerClass: null,
+  headerComponentParams: { hasSelectAll: true },
+  lockPinned: true,
+  lockPosition: 'left',
+  lockVisible: true,
+  minWidth: 200,
+  pinned: 'left',
+  suppressMovable: true,
+  width: 300,
 };
-
-// Its colors come from the row's theme, as the feed rows' icons do.
-export const IconCell = ({ children }) => <span aria-hidden="true" className={styles.iconCell}>{children}</span>;
 
 export const formatDateValue = (params) => {
   const date = params.value ? new Date(params.value) : null;
@@ -189,7 +182,7 @@ export const formatDateValue = (params) => {
 };
 
 // `layoutScoped` columns, such as an event type's fields, keep their own order.
-// `menuName` names a column without a header, such as the icon, in the menu.
+// `menuName` names a column without a header in the menu.
 // A sorted column that is not `serverSorted` is sorted by the grid.
 const FeedTable = ({
   ariaLabel,
@@ -197,10 +190,11 @@ const FeedTable = ({
   fullLoad,
   getRowClass,
   getRowId,
+  getRowPath,
   layoutScope = '',
   loading = false,
-  onLoadMore,
   onExport,
+  onLoadMore,
   onOpenRow,
   onSortChanged,
   renderBulkActions,
@@ -218,34 +212,27 @@ const FeedTable = ({
   const moveColumnHintId = useId();
 
   const [columnOrders, setColumnOrders] = useState({});
+  const [columnsButton, setColumnsButton] = useState(null);
   const [columnWidths, setColumnWidths] = useState(
     () => readStored(storageKey('columnWidths', tableKey), isPlainObject, {})
   );
-  const [columnsButton, setColumnsButton] = useState(null);
-  const [exporting, setExporting] = useState(false);
   const [gridApi, setGridApi] = useState(null);
+  const [gridElement, setGridElement] = useState(null);
   const [hiddenColumns, setHiddenColumns] = useState(
     () => readStored(storageKey('hiddenColumns', tableKey), isPlainObject, {})
   );
   const [isColumnsMenuOpen, setIsColumnsMenuOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
 
-  const localeText = useMemo(() => ({
-    ariaChecked: t('grid.checkedStateLabel'),
-    ariaHeaderSelection: t('grid.allRowsCheckboxLabel'),
-    ariaIndeterminate: t('grid.indeterminateStateLabel'),
-    ariaRowDeselect: t('grid.rowDeselectMessage'),
-    ariaRowSelect: t('grid.rowSelectMessage'),
-    ariaRowSelectAll: t('grid.allRowsCheckboxLabel'),
-    ariaRowToggleSelection: t('grid.rowCheckboxLabel'),
-    ariaUnchecked: t('grid.uncheckedStateLabel'),
-    noRowsToShow: t('grid.noRowsMessage'),
-  }), [t]);
-
-  const isColumnHidden = useCallback(
-    (column) => hiddenColumns[column.colId] ?? !!column.defaultHidden,
-    [hiddenColumns]
-  );
+  const clientSortColumn = columnDefs.find((column) => !!column.sort && !column.serverSorted);
+  const clientSortMessageValues = clientSortColumn && {
+    column: clientSortColumn.menuName ?? clientSortColumn.headerName,
+    loaded: rowData.length,
+    total: totalCount,
+  };
+  const isClientSortPaused = !!clientSortColumn && !loading && !!fullLoad?.isPaused;
+  const isLoadingForClientSort = !!clientSortColumn && !loading && !!fullLoad?.isLoading;
 
   const columnOrder = useMemo(() => {
     const orderOf = (scope) => columnOrders[scope] ?? readColumnOrder(tableKey, scope);
@@ -253,18 +240,37 @@ const FeedTable = ({
     return (layoutScope && orderOf(layoutScope)) || orderOf('') || [];
   }, [columnOrders, layoutScope, tableKey]);
 
+  const feedTableContext = useMemo(() => ({
+    getRowPath,
+    isSelectable: !!renderBulkActions,
+    moveColumnHintId,
+    onOpenRow,
+  }), [getRowPath, moveColumnHintId, onOpenRow, renderBulkActions]);
+
+  const isColumnHidden = useCallback(
+    (column) => !column.lockVisible && (hiddenColumns[column.colId] ?? !!column.defaultHidden),
+    [hiddenColumns]
+  );
+
+  const localeText = useMemo(() => ({ noRowsToShow: t('grid.noRowsMessage') }), [t]);
+
   const orderedColumnDefs = useMemo(() => orderColumns(columnDefs, columnOrder), [columnDefs, columnOrder]);
 
   // The grid lays columns out in definition order, so the order survives a
   // rebuild only if the definitions carry it.
-  const visibleColumnDefs = useMemo(
-    () => fillWidthWithLastColumn(orderedColumnDefs.map(({ defaultHidden, layoutScoped: _layoutScoped, menuName: _menuName, serverSorted: _serverSorted, ...column }) => ({
-      ...column,
-      ...(columnWidths[column.colId] && { flex: null, width: columnWidths[column.colId] }),
-      hide: isColumnHidden({ ...column, defaultHidden }),
-    }))),
-    [columnWidths, isColumnHidden, orderedColumnDefs]
-  );
+  const visibleColumnDefs = useMemo(() => fillWidthWithLastColumn(orderedColumnDefs.map((column) => ({
+    ...omit(column, TABLE_ONLY_COLUMN_KEYS),
+    ...(columnWidths[column.colId] && { flex: null, width: columnWidths[column.colId] }),
+    hide: isColumnHidden(column),
+  }))), [columnWidths, isColumnHidden, orderedColumnDefs]);
+
+  // The selection controls unmount with the selection, so focus goes to the
+  // checkbox that selects every row instead of falling to the page.
+  const clearSelection = () => {
+    gridApi.deselectAll();
+
+    gridElement?.querySelector('input[type="checkbox"]')?.focus();
+  };
 
   const closeColumnsMenu = () => {
     setIsColumnsMenuOpen(false);
@@ -272,11 +278,49 @@ const FeedTable = ({
     columnsButton?.focus();
   };
 
-  const toggleColumn = (column) => {
-    const nextHiddenColumns = { ...hiddenColumns, [column.colId]: !isColumnHidden(column) };
+  const onBodyScroll = (event) => {
+    if (onLoadMore && event.direction === 'vertical') {
+      const displayedRowCount = event.api.getDisplayedRowCount();
+      if (displayedRowCount > 0 && event.api.getLastDisplayedRowIndex() >= displayedRowCount - LOAD_MORE_EDGE_ROWS) {
+        onLoadMore();
+      }
+    }
+  };
 
-    setHiddenColumns(nextHiddenColumns);
-    writeStored(storageKey('hiddenColumns', tableKey), nextHiddenColumns);
+  // A control in a cell, such as the title link, acts instead of the row.
+  const onCellClicked = (event) => {
+    if (!event.event?.target?.closest?.(CONTROLS)) {
+      onOpenRow(event.data);
+    }
+  };
+
+  const onColumnMoved = (event) => {
+    if (event.finished) {
+      saveColumnOrder(event.api.getColumnState().map((column) => column.colId));
+    }
+  };
+
+  const onColumnResized = (event) => {
+    if (event.finished && USER_RESIZE_SOURCES.includes(event.source) && event.columns?.length) {
+      const nextColumnWidths = { ...columnWidths };
+      event.columns.forEach((column) => {
+        nextColumnWidths[column.getColId()] = column.getActualWidth();
+      });
+
+      setColumnWidths(nextColumnWidths);
+      writeStored(storageKey('columnWidths', tableKey), nextColumnWidths);
+    }
+  };
+
+  const onExportClick = async () => {
+    setIsExporting(true);
+    try {
+      await onExport();
+    } catch {
+      showToast({ message: t('exportErrorMessage') });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const saveColumnOrder = (order) => {
@@ -294,104 +338,16 @@ const FeedTable = ({
     }
   };
 
-  const onColumnMoved = (event) => {
-    if (event.finished) {
-      saveColumnOrder(
-        event.api.getColumnState().map((column) => column.colId).filter((colId) => colId !== SELECTION_COLUMN_ID)
-      );
-    }
-  };
+  const toggleColumn = (column) => {
+    const nextHiddenColumns = { ...hiddenColumns, [column.colId]: !isColumnHidden(column) };
 
-  const onColumnResized = (event) => {
-    if (!event.finished || !USER_RESIZE_SOURCES.includes(event.source) || !event.columns?.length) return;
-
-    const nextColumnWidths = { ...columnWidths };
-    event.columns.forEach((column) => {
-      nextColumnWidths[column.getColId()] = column.getActualWidth();
-    });
-
-    setColumnWidths(nextColumnWidths);
-    writeStored(storageKey('columnWidths', tableKey), nextColumnWidths);
-  };
-
-  // The selection controls unmount with the selection, so focus goes back to
-  // the grid instead of falling to the page.
-  const clearSelection = useCallback(() => {
-    gridApi.deselectAll();
-
-    const focusedCell = gridApi.getFocusedCell();
-    const firstColumn = gridApi.getAllDisplayedColumns()[0];
-    if (focusedCell) {
-      gridApi.setFocusedCell(focusedCell.rowIndex, focusedCell.column);
-    } else if (firstColumn && gridApi.getDisplayedRowCount() > 0) {
-      gridApi.setFocusedCell(0, firstColumn);
-    }
-  }, [gridApi]);
-
-  // A control in a cell, such as a drill-down link, acts instead of the row.
-  const opensRow = (event) => event.column.getColId() !== SELECTION_COLUMN_ID
-    && !event.event?.target?.closest?.(CELL_CONTROLS);
-
-  const onCellClicked = (event) => {
-    if (opensRow(event)) {
-      onOpenRow(event.data);
-    }
-  };
-
-  const onCellKeyDown = (event) => {
-    if (event.event?.key === 'Enter' && opensRow(event)) {
-      onOpenRow(event.data);
-    }
-  };
-
-  // Runs before the grid's own handler, which skips keys already handled.
-  const onGridKeyDownCapture = (event) => {
-    const control = controlInCell(event.target);
-    if (!control) return;
-
-    if (CONTROL_KEYS.includes(event.key)) {
-      event.preventDefault();
-      control.click();
-    } else if (event.key === 'Tab' && !event.shiftKey) {
-      event.preventDefault();
-      control.focus();
-    }
-  };
-
-  const onBodyScroll = (event) => {
-    if (!onLoadMore || event.direction !== 'vertical') return;
-
-    const lastDisplayedRowIndex = event.api.getLastDisplayedRowIndex();
-    const displayedRowCount = event.api.getDisplayedRowCount();
-    if (displayedRowCount > 0 && lastDisplayedRowIndex >= displayedRowCount - LOAD_MORE_EDGE_ROWS) {
-      onLoadMore();
-    }
-  };
-
-  const clientSortColumn = columnDefs.find((column) => !!column.sort && !column.serverSorted);
-  const isLoadingForClientSort = !!clientSortColumn && !loading && !!fullLoad?.isLoading;
-  const isClientSortPaused = !!clientSortColumn && !loading && !!fullLoad?.isPaused;
-  const clientSortMessageValues = clientSortColumn && {
-    column: clientSortColumn.menuName ?? clientSortColumn.headerName,
-    loaded: rowData.length,
-    total: totalCount,
-  };
-
-  const onExportClick = async () => {
-    setExporting(true);
-    try {
-      await onExport();
-    } catch {
-      showToast({ message: t('exportErrorMessage') });
-    } finally {
-      setExporting(false);
-    }
+    setHiddenColumns(nextHiddenColumns);
+    writeStored(storageKey('hiddenColumns', tableKey), nextHiddenColumns);
   };
 
   useEffect(() => {
     gridApi?.setGridAriaProperty('label', ariaLabel ?? null);
-    gridApi?.setGridAriaProperty('describedby', moveColumnHintId);
-  }, [ariaLabel, gridApi, moveColumnHintId]);
+  }, [ariaLabel, gridApi]);
 
   useEffect(() => {
     if (isColumnsMenuOpen) {
@@ -471,7 +427,10 @@ const FeedTable = ({
               )}
               role="menu"
             >
-              {orderedColumnDefs.map((column, index) => <li key={column.colId} role="none">
+              {orderedColumnDefs.filter((column) => !column.lockVisible).map((column, index) => <li
+                key={column.colId}
+                role="none"
+              >
                 <button
                   aria-checked={!isColumnHidden(column)}
                   className={styles.columnsMenuItem}
@@ -495,7 +454,7 @@ const FeedTable = ({
         {!!onExport && <button
           className={styles.toolbarButton}
           data-testid="feedTable-exportButton"
-          disabled={exporting || loading}
+          disabled={isExporting || loading}
           onClick={onExportClick}
           type="button"
         >
@@ -506,31 +465,35 @@ const FeedTable = ({
 
     <p hidden id={moveColumnHintId}>{t('moveColumnHintMessage')}</p>
 
-    <div className={styles.grid} onKeyDownCapture={onGridKeyDownCapture}>
-      <AgGridReact
-        columnDefs={visibleColumnDefs}
-        defaultColDef={DEFAULT_COL_DEF}
-        enableCellTextSelection
-        ensureDomOrder
-        getRowClass={getRowClass}
-        getRowId={getRowId}
-        loading={loading || exporting}
-        loadingOverlayComponent={() => <div className={styles.loadingOverlay}><MoonLoader size={40} /></div>}
-        localeText={localeText}
-        onBodyScroll={onBodyScroll}
-        onCellClicked={onCellClicked}
-        onCellKeyDown={onCellKeyDown}
-        onColumnMoved={onColumnMoved}
-        onColumnResized={onColumnResized}
-        onGridReady={(event) => setGridApi(event.api)}
-        onSelectionChanged={(event) => setSelectedRows(event.api.getSelectedRows())}
-        onSortChanged={onSortChanged}
-        rowClass={styles.row}
-        rowData={rowData}
-        rowSelection={renderBulkActions ? ROW_SELECTION : undefined}
-        suppressMultiSort
-        theme={gridTheme}
-      />
+    <div className={styles.grid} ref={setGridElement}>
+      <FeedTableContext value={feedTableContext}>
+        <AgGridReact
+          columnDefs={visibleColumnDefs}
+          defaultColDef={DEFAULT_COL_DEF}
+          enableCellTextSelection
+          ensureDomOrder
+          getRowClass={getRowClass}
+          getRowId={getRowId}
+          loading={loading || isExporting}
+          loadingOverlayComponent={() => <div className={styles.loadingOverlay}><MoonLoader size={40} /></div>}
+          localeText={localeText}
+          onBodyScroll={onBodyScroll}
+          onCellClicked={onCellClicked}
+          onColumnMoved={onColumnMoved}
+          onColumnResized={onColumnResized}
+          onGridReady={(event) => setGridApi(event.api)}
+          onSelectionChanged={(event) => setSelectedRows(event.api.getSelectedRows())}
+          onSortChanged={onSortChanged}
+          rowClass={styles.row}
+          rowData={rowData}
+          rowSelection={renderBulkActions ? ROW_SELECTION : undefined}
+          suppressCellFocus
+          suppressHeaderFocus
+          suppressMultiSort
+          tabIndex={-1}
+          theme={gridTheme}
+        />
+      </FeedTableContext>
     </div>
   </div>;
 };

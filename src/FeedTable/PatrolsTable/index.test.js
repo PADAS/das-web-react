@@ -206,11 +206,11 @@ describe('FeedTable - PatrolsTable', () => {
     expect(columnById('leader').valueGetter({ data: twoLegPatrol })).toBe('Current leader');
   });
 
-  test('shows the icon of the leg the patrol is on', () => {
+  test('leads with the title column, showing the icon of the leg the patrol is on', () => {
     renderPatrolsTable();
 
-    expect(lastGridProps().columnDefs[0].colId).toBe('icon');
-    expect(columnById('icon').valueGetter({ data: activePatrol })).toBe(
+    expect(lastGridProps().columnDefs[0].colId).toBe('title');
+    expect(columnById('title').cellRendererParams.renderIcon(activePatrol).props.iconId).toBe(
       iconIdForPatrolSegment(patrolTypes, governingPatrolSegment(activePatrol))
     );
   });

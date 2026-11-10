@@ -4,14 +4,18 @@ import userEvent from '@testing-library/user-event';
 
 import { fireEvent, render, screen, waitFor } from '../test-utils';
 
-import FeedTable, { formatDateValue, ICON_COLUMN, IconCell } from '.';
+import FeedTable, { formatDateValue, TITLE_COLUMN } from '.';
 
 const COLUMNS = [
   { colId: 'a', field: 'a', headerName: 'A' },
   { colId: 'b', field: 'b', headerName: 'B' },
   { colId: 'c', field: 'c', headerName: 'C' },
 ];
-const ROWS = [{ a: 1, b: 2, c: 3, id: 'row-1' }];
+const ROWS = [{ a: 1, b: 2, c: 3, id: 'row-1', title: 'First row' }];
+const TITLED_COLUMNS = [
+  { ...TITLE_COLUMN, cellRendererParams: { renderIcon: () => '!' }, field: 'title', headerName: 'Title', sortable: true },
+  ...COLUMNS.map((column) => ({ ...column, sortable: true })),
+];
 const FIELD_COLUMNS = [
   { colId: 'x', field: 'x', headerName: 'X', layoutScoped: true },
   { colId: 'y', field: 'y', headerName: 'Y', layoutScoped: true },
@@ -36,6 +40,7 @@ describe('FeedTable', () => {
     ariaLabel="Test table"
     columnDefs={columnDefs}
     getRowId={(params) => params.data.id}
+    getRowPath={(row) => `/rows/${row.id}`}
     layoutScope={layoutScope}
     onOpenRow={onOpenRow}
     renderBulkActions={() => null}
@@ -63,12 +68,12 @@ describe('FeedTable', () => {
     return renderFeedTable(columnDefs, layoutScope);
   };
 
-  const focusCell = (colId) => act(() => gridApi.setFocusedCell(0, colId));
-
   const renderFeedTableWithDetailsCell = () => renderFeedTable([
-    ...COLUMNS,
+    ...TITLED_COLUMNS,
     { cellRenderer: DetailsCell, cellRendererParams: { onOpenDetails }, colId: 'details', headerName: 'Details' },
   ]);
+
+  const headerCell = (colId) => document.querySelector(`.ag-header-cell[col-id="${colId}"]`);
 
   const shownColumnOrder = () => gridApi.getColumnState().filter((column) => !column.hide).map((column) => column.colId);
 
@@ -77,7 +82,7 @@ describe('FeedTable', () => {
     await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
   };
 
-  const dragCToFront = () => userArranges(() => gridApi.moveColumns(['c'], 1));
+  const dragCToFront = () => userArranges(() => gridApi.moveColumns(['c'], 0));
 
   test('keeps a dragged column order when new column definitions arrive', async () => {
     const { rerender } = await renderFeedTable();
@@ -158,7 +163,7 @@ describe('FeedTable', () => {
 
   test('remembers the order of an event type\'s field columns apart from the base columns', async () => {
     const { unmount } = await renderFeedTable([...COLUMNS, ...FIELD_COLUMNS], 'type-1');
-    await userArranges(() => gridApi.moveColumns(['y'], 1));
+    await userArranges(() => gridApi.moveColumns(['y'], 0));
     await dragCToFront();
 
     expect(shownColumnOrder().slice(-5)).toEqual(['c', 'y', 'a', 'b', 'x']);
@@ -181,11 +186,75 @@ describe('FeedTable', () => {
     expect(await screen.findByRole('grid', { name: 'Test table' })).toBeInTheDocument();
   });
 
-  test('names the selection checkboxes in the app language', async () => {
-    await renderFeedTable();
+  test('names each checkbox in the app language, a row\'s after its title', async () => {
+    await renderFeedTable(TITLED_COLUMNS);
 
     expect(await screen.findByRole('checkbox', { name: 'Select all rows' })).toBeInTheDocument();
-    expect(await screen.findByRole('checkbox', { name: 'Select row (not selected)' })).toBeInTheDocument();
+    expect(await screen.findByRole('checkbox', { name: 'Select First row' })).toBeInTheDocument();
+  });
+
+  test('selects every row from the header checkbox, which shows a partial selection as mixed', async () => {
+    const rows = [...ROWS, { a: 4, b: 5, c: 6, id: 'row-2', title: 'Second row' }];
+    await renderFeedTable(TITLED_COLUMNS, undefined, rows);
+
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Select First row' }));
+
+    expect(screen.getByRole('checkbox', { name: 'Select all rows' })).toBePartiallyChecked();
+    expect(screen.getByText('1 selected')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Select all rows' }));
+
+    expect(screen.getByRole('checkbox', { name: 'Select all rows' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'Select Second row' })).toBeChecked();
+    expect(screen.getByText('2 selected')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Select all rows' }));
+
+    expect(screen.getByRole('checkbox', { name: 'Select First row' })).not.toBeChecked();
+    expect(screen.queryByText(/selected/)).toBeNull();
+  });
+
+  test('pins the title column first and always shows it, leaving it out of the Columns menu', async () => {
+    window.localStorage.setItem('feedTable.v2.hiddenColumns.test', JSON.stringify({ title: true }));
+    window.localStorage.setItem('feedTable.v2.columnOrder.test', JSON.stringify(['a', 'title', 'b', 'c']));
+    await renderFeedTable(TITLED_COLUMNS);
+
+    expect(gridApi.getColumn('title').isPinnedLeft()).toBe(true);
+    expect(gridApi.getColumn('title').isVisible()).toBe(true);
+    expect(gridApi.getAllDisplayedColumns()[0].getColId()).toBe('title');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Columns' }));
+
+    expect(screen.queryByRole('menuitemcheckbox', { name: 'Title' })).toBeNull();
+  });
+
+  test('shows the title as a link that opens the row', async () => {
+    await renderFeedTable(TITLED_COLUMNS);
+
+    const titleLink = await screen.findByRole('link', { name: 'First row' });
+    expect(titleLink).toHaveAttribute('href', '/rows/row-1');
+
+    await userEvent.click(titleLink);
+
+    expect(onOpenRow).toHaveBeenCalledTimes(1);
+    expect(onOpenRow).toHaveBeenCalledWith(ROWS[0]);
+  });
+
+  test('leaves a modified click on the title link to the browser', async () => {
+    await renderFeedTable(TITLED_COLUMNS);
+
+    const isOpenedInPage = fireEvent.click(await screen.findByRole('link', { name: 'First row' }), { ctrlKey: true });
+
+    expect(isOpenedInPage).toBe(true);
+    expect(onOpenRow).not.toHaveBeenCalled();
+  });
+
+  test('does not open the row when its checkbox is clicked', async () => {
+    await renderFeedTable(TITLED_COLUMNS);
+
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Select First row' }));
+
+    expect(onOpenRow).not.toHaveBeenCalled();
   });
 
   test('has every grid module the tables use registered', async () => {
@@ -194,7 +263,7 @@ describe('FeedTable', () => {
     const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
     await renderFeedTable([
-      { ...ICON_COLUMN, cellRenderer: () => <IconCell>!</IconCell>, menuName: 'Icon' },
+      TITLED_COLUMNS[0],
       { colId: 'a', field: 'a', headerName: 'A', sortable: true, sort: 'asc', sortingOrder: ['desc', 'asc'] },
       { cellDataType: false, colId: 'b', field: 'b', headerName: 'B', valueFormatter: formatDateValue },
       { colId: 'c', flex: 1, headerName: 'C', valueGetter: (params) => params.data.c },
@@ -202,15 +271,16 @@ describe('FeedTable', () => {
     await screen.findByText('!');
 
     const messages = [...consoleError.mock.calls, ...consoleWarn.mock.calls].map((args) => args.join(' '));
-    expect(messages.filter((message) => message.includes('is not registered'))).toEqual([]);
-    expect(document.querySelector('.ag-row .ag-cell[col-id="icon"]')).toHaveClass('iconColumnCell');
+    expect(messages.filter((message) => message.includes('is not registered') || message.includes('AG Grid')))
+      .toEqual([]);
+    expect(document.querySelector('.ag-row .ag-cell[col-id="title"]')).toHaveClass('titleColumnCell');
   });
 
   test('offers no row selection without bulk actions', async () => {
-    await renderFeedTable(COLUMNS, undefined, ROWS, { renderBulkActions: undefined });
+    await renderFeedTable(TITLED_COLUMNS, undefined, ROWS, { renderBulkActions: undefined });
 
-    await screen.findByText('A');
-    expect(screen.queryByRole('checkbox', { name: 'Select all rows' })).toBeNull();
+    await screen.findByRole('link', { name: 'First row' });
+    expect(screen.queryByRole('checkbox')).toBeNull();
   });
 
   test('shows a status message in the toolbar', async () => {
@@ -260,8 +330,8 @@ describe('FeedTable', () => {
   test('sorts by one column only, even when a header is shift-clicked', async () => {
     await renderFeedTable(COLUMNS.map((column) => ({ ...column, sortable: true })));
 
-    await userEvent.click(await screen.findByText('A'));
-    fireEvent.click(screen.getByText('B'), { shiftKey: true });
+    await userEvent.click(await screen.findByRole('button', { name: 'A' }));
+    fireEvent.click(screen.getByRole('button', { name: 'B' }), { shiftKey: true });
 
     await waitFor(() => expect(gridApi.getColumnState().filter((column) => column.sort).map((column) => column.colId))
       .toEqual(['b']));
@@ -273,18 +343,54 @@ describe('FeedTable', () => {
     expect(await screen.findByText('Nothing to show')).toBeVisible();
   });
 
-  test('opens the row when Enter is pressed on a cell', async () => {
+  test('sorts a column from its header button and shows the direction', async () => {
+    await renderFeedTable(TITLED_COLUMNS);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'A' }));
+
+    expect(gridApi.getColumn('a').getSort()).toBe('asc');
+    expect(headerCell('a')).toHaveAttribute('aria-sort', 'ascending');
+
+    await userEvent.click(screen.getByRole('button', { name: 'A' }));
+
+    expect(gridApi.getColumn('a').getSort()).toBe('desc');
+  });
+
+  test('shows a header without a sort as plain text', async () => {
     await renderFeedTable();
-    focusCell('a');
 
-    await userEvent.keyboard('{Enter}');
+    expect(await screen.findByText('A')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'A' })).toBeNull();
+  });
 
-    await waitFor(() => expect(onOpenRow).toHaveBeenCalledWith(ROWS[0]));
+  test('tabs through the checkboxes, sort buttons, title links and cell controls only', async () => {
+    await renderFeedTableWithDetailsCell();
+    await screen.findByRole('link', { name: 'First row' });
+    act(() => screen.getByRole('button', { name: 'Columns' }).focus());
+
+    const tabStops = [];
+    for (let index = 0; index < 8; index += 1) {
+      await userEvent.tab();
+      tabStops.push(document.activeElement);
+    }
+
+    expect(tabStops.slice(0, 7)).toEqual([
+      screen.getByRole('checkbox', { name: 'Select all rows' }),
+      screen.getByRole('button', { name: 'Title' }),
+      screen.getByRole('button', { name: 'A' }),
+      screen.getByRole('button', { name: 'B' }),
+      screen.getByRole('button', { name: 'C' }),
+      screen.getByRole('checkbox', { name: 'Select First row' }),
+      screen.getByRole('link', { name: 'First row' }),
+    ]);
+    expect(tabStops[7]).toBe(screen.getByRole('button', { name: 'Open details' }));
+    expect(document.querySelectorAll('.ag-cell[tabindex], .ag-header-cell[tabindex]')).toHaveLength(0);
   });
 
   test('activates the control in a cell with Enter or Space instead of opening the row', async () => {
     await renderFeedTableWithDetailsCell();
-    focusCell('details');
+    const detailsButton = await screen.findByRole('button', { name: 'Open details' });
+    act(() => detailsButton.focus());
 
     await userEvent.keyboard('{Enter}');
     await userEvent.keyboard(' ');
@@ -294,49 +400,46 @@ describe('FeedTable', () => {
     expect(onOpenRow).not.toHaveBeenCalled();
   });
 
-  test('moves focus to the control in a cell with Tab, where Enter activates it', async () => {
-    await renderFeedTableWithDetailsCell();
-    focusCell('details');
-
-    await userEvent.tab();
-
-    expect(screen.getByRole('button', { name: 'Open details' })).toHaveFocus();
-
-    await userEvent.keyboard('{Enter}');
-
-    expect(onOpenDetails).toHaveBeenCalledTimes(1);
-    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
-    expect(onOpenRow).not.toHaveBeenCalled();
-  });
-
-  const headerCell = (colId) => document.querySelector(`.ag-header-cell[col-id="${colId}"]`);
-
-  test('moves the focused column header with Alt and an arrow, keeping focus on it and saving the order', async () => {
-    await renderFeedTable();
-    act(() => gridApi.setFocusedHeader('c'));
+  test('moves a column with Alt and an arrow on its sort button, keeping focus there and saving the order', async () => {
+    await renderFeedTable(TITLED_COLUMNS);
+    const sortButton = await screen.findByRole('button', { name: 'C' });
+    act(() => sortButton.focus());
 
     await userEvent.keyboard('{Alt>}{ArrowLeft}{/Alt}');
 
-    expect(stored('feedTable.v2.columnOrder.test')).toEqual(['a', 'c', 'b']);
-    await waitFor(() => expect(shownColumnOrder().slice(-3)).toEqual(['a', 'c', 'b']));
-    expect(headerCell('c')).toHaveFocus();
+    expect(stored('feedTable.v2.columnOrder.test')).toEqual(['title', 'a', 'c', 'b']);
+    await waitFor(() => expect(shownColumnOrder()).toEqual(['title', 'a', 'c', 'b']));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'C' })).toHaveFocus());
   });
 
-  test('does not move a column before the selection checkboxes', async () => {
-    await renderFeedTable();
-    act(() => gridApi.setFocusedHeader('a'));
+  test('moves a column past a hidden one to the next shown column', async () => {
+    window.localStorage.setItem('feedTable.v2.hiddenColumns.test', JSON.stringify({ b: true }));
+    await renderFeedTable(TITLED_COLUMNS);
+    const sortButton = await screen.findByRole('button', { name: 'C' });
+    act(() => sortButton.focus());
+
+    await userEvent.keyboard('{Alt>}{ArrowLeft}{/Alt}');
+
+    await waitFor(() => expect(shownColumnOrder()).toEqual(['title', 'c', 'a']));
+  });
+
+  test('does not move a column before the title column', async () => {
+    await renderFeedTable(TITLED_COLUMNS);
+    const sortButton = await screen.findByRole('button', { name: 'A' });
+    act(() => sortButton.focus());
 
     await userEvent.keyboard('{Alt>}{ArrowLeft}{/Alt}');
 
     expect(stored('feedTable.v2.columnOrder.test')).toBeNull();
   });
 
-  test('describes how to move columns from the keyboard', async () => {
-    await renderFeedTable();
+  test('describes how to move a column on its sort button, but not on the title\'s', async () => {
+    await renderFeedTable(TITLED_COLUMNS);
 
-    expect(await screen.findByRole('grid', { name: 'Test table' })).toHaveAccessibleDescription(
+    expect(await screen.findByRole('button', { name: 'A' })).toHaveAccessibleDescription(
       'Press Alt and the left or right arrow on a column header to move the column.'
     );
+    expect(screen.getByRole('button', { name: 'Title' })).not.toHaveAccessibleDescription();
   });
 
   test('lets the last shown column fill the width when every column has a fixed one', async () => {
@@ -374,14 +477,14 @@ describe('FeedTable', () => {
     expect(stored('feedTable.v2.hiddenColumns.test')).toEqual({ b: true });
   });
 
-  test('returns focus to the grid when the selection is cleared', async () => {
-    await renderFeedTable();
-    await userEvent.click(await screen.findByRole('checkbox', { name: 'Select row (not selected)' }));
+  test('moves focus to the checkbox for every row when the selection is cleared', async () => {
+    await renderFeedTable(TITLED_COLUMNS);
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Select First row' }));
 
     await userEvent.click(screen.getByRole('button', { name: 'Clear' }));
 
     expect(screen.queryByRole('button', { name: 'Clear' })).toBeNull();
-    expect(document.activeElement.closest('.ag-cell')).toBeTruthy();
+    expect(screen.getByRole('checkbox', { name: 'Select all rows' })).toHaveFocus();
   });
 
   test('closes the Columns menu with Escape and returns focus to its button', async () => {

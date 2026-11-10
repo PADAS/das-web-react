@@ -337,18 +337,18 @@ describe('EventsTable', () => {
     expect(lastGridProps().columnDefs).toBe(columnDefs);
   });
 
-  test('shows the event icon in the type column, with no icon column of its own', () => {
+  test('shows the event icon in the title column, with no icon column of its own', () => {
     renderEventsTable();
 
     expect(columnById('icon')).toBeUndefined();
-    expect(columnById('event_type').cellRenderer).toEqual(expect.any(Function));
+    expect(columnById('title').cellRendererParams.renderIcon(report).props.report).toBe(report);
   });
 
-  test('orders the columns ID, type, title, reporter, updated and event time first', () => {
+  test('orders the columns title, ID, type, reporter, updated and event time first', () => {
     renderEventsTable();
 
     expect(lastGridProps().columnDefs.slice(0, 6).map((column) => column.colId))
-      .toEqual(['serial_number', 'event_type', 'title', 'reported_by', 'updated_at', 'event_time']);
+      .toEqual(['title', 'serial_number', 'event_type', 'reported_by', 'updated_at', 'event_time']);
   });
 
   test('ignores column choices saved before the default columns changed', () => {
@@ -426,7 +426,8 @@ describe('EventsTable', () => {
   test('does not open the event when its checkbox is clicked', () => {
     renderEventsTable();
 
-    lastGridProps().onCellClicked({ column: { getColId: () => 'ag-Grid-SelectionColumn' }, data: report });
+    const checkbox = document.createElement('input');
+    lastGridProps().onCellClicked({ column: { getColId: () => 'title' }, data: report, event: { target: checkbox } });
 
     expect(navigate).not.toHaveBeenCalled();
   });
@@ -558,13 +559,16 @@ describe('EventsTable', () => {
 
     expect(columnById('created_at').hide).toBe(true);
     expect(columnById('location').hide).toBe(true);
-    expect(columnById('title').hide).toBe(false);
+    expect(columnById('reported_by').hide).toBe(false);
 
     await userEvent.click(screen.getByRole('button', { name: 'Columns' }));
-    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: 'Title' }));
 
-    expect(columnById('title').hide).toBe(true);
-    expect(JSON.parse(window.localStorage.getItem('feedTable.v2.hiddenColumns.events'))).toEqual({ title: true });
+    expect(screen.queryByRole('menuitemcheckbox', { name: 'Title' })).toBeNull();
+
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: 'Reported by' }));
+
+    expect(columnById('reported_by').hide).toBe(true);
+    expect(JSON.parse(window.localStorage.getItem('feedTable.v2.hiddenColumns.events'))).toEqual({ reported_by: true });
   });
 
   test('resolves the selected events', async () => {
