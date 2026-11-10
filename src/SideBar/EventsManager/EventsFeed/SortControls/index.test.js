@@ -3,8 +3,12 @@ import userEvent from '@testing-library/user-event';
 
 import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../../../../constants';
 import { mockStore } from '../../../../__test-helpers/MockStore';
-import { render, screen } from '../../../../test-utils';
+import { render, screen, within } from '../../../../test-utils';
 import { TrackerContext } from '../../../../utils/analytics';
+import {
+  INITIAL_STATE as INITIAL_FEED_TABLE_SORT_STATE,
+  SET_FEED_TABLE_CLIENT_SORT,
+} from '../../../../ducks/feed-table-sort';
 import { updateEventFilter } from '../../../../ducks/event-filter';
 
 import SortControls from './';
@@ -22,13 +26,18 @@ describe('SideBar - EventsManager - EventsFeed - SortControls', () => {
     track = jest.fn();
     updateEventFilter.mockImplementation(() => () => {});
 
-    store = { data: { eventFilter: { filter: { sort: DEFAULT_EVENT_SORT } } } };
+    store = {
+      data: { eventFilter: { filter: { sort: DEFAULT_EVENT_SORT } } },
+      view: { feedTableSort: INITIAL_FEED_TABLE_SORT_STATE },
+    };
   });
 
-  const renderSortControls = () => render(
-    <Provider store={mockStore(store)}>
+  let mockedStore;
+
+  const renderSortControls = (props = {}) => render(
+    <Provider store={(mockedStore = mockStore(store))}>
       <TrackerContext.Provider value={{ track }}>
-        <SortControls />
+        <SortControls {...props} />
       </TrackerContext.Provider>
     </Provider>
   );
@@ -43,6 +52,56 @@ describe('SideBar - EventsManager - EventsFeed - SortControls', () => {
 
     return screen.findByRole('menu', { name: 'Sort options for events' });
   };
+
+  describe('with a table sort of its own', () => {
+    const titleSort = { colId: 'title', label: 'Title', sort: 'asc' };
+
+    beforeEach(() => {
+      store.view.feedTableSort = {
+        ...INITIAL_FEED_TABLE_SORT_STATE,
+        events: { ...INITIAL_FEED_TABLE_SORT_STATE.events, clientSort: { ...titleSort, feedSort: DEFAULT_EVENT_SORT } },
+      };
+    });
+
+    const clientSortActions = () => mockedStore.getActions()
+      .filter((action) => action.type === SET_FEED_TABLE_CLIENT_SORT);
+
+    test('shows the table sort on the controls', () => {
+      renderSortControls({ isTableView: true });
+
+      expect(getSortByButton('Title')).toHaveTextContent('Title');
+      expect(getSortByButton('Title')).toHaveClass('active');
+      expect(screen.getByRole('button', { name: 'Sort events in descending order' })).toBeInTheDocument();
+    });
+
+    test('shows the feed sort in the list', () => {
+      renderSortControls();
+
+      expect(getSortByButton()).toHaveTextContent('Date Updated');
+    });
+
+    test('reverses the table sort', async () => {
+      renderSortControls({ isTableView: true });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Sort events in descending order' }));
+
+      expect(clientSortActions()[0].payload.clientSort).toMatchObject({ colId: 'title', sort: 'desc' });
+      expect(updateEventFilter).not.toHaveBeenCalled();
+    });
+
+    test('goes back to a sort of the events API when an option is chosen', async () => {
+      renderSortControls({ isTableView: true });
+
+      const menu = await openSortByMenu('Title');
+      expect(within(menu).getAllByRole('menuitemradio').some((item) => item.getAttribute('aria-checked') === 'true'))
+        .toBe(false);
+
+      await userEvent.click(within(menu).getByRole('menuitemradio', { name: 'Event Date' }));
+
+      expect(clientSortActions()[0].payload.clientSort).toBeNull();
+      expect(updateEventFilter).toHaveBeenCalledWith({ filter: { sort: [SORT_DIRECTION.up, EVENT_SORT_OPTIONS[2]] } });
+    });
+  });
 
   test('shows the current sort option on the sort by button', () => {
     renderSortControls();

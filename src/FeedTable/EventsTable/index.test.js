@@ -218,7 +218,7 @@ describe('FeedTable - EventsTable', () => {
     expect(updateEventFilter).not.toHaveBeenCalled();
     expect(store.getActions()).toContainEqual(setFeedTableClientSort(
       'events',
-      { colId: 'priority', feedSort: INITIAL_FILTER_STATE.filter.sort, sort: 'desc' }
+      { colId: 'priority', feedSort: INITIAL_FILTER_STATE.filter.sort, label: 'Priority', sort: 'desc' }
     ));
   });
 

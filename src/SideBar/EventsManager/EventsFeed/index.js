@@ -88,7 +88,7 @@ const EventsFeed = ({ eventsFeed }) => {
   return <ErrorBoundary>
     <div className={`${styles.eventsFeed} ${isTableView ? styles.tableView : ''} ${isListReturning ? styles.listReturning : ''}`}>
       <EventFilter isSortable summaryActionsRef={isTableView ? setTableToolbarContainer : undefined}>
-        <SortControls />
+        <SortControls isTableView={isTableView} />
       </EventFilter>
 
       {!!eventsFeed.events.error && <div className={styles.errorState}>

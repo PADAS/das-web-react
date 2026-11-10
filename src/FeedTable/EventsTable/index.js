@@ -335,7 +335,12 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       // A cleared sort falls back to the feed's own.
       dispatch(setFeedTableClientSort(
         TAB_KEYS.EVENTS,
-        sortedColumn ? { colId: sortedColumn.colId, feedSort: eventSort, sort: sortedColumn.sort } : null
+        sortedColumn ? {
+          colId: sortedColumn.colId,
+          feedSort: eventSort,
+          label: columnDefs.find((column) => column.colId === sortedColumn.colId)?.headerName,
+          sort: sortedColumn.sort,
+        } : null
       ));
     }
   };
