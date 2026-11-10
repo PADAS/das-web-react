@@ -777,7 +777,7 @@ describe('FeedTable - EventsTable', () => {
     expect(valueFormatter({ value: null })).toBe('');
   });
 
-  test('sorts locations north to south, then west to east, with no location last', () => {
+  test('sorts locations by latitude, then longitude, with no location last', () => {
     renderEventsTable();
 
     const sorted = [null, [10, 5], [5, 5], [0, -3]].sort(columnById('location').comparator);

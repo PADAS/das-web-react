@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from 'react';
+import { flushSync } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 
@@ -22,10 +23,16 @@ const useFeedTableView = (tab) => {
   const canShowTableView = !!isFeedTableEnabled && isMediumLayoutOrLarger && FEED_TABS.includes(feedTab);
   const isTableView = canShowTableView && isTableViewChosen;
 
-  const toggleTableView = useCallback(
-    () => dispatch(setFeedTableView(feedTab, !isTableView)),
-    [dispatch, feedTab, isTableView]
-  );
+  // The list and the table cross-fade both ways where the browser can.
+  const toggleTableView = useCallback(() => {
+    const toggle = () => dispatch(setFeedTableView(feedTab, !isTableView));
+
+    if (document.startViewTransition && !window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {
+      document.startViewTransition(() => flushSync(toggle));
+    } else {
+      toggle();
+    }
+  }, [dispatch, feedTab, isTableView]);
 
   return { canShowTableView, isTableView, toggleTableView };
 };

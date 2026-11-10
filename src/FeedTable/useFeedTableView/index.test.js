@@ -71,6 +71,18 @@ describe('FeedTable - useFeedTableView', () => {
     expect(tableViewActions()).toEqual([setFeedTableView('events', true)]);
   });
 
+  test('cross-fades the list and the table where the browser can', async () => {
+    document.startViewTransition = jest.fn((update) => update());
+    renderHarness('/events');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+
+    expect(document.startViewTransition).toHaveBeenCalledTimes(1);
+    expect(tableViewActions()).toEqual([setFeedTableView('events', true)]);
+
+    delete document.startViewTransition;
+  });
+
   test('cannot show the table with its feature flag turned off', () => {
     state.view.feedTableView.events = true;
     state.view.experimentalFeatures = { FEED_TABLE: false };

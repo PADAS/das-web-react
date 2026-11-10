@@ -12,28 +12,11 @@
   selectedRowBackgroundColor: colors.$blue-highlight;
 }
 
-@keyframes enter {
-  from {
-    opacity: 0;
-    transform: translateY(0.5rem);
-  }
-
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
 .feedTable {
-  animation: enter 0.3s ease-out 0.25s both;
   display: flex;
   flex: 1;
   flex-direction: column;
   min-height: 0;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
 }
 
 .toolbar {
