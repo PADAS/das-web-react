@@ -41,7 +41,7 @@ import {
   uploadEventFile,
 } from './events';
 import { ADD_EVENT, addRealtimeOverlayEvent, REMOVE_EVENT, removeRealtimeOverlayEvent } from './events-realtime-overlay';
-import { PATROLS_API_URL, UPDATE_PATROL_SUCCESS } from './patrols';
+import { PATROLS_API_URL, UPDATE_PATROL_REALTIME, UPDATE_PATROL_SUCCESS } from './patrols';
 import { PREVIEW_FEATURES } from '../constants';
 import { validateReportAgainstCurrentEventFilter } from '../utils/events';
 
@@ -52,6 +52,72 @@ jest.mock('../utils/events', () => ({
 
 describe('eventStoreReducer', () => {
   const details = { species: 'elephant' };
+
+  let eventStore;
+  let patrol;
+
+  beforeEach(() => {
+    eventStore = {
+      'linked-event-id': {
+        id: 'linked-event-id',
+        patrol_segments: ['other-patrol-segment-id', 'first-patrol-segment-id'],
+        patrols: ['other-patrol-id', 'patrol-id'],
+      },
+      'unlinked-event-id': { id: 'unlinked-event-id', patrol_segments: [], patrols: [] },
+    };
+    patrol = {
+      id: 'patrol-id',
+      patrol_segments: [
+        { events: [{ id: 'linked-event-id' }], id: 'first-patrol-segment-id' },
+        { events: [], id: 'second-patrol-segment-id' },
+      ],
+    };
+  });
+
+  const reducePatrolPush = () => eventStoreReducer(eventStore, { payload: patrol, type: UPDATE_PATROL_REALTIME });
+
+  test('links a stored event to the patrol a push links it to', () => {
+    patrol.patrol_segments[1].events = [{ id: 'unlinked-event-id' }];
+
+    expect(reducePatrolPush()['unlinked-event-id']).toEqual({
+      id: 'unlinked-event-id',
+      patrol_segments: ['second-patrol-segment-id'],
+      patrols: ['patrol-id'],
+    });
+  });
+
+  test('unlinks a stored event from the patrol a push no longer links it to, keeping its other patrols', () => {
+    patrol.patrol_segments[0].events = [];
+
+    expect(reducePatrolPush()['linked-event-id']).toEqual({
+      id: 'linked-event-id',
+      patrol_segments: ['other-patrol-segment-id'],
+      patrols: ['other-patrol-id'],
+    });
+  });
+
+  test('moves a stored event to the legs of the patrol a push links it to', () => {
+    patrol.patrol_segments[0].events = [];
+    patrol.patrol_segments[1].events = [{ id: 'linked-event-id' }];
+
+    expect(reducePatrolPush()['linked-event-id']).toEqual({
+      id: 'linked-event-id',
+      patrol_segments: ['other-patrol-segment-id', 'second-patrol-segment-id'],
+      patrols: ['other-patrol-id', 'patrol-id'],
+    });
+  });
+
+  test('keeps the store when a push changes no stored event\'s links', () => {
+    patrol.patrol_segments[1].events = [{ id: 'unstored-event-id' }];
+
+    expect(reducePatrolPush()).toBe(eventStore);
+  });
+
+  test('keeps the store when a push leaves out the events of a leg', () => {
+    delete patrol.patrol_segments[0].events;
+
+    expect(reducePatrolPush()).toBe(eventStore);
+  });
 
   test('keeps loaded event details when a fetch that skips them answers null', () => {
     const state = { e1: { event_details: details, id: 'e1', title: 'Old' } };
