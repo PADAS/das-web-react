@@ -169,15 +169,13 @@ export const TITLE_COLUMN = {
   cellClass: styles.titleColumnCell,
   cellRenderer: TitleCell,
   colId: 'title',
+  flex: 2,
   headerClass: null,
   headerComponentParams: { hasSelectAll: true },
-  lockPinned: true,
   lockPosition: 'left',
   lockVisible: true,
-  minWidth: 200,
-  pinned: 'left',
+  minWidth: 240,
   suppressMovable: true,
-  width: 300,
 };
 
 export const formatDateValue = (params) => {

@@ -1,5 +1,4 @@
-import { useCallback, useEffect } from 'react';
-import { flushSync } from 'react-dom';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 
@@ -23,18 +22,26 @@ const useFeedTableView = (tab) => {
   const canShowTableView = !!isFeedTableEnabled && isMediumLayoutOrLarger && FEED_TABS.includes(feedTab);
   const isTableView = canShowTableView && isTableViewChosen;
 
-  // The list and the table cross-fade both ways where the browser can.
-  const toggleTableView = useCallback(() => {
-    const toggle = () => dispatch(setFeedTableView(feedTab, !isTableView));
-
-    if (document.startViewTransition && !window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) {
-      document.startViewTransition(() => flushSync(toggle));
-    } else {
-      toggle();
-    }
-  }, [dispatch, feedTab, isTableView]);
+  const toggleTableView = useCallback(
+    () => dispatch(setFeedTableView(feedTab, !isTableView)),
+    [dispatch, feedTab, isTableView]
+  );
 
   return { canShowTableView, isTableView, toggleTableView };
+};
+
+// True once the feed has gone from its table back to its list, so the list
+// appears the way the table does, but not each time the feed opens.
+export const useIsListReturning = (isTableView) => {
+  const [isListReturning, setIsListReturning] = useState(false);
+  const [previousIsTableView, setPreviousIsTableView] = useState(isTableView);
+
+  if (previousIsTableView !== isTableView) {
+    setIsListReturning(!isTableView);
+    setPreviousIsTableView(isTableView);
+  }
+
+  return isListReturning;
 };
 
 // A shared `?view=table` link opens the table; the URL is otherwise left alone.

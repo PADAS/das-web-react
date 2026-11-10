@@ -19,7 +19,7 @@ import EventRow from './EventRow';
 import LinkEventModal from '../../../LinkEventModal';
 import { ScrollRestoration, SidebarScrollContext } from '../../../SidebarScrollContext';
 import SortControls from './SortControls';
-import useFeedTableView from '../../../FeedTable/useFeedTableView';
+import useFeedTableView, { useIsListReturning } from '../../../FeedTable/useFeedTableView';
 
 import * as styles from './styles.module.scss';
 
@@ -52,6 +52,7 @@ const EventsFeed = ({ eventsFeed }) => {
   const emptyStateMessageRef = useRef(null);
 
   const { isTableView } = useFeedTableView();
+  const isListReturning = useIsListReturning(isTableView);
 
   const [tableToolbarContainer, setTableToolbarContainer] = useState(null);
 
@@ -85,7 +86,7 @@ const EventsFeed = ({ eventsFeed }) => {
   };
 
   return <ErrorBoundary>
-    <div className={`${styles.eventsFeed} ${isTableView ? styles.tableView : ''}`}>
+    <div className={`${styles.eventsFeed} ${isTableView ? styles.tableView : ''} ${isListReturning ? styles.listReturning : ''}`}>
       <EventFilter isSortable summaryActionsRef={isTableView ? setTableToolbarContainer : undefined}>
         <SortControls />
       </EventFilter>

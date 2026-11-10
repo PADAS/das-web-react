@@ -18,9 +18,10 @@
   .buttons {
     align-items: center;
     display: flex;
+    flex: 1;
     gap: 0.5rem;
     justify-content: flex-end;
-    width: 60%;
+    min-width: 0;
 
     .button {
       align-items: center;

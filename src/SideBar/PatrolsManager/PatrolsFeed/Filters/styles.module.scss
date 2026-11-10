@@ -35,9 +35,10 @@
       }
 
       @media (min-width: layout.$md-layout-width-min) {
+        flex: 1;
         justify-content: flex-end;
         margin-top: 0;
-        width: 60%;
+        min-width: 0;
       }
     }
 

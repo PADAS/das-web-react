@@ -168,8 +168,10 @@
     }
   }
 
+  // The table view is wider than the detail view, so the tab moves by its
+  // own width to leave the screen at the same pace in every view.
   @media (min-width: layout.$md-layout-width-min) {
-    transform: translateX(calc(calc(#{layout.$sidebar-width-detail} + var(--vertical-nav-width)) * -1));
+    transform: translateX(calc(-100% - var(--vertical-nav-width)));
   }
 }
 

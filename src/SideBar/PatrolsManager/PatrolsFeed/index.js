@@ -6,7 +6,7 @@ import { PATROLS_FEED_CATEGORY, TrackerContext, trackEventFactory } from '../../
 import { selectPatrolsFeedMappedFromStore } from '../../../selectors/patrols';
 import { sortPatrolList } from '../../../utils/patrols';
 import { TAB_KEYS } from '../../../constants';
-import useFeedTableView from '../../../FeedTable/useFeedTableView';
+import useFeedTableView, { useIsListReturning } from '../../../FeedTable/useFeedTableView';
 import useFetchPatrolsFeed from '../../useFetchPatrolsFeed';
 
 import DetailViewLoader from '../DetailViewLoader';
@@ -24,6 +24,7 @@ const PatrolsFeed = () => {
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolsFeed' });
 
   const { isTableView } = useFeedTableView();
+  const isListReturning = useIsListReturning(isTableView);
 
   const [tableToolbarContainer, setTableToolbarContainer] = useState(null);
   const { loadingPatrolsFeed } = useFetchPatrolsFeed();
@@ -33,7 +34,7 @@ const PatrolsFeed = () => {
   const patrols = useMemo(() => sortPatrolList(patrolsFeedMappedFromStore), [patrolsFeedMappedFromStore]);
 
   return <TrackerContext.Provider value={patrolsFeedTracker}>
-    <div className={`${styles.patrolsFeed} ${isTableView ? styles.tableView : ''}`}>
+    <div className={`${styles.patrolsFeed} ${isTableView ? styles.tableView : ''} ${isListReturning ? styles.listReturning : ''}`}>
       <Filters
         resultCount={patrols.length}
         summaryActionsRef={isTableView ? setTableToolbarContainer : undefined}

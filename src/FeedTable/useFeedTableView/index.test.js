@@ -6,15 +6,17 @@ import { mockStore } from '../../__test-helpers/MockStore';
 import { render, screen } from '../../test-utils';
 import { SET_FEED_TABLE_VIEW, setFeedTableView } from '../../ducks/feed-table-view';
 
-import useFeedTableView, { useTableViewLink } from './';
+import useFeedTableView, { useIsListReturning, useTableViewLink } from './';
 
 const Harness = ({ tab }) => {
   const { canShowTableView, isTableView, toggleTableView } = useFeedTableView(tab);
+  const isListReturning = useIsListReturning(isTableView);
   useTableViewLink();
 
   return <>
     <span data-testid="canShow">{canShowTableView ? 'yes' : 'no'}</span>
     <span data-testid="view">{isTableView ? 'table' : 'feed'}</span>
+    <span data-testid="listReturning">{isListReturning ? 'yes' : 'no'}</span>
 
     <button onClick={toggleTableView} type="button">Toggle</button>
   </>;
@@ -71,16 +73,17 @@ describe('FeedTable - useFeedTableView', () => {
     expect(tableViewActions()).toEqual([setFeedTableView('events', true)]);
   });
 
-  test('cross-fades the list and the table where the browser can', async () => {
-    document.startViewTransition = jest.fn((update) => update());
-    renderHarness('/events');
+  test('marks the list as returning only after the table closes', () => {
+    state.view.feedTableView.events = true;
+    const { rerender } = renderHarness('/events');
 
-    await userEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+    expect(screen.getByTestId('listReturning')).toHaveTextContent('no');
 
-    expect(document.startViewTransition).toHaveBeenCalledTimes(1);
-    expect(tableViewActions()).toEqual([setFeedTableView('events', true)]);
+    store = mockStore({ ...state, view: { ...state.view, feedTableView: { events: false, patrols: false } } });
+    rerender(<Provider store={store}><Harness /></Provider>);
 
-    delete document.startViewTransition;
+    expect(screen.getByTestId('view')).toHaveTextContent('feed');
+    expect(screen.getByTestId('listReturning')).toHaveTextContent('yes');
   });
 
   test('cannot show the table with its feature flag turned off', () => {

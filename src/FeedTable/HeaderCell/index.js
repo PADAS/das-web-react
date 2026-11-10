@@ -50,7 +50,7 @@ const HeaderCell = ({ api, column, displayName, enableSorting, hasSelectAll = fa
 
   const sortButtonRef = useRef(null);
 
-  const isMovable = !column.getPinned();
+  const isMovable = !column.getColDef().lockPosition;
 
   const subscribeToSort = useCallback((onChange) => {
     column.addEventListener('sortChanged', onChange);
@@ -70,7 +70,7 @@ const HeaderCell = ({ api, column, displayName, enableSorting, hasSelectAll = fa
       const shownColumns = api.getAllGridColumns().filter((gridColumn) => gridColumn.isVisible());
       const targetColumn = shownColumns[shownColumns.indexOf(column) + offset];
 
-      if (targetColumn && !targetColumn.getPinned()) {
+      if (targetColumn && !targetColumn.getColDef().lockPosition) {
         api.moveColumns([column], api.getAllGridColumns().indexOf(targetColumn));
 
         // The grid moves the header in the page, which takes the focus away.

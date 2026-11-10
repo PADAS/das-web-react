@@ -1,4 +1,5 @@
 @use 'sass:color';
+@use '../common/styles/animations';
 @use '../common/styles/buttons';
 @use '../common/styles/inputs';
 @use '../common/styles/vars/colors';
@@ -13,6 +14,8 @@
 }
 
 .feedTable {
+  @include animations.feed-view-enter;
+
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -139,7 +142,7 @@
 }
 
 // Rows glide to their new places when a sort or a loaded page reorders them.
-:global(.ag-row-animation) .row {
+[class~='ag-row-animation'] .row {
   transition-duration: 0.6s, 0.6s, 0.3s;
   transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
 

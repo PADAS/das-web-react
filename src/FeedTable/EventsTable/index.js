@@ -241,10 +241,10 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     {
       colId: 'event_type',
       ...clientSortable('event_type'),
-      flex: 1,
       headerName: t('eventTypeColumnTitle'),
-      minWidth: 160,
+      minWidth: 140,
       valueGetter: (params) => eventTypeTitleForEvent(params.data, eventTypes) ?? '',
+      width: 180,
     },
     {
       colId: 'reported_by',

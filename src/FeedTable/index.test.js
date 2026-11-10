@@ -214,12 +214,13 @@ describe('FeedTable', () => {
     expect(screen.queryByText(/selected/)).toBeNull();
   });
 
-  test('pins the title column first and always shows it, leaving it out of the Columns menu', async () => {
+  test('keeps the title column first, stretched and always shown, leaving it out of the Columns menu', async () => {
     window.localStorage.setItem('feedTable.v2.hiddenColumns.test', JSON.stringify({ title: true }));
     window.localStorage.setItem('feedTable.v2.columnOrder.test', JSON.stringify(['a', 'title', 'b', 'c']));
     await renderFeedTable(TITLED_COLUMNS);
 
-    expect(gridApi.getColumn('title').isPinnedLeft()).toBe(true);
+    expect(gridApi.getColumn('title').isPinned()).toBe(false);
+    expect(gridApi.getColumn('title').getFlex()).toBe(2);
     expect(gridApi.getColumn('title').isVisible()).toBe(true);
     expect(gridApi.getAllDisplayedColumns()[0].getColId()).toBe('title');
 
