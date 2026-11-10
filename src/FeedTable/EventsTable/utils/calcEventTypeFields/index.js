@@ -62,6 +62,17 @@ const fieldsFromV1Schema = ({ schema, uiSchema }) => {
 const fieldsFromV2Schema = (schema, coordinatesRepresentation) => {
   const formElements = transformSchemaToFormElements(schema);
 
+  // Every field of an event reads the same normalized details.
+  const normalizedDetailsByEventDetails = new WeakMap();
+  const normalizeDetails = (eventDetails) => {
+    if (!eventDetails) return {};
+
+    if (!normalizedDetailsByEventDetails.has(eventDetails)) {
+      normalizedDetailsByEventDetails.set(eventDetails, normalizeChoiceListValues(eventDetails, formElements));
+    }
+    return normalizedDetailsByEventDetails.get(eventDetails);
+  };
+
   return formElements[ROOT_CANVAS_ID].details.sections
     .flatMap((sectionId) => [
       ...formElements[sectionId].details.leftColumn,
@@ -76,7 +87,7 @@ const fieldsFromV2Schema = (schema, coordinatesRepresentation) => {
       label: field.details.label || startCase(field.details.value),
       toText: (eventDetails) => textOrEmpty(getHumanizedFieldValue(
         field,
-        normalizeChoiceListValues(eventDetails ?? {}, formElements)[field.details.value],
+        normalizeDetails(eventDetails)[field.details.value],
         '',
         coordinatesRepresentation
       )),

@@ -36,6 +36,7 @@ import {
 } from '../../ducks/events';
 import { objectToParamString } from '../../utils/query';
 import { selectCoordinatesRepresentation } from '../../selectors/location';
+import { stringifyCoordinates } from '../../utils/location';
 import { selectEventCategoryPermissions } from '../../selectors/event-types';
 import { selectEventLinkPermissions } from '../../selectors/event-links';
 import { selectEventSchema } from '../../selectors/event-schemas';
@@ -82,10 +83,17 @@ const settleInBatches = async (items, update) => {
   return results;
 };
 
-const formatCoordinates = (coordinates) => {
-  if (!Array.isArray(coordinates) || typeof coordinates[0] !== 'number') return '';
-  const [longitude, latitude] = coordinates;
-  return `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+const calcPointCoordinates = (event) => {
+  const coordinates = getCoordinatesForEvent(event);
+
+  return Array.isArray(coordinates) && typeof coordinates[0] === 'number' ? coordinates : null;
+};
+
+// North to south, then west to east, whatever format the user reads them in.
+// Events without a location go last.
+const compareCoordinates = (first, second) => {
+  if (!first || !second) return !first - !second;
+  return first[1] - second[1] || first[0] - second[0];
 };
 
 // A v2 collection opens in the form's own read-only view; other objects, without
@@ -297,14 +305,18 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     },
     {
       colId: 'location',
+      comparator: compareCoordinates,
       ...clientSortable('location'),
       defaultHidden: true,
       headerName: t('locationColumnTitle'),
       minWidth: 170,
-      valueGetter: (params) => formatCoordinates(getCoordinatesForEvent(params.data)),
+      valueFormatter: (params) => params.value
+        ? stringifyCoordinates({ latitude: params.value[1], longitude: params.value[0] }, coordinatesRepresentation)
+        : '',
+      valueGetter: (params) => calcPointCoordinates(params.data),
     },
     ...detailColumns,
-  ], [clientSortable, detailColumns, eventTypes, serverSortable, t, tPriorities, tStates]);
+  ], [clientSortable, coordinatesRepresentation, detailColumns, eventTypes, serverSortable, t, tPriorities, tStates]);
 
   const getRowClass = useCallback(
     (params) => styles[(PRIORITY_COLOR_MAP[calcDisplayPriorityForReport(params.data, eventTypes)] ?? PRIORITY_COLOR_MAP[0]).key],

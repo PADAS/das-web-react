@@ -492,6 +492,7 @@ const FeedTable = ({
           suppressMultiSort
           tabIndex={-1}
           theme={gridTheme}
+          valueCache
         />
       </FeedTableContext>
     </div>
