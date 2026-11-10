@@ -11,7 +11,7 @@ import * as styles from './styles.module.scss';
 const HTML_TAG_REGEX = /(<([^>]+)>)/ig;
 const MESSAGE_CHARACTER_LIMIT = 200;
 
-const NotificationItem = ({ notification }) => {
+const NotificationItem = ({ notification, onDismiss }) => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'notificationMenu.notificationsPopover.notificationItem' });
 
   const titleId = useId();
@@ -34,11 +34,11 @@ const NotificationItem = ({ notification }) => {
 
     {!!notification.date && <DateTime className={styles.dateTime} date={notification.date} showElapsed={false} />}
 
-    <p className={styles.message}>
+    {!!plainMessage && <p className={styles.message}>
       {plainMessage.length > MESSAGE_CHARACTER_LIMIT
         ? `${plainMessage.substring(0, MESSAGE_CHARACTER_LIMIT)}...`
         : plainMessage}
-    </p>
+    </p>}
 
     {!!notification.infolink && <a
       className={styles.infoLink}
@@ -52,7 +52,7 @@ const NotificationItem = ({ notification }) => {
     {hasActions && <div className={styles.actions}>
       {!!notification.onDismiss && <button
         className={styles.secondaryButton}
-        onClick={(event) => notification.onDismiss(event, notification)}
+        onClick={(event) => onDismiss(event, notification)}
         type="button"
       >
         {t('dismissButton')}

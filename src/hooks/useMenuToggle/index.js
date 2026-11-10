@@ -10,12 +10,12 @@ const useMenuToggle = ({ defaultShow = false, isDisabled = false, onToggle } = {
   const wasShownRef = useRef(defaultShow);
 
   const [focusIntent, setFocusIntent] = useState(FOCUS_INTENTS.MENU);
-  const [show, setShow] = useState(defaultShow);
+  const [isShown, setIsShown] = useState(defaultShow);
   const [toggleButton, setToggleButton] = useState(null);
 
   // Closing without restoring focus: a click outside lands focus where the user
   // clicked, and pulling it back would scroll the page to the abandoned toggle.
-  const hideMenu = useCallback(() => setShow(false), []);
+  const hideMenu = useCallback(() => setIsShown(false), []);
 
   const closeMenu = useCallback(() => {
     hideMenu();
@@ -27,12 +27,12 @@ const useMenuToggle = ({ defaultShow = false, isDisabled = false, onToggle } = {
   const openMenu = (newFocusIntent) => {
     if (!isDisabled) {
       setFocusIntent(newFocusIntent);
-      setShow(true);
+      setIsShown(true);
     }
   };
 
   const onToggleClick = (event) => {
-    if (show) {
+    if (isShown) {
       hideMenu();
     } else {
       // A click with no detail is keyboard-driven. Focus the first option.
@@ -51,12 +51,12 @@ const useMenuToggle = ({ defaultShow = false, isDisabled = false, onToggle } = {
   // A click on the toggle closes the menu twice, once from the toggle and once
   // as a click outside it, so only a change of state is reported.
   useEffect(() => {
-    if (wasShownRef.current !== show) {
-      wasShownRef.current = show;
+    if (wasShownRef.current !== isShown) {
+      wasShownRef.current = isShown;
 
-      onToggle?.(show);
+      onToggle?.(isShown);
     }
-  }, [onToggle, show]);
+  }, [isShown, onToggle]);
 
   return {
     menuProps: {
@@ -65,11 +65,11 @@ const useMenuToggle = ({ defaultShow = false, isDisabled = false, onToggle } = {
       id: menuId,
       onClose: closeMenu,
       onHide: hideMenu,
-      show,
+      show: isShown,
     },
     toggleProps: {
       'aria-controls': menuId,
-      'aria-expanded': show,
+      'aria-expanded': isShown,
       'aria-haspopup': 'menu',
       onClick: onToggleClick,
       onKeyDown: onToggleKeyDown,

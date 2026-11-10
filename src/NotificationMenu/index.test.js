@@ -126,6 +126,21 @@ describe('NotificationMenu', () => {
     expect(within(notificationItems[1]).queryByTestId('badgeIcon')).not.toBeInTheDocument();
   });
 
+  test('lists a news item that has no description', async () => {
+    server.use(http.get(NEWS_API_URL, () => HttpResponse.json({
+      data: { results: [{ ...mockNewsData[0], description: null }] },
+    })));
+
+    renderNotificationMenu();
+
+    await openPopover();
+
+    const notificationItems = await findNotificationItems();
+
+    expect(within(notificationItems[0]).getByRole('heading', { name: mockNewsData[0].title })).toBeInTheDocument();
+    expect(within(notificationItems[0]).queryByRole('paragraph')).not.toBeInTheDocument();
+  });
+
   test('links each news item to its article in a new tab', async () => {
     renderNotificationMenu();
 
@@ -192,6 +207,23 @@ describe('NotificationMenu', () => {
       expect(await screen.findByRole('button', { name: 'Notifications' })).toBeInTheDocument();
     });
 
+  test('keeps unread an announcement that arrives while the news are being marked read', async () => {
+    server.use(http.post(NEWS_API_URL, () => {
+      mockedSocket.socketClient.emit('new_announcement', {
+        data: { description: 'Arrived mid-request', id: 'new-announcement', read: false, title: 'Fresh news' },
+      });
+
+      return HttpResponse.json(null, { status: 201 });
+    }));
+
+    renderNotificationMenu();
+
+    await openPopover();
+    await userEvent.keyboard('{Escape}');
+
+    expect(await screen.findByRole('button', { name: 'Notifications, 1 unread' })).toBeInTheDocument();
+  });
+
   test('closes the popover when the user clicks outside it', async () => {
     renderNotificationMenu();
 
@@ -241,6 +273,16 @@ describe('NotificationMenu', () => {
       await userEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'Dismiss' }));
 
       expect(appNotification.onDismiss).toHaveBeenCalledWith(expect.anything(), appNotification);
+    });
+
+    test('keeps focus in the popover when the user dismisses it', async () => {
+      renderNotificationMenu();
+
+      const popover = await openPopover();
+
+      await userEvent.click(within(popover).getByRole('button', { name: 'Dismiss' }));
+
+      expect(popover).toHaveFocus();
     });
   });
 

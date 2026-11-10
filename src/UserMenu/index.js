@@ -15,7 +15,7 @@ const EMPTY_USER_PROFILES = [];
 
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
-const trackMenuToggle = (show) => mainToolbarTracker.track(`${show ? 'Open' : 'Close'} User Menu`);
+const trackMenuToggle = (isShown) => mainToolbarTracker.track(`${isShown ? 'Open' : 'Close'} User Menu`);
 
 const UserMenu = ({
   onLogOutClick,

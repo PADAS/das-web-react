@@ -1,4 +1,3 @@
-import { memo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -16,7 +15,10 @@ import * as styles from './styles.module.scss';
 
 const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 
-const trackMenuToggle = (show) => mainToolbarTracker.track(`${show ? 'Open' : 'Close'} Home Area Menu`);
+// The admin may set only a map's name; its title is an optional attribute.
+const getMapTitle = (map) => map.title || map.name;
+
+const trackMenuToggle = (isShown) => mainToolbarTracker.track(`${isShown ? 'Open' : 'Close'} Home Area Menu`);
 
 const NavHomeMenu = ({ maps, onCurrentLocationClick, onMapSelect, selectedMap }) => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'nav.navHomeMenu' });
@@ -28,7 +30,7 @@ const NavHomeMenu = ({ maps, onCurrentLocationClick, onMapSelect, selectedMap })
 
   return <div className={styles.navHomeMenu}>
     <button
-      aria-label={t('homeMenuToggleLabel', { mapTitle: selectedMap.title })}
+      aria-label={t('homeMenuToggleLabel', { mapTitle: getMapTitle(selectedMap) })}
       className={`${styles.toggle} ${selectedMap.icon ? styles.hasIcon : ''}`}
       title={t('homeMenuLabel')}
       type="button"
@@ -36,7 +38,7 @@ const NavHomeMenu = ({ maps, onCurrentLocationClick, onMapSelect, selectedMap })
     >
       {!!selectedMap.icon && <img alt="" className={styles.icon} src={calcUrlForImage(selectedMap.icon.src)} />}
 
-      {!!selectedMap.title && <span className={styles.title}>{selectedMap.title}</span>}
+      {!!getMapTitle(selectedMap) && <span className={styles.title}>{getMapTitle(selectedMap)}</span>}
 
       <ArrowDownSmallIcon aria-hidden="true" className={styles.arrow} />
     </button>
@@ -53,7 +55,7 @@ const NavHomeMenu = ({ maps, onCurrentLocationClick, onMapSelect, selectedMap })
         onClick={() => onMapSelect(map)}
         role="menuitemradio"
       >
-        {map.title}
+        {getMapTitle(map)}
       </Menu.Option>)}
 
       {canShowUserLocation && <>
@@ -69,4 +71,4 @@ const NavHomeMenu = ({ maps, onCurrentLocationClick, onMapSelect, selectedMap })
   </div>;
 };
 
-export default memo(NavHomeMenu);
+export default NavHomeMenu;

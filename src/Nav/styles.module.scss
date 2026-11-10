@@ -35,7 +35,7 @@
 
     .logoWrapper {
       display: none;
-      overflow: hidden;
+      margin-left: 1rem;
 
       .logo {
         max-height: 2rem;
@@ -97,22 +97,11 @@
 
   @media (min-width: layout.$md-layout-width-min) {
     padding: 0 1.5rem;
-
-    .leftControls {
-      .globalMenuButton {
-        margin-right: 1rem;
-      }
-
-      .logoWrapper {
-        display: block;
-        width: 1.25rem;
-      }
-    }
   }
 
   @media (min-width: layout.$lg-layout-width-min) {
     .leftControls .logoWrapper {
-      width: auto;
+      display: block;
     }
   }
 

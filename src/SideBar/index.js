@@ -167,7 +167,9 @@ const SideBar = () => {
       const addUpdatedEventId = (payload) => {
         if (payload.matches_current_filter
           && (!isSideBarOpen || currentTab !== TAB_KEYS.EVENTS || isEventDetailViewActive)) {
-          setUpdatedEventIds((currentUpdatedEventIds) => new Set(currentUpdatedEventIds).add(payload.event_id));
+          setUpdatedEventIds((currentUpdatedEventIds) => currentUpdatedEventIds.has(payload.event_id)
+            ? currentUpdatedEventIds
+            : new Set(currentUpdatedEventIds).add(payload.event_id));
         }
       };
 

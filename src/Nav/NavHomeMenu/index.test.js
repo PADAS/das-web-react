@@ -48,6 +48,19 @@ describe('Nav - NavHomeMenu', () => {
     expect(getToggle()).toHaveAttribute('title', 'Map quick links');
   });
 
+  test('falls back to the map name in the toggle and its option when the map has no title', async () => {
+    const untitledMap = { center: [2, 2], id: 'reserve', name: 'Game Reserve', zoom: 8 };
+
+    renderNavHomeMenu({ maps: [...maps, untitledMap], selectedMap: untitledMap });
+
+    expect(getToggle()).toHaveAccessibleName('Map quick links: Game Reserve');
+    expect(getToggle()).toHaveTextContent('Game Reserve');
+
+    await openMenu();
+
+    expect(screen.getByRole('menuitemradio', { name: 'Game Reserve' })).toHaveAttribute('aria-checked', 'true');
+  });
+
   test('shows the toggle collapsed, with the menu closed, by default', () => {
     renderNavHomeMenu();
 

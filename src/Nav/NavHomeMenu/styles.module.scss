@@ -35,13 +35,19 @@
       transform: rotate(180deg);
     }
 
-    &.hasIcon .title {
-      display: none;
+    &.hasIcon {
+      .title,
+      .arrow {
+        display: none;
+      }
     }
 
     @media (min-width: layout.$md-layout-width-min) {
-      &.hasIcon .title {
-        display: initial;
+      &.hasIcon {
+        .title,
+        .arrow {
+          display: initial;
+        }
       }
     }
   }

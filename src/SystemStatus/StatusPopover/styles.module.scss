@@ -5,16 +5,11 @@
 .statusPopover {
   @include filter-popovers.filter-popover;
 
+  max-height: min(32rem, calc(100dvh - 5rem));
   max-width: 98vw;
-
-  @media (min-width: layout.$md-layout-width-min) {
-    max-width: 30rem;
-    width: auto;
-  }
+  overflow-y: auto;
 
   .body {
-    max-height: min(32rem, calc(100dvh - 5rem));
-    overflow-y: auto;
     padding: 0;
 
     .statusList {
@@ -62,5 +57,10 @@
         }
       }
     }
+  }
+
+  @media (min-width: layout.$md-layout-width-min) {
+    max-width: 30rem;
+    width: auto;
   }
 }

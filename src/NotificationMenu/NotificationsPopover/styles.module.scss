@@ -15,10 +15,6 @@
     overflow-y: auto;
     padding: 0 0 0.5rem;
 
-    @media (min-height: layout.$lg-height-min) {
-      max-height: 60vh;
-    }
-
     .notificationList {
       margin: 0;
       padding: 0;
@@ -70,6 +66,10 @@
           outline: 2px solid colors.$bright-blue;
         }
       }
+    }
+
+    @media (min-height: layout.$lg-height-min) {
+      max-height: 60vh;
     }
   }
 }

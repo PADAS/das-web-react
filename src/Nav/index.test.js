@@ -4,6 +4,7 @@ import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../__test-helpers/mocks';
+import { BREAKPOINTS } from '../constants';
 import { clearModals } from '../ducks/modals';
 import { clearUserProfile, USER_API_URL, CURRENT_USER_API_URL, USER_PROFILES_API_URL } from '../ducks/user';
 import { hideDrawer } from '../ducks/drawer';
@@ -51,6 +52,14 @@ describe('the Nav component', () => {
   const reload = jest.fn();
 
   let map, navigate, useNavigateMock;
+
+  const renderNav = () => render(<Provider store={store}>
+    <MapContext.Provider value={map}>
+      <Nav map={map} />
+      <ModalRenderer />
+    </MapContext.Provider>
+  </Provider>);
+
   beforeEach(() => {
     navigate = jest.fn();
     getWindowLocation.mockImplementation(() => ({ reload }));
@@ -58,17 +67,12 @@ describe('the Nav component', () => {
     useNavigate.mockImplementation(useNavigateMock);
     map = createMapMock();
 
-    render(
-      <Provider store={store}>
-        <MapContext.Provider value={map}>
-          <Nav map={map} />
-          <ModalRenderer />
-        </MapContext.Provider>
-      </Provider>
-    );
+    renderNav();
   });
 
   afterEach(() => {
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = true;
+
     jest.restoreAllMocks();
   });
 
@@ -82,14 +86,7 @@ describe('the Nav component', () => {
     );
 
     cleanup();
-    render(
-      <Provider store={store}>
-        <MapContext.Provider value={map}>
-          <Nav map={map} />
-          <ModalRenderer />
-        </MapContext.Provider>
-      </Provider>
-    );
+    renderNav();
 
     expect(navigate).not.toHaveBeenCalled();
 
@@ -109,6 +106,20 @@ describe('the Nav component', () => {
     await userEvent.click(globalMenuButton);
 
     expect(globalMenuButton).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('shows the notifications button on medium screens and up', async () => {
+    expect(await screen.findByRole('button', { name: /^Notifications/ })).toBeInTheDocument();
+  });
+
+  test('does not show the notifications button on small screens', async () => {
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = false;
+
+    cleanup();
+    renderNav();
+
+    expect(await screen.findByRole('button', { name: /^User settings:/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Notifications/ })).not.toBeInTheDocument();
   });
 
   describe('changing profiles', () => {

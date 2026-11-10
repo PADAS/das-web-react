@@ -29,8 +29,14 @@ const NotificationsPopover = ({
 
   const { focusPopover, onKeyDown } = useModalPopover(bodyRef, trigger, onClose);
 
-  // The retry button leaves with the error it reports, so focus moves on to the
-  // popover rather than dropping to the page.
+  // The dismiss and retry buttons leave with what they act on, so focus moves
+  // on to the popover rather than dropping to the page.
+  const onNotificationDismiss = (event, notification) => {
+    notification.onDismiss(event, notification);
+
+    focusPopover();
+  };
+
   const onRetryButtonClick = () => {
     onRetryNewsFetch();
 
@@ -50,7 +56,11 @@ const NotificationsPopover = ({
     <Popover.Body className={styles.body} ref={bodyRef}>
       {notifications.length
         ? <ul className={styles.notificationList}>
-          {notifications.map((notification) => <NotificationItem key={notification.id} notification={notification} />)}
+          {notifications.map((notification) => <NotificationItem
+            key={notification.id}
+            notification={notification}
+            onDismiss={onNotificationDismiss}
+          />)}
         </ul>
         : <p className={styles.message}>{t('noNotificationsMessage')}</p>}
 

@@ -114,6 +114,25 @@ export const FOCUSABLE_SELECTOR = [
 // would anchor to itself rather than to the viewport.
 export const POPOVER_POPPER_CONFIG = { modifiers: [{ name: 'computeStyles', options: { gpuAcceleration: false } }] };
 
+// On small screens a top bar popover drops centered on the screen rather than
+// from its toggle, which would leave it lopsided.
+export const TOP_BAR_POPOVER_POPPER_CONFIG = {
+  modifiers: [
+    ...POPOVER_POPPER_CONFIG.modifiers,
+    {
+      enabled: true,
+      fn: ({ state }) => {
+        if (!BREAKPOINTS.screenIsMediumLayoutOrLarger.matches) {
+          state.modifiersData.popperOffsets.x = (document.documentElement.clientWidth - state.rects.popper.width) / 2;
+        }
+      },
+      name: 'centerOnSmallScreens',
+      phase: 'main',
+      requiresIfExists: ['preventOverflow'],
+    },
+  ],
+};
+
 export const LAYER_IDS = {
   ANALYZER_LINES_CRITICAL: 'analyzer-line-critical',
   ANALYZER_LINES_WARNING: 'analyzer-line-warning',

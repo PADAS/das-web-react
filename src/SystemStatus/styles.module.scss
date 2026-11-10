@@ -1,4 +1,5 @@
 @use '../common/styles/buttons';
+@use '../common/styles/layout';
 
 .systemStatus {
   align-items: center;
@@ -12,13 +13,18 @@
     border-radius: 1rem;
     font-size: 0.875rem;
     height: 1.875rem;
-    padding: 0 0.75rem;
+    padding: 0;
 
     .toggleBadge {
       flex-shrink: 0;
     }
 
+    .statusLabel {
+      display: none;
+    }
+
     .arrow {
+      display: none;
       flex-shrink: 0;
       height: 0.3125rem;
       width: 0.625rem;
@@ -37,6 +43,15 @@
 
       .arrow {
         transform: rotate(180deg);
+      }
+    }
+
+    @media (min-width: layout.$md-layout-width-min) {
+      padding: 0 0.75rem;
+
+      .statusLabel,
+      .arrow {
+        display: initial;
       }
     }
   }

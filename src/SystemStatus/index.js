@@ -7,7 +7,7 @@ import { ReactComponent as ArrowDownSmallIcon } from '../common/images/icons/arr
 
 import { calcPrimaryStatusIndicator } from '../utils/system-status';
 import { MAIN_TOOLBAR_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { POPOVER_POPPER_CONFIG, STATUSES } from '../constants';
+import { STATUSES, TOP_BAR_POPOVER_POPPER_CONFIG } from '../constants';
 
 import Badge from '../Badge';
 import StatusPopover from './StatusPopover';
@@ -41,8 +41,8 @@ const SystemStatus = () => {
     mainToolbarTracker.track(`${isPopoverOpen ? 'Close' : 'Open'} Status Summary Display`);
   };
 
-  // The popover hangs from the full height of the bar, like the other top bar
-  // popups, rather than from the shorter pill.
+  // The popover hangs from a wrapper as tall as the other top bar buttons, so it
+  // lines up with their popups rather than sitting under the shorter pill.
   return <div className={styles.systemStatus} ref={setSystemStatusElement}>
     <button
       aria-controls={isPopoverOpen ? popoverId : undefined}
@@ -57,14 +57,14 @@ const SystemStatus = () => {
     >
       <Badge aria-hidden="true" className={styles.toggleBadge} status={statusSummary} />
 
-      <span>{t(statusSummary)}</span>
+      <span className={styles.statusLabel}>{t(statusSummary)}</span>
 
       <ArrowDownSmallIcon aria-hidden="true" className={styles.arrow} />
     </button>
 
     <Overlay
       placement="bottom-end"
-      popperConfig={POPOVER_POPPER_CONFIG}
+      popperConfig={TOP_BAR_POPOVER_POPPER_CONFIG}
       show={isPopoverOpen}
       target={systemStatusElement}
     >

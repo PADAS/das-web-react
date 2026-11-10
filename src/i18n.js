@@ -53,8 +53,9 @@ i18n
       }],
     },
     fallbackLng: 'en-US',
+    // React already escapes interpolated values.
     interpolation: {
-      escapeValue: false, // react already safes from xss => https://www.i18next.com/translation-function/interpolation#unescape
+      escapeValue: false,
     },
     ns: preloadNamespaces,
     react: {

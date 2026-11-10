@@ -9,7 +9,7 @@ export const MAX_DISPLAYED_COUNT = 9;
 const COLOR_BY_STATUS = {
   [STATUSES.HEALTHY_STATUS]: 'green',
   [STATUSES.UNHEALTHY_STATUS]: 'red',
-  [STATUSES.WARNING_STATUS]: 'orange',
+  [STATUSES.WARNING_STATUS]: 'yellow',
 };
 
 // A badge with no status flags something new, so it takes the alert color.

@@ -7,8 +7,8 @@ import { ReactComponent as BellIcon } from '../common/images/icons/bell-icon.svg
 
 import { fetchNews, readNews } from '../ducks/news';
 import { MAIN_TOOLBAR_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { POPOVER_POPPER_CONFIG } from '../constants';
 import { SocketContext } from '../withSocketConnection';
+import { TOP_BAR_POPOVER_POPPER_CONFIG } from '../constants';
 
 import Badge from '../Badge';
 import NotificationsPopover from './NotificationsPopover';
@@ -23,7 +23,7 @@ const formatNewsItemsAsNotifications = (newsItems = []) => newsItems.map((newsIt
   date: newsItem.additional?.created_at,
   id: newsItem.id,
   link: newsItem.link,
-  message: newsItem.description,
+  message: newsItem.description ?? '',
   read: newsItem.read,
   title: newsItem.title,
 }));
@@ -70,7 +70,11 @@ const NotificationMenu = () => {
       try {
         await readNews(unreadNews);
 
-        setNews((currentNews) => currentNews.map((newsItem) => ({ ...newsItem, read: true })));
+        // Announcements that arrived during the request stay unread.
+        const readNewsIds = new Set(unreadNews.map((newsItem) => newsItem.id));
+        setNews((currentNews) => currentNews.map((newsItem) => readNewsIds.has(newsItem.id)
+          ? { ...newsItem, read: true }
+          : newsItem));
       } catch (error) {
         console.warn('error marking news as `read`', error);
       }
@@ -132,7 +136,7 @@ const NotificationMenu = () => {
 
     <Overlay
       placement="bottom-end"
-      popperConfig={POPOVER_POPPER_CONFIG}
+      popperConfig={TOP_BAR_POPOVER_POPPER_CONFIG}
       show={isPopoverOpen}
       target={toggleButton}
     >
