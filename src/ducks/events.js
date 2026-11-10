@@ -1,10 +1,12 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import union from 'lodash/union';
+import without from 'lodash/without';
+import xor from 'lodash/xor';
 
 import { API_URL, API_V2_URL, PREVIEW_FEATURES, REALTIME_OVERLAY_WINDOW_MS, TAB_KEYS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { addRealtimeOverlayEvent, removeRealtimeOverlayEvent } from './events-realtime-overlay';
-import { fetchPatrol, LINK_TARGETS_PAGE_SIZE, PATROLS_API_URL } from './patrols';
+import { fetchPatrol, LINK_TARGETS_PAGE_SIZE, PATROLS_API_URL, UPDATE_PATROL_REALTIME } from './patrols';
 import { generateErrorMessageForRequest } from '../utils/request';
 import { getBboxParamsFromMap, objectToParamString } from '../utils/query';
 import { getPreviewFeatureValue } from '../utils/feature-flags';
@@ -806,6 +808,48 @@ const namedFeedReducer = (name, reducer = state => state) => globallyResettableR
   return reducer(state, action);
 }, INITIAL_EVENT_FEED_STATE);
 
+const EMPTY_ARRAY = [];
+
+// The server pushes link changes as patrol updates only, never event ones.
+const applyPatrolLinksToEventStore = (eventStore, patrol) => {
+  const patrolSegments = patrol.patrol_segments ?? EMPTY_ARRAY;
+  if (!patrolSegments.every((patrolSegment) => Array.isArray(patrolSegment.events))) {
+    return eventStore;
+  }
+
+  const patrolSegmentIds = new Set(patrolSegments.map((patrolSegment) => patrolSegment.id));
+  const linkedSegmentIdsByEventId = patrolSegments.reduce((accumulator, patrolSegment) => {
+    patrolSegment.events.forEach((event) => {
+      accumulator[event.id] = [...(accumulator[event.id] ?? EMPTY_ARRAY), patrolSegment.id];
+    });
+
+    return accumulator;
+  }, {});
+
+  const relinkedEvents = Object.values(eventStore).reduce((accumulator, event) => {
+    const eventPatrolSegmentIds = event.patrol_segments ?? EMPTY_ARRAY;
+    const eventPatrolIds = event.patrols ?? EMPTY_ARRAY;
+    const linkedSegmentIds = linkedSegmentIdsByEventId[event.id] ?? EMPTY_ARRAY;
+    const isLinked = linkedSegmentIds.length > 0;
+    const storedSegmentIds = eventPatrolSegmentIds.filter((patrolSegmentId) => patrolSegmentIds.has(patrolSegmentId));
+
+    if (xor(storedSegmentIds, linkedSegmentIds).length > 0 || isLinked !== eventPatrolIds.includes(patrol.id)) {
+      accumulator[event.id] = {
+        ...event,
+        patrol_segments: [
+          ...eventPatrolSegmentIds.filter((patrolSegmentId) => !patrolSegmentIds.has(patrolSegmentId)),
+          ...linkedSegmentIds,
+        ],
+        patrols: isLinked ? union(eventPatrolIds, [patrol.id]) : without(eventPatrolIds, patrol.id),
+      };
+    }
+
+    return accumulator;
+  }, {});
+
+  return Object.keys(relinkedEvents).length > 0 ? { ...eventStore, ...relinkedEvents } : eventStore;
+};
+
 // reducers
 const INITIAL_STORE_STATE = {};
 export const eventStoreReducer = (state, { type, payload }) => {
@@ -857,6 +901,11 @@ export const eventStoreReducer = (state, { type, payload }) => {
       ...toAdd,
     };
   }
+
+  if (type === UPDATE_PATROL_REALTIME) {
+    return applyPatrolLinksToEventStore(state, payload);
+  }
+
   return state;
 };
 

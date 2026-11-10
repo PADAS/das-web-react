@@ -323,7 +323,8 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
           user: {
             permissions: {
               [PERMISSION_KEYS.EVENT_RELATIONSHIPS]: [PERMISSIONS.DELETE],
-              [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
+              [PERMISSION_KEYS.EVENT_RELATED_SEGMENTS]: [PERMISSIONS.DELETE],
+              [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE],
             },
           },
         },
@@ -354,7 +355,10 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
     });
 
     test('does not offer to remove an event from its incident without the delete permission', async () => {
-      store.data.user.permissions = { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] };
+      store.data.user.permissions = {
+        [PERMISSION_KEYS.EVENT_RELATED_SEGMENTS]: [PERMISSIONS.DELETE],
+        [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE],
+      };
       renderActions({ event: linkedEvent });
 
       await openKebabMenu();
