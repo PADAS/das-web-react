@@ -3,7 +3,7 @@
   "$description": "The EarthRanger legacy palette, as drawn in the Ecoscope Figma file (node 9810-2108). Values only: every token name is the one @allenai/design-system already publishes, so nothing in the app changes but the color. Edit a hex here and the whole app follows, CSS and map alike.",
   "$source": "https://www.figma.com/design/0W4QLZWryZdOqgYHpwrr9H/Ecoscope?node-id=9810-2108",
   "color": {
-    "ui-cta-primary": { "hex": "#0056c7", "figma": "UI/CTA Primary Blue", "dark": "#3089ff", "darkFigma": "Blue/7", "note": "On dark surfaces use the dark value, as the design system does: its CTA pairs Green/12 (light) with Green/7 (dark), so the legacy blue pairs Blue/1 with Blue/7. GlobalMenuDrawer sits on #333333 and reads var(--er-blue-7) directly, since marking it [data-theme=dark] would also flip its reversed text tokens." },
+    "ui-cta-primary": { "hex": "#0056c7", "figma": "UI/CTA Primary Blue", "dark": "#76b0ff", "darkFigma": "Blue/3", "note": "The legacy dark mode in Figma (frame 9810-3037) pairs the CTA Blue/1 with Blue/3. GlobalMenuDrawer is dark chrome inside the light theme rather than a dark-mode surface, so it reads var(--er-blue-7) directly, a mid blue picked for that chrome; marking it [data-theme=dark] would also flip its reversed text tokens." },
     "ui-cta-secondary-blue": { "hex": "#dde8f8", "figma": "UI/CTA Secondary Blue" },
 
     "ui-text-primary-text": { "hex": "#000000", "figma": "UI/Text/Primary Text" },
