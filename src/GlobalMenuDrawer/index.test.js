@@ -14,14 +14,17 @@ import { useMatchMedia } from '../hooks';
 import useNavigate from '../hooks/useNavigate';
 
 import GlobalMenuDrawer, {
+  COMMUNITY_SITE_URL,
   CONTACT_US_URL,
   ECOSCOPE_ANALYSIS_URL,
   GUNDI_PORTAL_URL,
+  HELP_CENTER_SITE_URL,
   MOBILE_APP_STORE_URL,
   MOBILE_GOOGLE_PLAY_URL,
   RELEASE_NOTES_URL,
   SYSTEM_STATUS_URL,
   TRAINING_URL,
+  USERS_GUIDE_SITE_URL,
 } from './';
 
 jest.mock('../ducks/modals', () => ({
@@ -68,13 +71,13 @@ describe('GlobalMenuDrawer', () => {
     navigate = jest.fn();
     useNavigateMock = jest.fn(() => navigate);
     useNavigate.mockImplementation(useNavigateMock);
-    mockTrack.mockClear();
 
     store = {
       data: {
         eventFilter: {},
         eventTypes,
         gear: { ...INITIAL_GEAR_STATE },
+        selectedUserProfile: null,
         systemStatus: {
           server: { version: '' },
         },
@@ -88,7 +91,6 @@ describe('GlobalMenuDrawer', () => {
           }
         },
       },
-      selectedUserProfile: null,
       view: {
         drawer: {},
         systemConfig: {
@@ -102,10 +104,6 @@ describe('GlobalMenuDrawer', () => {
         },
       },
     };
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
   });
 
   const mockUserAgent = (userAgent) => jest.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(userAgent);
@@ -402,11 +400,22 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.getByRole('link', { name: 'Gundi Integrations' })).toBeInTheDocument();
   });
 
-  test('tracks a click on each new link', async () => {
+  test('links Community, Help Center and User\'s Guide to their sites', async () => {
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('link', { name: 'Community' })).toHaveAttribute('href', COMMUNITY_SITE_URL);
+    expect(screen.getByRole('link', { name: 'Help Center' })).toHaveAttribute('href', HELP_CENTER_SITE_URL);
+    expect(screen.getByRole('link', { name: 'User\'s Guide' })).toHaveAttribute('href', USERS_GUIDE_SITE_URL);
+  });
+
+  test('tracks a click on each external link', async () => {
     store.data.user.is_staff = true;
     renderGlobalMenuDrawer();
 
     const links = [
+      ['Community', 'Community'],
+      ['Help Center', 'Help Center'],
+      ['User\'s Guide', 'Users Guide'],
       ['Admin', 'Admin'],
       ['Gundi Integrations', 'Gundi'],
       ['Ecoscope Analysis', 'Ecoscope Analysis'],
@@ -438,8 +447,8 @@ describe('GlobalMenuDrawer', () => {
     store.data.user.is_staff = true;
     renderGlobalMenuDrawer();
 
-    expect(screen.getByRole('link', { name: 'Gundi Integrations' })).toHaveTextContent('GundiIntegrations');
-    expect(screen.getByRole('link', { name: 'Ecoscope Analysis' })).toHaveTextContent('EcoscopeAnalysis');
+    expect(screen.getByRole('link', { name: 'Gundi Integrations' })).toHaveTextContent('Gundi Integrations');
+    expect(screen.getByRole('link', { name: 'Ecoscope Analysis' })).toHaveTextContent('Ecoscope Analysis');
   });
 
   test('lists Ecoscope Analysis under EARTHRANGER APPS, not under EXPORTS, for non-staff users too', async () => {
@@ -490,6 +499,7 @@ describe('GlobalMenuDrawer', () => {
     renderGlobalMenuDrawer();
 
     expect(screen.getByRole('link', { name: 'App Store (iPhone)' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Google Play (Android)' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 4, name: 'EARTHRANGER MOBILE' })).toBeInTheDocument();
   });
 
@@ -513,12 +523,17 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.getByRole('link', { name: 'Ecoscope Analysis' })).toBeInTheDocument();
   });
 
-  test('shows the EarthRanger Apps heading to a staff user on a phone', async () => {
+  test('lists Admin and Gundi under the EarthRanger Apps heading for a staff user on a phone', async () => {
     mockUserAgent(IPHONE_USER_AGENT);
     store.data.user.is_staff = true;
     renderGlobalMenuDrawer();
 
-    expect(screen.getByRole('heading', { name: 'EARTHRANGER APPS' })).toBeInTheDocument();
+    const appsHeading = screen.getByRole('heading', { name: 'EARTHRANGER APPS' });
+
+    expect(appsHeading.compareDocumentPosition(screen.getByRole('link', { name: 'Admin' })))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(appsHeading.compareDocumentPosition(screen.getByRole('link', { name: 'Gundi Integrations' })))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
   test('does not show the EXPORTS heading when no export is available', async () => {

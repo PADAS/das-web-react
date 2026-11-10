@@ -26,8 +26,8 @@
     "dailyReportModal": {
       "title": "Daily Report"
     },
-    "ecoscopeAnalysisLink": "Analysis",
-    "ecoscopeName": "Ecoscope",
+    "ecoscopeLink": "Ecoscope",
+    "ecoscopeTag": "Analysis",
     "exportsHeader": "EXPORTS",
     "fieldReportsModal": {
       "content": "Exported events will only include those matching the filter criteria currently set in the Events tab.",
@@ -42,7 +42,7 @@
       "systemStatusLink": "System Status",
       "websitePrivacyPolicyLink": "Website Privacy Policy"
     },
-    "gundiName": "Gundi",
+    "gundiLink": "Gundi",
     "gundiTag": "Integrations",
     "header": "Main Menu",
     "helpCenterButton": "Help Center",
@@ -52,7 +52,7 @@
     },
     "mobileAppStoreLink": "App Store (iPhone)",
     "mobileGooglePlayLink": "Google Play (Android)",
-    "mobileHeading": "EARTHRANGER MOBILE",
+    "mobileHeader": "EARTHRANGER MOBILE",
     "navigationButton": {
       "gear": "Gear",
       "mapLayers": "Map Layers",

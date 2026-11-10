@@ -26,8 +26,8 @@
     "dailyReportModal": {
       "title": "दैनिक रिपोर्ट"
     },
-    "ecoscopeAnalysisLink": "विश्लेषण",
-    "ecoscopeName": "Ecoscope",
+    "ecoscopeLink": "Ecoscope",
+    "ecoscopeTag": "विश्लेषण",
     "exportsHeader": "निर्यात",
     "fieldReportsModal": {
       "content": "घटना ट्याबमा हाल सेट गरिएका फिल्टर मापदण्डसँग मेल खाने घटनाहरु मात्रै निर्यात घटनामा समावेश हुनेछन् ।",
@@ -42,7 +42,7 @@
       "systemStatusLink": "प्रणालीको स्थिति",
       "websitePrivacyPolicyLink": "वेबसाइट गोपनीयता नीति"
     },
-    "gundiName": "Gundi",
+    "gundiLink": "Gundi",
     "gundiTag": "एकीकरणहरु",
     "header": "मुख्य मेनू",
     "helpCenterButton": "सहायता केन्द्र",
@@ -52,7 +52,7 @@
     },
     "mobileAppStoreLink": "App Store (iPhone)",
     "mobileGooglePlayLink": "Google Play (Android)",
-    "mobileHeading": "अर्थरेन्जर मोबाइल",
+    "mobileHeader": "अर्थरेन्जर मोबाइल",
     "navigationButton": {
       "gear": "जाल",
       "mapLayers": "नक्साका तहहरु",

@@ -71,7 +71,7 @@
       &.nestedListItem {
         margin-top: 1rem;
 
-        h3, h4 {
+        h4 {
           color: colors.$secondary-light-gray;
           font-size: .75rem;
           margin-bottom: 0.25rem;
@@ -100,12 +100,11 @@
 
         svg {
           flex-shrink: 0;
-          height: 1.5rem;
-          width: 1.5rem;
+          height: 1.25rem;
+          width: 1.25rem;
 
-          circle, path {
+          &.recoloredIcon path {
             fill: currentcolor;
-            opacity: 1;
           }
         }
 
@@ -138,6 +137,10 @@
     font-size: 0.75rem;
     margin-top: auto;
     padding-top: 2rem;
+
+    .versionsAndCopyright {
+      margin-bottom: 0;
+    }
 
     .policies {
       margin-bottom: 0.5rem;

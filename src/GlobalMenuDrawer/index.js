@@ -6,15 +6,14 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as AndroidLogoIcon } from '../common/images/icons/android-logo.svg';
 import { ReactComponent as AppleLogoIcon } from '../common/images/icons/apple-logo.svg';
 import { ReactComponent as BarChartIcon } from '../common/images/icons/bar-chart.svg';
-import { ReactComponent as BellIcon } from '../common/images/icons/bell-icon.svg';
 import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
-import { ReactComponent as ChatBubbleIcon } from '../common/images/icons/chat-bubble.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
 import { ReactComponent as EarthRangerMarkIcon } from '../common/images/icons/er-mark.svg';
 import { ReactComponent as EcoscopeLogoIcon } from '../common/images/icons/ecoscope-logo.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as GundiLogoIcon } from '../common/images/icons/gundi-logo.svg';
+import { ReactComponent as HeadsetIcon } from '../common/images/icons/headset.svg';
 import { ReactComponent as InformationIcon } from '../common/images/icons/information.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
@@ -23,6 +22,7 @@ import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg'
 import { ReactComponent as PersonIcon } from '../common/images/icons/person-icon.svg';
 import { ReactComponent as PlayCircleIcon } from '../common/images/icons/play-circle.svg';
 import { ReactComponent as StarIcon } from '../common/images/icons/star.svg';
+import { ReactComponent as TriangleExclamationIcon } from '../common/images/icons/triangle-exclamation.svg';
 
 import { addModal } from '../ducks/modals';
 import {
@@ -80,6 +80,7 @@ const MOBILE_STORE_LINKS = [
     href: MOBILE_APP_STORE_URL,
     Icon: AppleLogoIcon,
     labelKey: 'mobileAppStoreLink',
+    // iPadOS reports itself as a Mac, so only phones and older iPads match.
     userAgentPattern: /iPhone|iPad|iPod/,
   },
   {
@@ -91,18 +92,19 @@ const MOBILE_STORE_LINKS = [
   },
 ];
 
-const renderExternalLink = ({ analyticsLabel, href, icon, label, placement = 'menu item', tag }) => <a
-  aria-label={tag ? `${label} ${tag}` : undefined}
-  href={href}
-  onClick={() => mainToolbarTracker.track(`Click '${analyticsLabel}' ${placement}`)}
+const renderExternalLink = (externalLink) => <a
+  href={externalLink.href}
+  onClick={() => mainToolbarTracker.track(
+    `Click '${externalLink.analyticsLabel}' ${externalLink.placement ?? 'menu item'}`
+  )}
   rel="noopener noreferrer"
   target="_blank"
 >
-  {icon}
+  {externalLink.icon}
 
-  <span>{label}</span>
+  <span>{externalLink.label}</span>
 
-  {!!tag && <span className={styles.tag}>{tag}</span>}
+  {!!externalLink.tag && <>{' '}<span className={styles.tag}>{externalLink.tag}</span></>}
 </a>;
 
 const GlobalMenuDrawer = () => {
@@ -138,7 +140,6 @@ const GlobalMenuDrawer = () => {
 
   const activeUser = selectedUserProfile?.id ? selectedUserProfile : user;
   const canReadPatrols = patrolManagementEnabled && hasPatrolsReadPermission;
-  // iPadOS reports itself as a Mac, so only phones and older iPads match here.
   const deviceMobileStoreLink = MOBILE_STORE_LINKS
     .find((mobileStoreLink) => mobileStoreLink.userAgentPattern.test(window.navigator.userAgent));
 
@@ -206,6 +207,24 @@ const GlobalMenuDrawer = () => {
     t,
   ]);
 
+  // Calculate the navigation links to show based on the enabled features.
+  const navigationItems = useMemo(() => [
+    ...(eventsEnabled
+      ? [{ icon: <DocumentIcon />, sidebarTab: TAB_KEYS.EVENTS, title: t('navigationButton.reports') }]
+      : []),
+    ...(canReadPatrols
+      ? [{ icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: t('navigationButton.patrols') }]
+      : []),
+    ...(hasGear
+      ? [{ icon: <MarkerFeedIcon />, sidebarTab: TAB_KEYS.GEAR, title: t('navigationButton.gear') }]
+      : []),
+    ...(analyzersEnabled || spatialFeaturesEnabled || subjectsEnabled || eventsEnabled
+      ? [{ icon: <LayersIcon />, sidebarTab: TAB_KEYS.LAYERS, title: t('navigationButton.mapLayers') }]
+      : []),
+    ...(otusUrl ? [{ icon: <OtusIcon />, sidebarTab: TAB_KEYS.OTUS, title: t('navigationButton.otus') }] : []),
+    { icon: <GearIcon />, sidebarTab: TAB_KEYS.SETTINGS, title: t('navigationButton.settings') },
+  ], [analyzersEnabled, canReadPatrols, eventsEnabled, hasGear, otusUrl, spatialFeaturesEnabled, subjectsEnabled, t]);
+
   const openTableauReport = () => {
     tableuAnalysisTracker.track('Click Analysis (via Tableau) menu item');
 
@@ -249,41 +268,15 @@ const GlobalMenuDrawer = () => {
     }, ALERTS_CATEGORY);
   }, [onModalClick, t, token.access_token]);
 
-  const renderMobileStoreLinks = (mobileStoreLinks, isTopLink = false) => <li
-    className={styles.nestedListItem}
-  >
-    {isTopLink ? <h3>{t('mobileHeading')}</h3> : <h4>{t('mobileHeading')}</h4>}
-
-    <ul>
-      {mobileStoreLinks.map((mobileStoreLink) => <li key={mobileStoreLink.href}>
-        {renderExternalLink({
-          analyticsLabel: mobileStoreLink.analyticsLabel,
-          href: mobileStoreLink.href,
-          icon: <mobileStoreLink.Icon aria-hidden />,
-          label: t(mobileStoreLink.labelKey),
-          placement: isTopLink ? 'top link' : undefined,
-        })}
-      </li>)}
-    </ul>
+  const renderMobileStoreLink = (mobileStoreLink, placement) => <li key={mobileStoreLink.href}>
+    {renderExternalLink({
+      analyticsLabel: mobileStoreLink.analyticsLabel,
+      href: mobileStoreLink.href,
+      icon: <mobileStoreLink.Icon aria-hidden />,
+      label: t(mobileStoreLink.labelKey),
+      placement,
+    })}
   </li>;
-
-  // Calculate the navigation links to show based on the enabled features.
-  const navigationItems = useMemo(() => [
-    ...(eventsEnabled
-      ? [{ icon: <DocumentIcon />, sidebarTab: TAB_KEYS.EVENTS, title: t('navigationButton.reports') }]
-      : []),
-    ...(canReadPatrols
-      ? [{ icon: <PatrolIcon />, sidebarTab: TAB_KEYS.PATROLS, title: t('navigationButton.patrols') }]
-      : []),
-    ...(hasGear
-      ? [{ icon: <MarkerFeedIcon />, sidebarTab: TAB_KEYS.GEAR, title: t('navigationButton.gear') }]
-      : []),
-    ...(analyzersEnabled || spatialFeaturesEnabled || subjectsEnabled || eventsEnabled
-      ? [{ icon: <LayersIcon />, sidebarTab: TAB_KEYS.LAYERS, title: t('navigationButton.mapLayers') }]
-      : []),
-    ...(otusUrl ? [{ icon: <OtusIcon />, sidebarTab: TAB_KEYS.OTUS, title: t('navigationButton.otus') }] : []),
-    { icon: <GearIcon />, sidebarTab: TAB_KEYS.SETTINGS, title: t('navigationButton.settings') },
-  ], [analyzersEnabled, canReadPatrols, eventsEnabled, hasGear, otusUrl, spatialFeaturesEnabled, subjectsEnabled, t]);
 
   useEffect(() => {
     if (drawer.drawerId === 'global-menu' && drawer.isOpen) {
@@ -340,8 +333,10 @@ const GlobalMenuDrawer = () => {
     {!!deviceMobileStoreLink && <>
       <hr aria-hidden className={styles.separator} />
 
+      <h3>{t('mobileHeader')}</h3>
+
       <ul>
-        {renderMobileStoreLinks([deviceMobileStoreLink], true)}
+        {renderMobileStoreLink(deviceMobileStoreLink, 'top link')}
       </ul>
     </>}
 
@@ -375,7 +370,7 @@ const GlobalMenuDrawer = () => {
 
       {!!alertsEnabled && !!eventTypes.length && <li>
         <button onClick={onOpenAlertsModalClick} type="button">
-          <BellIcon aria-hidden />
+          <TriangleExclamationIcon aria-hidden />
 
           <span>{t('alertsButton')}</span>
         </button>
@@ -383,7 +378,7 @@ const GlobalMenuDrawer = () => {
 
       <li>
         {jiraIframeHelpButton ? <button onClick={onContactSupportClick} type="button">
-          <ChatBubbleIcon aria-hidden />
+          <HeadsetIcon aria-hidden />
 
           <span>{t('contactSupportButton')}</span>
         </button> : <a
@@ -392,7 +387,7 @@ const GlobalMenuDrawer = () => {
           rel="noopener noreferrer"
           target="_blank"
         >
-          <ChatBubbleIcon aria-hidden />
+          <HeadsetIcon aria-hidden />
 
           <span>{t('contactSupportButton')}</span>
         </a>}
@@ -402,7 +397,7 @@ const GlobalMenuDrawer = () => {
         {renderExternalLink({
           analyticsLabel: 'Community',
           href: COMMUNITY_SITE_URL,
-          icon: <PersonIcon aria-hidden />,
+          icon: <PersonIcon aria-hidden className={styles.recoloredIcon} />,
           label: t('communityButton'),
         })}
       </li>
@@ -444,7 +439,7 @@ const GlobalMenuDrawer = () => {
         {renderExternalLink({
           analyticsLabel: 'Training',
           href: TRAINING_URL,
-          icon: <PlayCircleIcon aria-hidden />,
+          icon: <PlayCircleIcon aria-hidden className={styles.recoloredIcon} />,
           label: t('trainingLink'),
         })}
       </li>
@@ -481,7 +476,7 @@ const GlobalMenuDrawer = () => {
           analyticsLabel: 'Gundi',
           href: GUNDI_PORTAL_URL,
           icon: <GundiLogoIcon aria-hidden />,
-          label: t('gundiName'),
+          label: t('gundiLink'),
           tag: t('gundiTag'),
         })}
       </li>}
@@ -491,12 +486,18 @@ const GlobalMenuDrawer = () => {
           analyticsLabel: 'Ecoscope Analysis',
           href: ECOSCOPE_ANALYSIS_URL,
           icon: <EcoscopeLogoIcon aria-hidden />,
-          label: t('ecoscopeName'),
-          tag: t('ecoscopeAnalysisLink'),
+          label: t('ecoscopeLink'),
+          tag: t('ecoscopeTag'),
         })}
       </li>
 
-      {!deviceMobileStoreLink && renderMobileStoreLinks(MOBILE_STORE_LINKS)}
+      {!deviceMobileStoreLink && <li className={styles.nestedListItem}>
+        <h4>{t('mobileHeader')}</h4>
+
+        <ul>
+          {MOBILE_STORE_LINKS.map((mobileStoreLink) => renderMobileStoreLink(mobileStoreLink))}
+        </ul>
+      </li>}
     </ul>
 
     <footer className={styles.footer}>
@@ -534,7 +535,7 @@ const GlobalMenuDrawer = () => {
         </li>
       </ul>
 
-      <p>
+      <p className={styles.versionsAndCopyright}>
         {t('footer.serverVersion', { version: serverData.version })}
 
         <br />

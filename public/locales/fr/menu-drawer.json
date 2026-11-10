@@ -19,13 +19,15 @@
       "title": "Alertes"
     },
     "appsHeader": "APPLICATIONS EARTHRANGER",
+    "closeButtonLabel": "Fermer le menu principal",
+    "closeButtonTitle": "Fermer",
     "communityButton": "Communauté",
     "contactSupportButton": "Contacter l'équipe de Soutien",
     "dailyReportModal": {
       "title": "Rapport Quotidien"
     },
-    "ecoscopeAnalysisLink": "Analyse",
-    "ecoscopeName": "Ecoscope",
+    "ecoscopeLink": "Ecoscope",
+    "ecoscopeTag": "Analyse",
     "exportsHeader": "EXPORTER",
     "fieldReportsModal": {
       "content": "Les informations exportées inclueront uniquement les informations filtrées selon les critères dans la rubrique des Événements ",
@@ -40,7 +42,7 @@
       "systemStatusLink": "État du Système",
       "websitePrivacyPolicyLink": "Politique de Confidentialité du Site Web"
     },
-    "gundiName": "Gundi",
+    "gundiLink": "Gundi",
     "gundiTag": "Intégrations",
     "header": "Menu principal",
     "helpCenterButton": "Centre d'Informations",
@@ -50,7 +52,7 @@
     },
     "mobileAppStoreLink": "App Store (iPhone)",
     "mobileGooglePlayLink": "Google Play (Android)",
-    "mobileHeading": "EARTHRANGER MOBILE",
+    "mobileHeader": "EARTHRANGER MOBILE",
     "navigationButton": {
       "gear": "Engins",
       "mapLayers": "Calques",

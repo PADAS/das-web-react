@@ -26,8 +26,8 @@
     "dailyReportModal": {
       "title": "Ripoti ya Kila Siku"
     },
-    "ecoscopeAnalysisLink": "Uchambuzi",
-    "ecoscopeName": "Ecoscope",
+    "ecoscopeLink": "Ecoscope",
+    "ecoscopeTag": "Uchambuzi",
     "exportsHeader": "Nakili",
     "fieldReportsModal": {
       "content": "Matukio yaliyonakiliwa yatajumuisha tu yale yanayolingana na vigezo vya uchujaji vilivyowekwa kwa sasa kwenye kichupo cha Matukio.",
@@ -42,7 +42,7 @@
       "systemStatusLink": "Hali ya Mfumo",
       "websitePrivacyPolicyLink": "Sera ya Faragha ya Wavuti"
     },
-    "gundiName": "Gundi",
+    "gundiLink": "Gundi",
     "gundiTag": "Miunganisho",
     "header": "Menyu Kuu",
     "helpCenterButton": "Kituo cha Msaada",
@@ -52,7 +52,7 @@
     },
     "mobileAppStoreLink": "App Store (iPhone)",
     "mobileGooglePlayLink": "Google Play (Android)",
-    "mobileHeading": "EarthRanger Mobile",
+    "mobileHeader": "EarthRanger Mobile",
     "navigationButton": {
       "gear": "Vifaa",
       "mapLayers": "Tabaka za Ramani",

@@ -19,13 +19,15 @@
       "title": "Alertas"
     },
     "appsHeader": "Aplicativos EarthRanger",
+    "closeButtonLabel": "Fechar menu principal",
+    "closeButtonTitle": "Fechar",
     "communityButton": "Comunidade",
     "contactSupportButton": "Fale com o suporte",
     "dailyReportModal": {
       "title": "Relatório diário"
     },
-    "ecoscopeAnalysisLink": "Análise",
-    "ecoscopeName": "Ecoscope",
+    "ecoscopeLink": "Ecoscope",
+    "ecoscopeTag": "Análise",
     "exportsHeader": "Exportar",
     "fieldReportsModal": {
       "content": "Os eventos exportados incluirão apenas aqueles que coincidam com os critérios de Filtros atualmente configurados na aba \"Eventos\".",
@@ -40,7 +42,7 @@
       "systemStatusLink": "Status do sistema",
       "websitePrivacyPolicyLink": "Política de privacidade da página web"
     },
-    "gundiName": "Gundi",
+    "gundiLink": "Gundi",
     "gundiTag": "Integrações",
     "header": "Menu principal",
     "helpCenterButton": "Central de Ajuda",
@@ -50,7 +52,7 @@
     },
     "mobileAppStoreLink": "App Store (iPhone)",
     "mobileGooglePlayLink": "Google Play (Android)",
-    "mobileHeading": "EarthRanger Mobile",
+    "mobileHeader": "EarthRanger Mobile",
     "navigationButton": {
       "gear": "Equipamento",
       "mapLayers": "Camadas",
