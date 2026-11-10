@@ -7,10 +7,6 @@ import getHumanizedFieldValue from '../../../../utils/form-schemas/getHumanizedF
 import normalizeChoiceListValues from '../../../../utils/form-schemas/normalizeChoiceListValues';
 import transformSchemaToFormElements from '../../../../utils/form-schemas/transformSchemaToFormElements';
 
-// A field of one event type, as a table column: `key` in event_details, a
-// `label`, whether its value is `complex` (opened rather than shown), whether
-// it `isDate`, and `toText(eventDetails)` for the simple ones.
-
 const isLegacyChoice = (value) => isPlainObject(value) && typeof value.name === 'string' && 'value' in value;
 
 const joinValues = (value) => Array.isArray(value) ? value.join(', ') : value;
@@ -49,14 +45,14 @@ const fieldFromV1Property = (key, property, uiSchema) => {
   };
 };
 
-const fieldsFromV1Schema = ({ schema, uiSchema }) => {
-  const properties = schema?.properties ?? {};
+const fieldsFromV1Schema = (eventSchema) => {
+  const properties = eventSchema.schema?.properties ?? {};
   const orderedKeys = uniq([
-    ...(uiSchema?.['ui:groups'] ?? []).flatMap((group) => group.items),
+    ...(eventSchema.uiSchema?.['ui:groups'] ?? []).flatMap((group) => group.items),
     ...Object.keys(properties),
   ]).filter((key) => !!properties[key]);
 
-  return orderedKeys.map((key) => fieldFromV1Property(key, properties[key], uiSchema));
+  return orderedKeys.map((key) => fieldFromV1Property(key, properties[key], eventSchema.uiSchema));
 };
 
 const fieldsFromV2Schema = (schema, coordinatesRepresentation) => {
@@ -113,10 +109,12 @@ const fieldsFromEventDetails = (events) => uniq(events.flatMap((event) => Object
     },
   }));
 
-// The v2 schema endpoint answers in the v1 shape for v1 types.
+// Each field is a column with a `key` in event_details, a `label` and `isDate`.
+// Its `toText(eventDetails)` shows a value that is not `complex`.
 const calcEventTypeFields = (eventSchema, events, coordinatesRepresentation) => {
   try {
     if (eventSchema?.json) return fieldsFromV2Schema(eventSchema, coordinatesRepresentation);
+    // The v2 schema endpoint answers in the v1 shape for v1 types.
     if (eventSchema?.schema) return fieldsFromV1Schema(eventSchema);
   } catch (error) {
     console.warn('Could not read the event type schema for the table columns', error);

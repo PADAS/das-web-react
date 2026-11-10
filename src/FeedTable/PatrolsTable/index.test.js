@@ -3,12 +3,12 @@ import { Provider } from 'react-redux';
 
 import { activePatrol } from '../../__test-helpers/fixtures/patrols';
 import { fetchNextPatrolsFeedPage } from '../../ducks/patrols';
+import { governingPatrolSegment, iconIdForPatrolSegment } from '../../utils/patrols';
 import {
   INITIAL_STATE as INITIAL_FEED_TABLE_SORT_STATE,
   setFeedTableClientSort,
   START_FEED_TABLE_FULL_LOAD,
 } from '../../ducks/feed-table-sort';
-import { governingPatrolSegment, iconIdForPatrolSegment } from '../../utils/patrols';
 import { mockStore } from '../../__test-helpers/MockStore';
 import patrolTypes from '../../__test-helpers/fixtures/patrol-types';
 import { render, screen } from '../../test-utils';

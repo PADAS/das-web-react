@@ -4,8 +4,8 @@ import { CanceledError } from 'axios';
 import { Provider } from 'react-redux';
 import { thunk } from 'redux-thunk';
 
-import { renderHook, waitFor } from '../../test-utils';
 import feedTableSortReducer from '../../ducks/feed-table-sort';
+import { renderHook, waitFor } from '../../test-utils';
 import { TAB_KEYS } from '../../constants';
 
 import useFeedTableFullLoad, { FULL_LOAD_RETRY_DELAY } from './';
@@ -21,7 +21,7 @@ const EVENT_STORE = {
 
 const page = (ids, next = null) => ({ next, results: ids.map((id) => ({ id })) });
 
-describe('useFeedTableFullLoad', () => {
+describe('FeedTable - useFeedTableFullLoad', () => {
   let fetchPage, pagesByUrl, store;
 
   beforeEach(() => {

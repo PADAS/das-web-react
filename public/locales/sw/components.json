@@ -68,10 +68,6 @@
     "showDetailsButton": "Angalia Maelezo"
   },
   "feedTable": {
-    "bulkUpdateErrorMessage_one": "Tukio {{count}} halikuweza kusasishwa",
-    "bulkUpdateErrorMessage_other": "Matukio {{count}} hayakuweza kusasishwa",
-    "bulkUpdateSuccessMessage_one": "Tukio {{count}} limesasishwa",
-    "bulkUpdateSuccessMessage_other": "Matukio {{count}} yamesasishwa",
     "clearSelectionButtonLabel": "Futa",
     "clientSortFinishedMessage": "Imepangwa kwa {{column}}: safu zote zimepakiwa",
     "clientSortLoadingMessage": "Inapanga kwa {{column}}: {{loaded}} kati ya {{total}} zimepakiwa",
@@ -80,9 +76,26 @@
     "clientSortStartedMessage": "Inapakia safu zote ili kupanga kwa {{column}}",
     "columnsButtonLabel": "Safu wima",
     "columnsMenuLabel": "Safu wima zinazoonyeshwa",
-    "createdAtColumnTitle": "Imeundwa",
-    "eventTimeColumnTitle": "Muda wa Tukio",
-    "eventTypeColumnTitle": "Aina",
+    "eventsTable": {
+      "bulkUpdateErrorMessage_one": "Tukio {{count}} halikuweza kusasishwa",
+      "bulkUpdateErrorMessage_other": "Matukio {{count}} hayakuweza kusasishwa",
+      "bulkUpdateSuccessMessage_one": "Tukio {{count}} limesasishwa",
+      "bulkUpdateSuccessMessage_other": "Matukio {{count}} yamesasishwa",
+      "createdAtColumnTitle": "Imeundwa",
+      "eventTimeColumnTitle": "Muda wa Tukio",
+      "eventTypeColumnTitle": "Aina",
+      "locationColumnTitle": "Mahali",
+      "priorityColumnTitle": "Kipaumbele",
+      "reopenButtonLabel": "Fungua tena",
+      "reportedByColumnTitle": "Iliripotiwa na",
+      "resolveButtonLabel": "Tatua",
+      "selectedCountMessage_one": "{{count}} kimechaguliwa",
+      "selectedCountMessage_other": "{{count}} vimechaguliwa",
+      "serialColumnTitle": "Kitambulisho",
+      "stateColumnTitle": "Hali",
+      "titleColumnTitle": "Kichwa",
+      "updatedAtColumnTitle": "Imesasishwa"
+    },
     "exportButtonLabel": "Nakili sehemu zote (CSV)",
     "exportErrorMessage": "Imeshindwa kunakili CSV",
     "grid": {
@@ -91,34 +104,30 @@
     "headerCell": {
       "allRowsCheckboxLabel": "Chagua safu mlalo zote"
     },
-    "leaderColumnTitle": "Kiongozi",
-    "legsColumnTitle": "Vipande",
-    "loadedPatrolsMessage_one": "Inaonyesha doria {{loaded}} kati ya {{count}}",
-    "loadedPatrolsMessage_other": "Inaonyesha doria {{loaded}} kati ya {{count}}",
-    "locationColumnTitle": "Mahali",
     "moveColumnHintMessage": "Bonyeza Alt na mshale wa kushoto au kulia kwenye kichwa cha safu wima ili kuisogeza.",
-    "objectView": {
+    "objectViewModal": {
       "breadcrumbLabel": "Njia",
-      "itemCount_one": "Kipengee {{count}}",
-      "itemCount_other": "Vipengee {{count}}",
-      "open": "Tazama"
+      "itemCountMessage_one": "Kipengee {{count}}",
+      "itemCountMessage_other": "Vipengee {{count}}",
+      "openButtonLabel": "Tazama"
     },
-    "patrolEndColumnTitle": "Mwisho",
-    "patrolStartColumnTitle": "Mwanzo",
-    "patrolTypeColumnTitle": "Aina ya doria",
-    "priorityColumnTitle": "Kipaumbele",
-    "reopenButtonLabel": "Fungua tena",
-    "reportedByColumnTitle": "Iliripotiwa na",
-    "resolveButtonLabel": "Tatua",
+    "patrolsTable": {
+      "leaderColumnTitle": "Kiongozi",
+      "legsColumnTitle": "Vipande",
+      "loadedPatrolsMessage_one": "Inaonyesha doria {{loaded}} kati ya {{count}}",
+      "loadedPatrolsMessage_other": "Inaonyesha doria {{loaded}} kati ya {{count}}",
+      "patrolEndColumnTitle": "Mwisho",
+      "patrolStartColumnTitle": "Mwanzo",
+      "patrolTypeColumnTitle": "Aina ya doria",
+      "serialColumnTitle": "Kitambulisho",
+      "stateColumnTitle": "Hali",
+      "titleColumnTitle": "Kichwa"
+    },
     "selectedCountMessage_one": "{{count}} kimechaguliwa",
     "selectedCountMessage_other": "{{count}} vimechaguliwa",
-    "serialColumnTitle": "Kitambulisho",
-    "stateColumnTitle": "Hali",
     "titleCell": {
       "rowCheckboxLabel": "Chagua {{title}}"
-    },
-    "titleColumnTitle": "Kichwa",
-    "updatedAtColumnTitle": "Imesasishwa"
+    }
   },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Shiriki eneo lako ili uone data yenye idhini ya kijiografia",

@@ -63,10 +63,6 @@
     "showDetailsButton": "Mostrar Detalles"
   },
   "feedTable": {
-    "bulkUpdateErrorMessage_one": "No se pudo actualizar {{count}} evento",
-    "bulkUpdateErrorMessage_other": "No se pudieron actualizar {{count}} eventos",
-    "bulkUpdateSuccessMessage_one": "{{count}} evento actualizado",
-    "bulkUpdateSuccessMessage_other": "{{count}} eventos actualizados",
     "clearSelectionButtonLabel": "Limpiar",
     "clientSortFinishedMessage": "Ordenado por {{column}}: todas las filas cargadas",
     "clientSortLoadingMessage": "Ordenando por {{column}}: {{loaded}} de {{total}} cargados",
@@ -75,9 +71,26 @@
     "clientSortStartedMessage": "Cargando todas las filas para ordenar por {{column}}",
     "columnsButtonLabel": "Columnas",
     "columnsMenuLabel": "Columnas visibles",
-    "createdAtColumnTitle": "Creado",
-    "eventTimeColumnTitle": "Hora del evento",
-    "eventTypeColumnTitle": "Tipo",
+    "eventsTable": {
+      "bulkUpdateErrorMessage_one": "No se pudo actualizar {{count}} evento",
+      "bulkUpdateErrorMessage_other": "No se pudieron actualizar {{count}} eventos",
+      "bulkUpdateSuccessMessage_one": "{{count}} evento actualizado",
+      "bulkUpdateSuccessMessage_other": "{{count}} eventos actualizados",
+      "createdAtColumnTitle": "Creado",
+      "eventTimeColumnTitle": "Hora del evento",
+      "eventTypeColumnTitle": "Tipo",
+      "locationColumnTitle": "Ubicación",
+      "priorityColumnTitle": "Prioridad",
+      "reopenButtonLabel": "Reabrir",
+      "reportedByColumnTitle": "Reportado por",
+      "resolveButtonLabel": "Resolver",
+      "selectedCountMessage_one": "{{count}} seleccionado",
+      "selectedCountMessage_other": "{{count}} seleccionados",
+      "serialColumnTitle": "ID",
+      "stateColumnTitle": "Estado",
+      "titleColumnTitle": "Título",
+      "updatedAtColumnTitle": "Actualizado"
+    },
     "exportButtonLabel": "Exportar todos los campos (CSV)",
     "exportErrorMessage": "No se pudo exportar el CSV",
     "grid": {
@@ -86,34 +99,30 @@
     "headerCell": {
       "allRowsCheckboxLabel": "Seleccionar todas las filas"
     },
-    "leaderColumnTitle": "Líder",
-    "legsColumnTitle": "Tramos",
-    "loadedPatrolsMessage_one": "Mostrando {{loaded}} de {{count}} patrulla",
-    "loadedPatrolsMessage_other": "Mostrando {{loaded}} de {{count}} patrullas",
-    "locationColumnTitle": "Ubicación",
     "moveColumnHintMessage": "Presione Alt y la flecha izquierda o derecha en el encabezado de una columna para moverla.",
-    "objectView": {
+    "objectViewModal": {
       "breadcrumbLabel": "Ruta",
-      "itemCount_one": "{{count}} elemento",
-      "itemCount_other": "{{count}} elementos",
-      "open": "Ver"
+      "itemCountMessage_one": "{{count}} elemento",
+      "itemCountMessage_other": "{{count}} elementos",
+      "openButtonLabel": "Ver"
     },
-    "patrolEndColumnTitle": "Fin",
-    "patrolStartColumnTitle": "Inicio",
-    "patrolTypeColumnTitle": "Tipo de patrulla",
-    "priorityColumnTitle": "Prioridad",
-    "reopenButtonLabel": "Reabrir",
-    "reportedByColumnTitle": "Reportado por",
-    "resolveButtonLabel": "Resolver",
+    "patrolsTable": {
+      "leaderColumnTitle": "Líder",
+      "legsColumnTitle": "Tramos",
+      "loadedPatrolsMessage_one": "Mostrando {{loaded}} de {{count}} patrulla",
+      "loadedPatrolsMessage_other": "Mostrando {{loaded}} de {{count}} patrullas",
+      "patrolEndColumnTitle": "Fin",
+      "patrolStartColumnTitle": "Inicio",
+      "patrolTypeColumnTitle": "Tipo de patrulla",
+      "serialColumnTitle": "ID",
+      "stateColumnTitle": "Estado",
+      "titleColumnTitle": "Título"
+    },
     "selectedCountMessage_one": "{{count}} seleccionado",
     "selectedCountMessage_other": "{{count}} seleccionados",
-    "serialColumnTitle": "ID",
-    "stateColumnTitle": "Estado",
     "titleCell": {
       "rowCheckboxLabel": "Seleccionar {{title}}"
-    },
-    "titleColumnTitle": "Título",
-    "updatedAtColumnTitle": "Actualizado"
+    }
   },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Comparte tu ubicación para ver datos con permisos geográficos.",

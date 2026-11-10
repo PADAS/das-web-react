@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { calcPatrolsFeedUrl, fetchFeedTablePatrolsPage, fetchNextPatrolsFeedPage } from '../../ducks/patrols';
 import {
   calcPatrolState,
   calcTitleAndSubtitleForPatrol,
@@ -12,7 +13,6 @@ import {
   governingPatrolSegment,
   iconIdForPatrolSegment,
 } from '../../utils/patrols';
-import { calcPatrolsFeedUrl, fetchFeedTablePatrolsPage, fetchNextPatrolsFeedPage } from '../../ducks/patrols';
 import { selectPatrolTrackData } from '../../selectors/patrols';
 import { setFeedTableClientSort } from '../../ducks/feed-table-sort';
 import { TAB_KEYS } from '../../constants';
@@ -34,12 +34,13 @@ const getPatrolPath = (patrol) => `/${TAB_KEYS.PATROLS}/${patrol.id}`;
 
 const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   const dispatch = useDispatch();
-  const jumpToLocation = useJumpToLocation();
-  const navigate = useNavigate();
   const store = useStore();
-  const { t } = useTranslation('components', { keyPrefix: 'feedTable' });
+  const { t } = useTranslation('components', { keyPrefix: 'feedTable.patrolsTable' });
   const { t: tPatrolState } = useTranslation('patrols', { keyPrefix: 'statusPill.uiStateTitles' });
   const { t: tSideBar } = useTranslation('components', { keyPrefix: 'sideBar' });
+
+  const jumpToLocation = useJumpToLocation();
+  const navigate = useNavigate();
 
   const clientSort = useSelector((state) => state.view.feedTableSort[TAB_KEYS.PATROLS].clientSort);
   const fullLoadUrl = useSelector((state) => calcPatrolsFeedUrl(state, FULL_LOAD_PARAMS));
@@ -110,19 +111,19 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
       valueGetter: (params) => governingPatrolSegment(params.data)?.leader?.name ?? '',
     },
     {
-      valueFormatter: formatDateValue,
       colId: 'start',
       headerName: t('patrolStartColumnTitle'),
       minWidth: 170,
       ...sortable('start'),
+      valueFormatter: formatDateValue,
       valueGetter: (params) => displayStartTimeForPatrol(params.data)?.toISOString() ?? '',
     },
     {
-      valueFormatter: formatDateValue,
       colId: 'end',
       headerName: t('patrolEndColumnTitle'),
       minWidth: 170,
       ...sortable('end'),
+      valueFormatter: formatDateValue,
       valueGetter: (params) => displayEndTimeForPatrol(params.data)?.toISOString() ?? '',
     },
     {

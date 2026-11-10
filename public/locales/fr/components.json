@@ -63,10 +63,6 @@
     "showDetailsButton": "Afficher les Détails"
   },
   "feedTable": {
-    "bulkUpdateErrorMessage_one": "{{count}} événement n'a pas pu être actualisé",
-    "bulkUpdateErrorMessage_other": "{{count}} événements n'ont pas pu être actualisés",
-    "bulkUpdateSuccessMessage_one": "{{count}} événement actualisé",
-    "bulkUpdateSuccessMessage_other": "{{count}} événements actualisés",
     "clearSelectionButtonLabel": "Effacer",
     "clientSortFinishedMessage": "Trié par {{column}} : toutes les lignes chargées",
     "clientSortLoadingMessage": "Tri par {{column}} : {{loaded}} sur {{total}} chargés",
@@ -75,9 +71,26 @@
     "clientSortStartedMessage": "Chargement de toutes les lignes pour trier par {{column}}",
     "columnsButtonLabel": "Colonnes",
     "columnsMenuLabel": "Colonnes affichées",
-    "createdAtColumnTitle": "Créé",
-    "eventTimeColumnTitle": "Heure",
-    "eventTypeColumnTitle": "Type",
+    "eventsTable": {
+      "bulkUpdateErrorMessage_one": "{{count}} événement n'a pas pu être actualisé",
+      "bulkUpdateErrorMessage_other": "{{count}} événements n'ont pas pu être actualisés",
+      "bulkUpdateSuccessMessage_one": "{{count}} événement actualisé",
+      "bulkUpdateSuccessMessage_other": "{{count}} événements actualisés",
+      "createdAtColumnTitle": "Créé",
+      "eventTimeColumnTitle": "Heure",
+      "eventTypeColumnTitle": "Type",
+      "locationColumnTitle": "Position",
+      "priorityColumnTitle": "Priorité",
+      "reopenButtonLabel": "Réouvrir",
+      "reportedByColumnTitle": "Complété par",
+      "resolveButtonLabel": "Résoudre",
+      "selectedCountMessage_one": "{{count}} sélectionné",
+      "selectedCountMessage_other": "{{count}} sélectionnés",
+      "serialColumnTitle": "ID",
+      "stateColumnTitle": "Statut",
+      "titleColumnTitle": "Titre",
+      "updatedAtColumnTitle": "Actualisé"
+    },
     "exportButtonLabel": "Exporter tous les champs (CSV)",
     "exportErrorMessage": "Le CSV n'a pas pu être exporté",
     "grid": {
@@ -86,34 +99,30 @@
     "headerCell": {
       "allRowsCheckboxLabel": "Sélectionner toutes les lignes"
     },
-    "leaderColumnTitle": "Chef",
-    "legsColumnTitle": "Étapes",
-    "loadedPatrolsMessage_one": "{{loaded}} patrouille affichée sur {{count}}",
-    "loadedPatrolsMessage_other": "{{loaded}} patrouilles affichées sur {{count}}",
-    "locationColumnTitle": "Position",
     "moveColumnHintMessage": "Appuyez sur Alt et la flèche gauche ou droite sur l’en-tête d’une colonne pour la déplacer.",
-    "objectView": {
+    "objectViewModal": {
       "breadcrumbLabel": "Chemin",
-      "itemCount_one": "{{count}} élément",
-      "itemCount_other": "{{count}} éléments",
-      "open": "Voir"
+      "itemCountMessage_one": "{{count}} élément",
+      "itemCountMessage_other": "{{count}} éléments",
+      "openButtonLabel": "Voir"
     },
-    "patrolEndColumnTitle": "Fin",
-    "patrolStartColumnTitle": "Début",
-    "patrolTypeColumnTitle": "Type de patrouille",
-    "priorityColumnTitle": "Priorité",
-    "reopenButtonLabel": "Réouvrir",
-    "reportedByColumnTitle": "Complété par",
-    "resolveButtonLabel": "Résoudre",
+    "patrolsTable": {
+      "leaderColumnTitle": "Chef",
+      "legsColumnTitle": "Étapes",
+      "loadedPatrolsMessage_one": "{{loaded}} patrouille affichée sur {{count}}",
+      "loadedPatrolsMessage_other": "{{loaded}} patrouilles affichées sur {{count}}",
+      "patrolEndColumnTitle": "Fin",
+      "patrolStartColumnTitle": "Début",
+      "patrolTypeColumnTitle": "Type de patrouille",
+      "serialColumnTitle": "ID",
+      "stateColumnTitle": "Statut",
+      "titleColumnTitle": "Titre"
+    },
     "selectedCountMessage_one": "{{count}} sélectionné",
     "selectedCountMessage_other": "{{count}} sélectionnés",
-    "serialColumnTitle": "ID",
-    "stateColumnTitle": "Statut",
     "titleCell": {
       "rowCheckboxLabel": "Sélectionner {{title}}"
-    },
-    "titleColumnTitle": "Titre",
-    "updatedAtColumnTitle": "Actualisé"
+    }
   },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Partager votre position pour afficher des données avec des autorisations géographiques",

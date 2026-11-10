@@ -9,21 +9,21 @@ import * as styles from './styles.module.scss';
 const isOpenable = (value) => value !== null && typeof value === 'object';
 
 const entriesOf = (value) => Array.isArray(value)
-  ? value.map((item, index) => [String(index + 1), item])
-  : Object.keys(value).sort().map((key) => [key, value[key]]);
+  ? value.map((item, index) => ({ key: String(index + 1), value: item }))
+  : Object.keys(value).sort().map((key) => ({ key, value: value[key] }));
 
 export const ObjectValueLink = ({ onOpen, value }) => {
-  const { t } = useTranslation('components', { keyPrefix: 'feedTable.objectView' });
+  const { t } = useTranslation('components', { keyPrefix: 'feedTable.objectViewModal' });
 
   return <button className={styles.valueLink} onClick={onOpen} type="button">
-    {Array.isArray(value) ? t('itemCount', { count: value.length }) : t('open')}
+    {Array.isArray(value) ? t('itemCountMessage', { count: value.length }) : t('openButtonLabel')}
 
     <ChevronRightIcon aria-hidden />
   </button>;
 };
 
 const ObjectViewModal = ({ title, value }) => {
-  const { t } = useTranslation('components', { keyPrefix: 'feedTable.objectView' });
+  const { t } = useTranslation('components', { keyPrefix: 'feedTable.objectViewModal' });
 
   const [openedPath, setOpenedPath] = useState([]);
 
@@ -40,7 +40,11 @@ const ObjectViewModal = ({ title, value }) => {
         <ol className={styles.breadcrumb}>
           {trail.map((step, index) => <li key={index}>
             {index < trail.length - 1
-              ? <button className={styles.breadcrumbButton} onClick={() => setOpenedPath(openedPath.slice(0, index))} type="button">
+              ? <button
+                className={styles.breadcrumbButton}
+                onClick={() => setOpenedPath(openedPath.slice(0, index))}
+                type="button"
+              >
                 {step.label}
               </button>
               : <span aria-current="location" className={styles.breadcrumbCurrent}>{step.label}</span>}
@@ -49,16 +53,16 @@ const ObjectViewModal = ({ title, value }) => {
       </nav>}
 
       <dl className={styles.entries}>
-        {entriesOf(current.value).map(([key, entryValue]) => <div className={styles.entry} key={key}>
-          <dt>{key}</dt>
+        {entriesOf(current.value).map((entry) => <div className={styles.entry} key={entry.key}>
+          <dt>{entry.key}</dt>
 
           <dd>
-            {isOpenable(entryValue)
+            {isOpenable(entry.value)
               ? <ObjectValueLink
-                onOpen={() => setOpenedPath([...openedPath, { label: key, value: entryValue }])}
-                value={entryValue}
+                onOpen={() => setOpenedPath([...openedPath, { label: entry.key, value: entry.value }])}
+                value={entry.value}
               />
-              : String(entryValue ?? '')}
+              : String(entry.value ?? '')}
           </dd>
         </div>)}
       </dl>

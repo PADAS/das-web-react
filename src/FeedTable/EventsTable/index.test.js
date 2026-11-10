@@ -10,7 +10,7 @@ import {
   SORT_DIRECTION,
   SYSTEM_CONFIG_FLAGS,
 } from '../../constants';
-import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
+import { INITIAL_FILTER_STATE, updateEventFilter } from '../../ducks/event-filter';
 import { mockStore } from '../../__test-helpers/MockStore';
 import { render, screen, within } from '../../test-utils';
 import { report } from '../../__test-helpers/fixtures/reports';
@@ -31,7 +31,6 @@ import {
   setFeedTableClientSort,
   START_FEED_TABLE_FULL_LOAD,
 } from '../../ducks/feed-table-sort';
-import { updateEventFilter } from '../../ducks/event-filter';
 import useJumpToLocation from '../../hooks/useJumpToLocation';
 import useNavigate from '../../hooks/useNavigate';
 import { showToast } from '../../utils/toast';
@@ -108,7 +107,7 @@ const v1Schema = {
   },
 };
 
-describe('EventsTable', () => {
+describe('FeedTable - EventsTable', () => {
   let eventsFeed, jumpToLocation, navigate, state, store;
 
   beforeEach(() => {
@@ -189,7 +188,8 @@ describe('EventsTable', () => {
   test('puts its controls in the spot the feed keeps for them', () => {
     renderEventsTable();
 
-    expect(within(screen.getByTestId('toolbarContainer')).getByRole('button', { name: 'Export all fields (CSV)' })).toBeVisible();
+    expect(within(screen.getByTestId('toolbarContainer')).getByRole('button', { name: 'Export all fields (CSV)' }))
+      .toBeVisible();
   });
 
   test('shows the feed sort on the columns the events API orders by', () => {
@@ -242,7 +242,10 @@ describe('EventsTable', () => {
     sortInTable('priority');
     renderEventsTable();
 
-    act(() => lastGridProps().onSortChanged({ api: { getColumnState: () => [{ colId: 'priority' }] }, source: 'uiColumnSorted' }));
+    act(() => lastGridProps().onSortChanged({
+      api: { getColumnState: () => [{ colId: 'priority' }] },
+      source: 'uiColumnSorted',
+    }));
 
     expect(store.getActions()).toContainEqual(setFeedTableClientSort('events', null));
   });
@@ -431,7 +434,11 @@ describe('EventsTable', () => {
     renderEventsTable();
 
     const button = document.createElement('button');
-    lastGridProps().onCellClicked({ column: { getColId: () => 'event_details.herd' }, data: report, event: { target: button } });
+    lastGridProps().onCellClicked({
+      column: { getColId: () => 'event_details.herd' },
+      data: report,
+      event: { target: button },
+    });
 
     expect(navigate).not.toHaveBeenCalled();
   });
@@ -553,7 +560,9 @@ describe('EventsTable', () => {
     filterToOneEventType({ id: 'type-id', value: 'wildlife', version: 1 });
     state.data.eventSchemas = { wildlife: { base: { error: new Error('Not found') } } };
 
-    renderEventsTable([{ ...report, event_details: { animal_count: 3, species: { name: 'Elephant', value: 'elephant' } } }]);
+    renderEventsTable([
+      { ...report, event_details: { animal_count: 3, species: { name: 'Elephant', value: 'elephant' } } },
+    ]);
 
     expect(columnById('event_details.animal_count').headerName).toBe('Animal Count');
     expect(columnById('event_details.species').valueGetter({
@@ -740,7 +749,8 @@ describe('EventsTable', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Export all fields (CSV)' }));
 
-    expect(downloadFileFromUrl).toHaveBeenCalledWith(expect.stringMatching(/activity\/events\/export\?state=active$/), {});
+    expect(downloadFileFromUrl)
+      .toHaveBeenCalledWith(expect.stringMatching(/activity\/events\/export\?state=active$/), {});
   });
 
   test('exports in the order the table is sorted by', async () => {

@@ -63,10 +63,6 @@
     "showDetailsButton": "विवरणहरु हेर्नुहोस्"
   },
   "feedTable": {
-    "bulkUpdateErrorMessage_one": "{{count}} घटना अद्यावधिक गर्न सकिएन",
-    "bulkUpdateErrorMessage_other": "{{count}} घटनाहरू अद्यावधिक गर्न सकिएन",
-    "bulkUpdateSuccessMessage_one": "{{count}} घटना अद्यावधिक गरियो",
-    "bulkUpdateSuccessMessage_other": "{{count}} घटनाहरू अद्यावधिक गरिए",
     "clearSelectionButtonLabel": "खाली गर्नुहोस्",
     "clientSortFinishedMessage": "{{column}} अनुसार क्रमबद्ध भयो: सबै पङ्क्तिहरू लोड भए",
     "clientSortLoadingMessage": "{{column}} अनुसार क्रमबद्ध गर्दै: {{total}} मध्ये {{loaded}} लोड भयो",
@@ -75,9 +71,26 @@
     "clientSortStartedMessage": "{{column}} अनुसार क्रमबद्ध गर्न सबै पङ्क्तिहरू लोड गर्दै",
     "columnsButtonLabel": "स्तम्भहरू",
     "columnsMenuLabel": "देखाइएका स्तम्भहरू",
-    "createdAtColumnTitle": "सिर्जना गरिएको",
-    "eventTimeColumnTitle": "घटनाको समय",
-    "eventTypeColumnTitle": "प्रकार",
+    "eventsTable": {
+      "bulkUpdateErrorMessage_one": "{{count}} घटना अद्यावधिक गर्न सकिएन",
+      "bulkUpdateErrorMessage_other": "{{count}} घटनाहरू अद्यावधिक गर्न सकिएन",
+      "bulkUpdateSuccessMessage_one": "{{count}} घटना अद्यावधिक गरियो",
+      "bulkUpdateSuccessMessage_other": "{{count}} घटनाहरू अद्यावधिक गरिए",
+      "createdAtColumnTitle": "सिर्जना गरिएको",
+      "eventTimeColumnTitle": "घटनाको समय",
+      "eventTypeColumnTitle": "प्रकार",
+      "locationColumnTitle": "स्थान",
+      "priorityColumnTitle": "प्राथमिकता",
+      "reopenButtonLabel": "फेरी खोल्नुहोस्",
+      "reportedByColumnTitle": "द्वारा रिपोर्ट गरिएको",
+      "resolveButtonLabel": "समाधान गर्नुहोस्",
+      "selectedCountMessage_one": "{{count}} चयन गरियो",
+      "selectedCountMessage_other": "{{count}} चयन गरियो",
+      "serialColumnTitle": "आईडी",
+      "stateColumnTitle": "अवस्था",
+      "titleColumnTitle": "शीर्षक",
+      "updatedAtColumnTitle": "अद्यावधिक गरिएको"
+    },
     "exportButtonLabel": "सबै फिल्डहरू निर्यात गर्नुहोस् (CSV)",
     "exportErrorMessage": "CSV निर्यात गर्न सकिएन",
     "grid": {
@@ -86,34 +99,30 @@
     "headerCell": {
       "allRowsCheckboxLabel": "सबै पङ्क्तिहरू चयन गर्नुहोस्"
     },
-    "leaderColumnTitle": "नेता",
-    "legsColumnTitle": "खण्डहरू",
-    "loadedPatrolsMessage_one": "{{count}} गस्तीमध्ये {{loaded}} देखाइँदै",
-    "loadedPatrolsMessage_other": "{{count}} गस्तीहरूमध्ये {{loaded}} देखाइँदै",
-    "locationColumnTitle": "स्थान",
     "moveColumnHintMessage": "स्तम्भ सार्न स्तम्भ शीर्षकमा Alt र बायाँ वा दायाँ तीर थिच्नुहोस्।",
-    "objectView": {
+    "objectViewModal": {
       "breadcrumbLabel": "मार्ग",
-      "itemCount_one": "{{count}} वस्तु",
-      "itemCount_other": "{{count}} वस्तुहरू",
-      "open": "हेर्नुहोस्"
+      "itemCountMessage_one": "{{count}} वस्तु",
+      "itemCountMessage_other": "{{count}} वस्तुहरू",
+      "openButtonLabel": "हेर्नुहोस्"
     },
-    "patrolEndColumnTitle": "अन्त्य",
-    "patrolStartColumnTitle": "सुरु",
-    "patrolTypeColumnTitle": "गस्ती प्रकार",
-    "priorityColumnTitle": "प्राथमिकता",
-    "reopenButtonLabel": "फेरी खोल्नुहोस्",
-    "reportedByColumnTitle": "द्वारा रिपोर्ट गरिएको",
-    "resolveButtonLabel": "समाधान गर्नुहोस्",
+    "patrolsTable": {
+      "leaderColumnTitle": "नेता",
+      "legsColumnTitle": "खण्डहरू",
+      "loadedPatrolsMessage_one": "{{count}} गस्तीमध्ये {{loaded}} देखाइँदै",
+      "loadedPatrolsMessage_other": "{{count}} गस्तीहरूमध्ये {{loaded}} देखाइँदै",
+      "patrolEndColumnTitle": "अन्त्य",
+      "patrolStartColumnTitle": "सुरु",
+      "patrolTypeColumnTitle": "गस्ती प्रकार",
+      "serialColumnTitle": "आईडी",
+      "stateColumnTitle": "अवस्था",
+      "titleColumnTitle": "शीर्षक"
+    },
     "selectedCountMessage_one": "{{count}} चयन गरियो",
     "selectedCountMessage_other": "{{count}} चयन गरियो",
-    "serialColumnTitle": "आईडी",
-    "stateColumnTitle": "अवस्था",
     "titleCell": {
       "rowCheckboxLabel": "{{title}} चयन गर्नुहोस्"
-    },
-    "titleColumnTitle": "शीर्षक",
-    "updatedAtColumnTitle": "अद्यावधिक गरिएको"
+    }
   },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "भू–अनुमतिबाट डाटा हेर्न तपाईंको लोकेसन सेयर गर्नुहोस्",

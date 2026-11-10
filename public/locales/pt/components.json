@@ -63,10 +63,6 @@
     "showDetailsButton": "Mostrar detalhes"
   },
   "feedTable": {
-    "bulkUpdateErrorMessage_one": "Não foi possível atualizar {{count}} evento",
-    "bulkUpdateErrorMessage_other": "Não foi possível atualizar {{count}} eventos",
-    "bulkUpdateSuccessMessage_one": "{{count}} evento atualizado",
-    "bulkUpdateSuccessMessage_other": "{{count}} eventos atualizados",
     "clearSelectionButtonLabel": "Limpar",
     "clientSortFinishedMessage": "Ordenado por {{column}}: todas as linhas carregadas",
     "clientSortLoadingMessage": "Ordenando por {{column}}: {{loaded}} de {{total}} carregados",
@@ -75,9 +71,26 @@
     "clientSortStartedMessage": "Carregando todas as linhas para ordenar por {{column}}",
     "columnsButtonLabel": "Colunas",
     "columnsMenuLabel": "Colunas exibidas",
-    "createdAtColumnTitle": "Criado",
-    "eventTimeColumnTitle": "Hora do evento",
-    "eventTypeColumnTitle": "Tipo",
+    "eventsTable": {
+      "bulkUpdateErrorMessage_one": "Não foi possível atualizar {{count}} evento",
+      "bulkUpdateErrorMessage_other": "Não foi possível atualizar {{count}} eventos",
+      "bulkUpdateSuccessMessage_one": "{{count}} evento atualizado",
+      "bulkUpdateSuccessMessage_other": "{{count}} eventos atualizados",
+      "createdAtColumnTitle": "Criado",
+      "eventTimeColumnTitle": "Hora do evento",
+      "eventTypeColumnTitle": "Tipo",
+      "locationColumnTitle": "Localização",
+      "priorityColumnTitle": "Prioridade",
+      "reopenButtonLabel": "Reabrir",
+      "reportedByColumnTitle": "Reportado por",
+      "resolveButtonLabel": "Resolver",
+      "selectedCountMessage_one": "{{count}} selecionado",
+      "selectedCountMessage_other": "{{count}} selecionados",
+      "serialColumnTitle": "ID",
+      "stateColumnTitle": "Estado",
+      "titleColumnTitle": "Título",
+      "updatedAtColumnTitle": "Atualizado"
+    },
     "exportButtonLabel": "Exportar todos os campos (CSV)",
     "exportErrorMessage": "Não foi possível exportar o CSV",
     "grid": {
@@ -86,34 +99,30 @@
     "headerCell": {
       "allRowsCheckboxLabel": "Selecionar todas as linhas"
     },
-    "leaderColumnTitle": "Líder",
-    "legsColumnTitle": "Etapas",
-    "loadedPatrolsMessage_one": "Mostrando {{loaded}} de {{count}} patrulha",
-    "loadedPatrolsMessage_other": "Mostrando {{loaded}} de {{count}} patrulhas",
-    "locationColumnTitle": "Localização",
     "moveColumnHintMessage": "Pressione Alt e a seta para a esquerda ou para a direita no cabeçalho de uma coluna para movê-la.",
-    "objectView": {
+    "objectViewModal": {
       "breadcrumbLabel": "Caminho",
-      "itemCount_one": "{{count}} item",
-      "itemCount_other": "{{count}} itens",
-      "open": "Ver"
+      "itemCountMessage_one": "{{count}} item",
+      "itemCountMessage_other": "{{count}} itens",
+      "openButtonLabel": "Ver"
     },
-    "patrolEndColumnTitle": "Fim",
-    "patrolStartColumnTitle": "Início",
-    "patrolTypeColumnTitle": "Tipo de patrulha",
-    "priorityColumnTitle": "Prioridade",
-    "reopenButtonLabel": "Reabrir",
-    "reportedByColumnTitle": "Reportado por",
-    "resolveButtonLabel": "Resolver",
+    "patrolsTable": {
+      "leaderColumnTitle": "Líder",
+      "legsColumnTitle": "Etapas",
+      "loadedPatrolsMessage_one": "Mostrando {{loaded}} de {{count}} patrulha",
+      "loadedPatrolsMessage_other": "Mostrando {{loaded}} de {{count}} patrulhas",
+      "patrolEndColumnTitle": "Fim",
+      "patrolStartColumnTitle": "Início",
+      "patrolTypeColumnTitle": "Tipo de patrulha",
+      "serialColumnTitle": "ID",
+      "stateColumnTitle": "Estado",
+      "titleColumnTitle": "Título"
+    },
     "selectedCountMessage_one": "{{count}} selecionado",
     "selectedCountMessage_other": "{{count}} selecionados",
-    "serialColumnTitle": "ID",
-    "stateColumnTitle": "Estado",
     "titleCell": {
       "rowCheckboxLabel": "Selecionar {{title}}"
-    },
-    "titleColumnTitle": "Título",
-    "updatedAtColumnTitle": "Atualizado"
+    }
   },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Compartilhe sua localização para ver dados com permissões geográficas",

@@ -94,7 +94,6 @@ const gridTheme = themeQuartz.withParams({
   wrapperBorderRadius: 0,
 });
 
-// Keys that describe a column to the table, not to the grid.
 const TABLE_ONLY_COLUMN_KEYS = ['defaultHidden', 'layoutScoped', 'menuName', 'serverSorted'];
 
 // Resizes the user made, as opposed to the grid fitting flex columns.
@@ -124,7 +123,11 @@ const writeStored = (key, value) => {
   }
 };
 
-const readColumnOrder = (tableKey, scope) => readStored(storageKey('columnOrder', tableKey, scope), Array.isArray, null);
+const readColumnOrder = (tableKey, scope) => readStored(
+  storageKey('columnOrder', tableKey, scope),
+  Array.isArray,
+  null
+);
 
 // A column the saved order doesn't know goes first or last when it leads or
 // ends the definitions, and otherwise after the column it follows there.
@@ -149,7 +152,6 @@ const orderColumns = (columns, order) => {
   return orderedColumns;
 };
 
-// With every shown column at a fixed width, the last one fills the rest.
 const fillWidthWithLastColumn = (columns) => {
   const shownColumns = columns.filter((column) => !column.hide);
   const lastShownColumn = shownColumns[shownColumns.length - 1];
@@ -160,8 +162,8 @@ const fillWidthWithLastColumn = (columns) => {
     : column);
 };
 
-// Leads every row and is always shown. Its `cellRendererParams` give
-// `renderIcon(row)`; the icon takes its colors from the row's theme.
+// Callers pass `renderIcon(row)` in `cellRendererParams`. The icon takes its
+// colors from the row's theme.
 export const TITLE_COLUMN = {
   cellClass: styles.titleColumnCell,
   cellRenderer: TitleCell,
@@ -183,9 +185,8 @@ export const formatDateValue = (params) => {
   return date && !Number.isNaN(date.getTime()) ? format(date, STANDARD_DATE_FORMAT) : '';
 };
 
-// `layoutScoped` columns, such as an event type's fields, keep their own order.
-// `menuName` names a column without a header in the menu.
-// A sorted column that is not `serverSorted` is sorted by the grid.
+// `layoutScoped` columns, such as a type's fields, keep an order per scope.
+// `menuName` names a column in the menu; `serverSorted` marks an API sort.
 const FeedTable = ({
   ariaLabel,
   columnDefs,

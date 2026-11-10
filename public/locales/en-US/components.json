@@ -68,10 +68,6 @@
     "showDetailsButton": "See Details"
   },
   "feedTable": {
-    "bulkUpdateErrorMessage_one": "{{count}} event could not be updated",
-    "bulkUpdateErrorMessage_other": "{{count}} events could not be updated",
-    "bulkUpdateSuccessMessage_one": "{{count}} event updated",
-    "bulkUpdateSuccessMessage_other": "{{count}} events updated",
     "clearSelectionButtonLabel": "Clear",
     "clientSortFinishedMessage": "Sorted by {{column}}: every row loaded",
     "clientSortLoadingMessage": "Sorting by {{column}}: loaded {{loaded}} of {{total}}",
@@ -80,9 +76,26 @@
     "clientSortStartedMessage": "Loading every row to sort by {{column}}",
     "columnsButtonLabel": "Columns",
     "columnsMenuLabel": "Columns shown",
-    "createdAtColumnTitle": "Created",
-    "eventTimeColumnTitle": "Event time",
-    "eventTypeColumnTitle": "Type",
+    "eventsTable": {
+      "bulkUpdateErrorMessage_one": "{{count}} event could not be updated",
+      "bulkUpdateErrorMessage_other": "{{count}} events could not be updated",
+      "bulkUpdateSuccessMessage_one": "{{count}} event updated",
+      "bulkUpdateSuccessMessage_other": "{{count}} events updated",
+      "createdAtColumnTitle": "Created",
+      "eventTimeColumnTitle": "Event time",
+      "eventTypeColumnTitle": "Type",
+      "locationColumnTitle": "Location",
+      "priorityColumnTitle": "Priority",
+      "reopenButtonLabel": "Reopen",
+      "reportedByColumnTitle": "Reported by",
+      "resolveButtonLabel": "Resolve",
+      "selectedCountMessage_one": "{{count}} selected",
+      "selectedCountMessage_other": "{{count}} selected",
+      "serialColumnTitle": "ID",
+      "stateColumnTitle": "State",
+      "titleColumnTitle": "Title",
+      "updatedAtColumnTitle": "Updated"
+    },
     "exportButtonLabel": "Export all fields (CSV)",
     "exportErrorMessage": "Could not export the CSV",
     "grid": {
@@ -91,34 +104,30 @@
     "headerCell": {
       "allRowsCheckboxLabel": "Select all rows"
     },
-    "leaderColumnTitle": "Leader",
-    "legsColumnTitle": "Legs",
-    "loadedPatrolsMessage_one": "Showing {{loaded}} of {{count}} patrol",
-    "loadedPatrolsMessage_other": "Showing {{loaded}} of {{count}} patrols",
-    "locationColumnTitle": "Location",
     "moveColumnHintMessage": "Press Alt and the left or right arrow on a column header to move the column.",
-    "objectView": {
+    "objectViewModal": {
       "breadcrumbLabel": "Path",
-      "itemCount_one": "{{count}} item",
-      "itemCount_other": "{{count}} items",
-      "open": "View"
+      "itemCountMessage_one": "{{count}} item",
+      "itemCountMessage_other": "{{count}} items",
+      "openButtonLabel": "View"
     },
-    "patrolEndColumnTitle": "End",
-    "patrolStartColumnTitle": "Start",
-    "patrolTypeColumnTitle": "Patrol type",
-    "priorityColumnTitle": "Priority",
-    "reopenButtonLabel": "Reopen",
-    "reportedByColumnTitle": "Reported by",
-    "resolveButtonLabel": "Resolve",
+    "patrolsTable": {
+      "leaderColumnTitle": "Leader",
+      "legsColumnTitle": "Legs",
+      "loadedPatrolsMessage_one": "Showing {{loaded}} of {{count}} patrol",
+      "loadedPatrolsMessage_other": "Showing {{loaded}} of {{count}} patrols",
+      "patrolEndColumnTitle": "End",
+      "patrolStartColumnTitle": "Start",
+      "patrolTypeColumnTitle": "Patrol type",
+      "serialColumnTitle": "ID",
+      "stateColumnTitle": "State",
+      "titleColumnTitle": "Title"
+    },
     "selectedCountMessage_one": "{{count}} selected",
     "selectedCountMessage_other": "{{count}} selected",
-    "serialColumnTitle": "ID",
-    "stateColumnTitle": "State",
     "titleCell": {
       "rowCheckboxLabel": "Select {{title}}"
-    },
-    "titleColumnTitle": "Title",
-    "updatedAtColumnTitle": "Updated"
+    }
   },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Share your location to view data with geo-permissions",

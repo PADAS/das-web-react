@@ -5,6 +5,16 @@ import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import {
+  addEventToIncident,
+  addEventToPatrol,
+  createEvent,
+  EVENTS_API_URL,
+  fetchFeedTableEventsPage,
+  fetchNextEventFeedPage,
+  setEventState,
+} from '../../ducks/events';
+import { addModal } from '../../ducks/modals';
+import {
   API_URL,
   EVENT_FORM_STATES,
   EVENT_LINK_TARGET_TYPES,
@@ -22,31 +32,21 @@ import {
   PRIORITY_COLOR_MAP,
 } from '../../utils/events';
 import { calcEventFilterForRequest } from '../../utils/event-filter';
-import { addModal } from '../../ducks/modals';
+import calcEventTypeFields from './utils/calcEventTypeFields';
 import { downloadFileFromUrl } from '../../utils/download';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
-import {
-  addEventToIncident,
-  addEventToPatrol,
-  createEvent,
-  EVENTS_API_URL,
-  fetchFeedTableEventsPage,
-  fetchNextEventFeedPage,
-  setEventState,
-} from '../../ducks/events';
 import { objectToParamString } from '../../utils/query';
 import { selectCoordinatesRepresentation } from '../../selectors/location';
-import { stringifyCoordinates } from '../../utils/location';
 import { selectEventCategoryPermissions } from '../../selectors/event-types';
 import { selectEventLinkPermissions } from '../../selectors/event-links';
 import { selectEventSchema } from '../../selectors/event-schemas';
 import { setFeedTableClientSort } from '../../ducks/feed-table-sort';
 import { showToast } from '../../utils/toast';
+import { stringifyCoordinates } from '../../utils/location';
 import { updateEventFilter } from '../../ducks/event-filter';
 import useFeedTableFullLoad from '../useFeedTableFullLoad';
 import useJumpToLocation from '../../hooks/useJumpToLocation';
 import useNavigate from '../../hooks/useNavigate';
-import calcEventTypeFields from './utils/calcEventTypeFields';
 
 import CollectionViewModal from './CollectionViewModal';
 import DelayedUnmount from '../../DelayedUnmount';
@@ -72,9 +72,8 @@ const STATE_KEY_BY_EVENT_STATE = {
 };
 
 // A collection's state carries to the events it contains, as in the feed.
-const getContainedEvents = (event) => (event.contains ?? []).map(({ related_event: relatedEvent }) => relatedEvent);
+const getContainedEvents = (event) => (event.contains ?? []).map((containedEvent) => containedEvent.related_event);
 
-// Settles like Promise.allSettled, but sends only a few updates at a time.
 const settleInBatches = async (items, update) => {
   const results = [];
   for (let index = 0; index < items.length; index += BULK_UPDATE_BATCH_SIZE) {
@@ -89,15 +88,15 @@ const calcPointCoordinates = (event) => {
   return Array.isArray(coordinates) && typeof coordinates[0] === 'number' ? coordinates : null;
 };
 
-// North to south, then west to east, whatever format the user reads them in.
+// By latitude, then longitude, whatever format the user reads them in.
 // Events without a location go last.
 const compareCoordinates = (first, second) => {
   if (!first || !second) return !first - !second;
   return first[1] - second[1] || first[0] - second[0];
 };
 
-// A v2 collection opens in the form's own read-only view; other objects, without
-// a schema to label them, open in the generic object view.
+// A v2 collection opens in the form's read-only view. Other objects have no
+// schema to label them, so they open in the generic object view.
 const ComplexDetailCell = ({ colDef, eventSchema, fieldName, value }) => {
   const dispatch = useDispatch();
 
@@ -128,14 +127,15 @@ const PriorityCell = ({ value, valueFormatted }) => <span className={styles.prio
 
 const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
   const dispatch = useDispatch();
-  const jumpToLocation = useJumpToLocation();
-  const navigate = useNavigate();
   const store = useStore();
-  const { t } = useTranslation('components', { keyPrefix: 'feedTable' });
+  const { t } = useTranslation('components', { keyPrefix: 'feedTable.eventsTable' });
   const { t: tPriorities } = useTranslation('reports', { keyPrefix: 'reportManager.detailsSection.priorities' });
   const { t: tReportMenu } = useTranslation('reports', { keyPrefix: 'eventsManager.eventOverview.header.reportMenu' });
   const { t: tSideBar } = useTranslation('components', { keyPrefix: 'sideBar' });
   const { t: tStates } = useTranslation('reports', { keyPrefix: 'eventsManager.eventsFeed.eventRow.states' });
+
+  const jumpToLocation = useJumpToLocation();
+  const navigate = useNavigate();
 
   const clientSortState = useSelector((state) => state.view.feedTableSort[TAB_KEYS.EVENTS].clientSort);
   const eventSort = useSelector((state) => state.data.eventFilter.filter.sort);
@@ -158,7 +158,6 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
 
   // A new feed sort, from the sort controls or a header, takes over.
   const clientSort = clientSortState?.feedSort === eventSort ? clientSortState : null;
-  const [sortDirection, sortOption] = eventSort;
 
   // The cursor keeps its place while events change, and its fixed order
   // doesn't matter to a sort made in the browser.
@@ -179,24 +178,20 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     tab: TAB_KEYS.EVENTS,
   });
 
-  // What the events API orders by is the feed's own sort, and covers every page.
+  // The events API orders every page by the feed's own sort.
   const serverSortable = useCallback((sortValue) => ({
     serverSorted: true,
-    sort: !clientSort && sortOption.value === sortValue ? (sortDirection === SORT_DIRECTION.up ? 'asc' : 'desc') : null,
+    sort: !clientSort && eventSort[1].value === sortValue
+      ? (eventSort[0] === SORT_DIRECTION.up ? 'asc' : 'desc')
+      : null,
     sortable: true,
     sortingOrder: ['desc', 'asc'],
-  }), [clientSort, sortDirection, sortOption.value]);
+  }), [clientSort, eventSort]);
 
   const clientSortable = useCallback((colId) => ({
     sort: clientSort?.colId === colId ? clientSort.sort : null,
     sortable: true,
   }), [clientSort]);
-
-  useEffect(() => {
-    if (filteredEventType && !eventSchema) {
-      dispatch(fetchEventTypeSchema(filteredEventType.value));
-    }
-  }, [dispatch, eventSchema, filteredEventType]);
 
   // Only the schemaless fallback reads the loaded events, so new events don't
   // rebuild the columns of a type with a schema.
@@ -219,7 +214,10 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
           cellRendererParams: { eventSchema: eventSchema?.json ? eventSchema : null, fieldName: field.key },
           valueGetter: (params) => params.data?.event_details?.[field.key],
         }
-        : { ...clientSortable(`event_details.${field.key}`), valueGetter: (params) => field.toText(params.data?.event_details) }),
+        : {
+          ...clientSortable(`event_details.${field.key}`),
+          valueGetter: (params) => field.toText(params.data?.event_details),
+        }),
       ...(field.isDate && { valueFormatter: formatDateValue }),
     }));
   }, [clientSortable, coordinatesRepresentation, eventSchema, eventTypeFilter.length, eventsForFallbackColumns]);
@@ -256,18 +254,18 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       valueGetter: (params) => params.data?.reported_by?.name ?? '',
     },
     {
-      valueFormatter: formatDateValue,
       colId: 'updated_at',
       field: 'updated_at',
       headerName: t('updatedAtColumnTitle'),
       minWidth: 170,
+      valueFormatter: formatDateValue,
       ...serverSortable('updated_at'),
     },
     {
-      valueFormatter: formatDateValue,
       colId: 'event_time',
       headerName: t('eventTimeColumnTitle'),
       minWidth: 170,
+      valueFormatter: formatDateValue,
       valueGetter: (params) => params.data?.time ?? '',
       ...serverSortable('event_time'),
     },
@@ -295,12 +293,12 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       width: 110,
     },
     {
-      valueFormatter: formatDateValue,
       colId: 'created_at',
       defaultHidden: true,
       field: 'created_at',
       headerName: t('createdAtColumnTitle'),
       minWidth: 170,
+      valueFormatter: formatDateValue,
       ...serverSortable('created_at'),
     },
     {
@@ -318,10 +316,11 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     ...detailColumns,
   ], [clientSortable, coordinatesRepresentation, detailColumns, eventTypes, serverSortable, t, tPriorities, tStates]);
 
-  const getRowClass = useCallback(
-    (params) => styles[(PRIORITY_COLOR_MAP[calcDisplayPriorityForReport(params.data, eventTypes)] ?? PRIORITY_COLOR_MAP[0]).key],
-    [eventTypes]
-  );
+  const getRowClass = useCallback((params) => {
+    const priority = calcDisplayPriorityForReport(params.data, eventTypes);
+
+    return styles[(PRIORITY_COLOR_MAP[priority] ?? PRIORITY_COLOR_MAP[0]).key];
+  }, [eventTypes]);
 
   const onSortChanged = (event) => {
     if (event.source !== 'uiColumnSorted') return;
@@ -355,7 +354,7 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
     }
   };
 
-  // The same export as the menu's Field Events report: every event matching the feed filter, with its details.
+  // The same export as the menu's Field Events report.
   const onExport = () => downloadFileFromUrl(
     `${API_URL}activity/events/export?${calcEventFilterForRequest({}, eventSort)}`,
     {}
@@ -495,6 +494,12 @@ const EventsTable = ({ events, eventsFeed, toolbarContainer }) => {
       </button>}
     </>;
   };
+
+  useEffect(() => {
+    if (filteredEventType && !eventSchema) {
+      dispatch(fetchEventTypeSchema(filteredEventType.value));
+    }
+  }, [dispatch, eventSchema, filteredEventType]);
 
   return <>
     <FeedTable
