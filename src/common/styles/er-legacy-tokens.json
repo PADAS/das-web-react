@@ -28,7 +28,6 @@
     "brand-accent-green": { "hex": "#0fcb8c", "figma": "Brand/Accent Green" },
     "brand-background-primary-background": { "hex": "#faf2e9", "figma": "Brand/Background/Primary Background" },
     "brand-background-secondary-background": { "hex": "#ffffff", "figma": "Brand/Background/Secondary Background" },
-    "brand-text-primary-text": { "hex": "#ffffff", "figma": "Brand/Text/Primary Text" },
 
     "ui-background-tertiary-background": { "hex": "#f3f3f3", "figma": "Greyscale/10", "proposed": "No legacy equivalent in the Figma frame. The old app derived this from a gray near #eaeaea; this is the nearest neutral in the palette." },
     "ui-background-selected-background": { "hex": "#f4f7fd", "figma": "Blue/4", "proposed": "The old app used two blues here, #e8f0fb and #f4f7fd. Only the second is in the palette." },
