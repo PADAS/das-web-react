@@ -29,7 +29,7 @@
     "brand-background-primary-background": { "hex": "#faf2e9", "figma": "Brand/Background/Primary Background" },
     "brand-background-secondary-background": { "hex": "#ffffff", "figma": "Brand/Background/Secondary Background" },
 
-    "ui-background-tertiary-background": { "hex": "#f9f9f9", "figma": "Greyscale/11", "note": "The same value as the secondary background: ER Legacy has no third surface tone." },
+    "ui-background-tertiary-background": { "hex": "#f3f3f3", "figma": "Greyscale/10", "note": "The quiet surface filter chips, map controls and read-only fields sit on." },
     "ui-background-selected-background": { "hex": "#f4f7fd", "figma": "Blue/4" },
     "ui-text-secondary-text-reversed": { "hex": "#ffffff", "figma": "Greyscale/White" }
   }

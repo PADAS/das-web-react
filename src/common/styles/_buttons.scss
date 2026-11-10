@@ -35,7 +35,7 @@ $chip-height-small: 1.75rem;
 }
 
 @mixin jump-button {
-  background: colors.with-opacity(var(--er-greyscale-7), 15%);
+  background: var(--er-ui-background-tertiary-background);
   border: none;
   border-radius: $square-button-border-radius;
   height: $square-button-dimension;
@@ -44,7 +44,7 @@ $chip-height-small: 1.75rem;
   width: $square-button-dimension;
 
   &:hover {
-    background-color: colors.with-opacity(colors.shade(var(--er-greyscale-7), 28%), 18%);
+    background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
   }
 }
 
