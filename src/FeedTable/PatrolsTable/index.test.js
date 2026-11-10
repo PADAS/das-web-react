@@ -206,6 +206,29 @@ describe('FeedTable - PatrolsTable', () => {
     expect(columnById('leader').valueGetter({ data: twoLegPatrol })).toBe('Current leader');
   });
 
+  test('reads the state again when a patrol\'s state changes with the clock', () => {
+    jest.useFakeTimers();
+    const startTime = new Date(Date.now() + 60000).toISOString();
+    const startingPatrol = {
+      ...activePatrol,
+      patrol_segments: [{ ...activePatrol.patrol_segments[0], time_range: { end_time: null, start_time: startTime } }],
+    };
+    renderPatrolsTable([startingPatrol]);
+
+    const [firstRow] = lastGridProps().rowData;
+    const stateBefore = columnById('state').valueGetter({ data: firstRow });
+
+    act(() => jest.advanceTimersByTime(60001));
+
+    const [nextRow] = lastGridProps().rowData;
+
+    expect(nextRow).not.toBe(firstRow);
+    expect(nextRow.id).toBe(startingPatrol.id);
+    expect(columnById('state').valueGetter({ data: nextRow })).not.toBe(stateBefore);
+
+    jest.useRealTimers();
+  });
+
   test('leads with the title column, showing the icon of the leg the patrol is on', () => {
     renderPatrolsTable();
 

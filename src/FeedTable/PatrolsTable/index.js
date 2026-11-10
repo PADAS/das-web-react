@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -17,6 +17,7 @@ import { selectPatrolTrackData } from '../../selectors/patrols';
 import { setFeedTableClientSort } from '../../ducks/feed-table-sort';
 import { TAB_KEYS } from '../../constants';
 import useFeedTableFullLoad from '../useFeedTableFullLoad';
+import { getNextPatrolStateTransitionTime, MAX_TIMEOUT_DELAY } from '../../hooks/usePatrolState';
 import useJumpToLocation from '../../hooks/useJumpToLocation';
 import useNavigate from '../../hooks/useNavigate';
 
@@ -48,6 +49,8 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
   const patrolTypes = useSelector((state) => state.data.patrolTypes);
 
   const loadingPageUrlRef = useRef(null);
+
+  const [stateCheckCount, setStateCheckCount] = useState(0);
 
   // The patrols API has no ordering, so the grid sorts every column.
   const fullLoad = useFeedTableFullLoad({
@@ -172,6 +175,25 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
     }
   };
 
+  // A patrol's state moves with the clock. New row objects make the grid read
+  // the state again, restyle the row and sort it again.
+  const rowData = useMemo(
+    () => stateCheckCount ? fullLoad.rows.map((patrol) => ({ ...patrol })) : fullLoad.rows,
+    [fullLoad.rows, stateCheckCount]
+  );
+
+  useEffect(() => {
+    const nextTransitionTimes = fullLoad.rows
+      .map((patrol) => getNextPatrolStateTransitionTime(patrol)?.getTime())
+      .filter(Boolean);
+    if (!nextTransitionTimes.length) return undefined;
+
+    const delay = Math.min(Math.min(...nextTransitionTimes) - Date.now() + 1, MAX_TIMEOUT_DELAY);
+    const timeoutId = window.setTimeout(() => setStateCheckCount((count) => count + 1), Math.max(delay, 0));
+
+    return () => window.clearTimeout(timeoutId);
+  }, [fullLoad.rows, stateCheckCount]);
+
   return <FeedTable
     ariaLabel={tSideBar('patrolsLink')}
     columnDefs={columnDefs}
@@ -183,7 +205,7 @@ const PatrolsTable = ({ loading, patrols, toolbarContainer }) => {
     onLoadMore={clientSort ? undefined : onLoadMore}
     onOpenRow={onOpenRow}
     onSortChanged={onSortChanged}
-    rowData={fullLoad.rows}
+    rowData={rowData}
     statusMessage={patrolsFeed.count > fullLoad.rows.length
       ? t('loadedPatrolsMessage', { count: patrolsFeed.count, loaded: fullLoad.rows.length })
       : null}
