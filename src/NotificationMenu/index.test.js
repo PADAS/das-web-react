@@ -162,6 +162,16 @@ describe('NotificationMenu', () => {
     expect(readMoreLink).toHaveAccessibleDescription(mockNewsData[0].title);
   });
 
+  test('says there are no notifications when there are none', async () => {
+    server.use(http.get(NEWS_API_URL, () => HttpResponse.json({ data: { results: [] } })));
+
+    renderNotificationMenu();
+
+    await openPopover();
+
+    expect(await screen.findByText('No new notifications at this time.')).toBeInTheDocument();
+  });
+
   test('links to all the news', async () => {
     renderNotificationMenu();
 
@@ -308,6 +318,15 @@ describe('NotificationMenu', () => {
 
       expect(await screen.findByText('Error fetching recent announcements.')).toBeInTheDocument();
       expect(screen.queryByRole('link', { name: 'See all news' })).not.toBeInTheDocument();
+    });
+
+    test('does not say there are no notifications', async () => {
+      renderNotificationMenu();
+
+      await openPopover();
+
+      expect(await screen.findByText('Error fetching recent announcements.')).toBeInTheDocument();
+      expect(screen.queryByText('No new notifications at this time.')).not.toBeInTheDocument();
     });
 
     test('loads the news again and keeps focus in the popover when the user clicks retry', async () => {

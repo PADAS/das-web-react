@@ -54,15 +54,17 @@ const NotificationsPopover = ({
     {...otherProps}
   >
     <Popover.Body className={styles.body} ref={bodyRef}>
-      {notifications.length
-        ? <ul className={styles.notificationList}>
-          {notifications.map((notification) => <NotificationItem
-            key={notification.id}
-            notification={notification}
-            onDismiss={onNotificationDismiss}
-          />)}
-        </ul>
-        : <p className={styles.message}>{t('noNotificationsMessage')}</p>}
+      {!!notifications.length && <ul className={styles.notificationList}>
+        {notifications.map((notification) => <NotificationItem
+          key={notification.id}
+          notification={notification}
+          onDismiss={onNotificationDismiss}
+        />)}
+      </ul>}
+
+      {!notifications.length && !hasNewsFetchError && <p className={styles.message}>
+        {t('noNotificationsMessage')}
+      </p>}
 
       {hasNewsFetchError && <div className={styles.newsFetchError}>
         <p className={styles.message}>{t('newsFetchErrorMessage')}</p>

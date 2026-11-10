@@ -15,17 +15,21 @@ const DetectOffline = () => {
   const toastDelay = useRef(null);
   const toastId = useRef(null);
 
-  const [isOnline, setNetwork] = useState(window.navigator.onLine);
+  const [isOnline, setIsOnline] = useState(window.navigator.onLine);
 
   useEffect(() => {
     const updateNetwork = () => {
-      setNetwork(window.navigator.onLine);
+      setIsOnline(window.navigator.onLine);
       dispatch(updateNetworkStatus(window.navigator.onLine ? HEALTHY_STATUS : UNHEALTHY_STATUS));
     };
 
+    window.addEventListener('offline', updateNetwork);
     window.addEventListener('online', updateNetwork);
 
-    return () => window.removeEventListener('online', updateNetwork);
+    return () => {
+      window.removeEventListener('offline', updateNetwork);
+      window.removeEventListener('online', updateNetwork);
+    };
   }, [dispatch]);
 
   useEffect(() => {
