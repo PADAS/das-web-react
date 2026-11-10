@@ -13,6 +13,7 @@ import {
   RowStyleModule,
   ScrollApiModule,
   themeQuartz,
+  ValueCacheModule,
 } from 'ag-grid-community';
 import { createPortal } from 'react-dom';
 import isPlainObject from 'lodash/isPlainObject';
@@ -45,6 +46,7 @@ ModuleRegistry.registerModules([
   RowSelectionModule,
   RowStyleModule,
   ScrollApiModule,
+  ValueCacheModule,
 ]);
 
 // How close to the last loaded row a scroll asks for the next page.

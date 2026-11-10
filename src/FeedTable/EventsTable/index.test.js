@@ -17,7 +17,7 @@ import { report } from '../../__test-helpers/fixtures/reports';
 import { snareSchemaV2 } from '../../__test-helpers/fixtures/event-schemas';
 import { calcEventFilterForRequest } from '../../utils/event-filter';
 import { downloadFileFromUrl } from '../../utils/download';
-import { GPS_FORMATS } from '../../utils/location';
+import { GPS_FORMATS, stringifyCoordinates } from '../../utils/location';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import {
   addEventToIncident,
@@ -752,6 +752,27 @@ describe('EventsTable', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Export all fields (CSV)' }));
 
     expect(calcEventFilterForRequest).toHaveBeenCalledWith({}, serialSort);
+  });
+
+  test('shows the location in the user\'s coordinate format', () => {
+    state.view.userPreferences.gpsFormat = GPS_FORMATS.DMS;
+    renderEventsTable();
+
+    const { valueFormatter, valueGetter } = columnById('location');
+    const coordinates = valueGetter({ data: report });
+
+    expect(valueFormatter({ value: coordinates })).toBe(
+      stringifyCoordinates({ latitude: coordinates[1], longitude: coordinates[0] }, GPS_FORMATS.DMS)
+    );
+    expect(valueFormatter({ value: null })).toBe('');
+  });
+
+  test('sorts locations north to south, then west to east, with no location last', () => {
+    renderEventsTable();
+
+    const sorted = [null, [10, 5], [5, 5], [0, -3]].sort(columnById('location').comparator);
+
+    expect(sorted).toEqual([[0, -3], [5, 5], [10, 5], null]);
   });
 
   test('shows dates as plain text in the table date format', () => {
