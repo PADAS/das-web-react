@@ -91,7 +91,7 @@
       "resolveButtonLabel": "Tatua",
       "selectedCountMessage_one": "{{count}} kimechaguliwa",
       "selectedCountMessage_other": "{{count}} vimechaguliwa",
-      "serialColumnTitle": "Kitambulisho",
+      "serialColumnTitle": "Na. ya mfuatano",
       "stateColumnTitle": "Hali",
       "titleColumnTitle": "Kichwa",
       "updatedAtColumnTitle": "Imesasishwa"
@@ -119,7 +119,7 @@
       "patrolEndColumnTitle": "Mwisho",
       "patrolStartColumnTitle": "Mwanzo",
       "patrolTypeColumnTitle": "Aina ya doria",
-      "serialColumnTitle": "Kitambulisho",
+      "serialColumnTitle": "Na. ya mfuatano",
       "stateColumnTitle": "Hali",
       "titleColumnTitle": "Kichwa"
     },

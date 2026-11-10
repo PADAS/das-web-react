@@ -86,7 +86,7 @@
       "resolveButtonLabel": "समाधान गर्नुहोस्",
       "selectedCountMessage_one": "{{count}} चयन गरियो",
       "selectedCountMessage_other": "{{count}} चयन गरियो",
-      "serialColumnTitle": "आईडी",
+      "serialColumnTitle": "क्रम सङ्ख्या",
       "stateColumnTitle": "अवस्था",
       "titleColumnTitle": "शीर्षक",
       "updatedAtColumnTitle": "अद्यावधिक गरिएको"
@@ -114,7 +114,7 @@
       "patrolEndColumnTitle": "अन्त्य",
       "patrolStartColumnTitle": "सुरु",
       "patrolTypeColumnTitle": "गस्ती प्रकार",
-      "serialColumnTitle": "आईडी",
+      "serialColumnTitle": "क्रम सङ्ख्या",
       "stateColumnTitle": "अवस्था",
       "titleColumnTitle": "शीर्षक"
     },

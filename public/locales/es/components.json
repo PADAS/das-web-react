@@ -86,7 +86,7 @@
       "resolveButtonLabel": "Resolver",
       "selectedCountMessage_one": "{{count}} seleccionado",
       "selectedCountMessage_other": "{{count}} seleccionados",
-      "serialColumnTitle": "ID",
+      "serialColumnTitle": "N.º de serie",
       "stateColumnTitle": "Estado",
       "titleColumnTitle": "Título",
       "updatedAtColumnTitle": "Actualizado"
@@ -114,7 +114,7 @@
       "patrolEndColumnTitle": "Fin",
       "patrolStartColumnTitle": "Inicio",
       "patrolTypeColumnTitle": "Tipo de patrulla",
-      "serialColumnTitle": "ID",
+      "serialColumnTitle": "N.º de serie",
       "stateColumnTitle": "Estado",
       "titleColumnTitle": "Título"
     },

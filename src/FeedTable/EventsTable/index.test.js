@@ -391,10 +391,10 @@ describe('FeedTable - EventsTable', () => {
     expect([300, 200, 100, 0].map((value) => valueFormatter({ value }))).toEqual(['Red', 'Amber', 'Green', 'None']);
   });
 
-  test('heads the serial number column ID', () => {
+  test('heads the serial number column Serial #', () => {
     renderEventsTable();
 
-    expect(columnById('serial_number').headerName).toBe('ID');
+    expect(columnById('serial_number').headerName).toBe('Serial #');
   });
 
   test('sorts the feed when a column header is sorted', () => {
