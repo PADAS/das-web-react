@@ -45,7 +45,7 @@
       width: buttons.$chip-height;
 
       &:focus-visible {
-        outline: 2px solid var(--er-blue-7);
+        outline: 2px solid var(--er-blue-3);
       }
 
       &:hover {
@@ -93,7 +93,7 @@
         width: fit-content;
 
         &:focus-visible {
-          outline: 2px solid var(--er-blue-7);
+          outline: 2px solid var(--er-blue-3);
         }
 
         &:hover {
@@ -137,16 +137,15 @@
 
         a {
           border-radius: 0.125rem;
-          color: var(--er-blue-7);
-          filter: brightness(1.25);
+          color: var(--er-blue-3);
           font-size: 0.75rem;
           padding: 0;
           text-decoration: underline;
 
-          // Lighter on hover, since these sit on the dark drawer. Legacy went
-          // the other way, to the darker blue, which reads at only 2.7:1 here.
+          // Brightening is the hover state here, rather than a lift the
+          // resting link already carries.
           &:hover {
-            color: var(--er-blue-3);
+            filter: brightness(1.25);
           }
         }
       }
