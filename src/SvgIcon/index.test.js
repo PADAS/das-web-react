@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { Provider } from 'react-redux';
-import { act, fireEvent, render, waitFor } from '../test-utils';
-import { mockStore } from '../__test-helpers/MockStore';
+
+import { act, fireEvent, render, screen, waitFor } from '../test-utils';
 import { DAS_HOST } from '../constants';
+import { mockStore } from '../__test-helpers/MockStore';
+
 import SvgIcon, { InlineSvg, svgCache } from './';
 
 const mockAxiosResponse = (contentType, body) => ({
@@ -50,9 +52,7 @@ describe('SvgIcon', () => {
       });
 
       const wrapper = container.querySelector('span[aria-hidden="true"]');
-      // The wrapper drives the color: text color + fill:currentColor, so the (fill-stripped) paths inherit it.
       expect(wrapper).toHaveStyle({ color: 'rgb(4, 5, 6)', fill: 'currentColor' });
-      // The hardcoded fill is stripped so nothing overrides the inherited color.
       expect(container.querySelector('path')).not.toHaveAttribute('fill');
     });
 
@@ -251,12 +251,6 @@ describe('SvgIcon', () => {
   });
 
   describe('browser page translation', () => {
-    const deferred = () => {
-      let resolve;
-      const promise = new Promise((res) => { resolve = res; });
-      return { promise, resolve };
-    };
-
     const translateTextNodes = (element) => {
       [...element.childNodes]
         .filter((node) => node.nodeType === Node.TEXT_NODE)
@@ -268,14 +262,14 @@ describe('SvgIcon', () => {
     };
 
     test('mounts the icon after the fetch resolves when the sibling text node was translated', async () => {
-      const fetch = deferred();
+      const fetch = Promise.withResolvers();
       axiosSpy.mockReturnValue(fetch.promise);
 
-      const { container, getByTestId } = renderWithStore(<span data-testid="item">
+      const { container } = renderWithStore(<span data-testid="svgIcon-parent">
         <SvgIcon type="events" iconId="fire_rep" />
         {'text'}
       </span>);
-      translateTextNodes(getByTestId('item'));
+      translateTextNodes(screen.getByTestId('svgIcon-parent'));
 
       await act(async () => {
         fetch.resolve(mockAxiosResponse('image/svg+xml', '<svg><path d="M0 0"/></svg>'));
@@ -284,22 +278,21 @@ describe('SvgIcon', () => {
       await waitFor(() => {
         expect(container.querySelector('svg')).toBeInTheDocument();
       });
-      expect(container).not.toBeEmptyDOMElement();
     });
 
     test('mounts the new icon when the iconId changes after the sibling text node was translated', async () => {
-      const firstFetch = deferred();
-      const secondFetch = deferred();
+      const firstFetch = Promise.withResolvers();
+      const secondFetch = Promise.withResolvers();
       axiosSpy.mockImplementation((url) => (url.includes('first_rep') ? firstFetch.promise : secondFetch.promise));
 
-      const ui = (iconId) => <Provider store={store}>
-        <span data-testid="item">
+      const buildIconBesideText = (iconId) => <Provider store={store}>
+        <span data-testid="svgIcon-parent">
           <SvgIcon type="events" iconId={iconId} />
           {'text'}
         </span>
       </Provider>;
 
-      const { container, getByTestId, rerender } = render(ui('first_rep'));
+      const { container, rerender } = render(buildIconBesideText('first_rep'));
       await act(async () => {
         firstFetch.resolve(mockAxiosResponse('image/svg+xml', '<svg><path d="first"/></svg>'));
       });
@@ -307,8 +300,8 @@ describe('SvgIcon', () => {
         expect(container.querySelector('path')).toHaveAttribute('d', 'first');
       });
 
-      translateTextNodes(getByTestId('item'));
-      rerender(ui('second_rep'));
+      translateTextNodes(screen.getByTestId('svgIcon-parent'));
+      rerender(buildIconBesideText('second_rep'));
 
       await act(async () => {
         secondFetch.resolve(mockAxiosResponse('image/svg+xml', '<svg><path d="second"/></svg>'));
@@ -317,7 +310,6 @@ describe('SvgIcon', () => {
       await waitFor(() => {
         expect(container.querySelector('path')).toHaveAttribute('d', 'second');
       });
-      expect(container).not.toBeEmptyDOMElement();
     });
   });
 

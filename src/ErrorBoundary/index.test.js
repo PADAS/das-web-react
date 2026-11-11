@@ -1,35 +1,32 @@
-import userEvent from '@testing-library/user-event';
-
 import { render, screen } from '../test-utils';
 
 import ErrorBoundary from './';
 
-const Thrower = () => {
-  throw new Error('render failed');
+const Thrower = ({ error }) => {
+  throw error;
 };
 
 describe('ErrorBoundary', () => {
-  test('renders the fallback instead of an empty page when a child throws', () => {
-    const { container } = render(<ErrorBoundary><Thrower /></ErrorBoundary>);
-
-    expect(container).not.toBeEmptyDOMElement();
-    expect(screen.getByRole('button', { name: 'Reload' })).toBeInTheDocument();
+  beforeEach(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  test('reports the error to onError', () => {
-    const onError = jest.fn();
-
-    render(<ErrorBoundary onError={onError}><Thrower /></ErrorBoundary>);
-
-    expect(onError).toHaveBeenCalledWith(expect.objectContaining({ message: 'render failed' }), expect.anything());
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
-  test('calls onReset when Reload is clicked', async () => {
-    const onReset = jest.fn();
+  const renderErrorBoundary = (error) => render(<ErrorBoundary><Thrower error={error} /></ErrorBoundary>);
 
-    render(<ErrorBoundary onReset={onReset}><Thrower /></ErrorBoundary>);
-    await userEvent.click(screen.getByRole('button', { name: 'Reload' }));
+  test('shows the error message and a reload button when a child throws', () => {
+    renderErrorBoundary(new Error('render failed'));
 
-    expect(onReset).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('render failed')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Reload' })).toBeVisible();
+  });
+
+  test('shows the reload button when a child throws null', () => {
+    renderErrorBoundary(null);
+
+    expect(screen.getByRole('button', { name: 'Reload' })).toBeVisible();
   });
 });

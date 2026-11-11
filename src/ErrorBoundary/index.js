@@ -10,17 +10,13 @@ const DefaultFallbackComponent = ({ error, resetErrorBoundary }) => {
   const { t } = useTranslation('components', { keyPrefix: 'errorBoundary' });
 
   return <div className={styles.fallback}>
-    <ErrorMessage message={error.message} />
+    <ErrorMessage message={error?.message} />
 
     <Button onClick={() => resetErrorBoundary()} type="button" variant="info">{t('reloadButton')}</Button>
   </div>;
 };
 
-const ErrorBoundaryComponent = ({ children, onError, onReset }) => <ErrorBoundary
-  FallbackComponent={DefaultFallbackComponent}
-  onError={onError}
-  onReset={onReset}
->
+const ErrorBoundaryComponent = ({ children }) => <ErrorBoundary FallbackComponent={DefaultFallbackComponent}>
   {children}
 </ErrorBoundary>;
 

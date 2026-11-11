@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import axios from 'axios';
 import DOMPurify from 'dompurify';
-import { API_V2_URL, DAS_HOST } from '../constants';
+import { useSelector } from 'react-redux';
 
-import * as styles from './styles.module.scss';
+import { API_V2_URL, DAS_HOST } from '../constants';
 
 const GENERIC_ICON_ID = 'generic_rep';
 const REP_SUFFIX = '_rep';
+// Inline, so a parent's span rule cannot turn the wrapper into a box or hide it.
+const WRAPPER_STYLE = { display: 'contents' };
 export const svgCache = new Map();
 
 // In-flight raw GETs keyed by URL, so N concurrent mounts of the same icon share one request.
@@ -274,7 +275,7 @@ const SvgIcon = ({ type, iconId, imageUrl, className, color, style, title, ...re
     : restStyle;
 
   // Page translation swaps sibling text nodes, so the icon mounts in a span.
-  return <span className={styles.wrapper}>
+  return <span style={WRAPPER_STYLE}>
     <InlineSvg
       className={`${className || ''} ${isGeneric ? 'generic' : ''}`.trim()}
       fallbackSrc={buildSpriteSvgUrl(GENERIC_ICON_ID, communityValue)}
