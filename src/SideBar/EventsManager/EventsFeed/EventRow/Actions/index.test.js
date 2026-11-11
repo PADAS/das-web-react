@@ -322,8 +322,8 @@ describe('SideBar - EventsManager - EventsFeed - EventRow - Actions', () => {
           patrolTypes: [],
           user: {
             permissions: {
-              [PERMISSION_KEYS.EVENT_RELATIONSHIPS]: [PERMISSIONS.DELETE],
               [PERMISSION_KEYS.EVENT_RELATED_SEGMENTS]: [PERMISSIONS.DELETE],
+              [PERMISSION_KEYS.EVENT_RELATIONSHIPS]: [PERMISSIONS.DELETE],
               [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE],
             },
           },

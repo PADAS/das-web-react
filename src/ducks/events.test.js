@@ -36,12 +36,14 @@ import {
   removeEventFromPatrol,
   SOCKET_EVENT_DATA,
   socketEventData,
+  socketUpdatePatrolEventLinks,
+  UPDATE_EVENT_PATROL_LINKS,
   UPDATE_EVENT_STORE,
   updateEvent,
   uploadEventFile,
 } from './events';
 import { ADD_EVENT, addRealtimeOverlayEvent, REMOVE_EVENT, removeRealtimeOverlayEvent } from './events-realtime-overlay';
-import { PATROLS_API_URL, UPDATE_PATROL_REALTIME, UPDATE_PATROL_SUCCESS } from './patrols';
+import { PATROLS_API_URL, UPDATE_PATROL_SUCCESS } from './patrols';
 import { PREVIEW_FEATURES } from '../constants';
 import { validateReportAgainstCurrentEventFilter } from '../utils/events';
 
@@ -74,7 +76,10 @@ describe('eventStoreReducer', () => {
     };
   });
 
-  const reducePatrolPush = () => eventStoreReducer(eventStore, { payload: patrol, type: UPDATE_PATROL_REALTIME });
+  const reducePatrolPush = (shouldUnlinkUnlistedEvents = true) => eventStoreReducer(eventStore, {
+    payload: { patrol, shouldUnlinkUnlistedEvents },
+    type: UPDATE_EVENT_PATROL_LINKS,
+  });
 
   test('links a stored event to the patrol a push links it to', () => {
     patrol.patrol_segments[1].events = [{ id: 'unlinked-event-id' }];
@@ -117,6 +122,26 @@ describe('eventStoreReducer', () => {
     delete patrol.patrol_segments[0].events;
 
     expect(reducePatrolPush()).toBe(eventStore);
+  });
+
+  test('keeps the store when a push leaves out the legs of the patrol', () => {
+    delete patrol.patrol_segments;
+
+    expect(reducePatrolPush()).toBe(eventStore);
+  });
+
+  test('keeps stored events linked when the push may leave out some of them, but links the ones it lists', () => {
+    patrol.patrol_segments[0].events = [];
+    patrol.patrol_segments[1].events = [{ id: 'unlinked-event-id' }];
+
+    const nextEventStore = reducePatrolPush(false);
+
+    expect(nextEventStore['linked-event-id']).toBe(eventStore['linked-event-id']);
+    expect(nextEventStore['unlinked-event-id']).toEqual({
+      id: 'unlinked-event-id',
+      patrol_segments: ['second-patrol-segment-id'],
+      patrols: ['patrol-id'],
+    });
   });
 
   test('keeps loaded event details when a fetch that skips them answers null', () => {
@@ -547,6 +572,35 @@ describe('socketEventData', () => {
     const types = store.getActions().map((action) => action.type);
     expect(types).not.toContain(addRealtimeOverlayEvent(EVENT_ID).type);
     expect(types).not.toContain(removeRealtimeOverlayEvent(EVENT_ID).type);
+  });
+});
+
+describe('socketUpdatePatrolEventLinks', () => {
+  const PATROL = { id: 'patrol-id', patrol_segments: [] };
+
+  test('unlinks the events a patrol push leaves out when reads see the same events as pushes', () => {
+    const store = mockStore({ data: {}, view: {} });
+
+    store.dispatch(socketUpdatePatrolEventLinks({ patrol_data: PATROL }));
+
+    expect(store.getActions()).toEqual([{
+      payload: { patrol: PATROL, shouldUnlinkUnlistedEvents: true },
+      type: UPDATE_EVENT_PATROL_LINKS,
+    }]);
+  });
+
+  test('keeps the events a patrol push leaves out linked when reads send the user location', () => {
+    const store = mockStore({
+      data: { user: { permissions: { view_events_geographic_distance: ['view'] } } },
+      view: { userLocation: { coords: { latitude: 10, longitude: 20 } } },
+    });
+
+    store.dispatch(socketUpdatePatrolEventLinks({ patrol_data: PATROL }));
+
+    expect(store.getActions()).toEqual([{
+      payload: { patrol: PATROL, shouldUnlinkUnlistedEvents: false },
+      type: UPDATE_EVENT_PATROL_LINKS,
+    }]);
   });
 });
 

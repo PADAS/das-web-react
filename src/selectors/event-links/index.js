@@ -16,8 +16,12 @@ const selectUserPermissions = (state) => (state.data.selectedUserProfile?.id
   ? state.data.selectedUserProfile
   : state.data.user)?.permissions;
 
+const hasUserPermission = (userPermissions, permissionKey, permission) => (
+  userPermissions?.[permissionKey] ?? EMPTY_PERMISSIONS
+).includes(permission);
+
 // Joining an incident edits the event, so it takes the right to update its
-// category. A patrol link edits the patrol alone.
+// category. A patrol link edits the patrol alone, which the server reads first.
 export const selectEventLinkPermissions = createSelector(
   [
     selectEventCategoryPermissions,
@@ -41,17 +45,18 @@ export const selectEventLinkPermissions = createSelector(
   ) => {
     const canChangePatrolLinks = hasEvent
       && isPatrolManagementEnabled
-      && (userPermissions?.[PERMISSION_KEYS.PATROLS] ?? EMPTY_PERMISSIONS).includes(PERMISSIONS.UPDATE);
+      && hasUserPermission(userPermissions, PERMISSION_KEYS.PATROLS, PERMISSIONS.READ)
+      && hasUserPermission(userPermissions, PERMISSION_KEYS.PATROLS, PERMISSIONS.UPDATE);
 
     return {
       canAddToIncident: !isCollection && !incidentId && eventCategoryPermissions.hasUpdatePermission,
       canAddToPatrol: canChangePatrolLinks && !patrolId,
       canCreateIncident: incidentCategoryPermissions.hasCreatePermission,
       canRemoveFromIncident: !!incidentId
-        && (userPermissions?.[PERMISSION_KEYS.EVENT_RELATIONSHIPS] ?? EMPTY_PERMISSIONS).includes(PERMISSIONS.DELETE),
+        && hasUserPermission(userPermissions, PERMISSION_KEYS.EVENT_RELATIONSHIPS, PERMISSIONS.DELETE),
       canRemoveFromPatrol: canChangePatrolLinks
         && !!patrolId
-        && (userPermissions?.[PERMISSION_KEYS.EVENT_RELATED_SEGMENTS] ?? EMPTY_PERMISSIONS).includes(PERMISSIONS.DELETE),
+        && hasUserPermission(userPermissions, PERMISSION_KEYS.EVENT_RELATED_SEGMENTS, PERMISSIONS.DELETE),
     };
   }
 );

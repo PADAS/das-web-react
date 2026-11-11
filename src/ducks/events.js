@@ -6,7 +6,7 @@ import xor from 'lodash/xor';
 import { API_URL, API_V2_URL, PREVIEW_FEATURES, REALTIME_OVERLAY_WINDOW_MS, TAB_KEYS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
 import { addRealtimeOverlayEvent, removeRealtimeOverlayEvent } from './events-realtime-overlay';
-import { fetchPatrol, LINK_TARGETS_PAGE_SIZE, PATROLS_API_URL, UPDATE_PATROL_REALTIME } from './patrols';
+import { fetchPatrol, LINK_TARGETS_PAGE_SIZE, PATROLS_API_URL } from './patrols';
 import { generateErrorMessageForRequest } from '../utils/request';
 import { getBboxParamsFromMap, objectToParamString } from '../utils/query';
 import { getPreviewFeatureValue } from '../utils/feature-flags';
@@ -76,6 +76,7 @@ const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_EVENTS_PAGE_SUCCESS';
 
 const NEW_EVENT_TYPE = 'new_event';
 export const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
+export const UPDATE_EVENT_PATROL_LINKS = 'EVENTS.UPDATE_EVENT_PATROL_LINKS';
 export const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
 const shouldAppendLocationToRequest = (state) => {
@@ -130,6 +131,18 @@ export const socketEventData = (payload) => (dispatch, getState) => {
     // yet.
     dispatch(matches_current_filter ? addRealtimeOverlayEvent(event_id) : removeRealtimeOverlayEvent(event_id));
   }
+};
+
+// The server pushes link changes as patrol updates only, never as event ones.
+export const socketUpdatePatrolEventLinks = ({ patrol_data }) => (dispatch, getState) => {
+  dispatch({
+    payload: {
+      patrol: patrol_data,
+      // Pushes leave out the geographic-only events a location lets reads add.
+      shouldUnlinkUnlistedEvents: !shouldAppendLocationToRequest(getState()),
+    },
+    type: UPDATE_EVENT_PATROL_LINKS,
+  });
 };
 
 
@@ -810,10 +823,11 @@ const namedFeedReducer = (name, reducer = state => state) => globallyResettableR
 
 const EMPTY_ARRAY = [];
 
-// The server pushes link changes as patrol updates only, never event ones.
-const applyPatrolLinksToEventStore = (eventStore, patrol) => {
-  const patrolSegments = patrol.patrol_segments ?? EMPTY_ARRAY;
-  if (!patrolSegments.every((patrolSegment) => Array.isArray(patrolSegment.events))) {
+const applyPatrolLinksToEventStore = (eventStore, patrol, shouldUnlinkUnlistedEvents) => {
+  const patrolSegments = patrol.patrol_segments;
+  const hasEventsOfEveryLeg = Array.isArray(patrolSegments)
+    && patrolSegments.every((patrolSegment) => Array.isArray(patrolSegment.events));
+  if (!hasEventsOfEveryLeg) {
     return eventStore;
   }
 
@@ -826,12 +840,19 @@ const applyPatrolLinksToEventStore = (eventStore, patrol) => {
     return accumulator;
   }, {});
 
-  const relinkedEvents = Object.values(eventStore).reduce((accumulator, event) => {
+  const isStoredAsLinked = (event) => event.patrols?.includes(patrol.id)
+    || event.patrol_segments?.some((patrolSegmentId) => patrolSegmentIds.has(patrolSegmentId));
+  const affectedEvents = shouldUnlinkUnlistedEvents
+    ? Object.values(eventStore).filter((event) => linkedSegmentIdsByEventId[event.id] || isStoredAsLinked(event))
+    : Object.keys(linkedSegmentIdsByEventId).map((eventId) => eventStore[eventId]).filter(Boolean);
+
+  const relinkedEvents = affectedEvents.reduce((accumulator, event) => {
     const eventPatrolSegmentIds = event.patrol_segments ?? EMPTY_ARRAY;
     const eventPatrolIds = event.patrols ?? EMPTY_ARRAY;
     const linkedSegmentIds = linkedSegmentIdsByEventId[event.id] ?? EMPTY_ARRAY;
     const isLinked = linkedSegmentIds.length > 0;
-    const storedSegmentIds = eventPatrolSegmentIds.filter((patrolSegmentId) => patrolSegmentIds.has(patrolSegmentId));
+    const storedSegmentIds = eventPatrolSegmentIds
+      .filter((patrolSegmentId) => patrolSegmentIds.has(patrolSegmentId));
 
     if (xor(storedSegmentIds, linkedSegmentIds).length > 0 || isLinked !== eventPatrolIds.includes(patrol.id)) {
       accumulator[event.id] = {
@@ -852,12 +873,12 @@ const applyPatrolLinksToEventStore = (eventStore, patrol) => {
 
 // reducers
 const INITIAL_STORE_STATE = {};
-export const eventStoreReducer = (state, { type, payload }) => {
-  if (type === CLEAR_EVENT_DATA) {
+export const eventStoreReducer = (state, { payload, type }) => {
+  switch (type) {
+  case CLEAR_EVENT_DATA:
     return { ...INITIAL_STORE_STATE };
-  }
 
-  if (type === UPDATE_EVENT_STORE) {
+  case UPDATE_EVENT_STORE: {
     const toAdd = payload.reduce((accumulator, event) => {
       addNormalizingPropertiesToEventDataFromAPI(event);
 
@@ -891,8 +912,6 @@ export const eventStoreReducer = (state, { type, payload }) => {
         });
       }
 
-
-
       return accumulator;
     }, {});
 
@@ -902,11 +921,12 @@ export const eventStoreReducer = (state, { type, payload }) => {
     };
   }
 
-  if (type === UPDATE_PATROL_REALTIME) {
-    return applyPatrolLinksToEventStore(state, payload);
-  }
+  case UPDATE_EVENT_PATROL_LINKS:
+    return applyPatrolLinksToEventStore(state, payload.patrol, payload.shouldUnlinkUnlistedEvents);
 
-  return state;
+  default:
+    return state;
+  }
 };
 
 export const INITIAL_EVENT_FEED_STATE = {
