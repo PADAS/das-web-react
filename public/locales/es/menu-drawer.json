@@ -18,9 +18,8 @@
     "alertsModal": {
       "title": "Alertas"
     },
-    "appsHeader": "APLICACIONES EARTHRANGER",
+    "appsHeader": "Aplicaciones EarthRanger",
     "closeButtonLabel": "Cerrar menú principal",
-    "closeButtonTitle": "Cerrar",
     "communityButton": "Comunidad",
     "contactSupportButton": "Contactar soporte",
     "dailyReportModal": {
@@ -28,7 +27,7 @@
     },
     "ecoscopeLink": "Ecoscope",
     "ecoscopeTag": "Análisis",
-    "exportsHeader": "EXPORTAR",
+    "exportsHeader": "Exportar",
     "fieldReportsModal": {
       "content": "Eventos exportados solo incluiran aquellos que coincidan con los criterios del filtro actualmente aplicado en la pestaña de Reportes.",
       "title": "Eventos de campo"
@@ -46,13 +45,13 @@
     "gundiTag": "Integraciones",
     "header": "Menú principal",
     "helpCenterButton": "Centro de ayuda",
-    "learnHeader": "APRENDER",
+    "learnHeader": "Aprender",
     "masterKMLModal": {
       "title": "KML Maestro"
     },
     "mobileAppStoreLink": "App Store (iPhone)",
     "mobileGooglePlayLink": "Google Play (Android)",
-    "mobileHeader": "EARTHRANGER MOBILE",
+    "mobileHeader": "EarthRanger Mobile",
     "navigationButton": {
       "gear": "Aparejos",
       "mapLayers": "Capas de mapa",

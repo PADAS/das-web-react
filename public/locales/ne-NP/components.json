@@ -289,6 +289,8 @@
       "closeButtonLabel": "साइडबार बन्द गर्नुहोस्"
     },
     "eventsLink": "घटनाहरु",
+    "eventsLinkWithUpdatesLabel_one": "घटनाहरु, {{count}} नयाँ वा अद्यावधिक",
+    "eventsLinkWithUpdatesLabel_other": "घटनाहरु, {{count}} नयाँ वा अद्यावधिक",
     "gearLink": "जाल",
     "gearTab": {
       "loadErrorFallback": "अनुरोध असफल भयो",

@@ -289,6 +289,8 @@
       "closeButtonLabel": "Fermer la barre latérale"
     },
     "eventsLink": "Événements",
+    "eventsLinkWithUpdatesLabel_one": "Événements, {{count}} nouveau ou mis à jour",
+    "eventsLinkWithUpdatesLabel_other": "Événements, {{count}} nouveaux ou mis à jour",
     "gearLink": "Engins",
     "gearTab": {
       "loadErrorFallback": "Échec de la requête",

@@ -117,7 +117,7 @@ describe('GlobalMenuDrawer', () => {
 
     expect(hideDrawer).toHaveBeenCalledTimes(0);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Close Main Menu' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Close main menu' }));
 
     expect(hideDrawer).toHaveBeenCalledTimes(1);
   });
@@ -451,12 +451,12 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.getByRole('link', { name: 'Ecoscope Analysis' })).toHaveTextContent('Ecoscope Analysis');
   });
 
-  test('lists Ecoscope Analysis under EARTHRANGER APPS, not under EXPORTS, for non-staff users too', async () => {
+  test('lists Ecoscope Analysis under EarthRanger Apps, not under Exports, for non-staff users too', async () => {
     renderGlobalMenuDrawer();
 
     const ecoscopeLink = screen.getByRole('link', { name: 'Ecoscope Analysis' });
 
-    expect(screen.getByRole('heading', { name: 'EARTHRANGER APPS' }).compareDocumentPosition(ecoscopeLink))
+    expect(screen.getByRole('heading', { name: 'EarthRanger apps' }).compareDocumentPosition(ecoscopeLink))
       .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(ecoscopeLink).toHaveTextContent('Ecoscope');
     expect(ecoscopeLink).toHaveTextContent('Analysis');
@@ -500,7 +500,7 @@ describe('GlobalMenuDrawer', () => {
 
     expect(screen.getByRole('link', { name: 'App Store (iPhone)' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Google Play (Android)' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 4, name: 'EARTHRANGER MOBILE' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 4, name: 'EarthRanger Mobile' })).toBeInTheDocument();
   });
 
   test('shows only the Google Play link, above the rest of the menu, on an Android phone', async () => {
@@ -519,7 +519,7 @@ describe('GlobalMenuDrawer', () => {
     mockUserAgent(ANDROID_USER_AGENT);
     renderGlobalMenuDrawer();
 
-    expect(screen.getByRole('heading', { name: 'EARTHRANGER APPS' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'EarthRanger apps' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Ecoscope Analysis' })).toBeInTheDocument();
   });
 
@@ -528,7 +528,7 @@ describe('GlobalMenuDrawer', () => {
     store.data.user.is_staff = true;
     renderGlobalMenuDrawer();
 
-    const appsHeading = screen.getByRole('heading', { name: 'EARTHRANGER APPS' });
+    const appsHeading = screen.getByRole('heading', { name: 'EarthRanger apps' });
 
     expect(appsHeading.compareDocumentPosition(screen.getByRole('link', { name: 'Admin' })))
       .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
@@ -536,29 +536,29 @@ describe('GlobalMenuDrawer', () => {
       .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
-  test('does not show the EXPORTS heading when no export is available', async () => {
+  test('does not show the Exports heading when no export is available', async () => {
     store.view.systemConfig[SYSTEM_CONFIG_FLAGS.DAILY_REPORT] = false;
     store.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS] = false;
     store.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT] = false;
     store.data.user.permissions[PERMISSION_KEYS.OBSERVATIONS] = [];
     renderGlobalMenuDrawer();
 
-    expect(screen.queryByRole('heading', { name: 'EXPORTS' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Exports' })).toBeNull();
   });
 
   test('shows the EarthRanger Mobile heading of the top store link one level below the menu heading', async () => {
     mockUserAgent(IPHONE_USER_AGENT);
     renderGlobalMenuDrawer();
 
-    expect(screen.getByRole('heading', { level: 3, name: 'EARTHRANGER MOBILE' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: 'EarthRanger Mobile' })).toBeInTheDocument();
   });
 
-  test('lists LEARN, with Help Center and User\'s Guide, above the exports', async () => {
+  test('lists Learn, with Help Center and User\'s Guide, above the exports', async () => {
     renderGlobalMenuDrawer();
 
-    const learnHeading = screen.getByRole('heading', { name: 'LEARN' });
+    const learnHeading = screen.getByRole('heading', { name: 'Learn' });
 
-    expect(learnHeading.compareDocumentPosition(screen.getByRole('heading', { name: 'EXPORTS' })))
+    expect(learnHeading.compareDocumentPosition(screen.getByRole('heading', { name: 'Exports' })))
       .toBe(Node.DOCUMENT_POSITION_FOLLOWING);
 
     expect(learnHeading.compareDocumentPosition(screen.getByRole('link', { name: 'Help Center' })))
@@ -586,7 +586,7 @@ describe('GlobalMenuDrawer', () => {
   test('when the global menu drawer is open the close button gets focused and there is a focus trap', async () => {
     const { rerender } = renderGlobalMenuDrawer();
 
-    const closeButton = screen.getByRole('button', { name: 'Close Main Menu' });
+    const closeButton = screen.getByRole('button', { name: 'Close main menu' });
 
     expect(closeButton).not.toBe(document.activeElement);
 
@@ -621,5 +621,42 @@ describe('GlobalMenuDrawer', () => {
     await userEvent.keyboard('[Tab]');
 
     expect(closeButton).toBe(document.activeElement);
+  });
+
+  test('names the close button after the menu it closes, in its title too', () => {
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('button', { name: 'Close main menu' })).toHaveAttribute('title', 'Close main menu');
+  });
+
+  test('returns focus to the element that opened it when it closes', () => {
+    const renderWithOpener = () => <Provider store={mockStore(store)}>
+      <button type="button">Opener</button>
+
+      <GlobalMenuDrawer />
+    </Provider>;
+
+    const { rerender } = render(renderWithOpener());
+
+    screen.getByRole('button', { name: 'Opener' }).focus();
+
+    store.view.drawer = { drawerId: 'global-menu', isOpen: true };
+    rerender(renderWithOpener());
+
+    expect(screen.getByRole('button', { name: 'Close main menu' })).toHaveFocus();
+
+    store.view.drawer = { drawerId: 'global-menu', isOpen: false };
+    rerender(renderWithOpener());
+
+    expect(screen.getByRole('button', { name: 'Opener' })).toHaveFocus();
+  });
+
+  test('names its section headings in plain case for assistive technology', () => {
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('heading', { name: 'Learn' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Exports' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'EarthRanger apps' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'EarthRanger Mobile' })).toBeInTheDocument();
   });
 });
