@@ -1,5 +1,8 @@
 @use '../common/styles/buttons';
+@use '../common/styles/colors';
 @use '../common/styles/layout';
+
+$separator-color: colors.with-opacity(var(--er-ui-text-primary-text-reversed), 25%);
 
 .globalMenuDrawer {
   background-color: var(--er-greyscale-3);
@@ -7,10 +10,11 @@
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  padding: 1rem;
+  padding: 0 0.5rem;
   width: 100vw;
 
   @media (min-width: layout.$lg-layout-width-min) {
+    border-right: 1px solid $separator-color;
     width: 18.75rem;
   }
 
@@ -20,8 +24,6 @@
     flex-shrink: 0;
     height: var(--nav-height);
     justify-content: space-between;
-    margin: -1rem -1rem 0;
-    padding: 0 1rem;
 
     + .separator {
       margin-top: 0;
@@ -43,8 +45,11 @@
   }
 
   .separator {
-    margin-left: -1rem;
-    margin-right: -1rem;
+    border-top-color: $separator-color;
+    margin-bottom: 0.5rem;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    opacity: 1;
   }
 
   ul {
@@ -52,7 +57,7 @@
 
     li {
       &:not(:last-child) {
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
       }
 
       &.nestedListItem {
@@ -61,7 +66,7 @@
         h4 {
           color: var(--er-ui-text-secondary-text-reversed);
           font-size: .75rem;
-          margin-bottom: 0.25rem;
+          margin-bottom: 0.125rem;
           text-transform: uppercase;
         }
       }
@@ -88,8 +93,8 @@
 
         svg {
           flex-shrink: 0;
-          height: 1.25rem;
-          width: 1.25rem;
+          height: 1rem;
+          width: 1rem;
 
           &.recoloredIcon path {
             fill: currentcolor;
@@ -97,7 +102,7 @@
         }
 
         span {
-          margin-left: 1rem;
+          margin-left: 0.5rem;
         }
 
         .tag {
@@ -118,14 +123,14 @@
   h3 {
     color: var(--er-ui-text-secondary-text-reversed);
     font-size: .875rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     text-transform: uppercase;
   }
 
   .footer {
     font-size: 0.75rem;
     margin-top: auto;
-    padding-top: 2rem;
+    padding: 2rem 0 0.5rem;
 
     .versionsAndCopyright {
       margin-bottom: 0;
@@ -136,10 +141,7 @@
 
       li {
         font-weight: 500;
-
-        &:not(:last-child) {
-          margin-bottom: 0.25rem;
-        }
+        margin-bottom: 0;
 
         a {
           border-radius: 0.125rem;

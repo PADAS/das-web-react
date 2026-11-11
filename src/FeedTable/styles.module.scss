@@ -129,6 +129,16 @@
       min-width: 0;
     }
   }
+
+  [class~='ag-column-moving'] {
+    [class~='ag-header-cell'], [class~='ag-cell'] {
+      background-color: var(--er-ui-background-primary-background);
+    }
+
+    [class~='ag-row-selected'] [class~='ag-cell'] {
+      background-color: var(--er-ui-background-selected-background);
+    }
+  }
 }
 
 .loadingOverlay {

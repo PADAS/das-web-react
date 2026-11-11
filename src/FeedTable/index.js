@@ -84,12 +84,15 @@ const gridTheme = themeQuartz.withParams({
   foregroundColor: styles.foregroundColor,
   headerBackgroundColor: styles.backgroundColor,
   headerCellHoverBackgroundColor: styles.backgroundColor,
+  headerColumnBorder: true,
+  headerColumnBorderHeight: '100%',
+  headerColumnResizeHandleColor: 'transparent',
   headerFontSize: 14,
   headerFontWeight: 400,
   headerTextColor: styles.headerTextColor,
+  rowBorder: false,
   selectedRowBackgroundColor: styles.selectedRowBackgroundColor,
   wrapperBorder: false,
-  rowBorder: false,
   wrapperBorderRadius: 0,
 });
 
