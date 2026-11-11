@@ -1,4 +1,3 @@
-@use '../common/styles/colors';
 @use '../common/styles/layout';
 
 .navigationBar {
@@ -16,7 +15,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: var(--er-ui-text-disabled);
+    color: var(--er-ui-text-tabs);
     font-size: 0.625rem;
     height: 3rem;
     padding: 0;
@@ -24,7 +23,7 @@
     border-bottom: 1px solid var(--er-ui-divider-lines);
 
     &:hover {
-      color: colors.shade(var(--er-ui-cta-primary), 15%) !important;
+      color: var(--er-ui-cta-primary) !important;
       background-color: var(--er-ui-background-selected-background) !important;
       font-weight: bold;
   
@@ -34,7 +33,7 @@
     }
 
     svg {
-      color: var(--er-ui-icons);
+      color: var(--er-ui-text-tabs);
       
       @media (min-width: layout.$md-layout-width-min) {
         margin-bottom: 0.5rem;
@@ -55,7 +54,7 @@
   }
 
   [class*="active"] {
-    color: colors.shade(var(--er-ui-cta-primary), 15%) !important;
+    color: var(--er-ui-cta-primary) !important;
     background-color: var(--er-ui-background-selected-background) !important;
     font-weight: bold;
 
@@ -65,12 +64,12 @@
   }
 
   [class*="active"] ~ [class*="active"] {
-    color: var(--er-ui-text-disabled) !important;
+    color: var(--er-ui-text-tabs) !important;
     background-color: var(--er-ui-background-primary-background) !important;
     font-weight: normal;
 
     &:hover {
-      color: colors.shade(var(--er-ui-cta-primary), 15%) !important;
+      color: var(--er-ui-cta-primary) !important;
       background-color: var(--er-ui-background-selected-background) !important;
       font-weight: bold;
   
@@ -80,13 +79,13 @@
     }
 
     svg {
-      color: var(--er-ui-icons);
+      color: var(--er-ui-text-tabs);
     }
   }
 }
 
 .sectionsWrapper {
-  background-color: colors.$subtle-background;
+  background-color: var(--er-ui-background-tertiary-background);
   overflow-x: hidden;
   width: 100%;
   height: 100%;

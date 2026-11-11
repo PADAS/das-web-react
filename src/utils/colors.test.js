@@ -16,7 +16,7 @@ const SASS_COLOR_VARIABLES = Object.fromEntries(
 
 const SOURCE_FILES = readdirSync('src', { recursive: true }).filter((file) => /\.(js|scss)$/.test(file));
 
-const LIGHT_THEME_TOKEN_NAMES = [...readFileSync('node_modules/@allenai/design-system/earthranger/tokens.css', 'utf8')
+const LIGHT_THEME_TOKEN_NAMES = [...readFileSync('node_modules/@allenai/design-system/er-legacy/tokens.css', 'utf8')
   .split('}')[0]
   .matchAll(/--er-([a-z0-9-]+):\s*#/g)].map((match) => match[1]);
 
@@ -25,9 +25,9 @@ const TOKEN_REFERENCE_REGEX = /--er-([a-z0-9-]+)|COLOR_TOKENS\['([^']+)'\]|token
 describe('utils - colors', () => {
   describe('COLOR_TOKENS', () => {
     test('keys the light values of tokens.css by their names without the --er- prefix', () => {
-      expect(COLOR_TOKENS['ui-cta-primary']).toBe('#0f865d');
-      expect(COLOR_TOKENS['ui-text-primary-text']).toBe('#0a3235');
-      expect(COLOR_TOKENS['teal-3-05']).toBe('#f2f9f9');
+      expect(COLOR_TOKENS['ui-cta-primary']).toBe('#0056c7');
+      expect(COLOR_TOKENS['ui-text-primary-text']).toBe('#000000');
+      expect(COLOR_TOKENS['greyscale-11']).toBe('#f9f9f9');
     });
 
     test('names every color token as tokens.css does', () => {

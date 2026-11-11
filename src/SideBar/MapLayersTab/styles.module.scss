@@ -279,7 +279,7 @@
   }
 
   .itemList {
-    background: colors.tint(var(--er-ui-background-tertiary-background), 44%);
+    background: var(--er-ui-background-tertiary-background);
     width: 100%;
 
     &.compressed {
@@ -298,7 +298,7 @@
   }
 
   .reportDesc {
-    background: colors.tint(var(--er-ui-background-tertiary-background), 44%);
+    background: var(--er-ui-background-tertiary-background);
     width: 100%;
   }
 }

@@ -17,7 +17,7 @@
     outline: none;
 
     .divider {
-      background-color: var(--er-ui-background-tertiary-background);
+      background-color: var(--er-ui-divider-lines);
       height: 1px;
       margin: 0.3125rem 0;
       padding: 0;
@@ -41,11 +41,11 @@
         }
 
         &:hover:not(:disabled, [aria-disabled="true"], :focus-visible, :has(:focus-visible)) {
-          background-color: colors.tint(var(--er-ui-background-tertiary-background), 62%);
+          background-color: var(--er-ui-background-tertiary-background);
         }
 
         &:focus-visible, &:has(:focus-visible) {
-          background-color: var(--er-ui-background-tertiary-background);
+          background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
         }
 
         img, svg {

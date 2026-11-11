@@ -4,7 +4,7 @@
 
 .header {
   align-items: center;
-  background-color: colors.$subtle-background;
+  background-color: var(--er-ui-background-tertiary-background);
   border-bottom: 1px solid var(--er-ui-field-outline);
   border-top: 1px solid var(--er-ui-field-outline);
   box-shadow: 0 0.25rem 0.75rem -0.125rem colors.with-opacity(var(--er-greyscale-0), 25%);

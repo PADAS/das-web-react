@@ -3,7 +3,7 @@
 $icon-size: 1.5em;
 
 .dividerTitle {
-  $divider-color: colors.shade(var(--er-ui-divider-lines), 12%);
+  $divider-color: colors.shade(var(--er-ui-divider-lines), 14%);
 
   border-top: 1px solid $divider-color;
   color: $divider-color;
@@ -43,8 +43,8 @@ $icon-size: 1.5em;
   .outgoingMessage {
     .messageDetails {
       align-self: flex-end;
-      background: colors.tint(var(--er-ui-cta-primary), 49%);
-      border: 1px solid colors.tint(var(--er-ui-cta-primary), 35%);
+      background: colors.tint(var(--er-ui-cta-primary), 85%);
+      border: 1px solid colors.tint(var(--er-ui-cta-primary), 70%);
       margin: 0 0 0 0.5rem;
     }
 
@@ -58,8 +58,8 @@ $icon-size: 1.5em;
   }
 
   .messageDetails {
-    background: colors.tint(var(--er-ui-cta-primary), 35%);
-    border: 1px solid colors.tint(var(--er-ui-cta-primary), 21%);
+    background: colors.tint(var(--er-ui-cta-primary), 70%);
+    border: 1px solid colors.tint(var(--er-ui-cta-primary), 50%);
     border-radius: 1em;
     margin: 0 0.5rem 0 0;
     width: 85%;

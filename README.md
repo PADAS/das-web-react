@@ -291,7 +291,7 @@ Base element styles, such as fonts, headings, the focus ring and placeholders, a
 
 #### Colors
 
-Colors are the EarthRanger design tokens, defined in Ai2's [DESIGN.md](https://github.com/allenai/design/blob/main/earthranger/DESIGN.md) and published as `@allenai/design-system`. `src/index.js` loads them as CSS custom properties, so styles read them with `var()`:
+Colors are the ER Legacy design tokens, defined in Ai2's [DESIGN.md](https://github.com/allenai/design/blob/main/er-legacy/DESIGN.md) and published as `@allenai/design-system`. They keep the app's current look until the EarthRanger rebrand, when the app moves to the `earthranger` set. `src/index.js` loads them as CSS custom properties, so styles read them with `var()`:
 
 ```scss
 @use '../common/styles/colors';
@@ -306,7 +306,7 @@ Colors are the EarthRanger design tokens, defined in Ai2's [DESIGN.md](https://g
 }
 ```
 
-- Prefer the semantic tokens (`--er-ui-*`), named for their role, to the palette primitives (`--er-teal-t100`).
+- Prefer the semantic tokens (`--er-ui-*`), named for their role, to the palette primitives (`--er-greyscale-3`).
 - Sass color functions such as `color.adjust` cannot read custom properties. Derive shades with `colors.shade`, `colors.tint` and `colors.with-opacity`, and use the named steps for hover and active states.
 - JavaScript that sets a style writes `var(--er-*)` too. Mapbox and drawn images need hex values instead, from `COLOR_TOKENS` in `src/utils/colors.js`.
 
@@ -315,7 +315,7 @@ Colors are the EarthRanger design tokens, defined in Ai2's [DESIGN.md](https://g
 The package is not on npm yet, so `package.json` pins it to a release tag of its GitHub repository, which `.yarnrc.yml` allows in `approvedGitRepositories`.
 
 1. Change the tag range in `package.json`, such as `github:allenai/design#semver=^0.5.0`, and run `yarn install`.
-2. Compare `earthranger/tokens.css` between the two tags and check the app, since one token can restyle every screen.
+2. Compare `er-legacy/tokens.css` between the two tags and check the app, since one token can restyle every screen.
 3. Run `yarn test src/utils/colors.test.js`, which fails if a token the app uses was renamed or removed.
 
 ### Assets

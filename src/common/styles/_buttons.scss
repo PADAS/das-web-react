@@ -122,12 +122,12 @@ $chip-height-small: 1.75rem;
 }
 
 @mixin mapbox-control-button {
-  background: var(--er-ui-background-elevated-component);
+  background: var(--er-ui-background-tertiary-background);
   box-shadow: colors.with-opacity(var(--er-greyscale-0), 30%) 0 1px 4px;
   border: .5px solid colors.with-opacity(var(--er-greyscale-0), 10%);
   border-width: 0 0 1px;
   border-radius: 2px;
-  color: var(--er-ui-text-primary-text);
+  color: var(--er-ui-icons);
   height: 2.5rem;
   width: 2.5rem;
   opacity: .95;
@@ -426,12 +426,12 @@ $chip-height-small: 1.75rem;
   @include primary-action-button;
 
   background-color: var(--er-ui-background-selected-background);
-  color: colors.shade(var(--er-ui-cta-primary), 15%);
+  color: var(--er-ui-cta-primary);
   text-decoration: none;
 
   &:hover:not(:disabled, :focus-visible) {
     background-color: colors.shade(var(--er-ui-background-selected-background), colors.$surface-hover-shade);
-    color: colors.shade(var(--er-ui-cta-primary), 15%);
+    color: var(--er-ui-cta-primary);
   }
 
   &:focus-visible {

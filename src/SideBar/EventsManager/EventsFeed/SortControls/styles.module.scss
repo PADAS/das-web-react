@@ -62,11 +62,11 @@
         width: 100%;
 
         &:hover {
-          background-color: colors.tint(var(--er-ui-background-tertiary-background), 62%);
+          background-color: var(--er-ui-background-tertiary-background);
         }
 
         &:focus {
-          background-color: var(--er-ui-background-tertiary-background);
+          background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
         }
 
         &[aria-checked="true"] {

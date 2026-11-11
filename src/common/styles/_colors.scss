@@ -20,9 +20,6 @@ $hover-shade: 15%;
 $row-tint: 95%;
 $surface-hover-shade: 5%;
 
-// Read-only fields, table headers and other quiet surfaces.
-$subtle-background: tint(var(--er-ui-background-tertiary-background), 50%);
-
 // Rows, pills and tiles take a strong base and a quiet background.
 $report-no-priority-theme: (
   base: var(--er-ui-event-priority-grey),
@@ -53,8 +50,8 @@ $patrol-ready-theme: (
   background: tint(var(--er-ui-patrol-status-scheduled), $row-tint),
 );
 $patrol-paused-theme: (
-  base: var(--er-yellow-2),
-  background: tint(var(--er-yellow-2), $row-tint),
+  base: var(--er-ui-patrol-status-paused),
+  background: tint(var(--er-ui-patrol-status-paused), $row-tint),
 );
 $patrol-done-theme: (
   base: var(--er-greyscale-7),

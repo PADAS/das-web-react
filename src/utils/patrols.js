@@ -46,7 +46,7 @@ const PATROL_STATUS_THEME_COLOR_MAP = {
   [PATROL_UI_STATES.SCHEDULED.key]: createPatrolTheme('ui-patrol-status-scheduled'),
   [PATROL_UI_STATES.READY_TO_START.key]: createPatrolTheme('ui-patrol-status-scheduled'),
   [PATROL_UI_STATES.ACTIVE.key]: createPatrolTheme('ui-patrol-status-active'),
-  [PATROL_UI_STATES.PAUSED.key]: createPatrolTheme('yellow-2'),
+  [PATROL_UI_STATES.PAUSED.key]: createPatrolTheme('ui-patrol-status-paused'),
   [PATROL_UI_STATES.DONE.key]: createPatrolTheme('greyscale-7'),
   [PATROL_UI_STATES.START_OVERDUE.key]: createPatrolTheme('ui-patrol-status-overdue'),
   [PATROL_UI_STATES.CANCELLED.key]: createPatrolTheme('greyscale-9', PATROL_DISABLED_TEXT_COLOR),
@@ -1387,7 +1387,7 @@ export const drawPatrolTrackConnectorLines = (patrolPoints, trackData) => {
       patrolTrackEndConnectors(patrolPoints, trackData),
       (patrolPoints.start_location ?? patrolPoints.end_location)?.properties.stroke
     ),
-    connectorLine(patrolPauseConnectors(patrolPoints), COLOR_TOKENS['yellow-2']),
+    connectorLine(patrolPauseConnectors(patrolPoints), COLOR_TOKENS['ui-patrol-status-paused']),
   ].filter(Boolean);
 
   return connectorLines.length ? featureCollection(connectorLines) : null;

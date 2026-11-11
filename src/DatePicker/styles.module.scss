@@ -34,7 +34,7 @@
   }
 
   &.readOnly {
-    background-color: colors.$subtle-background;
+    background-color: var(--er-ui-background-tertiary-background);
   }
 
   &.disabled {

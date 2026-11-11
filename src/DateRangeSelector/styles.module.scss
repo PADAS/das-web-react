@@ -21,7 +21,7 @@
 
 .presets {
   align-items: center;
-  background: colors.tint(var(--er-ui-background-tertiary-background), 62%);
+  background: var(--er-ui-background-tertiary-background);
   display: flex;
   justify-content: space-evenly;
   flex-wrap: wrap;
@@ -60,7 +60,7 @@
 }
 
 .currentSelectedRange{
-  color: colors.tint(var(--er-ui-text-primary-text), 29%);
+  color: colors.tint(var(--er-ui-text-primary-text), 45%);
   display: block; 
   text-align: center;
   width: 100%;

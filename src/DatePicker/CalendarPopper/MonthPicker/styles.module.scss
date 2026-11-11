@@ -5,7 +5,7 @@ $label-font-size: 0.875rem;
 
 .monthPicker {
   align-items: center;
-  border-bottom: 1px solid var(--er-ui-background-tertiary-background);
+  border-bottom: 1px solid var(--er-ui-divider-lines);
   display: flex;
   justify-content: space-around;
   padding: 0.25rem 0.5rem;
@@ -46,7 +46,7 @@ $label-font-size: 0.875rem;
     padding: 0;
 
     &:disabled {
-      color: var(--er-ui-icons);
+      color: var(--er-ui-text-disabled);
       pointer-events: none;
     }
 
@@ -61,7 +61,7 @@ $label-font-size: 0.875rem;
 
   .header {
     align-items: center;
-    border-bottom: 1px solid var(--er-ui-background-tertiary-background);
+    border-bottom: 1px solid var(--er-ui-divider-lines);
     display: flex;
     justify-content: space-around;
     padding: 0.25rem 0.5rem;

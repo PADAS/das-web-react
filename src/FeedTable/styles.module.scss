@@ -1,6 +1,5 @@
 @use '../common/styles/animations';
 @use '../common/styles/buttons';
-@use '../common/styles/colors';
 @use '../common/styles/inputs';
 
 :export {
@@ -91,7 +90,7 @@
       width: 100%;
 
       &:hover {
-        background-color: colors.tint(var(--er-ui-background-tertiary-background), 62%);
+        background-color: var(--er-ui-background-tertiary-background);
       }
 
       &:focus-visible {

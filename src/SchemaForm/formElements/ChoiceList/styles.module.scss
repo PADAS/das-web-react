@@ -94,7 +94,7 @@
   }
 
   &.readOnly {
-    background-color: colors.$subtle-background;
+    background-color: var(--er-ui-background-tertiary-background);
   }
 
   &.dropdownError {
@@ -132,7 +132,7 @@
   }
 
   &.readOnly > div:hover {
-    background-color: colors.$subtle-background;
+    background-color: var(--er-ui-background-tertiary-background);
     color: var(--er-ui-text-secondary-text);
   }
 }

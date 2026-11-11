@@ -125,7 +125,7 @@
           &.indeterminate {
             animation: upload-progress-spin 0.8s linear infinite;
             animation-direction: reverse;
-            background: conic-gradient(var(--er-ui-background-tertiary-background) 25%, var(--er-ui-cta-primary) 25%);
+            background: conic-gradient(var(--er-ui-divider-lines) 25%, var(--er-ui-cta-primary) 25%);
           }
         }
       }

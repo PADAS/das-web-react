@@ -1394,7 +1394,7 @@ describe('Patrols utils', () => {
 
       expect(lines.features).toHaveLength(1);
       expect(lines.features[0].geometry.coordinates).toEqual([[[1, 1], [2, 2]]]);
-      expect(lines.features[0].properties.stroke).toBe(COLOR_TOKENS['yellow-2']);
+      expect(lines.features[0].properties.stroke).toBe(COLOR_TOKENS['ui-patrol-status-paused']);
     });
 
     test('tells the dashes across a pause from the ones that reach the track of a patrol', () => {
@@ -1410,7 +1410,7 @@ describe('Patrols utils', () => {
       const lines = drawPatrolTrackConnectorLines(patrolPoints, trackDataWithPoints([3, 3], [0.5, 0.5]));
 
       expect(lines.features.map(({ properties }) => properties.stroke))
-        .toEqual(['#C87850', COLOR_TOKENS['yellow-2']]);
+        .toEqual(['#C87850', COLOR_TOKENS['ui-patrol-status-paused']]);
     });
 
     test('dashes nothing across a pause the patrol has not picked up from', () => {
@@ -3049,8 +3049,8 @@ describe('Patrols utils', () => {
 
     test('gives a paused patrol the paused theme', () => {
       expect(calcColorThemeForPatrolState(PAUSED)).toEqual({
-        background: 'color-mix(in srgb, var(--er-yellow-2), white 95%)',
-        base: 'var(--er-yellow-2)',
+        background: 'color-mix(in srgb, var(--er-ui-patrol-status-paused), white 95%)',
+        base: 'var(--er-ui-patrol-status-paused)',
       });
     });
   });

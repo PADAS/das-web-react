@@ -213,7 +213,7 @@
 }
 
 .attachmentControls {
-  $background-color: colors.tint(var(--er-ui-background-tertiary-background), 62%);
+  $background-color: var(--er-ui-background-tertiary-background);
 
   background: $background-color;
   display: flex;
@@ -418,7 +418,7 @@
   }
 
   [class*="dropdown-toggle-split"] {
-    background: colors.shade(var(--er-ui-cta-primary), 34%);
+    background: colors.shade(var(--er-ui-cta-primary), 14%);
     padding: 0 0.5rem;
   }
 }

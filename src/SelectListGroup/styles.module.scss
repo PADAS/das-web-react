@@ -1,6 +1,3 @@
-@use '../common/styles/colors';
-
-
 .fieldset {
   legend {
     color: var(--er-ui-text-secondary-text);
@@ -22,7 +19,7 @@
   }
 
   &.readOnly .container {
-    background-color: colors.$subtle-background;
+    background-color: var(--er-ui-background-tertiary-background);
   }
 
   &.error {

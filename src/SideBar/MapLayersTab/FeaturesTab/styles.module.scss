@@ -1,7 +1,5 @@
-@use '../../../common/styles/colors';
-
 .featureItemList li {
   &:hover {
-    background: colors.tint(var(--er-ui-background-tertiary-background), 93%);
+    background: var(--er-ui-background-tertiary-background);
   }
 }

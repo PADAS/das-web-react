@@ -154,7 +154,7 @@
         cursor: grab;
 
         &:not(:focus-visible) {
-          color: var(--er-ui-text-disabled);
+          color: var(--er-ui-icons);
         }
 
         .dragHandle {

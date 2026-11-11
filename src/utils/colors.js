@@ -1,4 +1,4 @@
-import tokens from '@allenai/design-system/earthranger/tokens.json';
+import tokens from '@allenai/design-system/er-legacy/tokens.json';
 
 const BLACK_CHANNELS = [0, 0, 0];
 const CSS_VARIABLE_REGEX = /^var\(--[a-z0-9-]+\)$/;

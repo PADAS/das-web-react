@@ -1,5 +1,4 @@
 @use '../../../../../common/styles/buttons';
-@use '../../../../../common/styles/colors';
 @use '../../../../../common/styles/layout';
 
 .instructions {
@@ -56,7 +55,7 @@
   }
 
   thead {
-    background: colors.$subtle-background;
+    background: var(--er-ui-background-tertiary-background);
     color: var(--er-ui-text-secondary-text);
   }
 

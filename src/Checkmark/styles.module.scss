@@ -1,7 +1,7 @@
 @use '../common/styles/colors';
 
 $checkmark-color: var(--er-ui-icons);
-$hover-color: colors.shade($checkmark-color, 34%);
+$hover-color: colors.shade($checkmark-color, 31%);
 
 .checkmark {
   --dimensions: 1.5rem;
