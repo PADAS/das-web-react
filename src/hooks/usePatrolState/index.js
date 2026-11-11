@@ -15,7 +15,7 @@ export const MAX_TIMEOUT_DELAY = 6 * 60 * 60 * 1000; // 6 hours
 
 // A leg's state is read off the whole patrol, so a leg reading and a patrol
 // reading wait on the same moments.
-const getNextPatrolStateTransitionTime = (patrol) => {
+export const getNextPatrolStateTransitionTime = (patrol) => {
   if (isPatrolCancelled(patrol) || isPatrolDone(patrol)) {
     return null;
   }

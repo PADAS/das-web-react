@@ -67,6 +67,68 @@
     "hideDetailsButton": "Hide Details",
     "showDetailsButton": "See Details"
   },
+  "feedTable": {
+    "clearSelectionButtonLabel": "Clear",
+    "clientSortFinishedMessage": "Sorted by {{column}}: every row loaded",
+    "clientSortLoadingMessage": "Sorting by {{column}}: loaded {{loaded}} of {{total}}",
+    "clientSortPausedMessage": "Sorting paused: loaded {{loaded}} of {{total}}",
+    "clientSortRetryButtonLabel": "Retry",
+    "clientSortStartedMessage": "Loading every row to sort by {{column}}",
+    "columnsButtonLabel": "Columns",
+    "columnsMenuLabel": "Columns shown",
+    "eventsTable": {
+      "bulkUpdateErrorMessage_one": "{{count}} event could not be updated",
+      "bulkUpdateErrorMessage_other": "{{count}} events could not be updated",
+      "bulkUpdateSuccessMessage_one": "{{count}} event updated",
+      "bulkUpdateSuccessMessage_other": "{{count}} events updated",
+      "createdAtColumnTitle": "Created",
+      "eventTimeColumnTitle": "Event time",
+      "eventTypeColumnTitle": "Type",
+      "locationColumnTitle": "Location",
+      "priorityColumnTitle": "Priority",
+      "reopenButtonLabel": "Reopen",
+      "reportedByColumnTitle": "Reported by",
+      "resolveButtonLabel": "Resolve",
+      "selectedCountMessage_one": "{{count}} selected",
+      "selectedCountMessage_other": "{{count}} selected",
+      "serialColumnTitle": "Serial #",
+      "stateColumnTitle": "State",
+      "titleColumnTitle": "Title",
+      "updatedAtColumnTitle": "Updated"
+    },
+    "exportButtonLabel": "Export all fields (CSV)",
+    "exportErrorMessage": "Could not export the CSV",
+    "grid": {
+      "noRowsMessage": "Nothing to show"
+    },
+    "headerCell": {
+      "allRowsCheckboxLabel": "Select all rows"
+    },
+    "moveColumnHintMessage": "Press Alt and the left or right arrow on a column header to move the column.",
+    "objectViewModal": {
+      "breadcrumbLabel": "Path",
+      "itemCountMessage_one": "{{count}} item",
+      "itemCountMessage_other": "{{count}} items",
+      "openButtonLabel": "View"
+    },
+    "patrolsTable": {
+      "leaderColumnTitle": "Leader",
+      "legsColumnTitle": "Legs",
+      "loadedPatrolsMessage_one": "Showing {{loaded}} of {{count}} patrol",
+      "loadedPatrolsMessage_other": "Showing {{loaded}} of {{count}} patrols",
+      "patrolEndColumnTitle": "End",
+      "patrolStartColumnTitle": "Start",
+      "patrolTypeColumnTitle": "Patrol type",
+      "serialColumnTitle": "Serial #",
+      "stateColumnTitle": "State",
+      "titleColumnTitle": "Title"
+    },
+    "selectedCountMessage_one": "{{count}} selected",
+    "selectedCountMessage_other": "{{count}} selected",
+    "titleCell": {
+      "rowCheckboxLabel": "Select {{title}}"
+    }
+  },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Share your location to view data with geo-permissions",
     "shareLocationToastTitle": "Learn how"
@@ -281,9 +343,11 @@
           "legend": "App Refresh",
           "mapLayersCheckboxLabel": "Map Layers",
           "mapPositionAndZoomLevelCheckboxLabel": "Map Position & Zoom Level",
-          "patrolFiltersCheckboxLabel": "Patrol Filters"
+          "patrolFiltersCheckboxLabel": "Patrol Filters",
+          "tableViewCheckboxLabel": "Table View"
         },
         "experimentalFeaturesFieldSet": {
+          "FEED_TABLE": "Table view for events and patrols",
           "legend": "Experimental Features"
         },
         "languageSelect": {
@@ -377,6 +441,8 @@
       },
       "mapTabTitle": "Map"
     },
+    "showListButtonLabel": "Show as list",
+    "showTableButtonLabel": "Show as table",
     "titleInput": {
       "editButtonLabel": "Edit title"
     }
