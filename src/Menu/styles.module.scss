@@ -19,7 +19,7 @@
     .divider {
       background-color: var(--er-ui-background-tertiary-background);
       height: 1px;
-      margin: 0.312rem 0;
+      margin: 0.3125rem 0;
       padding: 0;
     }
 
@@ -65,6 +65,26 @@
 
           svg {
             color: var(--er-ui-icons);
+          }
+        }
+
+        &[role="menuitemradio"] {
+          padding-left: 1.75rem;
+          text-transform: none;
+
+          &[aria-checked="true"] {
+            background-color: var(--er-ui-background-selected-background);
+            padding-left: 0.5rem;
+
+            &:hover, &:focus-visible {
+              background-color: colors.shade(var(--er-ui-background-selected-background), colors.$surface-hover-shade);
+            }
+          }
+
+          .checkIcon {
+            color: var(--er-ui-cta-primary);
+            height: 0.75rem;
+            width: 0.75rem;
           }
         }
       }

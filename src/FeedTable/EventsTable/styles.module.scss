@@ -1,0 +1,43 @@
+@use 'sass:map';
+@use '../../common/styles/buttons';
+@use '../../common/styles/colors';
+
+@mixin row-theme($theme) {
+  --ag-row-hover-color: #{colors.tint(map.get($theme, 'base'), colors.$row-tint)};
+  --feed-table-icon-background: #{map.get($theme, 'base')};
+}
+
+.bulkActionButton {
+  @include buttons.chip-text-button;
+
+  flex-shrink: 0;
+}
+
+.priorityCell {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.priorityDot {
+  border-radius: 50%;
+  flex-shrink: 0;
+  height: 0.625rem;
+  width: 0.625rem;
+}
+
+.red {
+  @include row-theme(colors.$report-high-priority-theme);
+}
+
+.amber {
+  @include row-theme(colors.$report-medium-priority-theme);
+}
+
+.green {
+  @include row-theme(colors.$report-low-priority-theme);
+}
+
+.none {
+  @include row-theme(colors.$report-no-priority-theme);
+}

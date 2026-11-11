@@ -1,0 +1,24 @@
+// The red dot that flags an unread item in a list, such as a notification.
+@mixin unread-dot {
+  flex-shrink: 0;
+  height: 0.75rem;
+  width: 0.75rem;
+}
+
+// The red count over a button's icon, such as the bell's unread notifications.
+@mixin unread-count {
+  color: var(--er-ui-text-primary-text-reversed);
+  font-size: 0.5625rem;
+  height: 1rem;
+  pointer-events: none;
+  position: absolute;
+  width: 1rem;
+}
+
+// Centers the unread count on the top right corner of a top bar button's icon.
+@mixin top-bar-unread-count {
+  @include unread-count;
+
+  right: 0;
+  top: 0;
+}

@@ -9,12 +9,18 @@
   --spacing: 0.4375rem;
   --line-width: var(--hamburger-menu-stroke, 0.1875rem);
 
+  border-radius: 0.125rem;
   cursor: pointer;
   height: calc(var(--size) / 1.5);
   padding: 0;
   width: var(--size);
 
-  span {
+  &:focus-visible {
+    outline: 2px solid var(--color);
+    outline-offset: 0.25rem;
+  }
+
+  .lines {
     background-color: var(--color);
     display: block;
     border: none;
@@ -22,7 +28,7 @@
     position: relative;
     transition: all var(--transition-time) ease-in-out;
     width: var(--size);
-    
+
     &::before,
     &::after {
       background-color: var(--color);
@@ -33,10 +39,6 @@
       position: absolute;
       transition: transform var(--transition-time) ease-in-out;
       width: var(--size);
-
-      &:focus {
-        outline: none;
-      }
     }
 
     &::before {
@@ -46,11 +48,10 @@
     &::after {
       top: var(--spacing);
     }
-
   }
 
   &.open {
-    span {
+    .lines {
       background-color: transparent;
       width: calc(var(--size) - var(--spacing));
       transform: translate(calc(var(--spacing) * 0.85), calc(var(--spacing) * 0.5)) rotate(45deg);
@@ -64,5 +65,4 @@
       }
     }
   }
-
 }

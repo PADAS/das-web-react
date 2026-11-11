@@ -438,22 +438,11 @@ div.mapboxgl-popup-tip {
   display: flex;
   padding: 0.5rem 1rem;
   user-select: text;
-
-  &:focus {
-    outline: none;
-  }
 }
 
 @media print {
   @page {
     size: a3 landscape;
-  }
-
-  .primary-nav .rightMenus>div {
-    &:first-child,
-    &:last-child {
-      display: none !important;
-    }
   }
 
   .map-controls-container,
@@ -462,14 +451,13 @@ div.mapboxgl-popup-tip {
     display: none !important;
   }
 
-  [class*="sideBar"],
-  .primary-nav {
+  [class*="sideBar"] {
     print-color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
   }
 }
 
-#ngprogress {
+#nprogress {
   .spinner {
     left: 0.42rem;
     pointer-events: none;

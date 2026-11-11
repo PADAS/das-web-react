@@ -1,10 +1,11 @@
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import Drawer from '.';
 import { hideDrawer } from '../ducks/drawer';
 import { mockStore } from '../__test-helpers/MockStore';
+import { render, screen } from '../test-utils';
+
+import Drawer from './';
 
 jest.mock('../ducks/drawer', () => ({
   ...jest.requireActual('../ducks/drawer'),
@@ -12,82 +13,83 @@ jest.mock('../ducks/drawer', () => ({
 }));
 
 describe('Drawer', () => {
-  let hideDrawerMock, store;
+  let store;
+
   beforeEach(() => {
-    hideDrawerMock = jest.fn(() => () => {});
-    hideDrawer.mockImplementation(hideDrawerMock);
+    hideDrawer.mockImplementation(() => () => {});
+
     store = {
       view: {
         drawer: {
           data: null,
-          drawerId: null,
           direction: 'right',
+          drawerId: null,
           isOpen: false,
         },
       },
     };
   });
 
-  test('does not set the isOpen styles depending on redux state', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <Drawer />
-      </Provider>
-    );
+  const renderDrawer = () => render(<Provider store={mockStore(store)}>
+    <Drawer />
+  </Provider>);
 
-    expect(await screen.findByTestId('overlay')).not.toHaveClass('open');
-    expect(await screen.findByTestId('drawerContainer')).not.toHaveClass('open');
+  test('does not show the overlay or the drawer while it is closed', () => {
+    renderDrawer();
+
+    expect(screen.getByTestId('overlay')).not.toHaveClass('open');
+    expect(screen.getByTestId('drawerContainer')).not.toHaveClass('open');
   });
 
-  test('sets the isOpen styles depending on redux state', async () => {
+  test('shows the overlay and the drawer while it is open', () => {
     store.view.drawer.isOpen = true;
-    render(
-      <Provider store={mockStore(store)}>
-        <Drawer />
-      </Provider>
-    );
 
-    expect(await screen.findByTestId('overlay')).toHaveClass('open');
-    expect(await screen.findByTestId('drawerContainer')).toHaveClass('open');
+    renderDrawer();
+
+    expect(screen.getByTestId('overlay')).toHaveClass('open');
+    expect(screen.getByTestId('drawerContainer')).toHaveClass('open');
   });
 
-  test('sets the direction styles depending on redux state', async () => {
-    store.view.drawer.isOpen = true;
-    store.view.drawer.direction = 'right';
-    render(
-      <Provider store={mockStore(store)}>
-        <Drawer />
-      </Provider>
-    );
+  test('keeps the closed drawer away from the keyboard and assistive technology', () => {
+    renderDrawer();
 
-    expect(await screen.findByTestId('drawerContainer')).toHaveClass('direction-right');
+    expect(screen.getByTestId('drawerContainer')).toHaveAttribute('inert');
   });
 
-  test('triggers the hideDrawer action when user clicks outside the drawer', async () => {
+  test('lets the keyboard and assistive technology reach the open drawer', () => {
     store.view.drawer.isOpen = true;
-    render(
-      <Provider store={mockStore(store)}>
-        <Drawer />
-      </Provider>
-    );
 
-    expect(hideDrawer).toHaveBeenCalledTimes(0);
+    renderDrawer();
 
-    const overlay = await screen.findByTestId('overlay');
-    await userEvent.click(overlay);
+    expect(screen.getByTestId('drawerContainer')).not.toHaveAttribute('inert');
+  });
+
+  test('slides the drawer in from its direction', () => {
+    store.view.drawer.isOpen = true;
+
+    renderDrawer();
+
+    expect(screen.getByTestId('drawerContainer')).toHaveClass('direction-right');
+  });
+
+  test('hides the drawer when the user clicks the overlay', async () => {
+    store.view.drawer.isOpen = true;
+
+    renderDrawer();
+
+    expect(hideDrawer).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByTestId('overlay'));
 
     expect(hideDrawer).toHaveBeenCalledTimes(1);
   });
 
-  test('triggers the hideDrawer action when user press esc', async () => {
+  test('hides the drawer when the user presses escape', async () => {
     store.view.drawer.isOpen = true;
-    render(
-      <Provider store={mockStore(store)}>
-        <Drawer />
-      </Provider>
-    );
 
-    expect(hideDrawer).toHaveBeenCalledTimes(0);
+    renderDrawer();
+
+    expect(hideDrawer).not.toHaveBeenCalled();
 
     await userEvent.keyboard('{Escape}');
 

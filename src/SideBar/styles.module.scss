@@ -1,3 +1,4 @@
+@use '../common/styles/badges';
 @use '../common/styles/buttons';
 @use '../common/styles/layout';
 @use '../common/styles/colors';
@@ -57,13 +58,12 @@
 
   .navItem {
     align-items: center;
-    color: var(--er-ui-text-primary-text-reversed);
+    color: colors.with-opacity(var(--er-ui-text-primary-text-reversed), 75%);
     display: flex;
     flex-direction: column;
     font-size: 0.75rem;
     height: 5.5rem;
     justify-content: center;
-    opacity: 0.75;
     padding: 0;
     position: relative;
     text-decoration: none;
@@ -71,19 +71,26 @@
 
     &.active {
       background-color: colors.with-opacity(var(--er-ui-background-primary-background), 10%);
-      opacity: 1;
+      color: var(--er-ui-text-primary-text-reversed);
     }
 
     &:hover {
       background-color: colors.with-opacity(var(--er-ui-background-primary-background), 10%);
-      opacity: 1;
+      color: var(--er-ui-text-primary-text-reversed);
     }
 
     svg {
-      fill: var(--er-ui-text-primary-text-reversed);
+      fill: currentcolor;
       margin-bottom: 0.5rem;
       height: auto;
       width: 1.5rem;
+    }
+
+    .badge {
+      @include badges.unread-count;
+
+      left: calc(50% + 0.25rem);
+      top: 0.5rem;
     }
 
     span {
@@ -94,22 +101,13 @@
   &[class*="open"] {
     a[class*="active"] {
       background: colors.with-opacity(var(--er-ui-background-primary-background), 10%);
-      opacity: 1;
+      color: var(--er-ui-text-primary-text-reversed);
     }
   }
 
   @media (min-width: layout.$md-layout-width-min) {
     display: flex;
   }
-}
-
-.badge {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.5rem;
-  height: 0.75rem;
-  width: 0.75rem;
-  font-size: 0.625rem;
 }
 
 .tabsContainer {
@@ -137,6 +135,15 @@
 
   @media (width: layout.$md-layout-width-min) {
     left: var(--vertical-nav-width);
+  }
+
+  // A closing table keeps its width while it slides out, instead of being
+  // cut to the list's width first.
+  &.tableView:not([class*="open"]) {
+    @media (min-width: layout.$md-layout-width-min) {
+      min-width: calc(100vw - var(--vertical-nav-width));
+      transition: none;
+    }
   }
 }
 
@@ -168,8 +175,10 @@
     }
   }
 
+  // The table view is wider than the detail view, so the tab moves by its
+  // own width to leave the screen at the same pace in every view.
   @media (min-width: layout.$md-layout-width-min) {
-    transform: translateX(calc(calc(#{layout.$sidebar-width-detail} + var(--vertical-nav-width)) * -1));
+    transform: translateX(calc(-100% - var(--vertical-nav-width)));
   }
 }
 
@@ -193,7 +202,6 @@
   }
 }
 
-/* Gear tab only: fill tab body height for inner scroll (avoid tabBody > * — breaks Map Layers / feeds). */
 .gearRouteBody {
   box-sizing: border-box;
   display: flex;
@@ -237,6 +245,23 @@
     @include buttons.icon-button;
 
     .backButtonIcon {
+      height: 1rem;
+      width: 1rem;
+    }
+  }
+
+  .headerActions {
+    align-items: center;
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  // Blue while the table is shown, as other controls are off their default.
+  .tableViewButton {
+    @include buttons.icon-button;
+    @include buttons.chip-active-state;
+
+    .tableViewButtonIcon {
       height: 1rem;
       width: 1rem;
     }

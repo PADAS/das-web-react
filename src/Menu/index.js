@@ -2,6 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef } fr
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
+import { ReactComponent as CheckIcon } from '../common/images/icons/check-light.svg';
+
 import { FOCUSABLE_SELECTOR } from '../constants';
 
 import * as styles from './styles.module.scss';
@@ -11,6 +13,11 @@ export const FOCUS_INTENTS = { FIRST_OPTION: 'firstOption', LAST_OPTION: 'lastOp
 const POINT_OFFSET = [0, 0];
 
 const MenuContext = createContext(null);
+
+const findFocusedOptionIndex = (options) => options.findIndex(
+  (option) => option.nodeRef.current === document.activeElement
+    || option.nodeRef.current.contains(document.activeElement)
+);
 
 const focusItemNode = (node) => {
   const focusable = node?.matches(FOCUSABLE_SELECTOR) ? node : node?.querySelector(FOCUSABLE_SELECTOR);
@@ -36,12 +43,14 @@ const getPointAnchor = (point) => ({
 });
 
 const Option = ({
+  'aria-checked': ariaChecked,
   as: Component = 'button',
   children,
   className = '',
   disabled = false,
   onClick,
   ref,
+  role = 'menuitem',
   ...otherProps
 }) => {
   const { closeMenu, registerOption } = useContext(MenuContext);
@@ -68,7 +77,7 @@ const Option = ({
     } else if (ref) {
       ref.current = node;
     }
-  }, [nodeRef, ref]);
+  }, [ref]);
 
   useEffect(() => {
     const unregisterOption = registerOption(nodeRef, disabled);
@@ -78,16 +87,23 @@ const Option = ({
 
   return <li className={styles.item} role="none">
     <Component
+      aria-checked={ariaChecked}
       aria-disabled={!isButton && disabled ? true : undefined}
       className={`${styles.itemBtn} ${className}`}
       disabled={isButton ? disabled : undefined}
       onClick={onClickOption}
       ref={setNode}
-      role="menuitem"
+      role={role}
       tabIndex={-1}
       type={isButton ? 'button' : undefined}
       {...otherProps}
     >
+      {role === 'menuitemradio' && !!ariaChecked && <CheckIcon
+        aria-hidden="true"
+        className={styles.checkIcon}
+        data-testid="menu-checkIcon"
+      />}
+
       {children}
     </Component>
   </li>;
@@ -103,6 +119,7 @@ const Menu = ({
   anchor,
   'aria-label': ariaLabel,
   children,
+  className = '',
   focusIntent = FOCUS_INTENTS.MENU,
   id,
   onClose,
@@ -117,19 +134,19 @@ const Menu = ({
 
   const isAnchoredToPoint = !!anchor && !(anchor instanceof Element);
 
-  const enabledOptions = useCallback(
+  const getEnabledOptions = useCallback(
     () => optionsRef.current.filter((option) => !option.disabled && option.nodeRef.current),
     []
   );
 
   const focusFirstOption = useCallback(
-    () => enabledOptions().some((option) => focusItemNode(option.nodeRef.current)),
-    [enabledOptions],
+    () => getEnabledOptions().some((option) => focusItemNode(option.nodeRef.current)),
+    [getEnabledOptions],
   );
 
   const focusLastOption = useCallback(
-    () => enabledOptions().reverse().some((option) => focusItemNode(option.nodeRef.current)),
-    [enabledOptions],
+    () => getEnabledOptions().reverse().some((option) => focusItemNode(option.nodeRef.current)),
+    [getEnabledOptions],
   );
 
   const registerOption = useCallback((nodeRef, disabled) => {
@@ -148,12 +165,8 @@ const Menu = ({
   const target = useMemo(() => isAnchoredToPoint ? getPointAnchor(anchor) : anchor, [anchor, isAnchoredToPoint]);
 
   const focusNextOption = () => {
-    const options = enabledOptions();
-
-    const currentIndex = options.findIndex(
-      (option) => option.nodeRef.current === document.activeElement
-        || option.nodeRef.current.contains(document.activeElement)
-    );
+    const options = getEnabledOptions();
+    const currentIndex = findFocusedOptionIndex(options);
 
     // Options after the current one, then wrap around to the options before
     // (and including) it. When no option is focused start at the first option.
@@ -162,12 +175,8 @@ const Menu = ({
   };
 
   const focusPreviousOption = () => {
-    const options = enabledOptions();
-
-    const currentIndex = Math.max(0, options.findIndex(
-      (option) => option.nodeRef.current === document.activeElement
-        || option.nodeRef.current.contains(document.activeElement)
-    ));
+    const options = getEnabledOptions();
+    const currentIndex = Math.max(0, findFocusedOptionIndex(options));
 
     // Walks backwards from the current option, wrapping, or from the last one.
     [...options.slice(0, currentIndex).reverse(), ...options.slice(currentIndex).reverse()]
@@ -274,7 +283,7 @@ const Menu = ({
     show={show}
     target={target}
   >
-    <Popover className={styles.menuPopover}>
+    <Popover className={`${styles.menuPopover} ${className}`}>
       <MenuContext.Provider value={menuContextValue}>
         <ul
           aria-label={ariaLabel}

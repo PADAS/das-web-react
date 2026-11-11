@@ -15,6 +15,12 @@ $sidebar-width-detail: 46rem;
   width: min($sidebar-width-detail, calc(100vw - var(--vertical-nav-width)));
 }
 
+// A feed's search bar keeps its width when the feed widens into a table.
+@mixin feed-search-bar-width($horizontal-padding) {
+  max-width: calc((#{$sidebar-width-base} - 2 * #{$horizontal-padding}) * 0.4);
+  width: 40%;
+}
+
 $sm-height-max: 31.25rem;
 $md-height-min: 31.3125rem;
 $md-height-max: 48.8125rem;

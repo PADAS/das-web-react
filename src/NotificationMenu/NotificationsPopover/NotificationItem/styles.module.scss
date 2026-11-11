@@ -1,0 +1,71 @@
+@use '../../../common/styles/badges';
+@use '../../../common/styles/buttons';
+
+.notificationItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  list-style: none;
+  padding: 0.75rem 1rem;
+
+  + .notificationItem {
+    border-top: 1px solid var(--er-ui-divider-lines);
+  }
+
+  .header {
+    align-items: flex-start;
+    display: flex;
+    gap: 0.5rem;
+
+    .unreadDot {
+      @include badges.unread-dot;
+
+      margin-top: 0.25rem;
+    }
+
+    .title {
+      color: var(--er-ui-text-primary-text);
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.25rem;
+      margin: 0;
+    }
+  }
+
+  .dateTime {
+    color: var(--er-ui-text-secondary-text);
+    font-size: 0.75rem;
+  }
+
+  .message {
+    color: var(--er-ui-text-primary-text);
+    font-size: 0.875rem;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .infoLink {
+    color: var(--er-ui-cta-primary);
+    font-size: 0.875rem;
+
+    &:focus-visible {
+      border-radius: 0.125rem;
+      outline: 2px solid var(--er-ui-cta-primary);
+    }
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-top: 0.25rem;
+
+    .primaryButton {
+      @include buttons.primary-action-button;
+    }
+
+    .secondaryButton {
+      @include buttons.secondary-action-button;
+    }
+  }
+}

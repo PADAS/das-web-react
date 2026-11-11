@@ -1,0 +1,48 @@
+.titleCell {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  height: 100%;
+  min-width: 0;
+
+  .icon {
+    align-items: center;
+    background-color: var(--feed-table-icon-background, var(--er-greyscale-7));
+    border-radius: 0.25rem;
+    color: var(--feed-table-icon-color, var(--er-ui-text-primary-text-reversed));
+    display: flex;
+    flex-shrink: 0;
+    height: 1.75rem;
+    justify-content: center;
+    width: 1.75rem;
+
+    svg, img {
+      fill: currentcolor;
+      height: 1.25rem;
+      width: 1.25rem;
+    }
+  }
+
+  .titleLink {
+    border-radius: 0.125rem;
+    color: var(--er-ui-text-primary-text);
+    font-weight: 500;
+    line-height: 1.25rem;
+    min-width: 0;
+    overflow: hidden;
+    padding: 0 0.125rem;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      color: var(--er-ui-cta-primary);
+      outline: 2px solid var(--er-ui-cta-primary);
+      text-decoration: underline;
+    }
+  }
+}

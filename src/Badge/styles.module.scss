@@ -1,41 +1,24 @@
-@use '../common/styles/colors';
-
-@mixin badge-box-shadow($color: colors.tint(var(--er-ui-status-disabled), 28%)) {
-  box-shadow: 0 0 .1rem $color;
-}
-
 .badge {
-  @include badge-box-shadow;
-
   align-items: center;
   border-radius: 100%;
-  background: var(--er-ui-status-disabled);
-  border: 2px solid colors.tint(var(--er-ui-status-disabled), 28%);
-  border-style: solid;
-  box-shadow: 0 0 .5rem colors.tint(var(--er-ui-status-disabled), 28%);
   display: flex;
   height: 1rem;
   justify-content: center;
   width: 1rem;
 
-  &.red {
-    background: var(--er-ui-status-error-destructive);
-    border-color: colors.tint(var(--er-ui-status-error-destructive), 26%);
-
-    @include badge-box-shadow(colors.tint(var(--er-ui-status-error-destructive), 26%));
-  }
-
-  &.orange {
-    background: var(--er-ui-status-warning);
-    border-color: colors.tint(var(--er-ui-status-warning), 32%);
-
-    @include badge-box-shadow(colors.tint(var(--er-ui-status-warning), 32%));
+  &.gray {
+    background-color: var(--er-ui-status-disabled);
   }
 
   &.green {
-    background: var(--er-ui-status-success);
-    border-color: colors.tint(var(--er-ui-status-success), 21%);
+    background-color: var(--er-ui-status-success);
+  }
 
-    @include badge-box-shadow(colors.tint(var(--er-ui-status-success), 21%));
+  &.red {
+    background-color: var(--er-ui-status-error-destructive);
+  }
+
+  &.yellow {
+    background-color: var(--er-ui-status-ready);
   }
 }

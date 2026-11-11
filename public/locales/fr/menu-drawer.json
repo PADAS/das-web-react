@@ -13,42 +13,45 @@
     "exportButton": "Exporter"
   },
   "globalMenuDrawer": {
+    "adminLink": "Administration",
     "alertsButton": "Alertes",
     "alertsModal": {
       "title": "Alertes"
     },
+    "appsHeader": "Applications EarthRanger",
+    "closeButtonLabel": "Fermer le menu principal",
     "communityButton": "Communauté",
-    "contactSupport": {
-      "body": "Que pouvons-nous faire pour vous ?",
-      "subject": "Demande d'aide de la part de l'utilisateur"
-    },
     "contactSupportButton": "Contacter l'équipe de Soutien",
     "dailyReportModal": {
       "title": "Rapport Quotidien"
     },
-    "exportsHeader": "EXPORTER",
+    "ecoscopeLink": "Ecoscope",
+    "ecoscopeTag": "Analyse",
+    "exportsHeader": "Exporter",
     "fieldReportsModal": {
       "content": "Les informations exportées inclueront uniquement les informations filtrées selon les critères dans la rubrique des Événements ",
       "title": "Événements"
     },
-    "ecoscopeAnalysisLinkAriaLabel": "Analyse avec Ecoscope",
-    "ecoscopeAnalysisLink": "Analyse",
-    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Téléchargeur d’Ecoscope",
-    "ecoscopeDownloaderMigrationGuideLink": "Télécharger",
-    "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Version du client web: {{version}}",
       "copyright": "©{{year}} EarthRanger",
       "dataPrivacyPolicyLink": "Charte de Confidentialité",
       "eulaLink": "Contrat de License d'Utilisateur Final EarthRanger",
       "serverVersion": "Version du Serveur: {{version}}",
+      "systemStatusLink": "État du Système",
       "websitePrivacyPolicyLink": "Politique de Confidentialité du Site Web"
     },
+    "gundiLink": "Gundi",
+    "gundiTag": "Intégrations",
     "header": "Menu principal",
     "helpCenterButton": "Centre d'Informations",
+    "learnHeader": "Apprendre",
     "masterKMLModal": {
       "title": "Export des pistes en format KML"
     },
+    "mobileAppStoreLink": "App Store (iPhone)",
+    "mobileGooglePlayLink": "Google Play (Android)",
+    "mobileHeader": "EarthRanger Mobile",
     "navigationButton": {
       "gear": "Engins",
       "mapLayers": "Calques",
@@ -64,7 +67,9 @@
       "title": "Données GPS des Appareils Connectés"
     },
     "tableauButton": "Tableau",
-    "usersGuideButton": "Guide pour l'Utilisateur"
+    "trainingLink": "Formation",
+    "usersGuideButton": "Guide pour l'Utilisateur",
+    "whatsNewLink": "Nouveautés"
   },
   "kmlExportModal": {
     "dataExportModalTitle": "Exporter le fichier KML des pistes",

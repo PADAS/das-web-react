@@ -1,7 +1,6 @@
-import { memo, useContext, useMemo, useRef } from 'react';
+import { lazy, memo, Suspense, useContext, useMemo, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import MoonLoader from 'react-spinners/MoonLoader';
-import uniq from 'lodash/uniq';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -20,19 +19,22 @@ import EventRow from './EventRow';
 import LinkEventModal from '../../../LinkEventModal';
 import { ScrollRestoration, SidebarScrollContext } from '../../../SidebarScrollContext';
 import SortControls from './SortControls';
+import useFeedTableView, { useIsListReturning } from '../../../FeedTable/useFeedTableView';
 
 import * as styles from './styles.module.scss';
+
+const EventsTable = lazy(() => import('../../../FeedTable/EventsTable'));
 
 const EMPTY_EVENTS = [];
 const LOADING_MORE_SPINNER_SIZE = 20;
 
 // A collection already lists the events it contains, so they are left out.
 const excludeContainedEvents = (events) => {
-  const containedEventIds = uniq(events
+  const containedEventIds = new Set(events
     .filter((event) => !!event.is_collection)
     .flatMap((collection) => collection.contains?.map((containedEvent) => containedEvent.related_event.id) ?? []));
 
-  return events.filter((event) => !containedEventIds.includes(event.id) && !event.is_contained_in?.length);
+  return events.filter((event) => !containedEventIds.has(event.id) && !event.is_contained_in?.length);
 };
 
 const EventsFeed = ({ eventsFeed }) => {
@@ -49,9 +51,17 @@ const EventsFeed = ({ eventsFeed }) => {
 
   const emptyStateMessageRef = useRef(null);
 
+  const { isTableView } = useFeedTableView();
+  const isListReturning = useIsListReturning(isTableView);
+
+  const [tableToolbarContainer, setTableToolbarContainer] = useState(null);
+
   const feedEvents = eventsFeed.events.results ?? EMPTY_EVENTS;
 
-  const displayTimeProp = calcTimePropForSortConfig(eventsFeed.feedSort);
+  // A serial number sort has no time of its own for the rows to show.
+  const displayTimeProp = eventsFeed.feedSort[1].value === 'serial_number'
+    ? 'updated_at'
+    : calcTimePropForSortConfig(eventsFeed.feedSort);
 
   const events = useMemo(() => sortEventsBySortConfig(
     eventsFeed.shouldExcludeContained ? excludeContainedEvents(feedEvents) : feedEvents,
@@ -70,14 +80,15 @@ const EventsFeed = ({ eventsFeed }) => {
 
   const onLoadMoreEvents = () => {
     if (eventsFeed.events.next) {
-      dispatch(fetchNextEventFeedPage(eventsFeed.events.next));
+      // A failed page is asked for again on the next scroll.
+      dispatch(fetchNextEventFeedPage(eventsFeed.events.next)).catch(() => {});
     }
   };
 
   return <ErrorBoundary>
-    <div className={styles.eventsFeed}>
-      <EventFilter isSortable>
-        <SortControls />
+    <div className={`${styles.eventsFeed} ${isTableView ? styles.tableView : ''} ${isListReturning ? styles.listReturning : ''}`}>
+      <EventFilter isSortable summaryActionsRef={isTableView ? setTableToolbarContainer : undefined}>
+        <SortControls isTableView={isTableView} />
       </EventFilter>
 
       {!!eventsFeed.events.error && <div className={styles.errorState}>
@@ -88,12 +99,18 @@ const EventsFeed = ({ eventsFeed }) => {
         </button>
       </div>}
 
-      {!eventsFeed.events.error && eventsFeed.loadingEventFeed && <DetailViewLoader
+      {!eventsFeed.events.error && isTableView && <Suspense
+        fallback={<DetailViewLoader className={styles.loader} label={t('loadingLabel')} />}
+      >
+        <EventsTable events={events} eventsFeed={eventsFeed} toolbarContainer={tableToolbarContainer} />
+      </Suspense>}
+
+      {!eventsFeed.events.error && !isTableView && eventsFeed.loadingEventFeed && <DetailViewLoader
         className={styles.loader}
         label={t('loadingLabel')}
       />}
 
-      {!eventsFeed.events.error && !eventsFeed.loadingEventFeed && events.length === 0 && <p
+      {!eventsFeed.events.error && !isTableView && !eventsFeed.loadingEventFeed && events.length === 0 && <p
         className={styles.emptyStateMessage}
         ref={emptyStateMessageRef}
         tabIndex={-1}
@@ -101,7 +118,7 @@ const EventsFeed = ({ eventsFeed }) => {
         {t('emptyStateMessage')}
       </p>}
 
-      {!eventsFeed.events.error && !eventsFeed.loadingEventFeed && events.length > 0 && <ScrollRestoration
+      {!eventsFeed.events.error && !isTableView && !eventsFeed.loadingEventFeed && events.length > 0 && <ScrollRestoration
         className={styles.eventListScrollContainer}
         namespace={TAB_KEYS.EVENTS}
       >
