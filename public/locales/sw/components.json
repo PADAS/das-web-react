@@ -67,6 +67,68 @@
     "hideDetailsButton": "Ficha Maelezo",
     "showDetailsButton": "Angalia Maelezo"
   },
+  "feedTable": {
+    "clearSelectionButtonLabel": "Futa",
+    "clientSortFinishedMessage": "Imepangwa kwa {{column}}: safu zote zimepakiwa",
+    "clientSortLoadingMessage": "Inapanga kwa {{column}}: {{loaded}} kati ya {{total}} zimepakiwa",
+    "clientSortPausedMessage": "Upangaji umesitishwa: {{loaded}} kati ya {{total}} zimepakiwa",
+    "clientSortRetryButtonLabel": "Jaribu tena",
+    "clientSortStartedMessage": "Inapakia safu zote ili kupanga kwa {{column}}",
+    "columnsButtonLabel": "Safu wima",
+    "columnsMenuLabel": "Safu wima zinazoonyeshwa",
+    "eventsTable": {
+      "bulkUpdateErrorMessage_one": "Tukio {{count}} halikuweza kusasishwa",
+      "bulkUpdateErrorMessage_other": "Matukio {{count}} hayakuweza kusasishwa",
+      "bulkUpdateSuccessMessage_one": "Tukio {{count}} limesasishwa",
+      "bulkUpdateSuccessMessage_other": "Matukio {{count}} yamesasishwa",
+      "createdAtColumnTitle": "Imeundwa",
+      "eventTimeColumnTitle": "Muda wa Tukio",
+      "eventTypeColumnTitle": "Aina",
+      "locationColumnTitle": "Mahali",
+      "priorityColumnTitle": "Kipaumbele",
+      "reopenButtonLabel": "Fungua tena",
+      "reportedByColumnTitle": "Iliripotiwa na",
+      "resolveButtonLabel": "Tatua",
+      "selectedCountMessage_one": "{{count}} kimechaguliwa",
+      "selectedCountMessage_other": "{{count}} vimechaguliwa",
+      "serialColumnTitle": "Na. ya mfuatano",
+      "stateColumnTitle": "Hali",
+      "titleColumnTitle": "Kichwa",
+      "updatedAtColumnTitle": "Imesasishwa"
+    },
+    "exportButtonLabel": "Nakili sehemu zote (CSV)",
+    "exportErrorMessage": "Imeshindwa kunakili CSV",
+    "grid": {
+      "noRowsMessage": "Hakuna cha kuonyesha"
+    },
+    "headerCell": {
+      "allRowsCheckboxLabel": "Chagua safu mlalo zote"
+    },
+    "moveColumnHintMessage": "Bonyeza Alt na mshale wa kushoto au kulia kwenye kichwa cha safu wima ili kuisogeza.",
+    "objectViewModal": {
+      "breadcrumbLabel": "Njia",
+      "itemCountMessage_one": "Kipengee {{count}}",
+      "itemCountMessage_other": "Vipengee {{count}}",
+      "openButtonLabel": "Tazama"
+    },
+    "patrolsTable": {
+      "leaderColumnTitle": "Kiongozi",
+      "legsColumnTitle": "Vipande",
+      "loadedPatrolsMessage_one": "Inaonyesha doria {{loaded}} kati ya {{count}}",
+      "loadedPatrolsMessage_other": "Inaonyesha doria {{loaded}} kati ya {{count}}",
+      "patrolEndColumnTitle": "Mwisho",
+      "patrolStartColumnTitle": "Mwanzo",
+      "patrolTypeColumnTitle": "Aina ya doria",
+      "serialColumnTitle": "Na. ya mfuatano",
+      "stateColumnTitle": "Hali",
+      "titleColumnTitle": "Kichwa"
+    },
+    "selectedCountMessage_one": "{{count}} kimechaguliwa",
+    "selectedCountMessage_other": "{{count}} vimechaguliwa",
+    "titleCell": {
+      "rowCheckboxLabel": "Chagua {{title}}"
+    }
+  },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Shiriki eneo lako ili uone data yenye idhini ya kijiografia",
     "shareLocationToastTitle": "Jifunze zaidi"
@@ -281,9 +343,11 @@
           "legend": "Upya wa Programu",
           "mapLayersCheckboxLabel": "Safu za Ramani",
           "mapPositionAndZoomLevelCheckboxLabel": "Nafasi ya Ramani & Kiwango cha Kukaribia",
-          "patrolFiltersCheckboxLabel": "Vichuja vya Doria"
+          "patrolFiltersCheckboxLabel": "Vichuja vya Doria",
+          "tableViewCheckboxLabel": "Mwonekano wa Jedwali"
         },
         "experimentalFeaturesFieldSet": {
+          "FEED_TABLE": "Mwonekano wa jedwali kwa matukio na doria",
           "legend": "Vipengele vya Majaribio"
         },
         "languageSelect": {
@@ -377,6 +441,8 @@
       },
       "mapTabTitle": "Ramani"
     },
+    "showListButtonLabel": "Onyesha kama orodha",
+    "showTableButtonLabel": "Onyesha kama jedwali",
     "titleInput": {
       "editButtonLabel": "Hariri kichwa"
     }

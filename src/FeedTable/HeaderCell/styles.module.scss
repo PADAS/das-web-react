@@ -1,0 +1,71 @@
+@use '../../common/styles/vars/colors';
+
+.headerCell {
+  align-items: center;
+  display: flex;
+  gap: 0.25rem;
+  height: 100%;
+  min-width: 0;
+  width: 100%;
+
+  .dragHandle {
+    background-color: colors.$secondary-light-gray;
+    flex-shrink: 0;
+    height: 0.875rem;
+    mask: url('../../common/images/icons/grip-dots-vertical.svg') center / contain no-repeat;
+    width: 0.875rem;
+  }
+
+  .label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sortButton {
+    align-items: center;
+    background: none;
+    border: none;
+    border-radius: 0.25rem;
+    color: inherit;
+    display: inline-flex;
+    font: inherit;
+    gap: 0.25rem;
+    min-width: 0;
+    padding: 0.25rem 0.375rem;
+
+    &:hover {
+      background-color: colors.$light-gray-background;
+      color: colors.$off-black;
+
+      .unsorted {
+        visibility: visible;
+      }
+    }
+
+    &:focus-visible {
+      color: colors.$bright-blue;
+      outline: 2px solid colors.$bright-blue;
+
+      .unsorted {
+        visibility: visible;
+      }
+    }
+
+    .sortIcon {
+      flex-shrink: 0;
+      height: 0.875rem;
+      width: 0.875rem;
+
+      &.unsorted {
+        color: colors.$secondary-light-gray;
+        visibility: hidden;
+      }
+    }
+  }
+
+  &:hover .dragHandle {
+    background-color: colors.$secondary-medium-gray;
+  }
+}

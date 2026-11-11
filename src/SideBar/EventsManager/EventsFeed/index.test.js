@@ -58,6 +58,12 @@ jest.mock('../../../EventFilter', () => {
   return EventFilter;
 });
 
+jest.mock('../../../FeedTable/EventsTable', () => {
+  const EventsTable = ({ events }) => <div data-testid="eventsTable">{events.map((event) => event.id).join(',')}</div>;
+
+  return EventsTable;
+});
+
 jest.mock('./SortControls', () => {
   const SortControls = () => <button type="button">Sort</button>;
 
@@ -107,7 +113,7 @@ describe('SideBar - EventsManager - EventsFeed', () => {
   let tracker;
 
   beforeEach(() => {
-    fetchNextEventFeedPage.mockImplementation(() => () => {});
+    fetchNextEventFeedPage.mockImplementation(() => () => Promise.resolve());
     removeEventFromIncident.mockImplementation(() => () => Promise.resolve());
     removeEventFromPatrol.mockImplementation(() => () => Promise.resolve());
     tracker = { track: jest.fn() };
@@ -155,8 +161,8 @@ describe('SideBar - EventsManager - EventsFeed', () => {
     jest.restoreAllMocks();
   });
 
-  const renderEventsFeed = (eventsFeedOverrides) => {
-    const store = mockStore({ data: { eventCategories: {}, eventTypes: [], user: {} }, view: { systemConfig: {} } });
+  const renderEventsFeed = (eventsFeedOverrides, view = {}) => {
+    const store = mockStore({ data: { eventCategories: {}, eventTypes: [], user: {} }, view: { systemConfig: {}, ...view } });
     const renderEventsFeedElement = (overrides) => <Provider store={store}>
       <TrackerContext.Provider value={tracker}>
         <SidebarScrollProvider>
@@ -174,6 +180,29 @@ describe('SideBar - EventsManager - EventsFeed', () => {
       rerenderEventsFeed: (overrides) => renderResult.rerender(renderEventsFeedElement(overrides)),
     };
   };
+
+  test('shows the feed as a table under the same filter in the table view', async () => {
+    renderEventsFeed(undefined, { feedTableView: { events: true } });
+
+    expect(screen.getByTestId('eventFilter')).toBeVisible();
+    expect(await screen.findByTestId('eventsTable')).toHaveTextContent('second,third,first');
+    expect(screen.queryByRole('list', { name: 'Event list' })).toBeNull();
+  });
+
+  test('shows the updated time on each row when sorted by serial number', () => {
+    const serialNumberSort = EVENT_SORT_OPTIONS.find((option) => option.value === 'serial_number');
+
+    renderEventsFeed({ feedSort: [SORT_DIRECTION.down, serialNumberSort] });
+
+    expect(getEventRowTexts()).toEqual(['#3 by updated_at', '#2 by updated_at', '#1 by updated_at']);
+  });
+
+  test('shows the feed as a list outside the table view', () => {
+    renderEventsFeed();
+
+    expect(screen.queryByTestId('eventsTable')).toBeNull();
+    expect(screen.getByRole('list', { name: 'Event list' })).toBeVisible();
+  });
 
   const getEventRowTexts = () => within(screen.getByRole('list', { name: 'Event list' }))
     .getAllByRole('listitem')

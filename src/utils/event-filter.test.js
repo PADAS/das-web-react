@@ -102,4 +102,13 @@ describe('sortEventsBySortConfig', () => {
     expect(results2[0].created_at).toBe('2021-08-08T23:05:57.732Z');
     expect(results2[2].created_at).toBe('2021-07-29T23:05:57.732Z');
   });
+
+  test('sorting by event.serial_number compares the numbers', () => {
+    const testEvents = [{ ...events[0], serial_number: 9 }, { ...events[1], serial_number: 120 }, { ...events[2], serial_number: 15 }];
+    const testSortConfig = [SORT_DIRECTION.up, { label: 'Serial number', value: 'serial_number' }];
+
+    expect(sortEventsBySortConfig(testEvents, testSortConfig).map((event) => event.serial_number)).toEqual([9, 15, 120]);
+    expect(sortEventsBySortConfig(testEvents, [SORT_DIRECTION.down, testSortConfig[1]])
+      .map((event) => event.serial_number)).toEqual([120, 15, 9]);
+  });
 });

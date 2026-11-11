@@ -11,7 +11,9 @@ import { fetchEventFeed, fetchEventFeedCancelToken } from '../../ducks/events';
 import { getFeedEvents } from '../../selectors';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { objectToParamString } from '../../utils/query';
+import { TAB_KEYS } from '../../constants';
 import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
+import useFeedTableView from '../../FeedTable/useFeedTableView';
 
 const EVENT_FEED_PAGE_SIZE = 50;
 
@@ -24,12 +26,22 @@ const useReportsFeed = () => {
   const userLocationCoords = useSelector((state) => state?.view?.userLocation?.coords);
   const feedSort = eventFilter.filter.sort;
 
+  // The table gives each field of a single event type its own column.
+  const { isTableView } = useFeedTableView(TAB_KEYS.EVENTS);
+  const includeDetails = isTableView && eventFilter.filter.event_type.length === 1;
+
+  const [feedRequest, setFeedRequest] = useState({ id: 0, params: null });
   const [loadingEventFeed, setEventLoadState] = useState(true);
 
+  // Without filters, the list and the table show an incident instead of the
+  // events it contains. A sort is not a filter.
   const shouldExcludeContained = useMemo(() => {
     const { _persist, ...restEventFilter } = eventFilter;
 
-    return isEqual(restEventFilter, INITIAL_FILTER_STATE);
+    return isEqual(
+      { ...restEventFilter, filter: { ...restEventFilter.filter, sort: INITIAL_FILTER_STATE.filter.sort } },
+      INITIAL_FILTER_STATE
+    );
   }, [eventFilter]);
   const eventParams = useRef(calcEventFilterForRequest({
     params: {
@@ -54,6 +66,7 @@ const useReportsFeed = () => {
     if (!silent) {
       setEventLoadState(true);
     }
+    setFeedRequest((currentFeedRequest) => ({ id: currentFeedRequest.id + 1, params: eventParams.current }));
 
     return dispatch(fetchEventFeed({}, objectToParamString(eventParams.current)))
       .catch((error) => {
@@ -79,7 +92,7 @@ const useReportsFeed = () => {
 
   useEffect(() => {
     const params = {
-      include_details: false,
+      include_details: includeDetails,
       include_files: false,
       include_notes: false,
       include_updates: false,
@@ -98,7 +111,7 @@ const useReportsFeed = () => {
     loadFeedEvents();
 
     return () => fetchEventFeedCancelToken.cancel();
-  }, [feedSort, eventFilter, loadFeedEvents, shouldExcludeContained]);
+  }, [feedSort, eventFilter, includeDetails, loadFeedEvents, shouldExcludeContained]);
 
   useEffect(() => {
     if (loadingEventFeed && events.error) {
@@ -110,8 +123,8 @@ const useReportsFeed = () => {
 
   // The events feed is memoized, so it needs the same object between changes.
   return useMemo(
-    () => ({ events, feedSort, loadFeedEvents, loadingEventFeed, shouldExcludeContained }),
-    [events, feedSort, loadFeedEvents, loadingEventFeed, shouldExcludeContained]
+    () => ({ events, feedRequest, feedSort, loadFeedEvents, loadingEventFeed, shouldExcludeContained }),
+    [events, feedRequest, feedSort, loadFeedEvents, loadingEventFeed, shouldExcludeContained]
   );
 };
 
