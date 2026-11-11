@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { http, HttpResponse } from 'msw/http';
 import { setupServer } from 'msw/node';
 
@@ -12,6 +13,12 @@ import systemStatusReducer, {
   updateSocketHealthStatus,
 } from './system-status';
 import { mockStore } from '../__test-helpers/MockStore';
+import { SET_SYSTEM_CONFIG, setSystemConfigFromSystemStatus } from './system-config';
+
+jest.mock('./system-config', () => ({
+  ...jest.requireActual('./system-config'),
+  setSystemConfigFromSystemStatus: jest.fn(() => () => {}),
+}));
 
 const systemStatusConfig = {
   alerts_enabled: true,
@@ -111,24 +118,80 @@ describe('updating socket health status', () => {
     jest.useRealTimers();
   });
 
-  test('fetchSystemStatus', async () => {
+});
+
+describe('fetchSystemStatus', () => {
+  const signedIn = (accessToken = 'user.jwt.token') => () => ({ data: { token: { access_token: accessToken } } });
+
+  let warnSpy;
+
+  beforeEach(() => {
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+    delete axios.defaults.headers.common.Authorization;
+  });
+
+  test('dispatches the status and returns it', async () => {
     const dispatch = jest.fn();
 
-    await fetchSystemStatus()(dispatch);
+    await expect(fetchSystemStatus()(dispatch, signedIn())).resolves.toEqual(systemStatusConfig);
 
     expect(dispatch).toHaveBeenCalledTimes(2);
     expect(dispatch).toHaveBeenCalledWith({ payload: systemStatusConfig, type: FETCH_SYSTEM_STATUS_SUCCESS });
   });
 
-  test('fetchSystemStatus warns with the status code when the request fails', async () => {
-    server.use(http.get(STATUS_API_URL, () => new HttpResponse(null, { status: 401 })));
+  test('applies the user config from a signed-in request', async () => {
     const dispatch = jest.fn();
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-    await fetchSystemStatus()(dispatch);
+    await fetchSystemStatus()(dispatch, signedIn());
 
-    expect(warnSpy).toHaveBeenCalledWith('Failed to fetch the system status', 401, expect.any(String));
-    warnSpy.mockRestore();
+    expect(setSystemConfigFromSystemStatus).toHaveBeenCalledWith(systemStatusConfig, { includeUserConfig: true });
+  });
+
+  test('sends no login token and skips the user config on an anonymous request', async () => {
+    let authorization = 'not checked';
+    server.use(http.get(STATUS_API_URL, ({ request }) => {
+      authorization = request.headers.get('authorization');
+      return HttpResponse.json({ data: systemStatusConfig });
+    }));
+    axios.defaults.headers.common.Authorization = 'Bearer user.jwt.token';
+
+    await fetchSystemStatus({ anonymous: true })(jest.fn(), signedIn());
+
+    expect(authorization).toBeNull();
+    expect(setSystemConfigFromSystemStatus).toHaveBeenCalledWith(systemStatusConfig, { includeUserConfig: false });
+  });
+
+  test('skips the user config when the user signed out before the response', async () => {
+    const getState = jest.fn()
+      .mockReturnValueOnce({ data: { token: { access_token: 'user.jwt.token' } } })
+      .mockReturnValue({ data: { token: null } });
+
+    await fetchSystemStatus()(jest.fn(), getState);
+
+    expect(setSystemConfigFromSystemStatus).toHaveBeenCalledWith(systemStatusConfig, { includeUserConfig: false });
+  });
+
+  test('warns with the status code and rejects when the request fails', async () => {
+    server.use(http.get(STATUS_API_URL, () => new HttpResponse(null, { status: 500 })));
+    const dispatch = jest.fn();
+
+    await expect(fetchSystemStatus()(dispatch, signedIn())).rejects.toThrow();
+
+    expect(warnSpy).toHaveBeenCalledWith('Failed to fetch the system status', 500, expect.any(String));
+    expect(dispatch).toHaveBeenCalledWith({ payload: { userConfigLoaded: true }, type: SET_SYSTEM_CONFIG });
+  });
+
+  test('does not mark the user config loaded when an anonymous request fails', async () => {
+    server.use(http.get(STATUS_API_URL, () => new HttpResponse(null, { status: 500 })));
+    const dispatch = jest.fn();
+
+    await expect(fetchSystemStatus({ anonymous: true })(dispatch, signedIn())).rejects.toThrow();
+
+    expect(dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: SET_SYSTEM_CONFIG }));
   });
 });
 

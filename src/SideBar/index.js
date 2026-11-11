@@ -67,6 +67,7 @@ const SideBar = () => {
   const sideBar = useSelector((state) => state.view.sideBar);
   const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
   const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
+  const userConfigLoaded = useSelector((state) => state.view.systemConfig.userConfigLoaded);
 
   const { hasPatrolsReadPermission } = usePatrolsPermissions();
 
@@ -91,6 +92,8 @@ const SideBar = () => {
 
   const gearStillResolving = !gearEndpointUnavailable
     && (initialLoadInProgress || (gearLoading && !hasGear));
+  // Only the signed-in status request says whether the Otus tab is on.
+  const otusStillResolving = !otusUrl && !userConfigLoaded;
 
   const enabledTabKeys = useMemo(() => ({
     ...TAB_KEYS,
@@ -161,10 +164,11 @@ const SideBar = () => {
     if (currentTab
       && !Object.values(enabledTabKeys).includes(currentTab.toLowerCase())
       && !isLegacyEventURL
-      && !(currentTab === TAB_KEYS.GEAR && gearStillResolving)) {
+      && !(currentTab === TAB_KEYS.GEAR && gearStillResolving)
+      && !(currentTab === TAB_KEYS.OTUS && otusStillResolving)) {
       navigate('/', { replace: true });
     }
-  }, [currentTab, enabledTabKeys, gearStillResolving, isLegacyEventURL, navigate]);
+  }, [currentTab, enabledTabKeys, gearStillResolving, isLegacyEventURL, navigate, otusStillResolving]);
 
   useEffect(() => {
     if (showEventsBadge && currentTab === TAB_KEYS.EVENTS && !isReportDetailsViewActive) {

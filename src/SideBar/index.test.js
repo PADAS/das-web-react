@@ -157,6 +157,7 @@ describe('SideBar', () => {
           [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
           [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
           [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
+          userConfigLoaded: true,
         },
       },
     };
@@ -684,6 +685,25 @@ describe('SideBar', () => {
     renderSideBar();
 
     expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('does not redirect away from /atlas while the signed-in status is still loading', async () => {
+    store.view.systemConfig.userConfigLoaded = false;
+    useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('redirects from /atlas to home when the signed-in status has no Otus URL', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    expect(navigate).toHaveBeenCalledWith('/', { replace: true });
   });
 
   test('clears events badge when navigating to events tab and not in report detail view', async () => {

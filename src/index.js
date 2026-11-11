@@ -81,7 +81,7 @@ const RootApp = () => {
 
   useEffect(() => {
     // No 401 recovery is attached yet, so this request must stay token-free.
-    dispatch(fetchSystemStatus())
+    dispatch(fetchSystemStatus({ anonymous: true }))
       .catch(() => setConfigError(true));
   }, [dispatch]);
 

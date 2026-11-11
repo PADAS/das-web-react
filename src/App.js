@@ -162,7 +162,9 @@ export const App = () => {
             dispatch(setDefaultCustomTrackLength(track_length));
           }
         }
-      });
+      })
+      // fetchSystemStatus already logs the failure.
+      .catch(() => {});
 
     loadProgressBar({}, axios);
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -3,7 +3,7 @@ import { combineReducers } from 'redux';
 
 import { API_URL, DAS_HOST, STATUSES } from '../constants';
 import { setServerVersionAnalyticsDimension } from '../utils/analytics';
-import { setSystemConfigFromSystemStatus } from './system-config';
+import { SET_SYSTEM_CONFIG, setSystemConfigFromSystemStatus } from './system-config';
 
 export const STATUS_API_URL = `${API_URL}status`;
 
@@ -47,16 +47,31 @@ const socketHealthStatusResolver = () => {
 
 export const updateSocketHealthStatus = socketHealthStatusResolver();
 
-export const fetchSystemStatus = () => async (dispatch) => {
+// An anonymous request sends no login token. Its response can still carry a
+// Django admin session's settings, so it never sets Tableau or Otus.
+export const fetchSystemStatus = ({ anonymous = false } = {}) => async (dispatch, getState) => {
+  const tokenAtRequest = getState?.().data?.token?.access_token;
+  const headers = anonymous ? { Authorization: false } : undefined;
+
+  let response;
   try {
-    const response = await axios.get(STATUS_API_URL, { params: { service_status: true } });
-    dispatch(setSystemConfigFromSystemStatus(response.data.data));
-    dispatch(fetchSystemStatusSuccess(response));
-    return response.data.data;
+    response = await axios.get(STATUS_API_URL, { headers, params: { service_status: true } });
   } catch (error) {
     console.warn('Failed to fetch the system status', error?.response?.status, error?.message);
     dispatch(fetchSystemStatusError(error));
+    if (!anonymous) {
+      // Stop waiting for Tableau and Otus, so a hidden tab's URL redirects.
+      dispatch({ type: SET_SYSTEM_CONFIG, payload: { userConfigLoaded: true } });
+    }
+    throw error;
   }
+
+  // A response that arrives after sign-out must not restore the last user's
+  // settings.
+  const sameUser = getState?.().data?.token?.access_token === tokenAtRequest;
+  dispatch(setSystemConfigFromSystemStatus(response.data.data, { includeUserConfig: !anonymous && sameUser }));
+  dispatch(fetchSystemStatusSuccess(response));
+  return response.data.data;
 };
 
 const fetchSystemStatusSuccess = ({ data: { data } }) => ({
