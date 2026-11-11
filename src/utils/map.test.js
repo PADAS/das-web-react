@@ -310,6 +310,6 @@ describe('calcSidebarPaddingLeft', () => {
   });
 
   test('pads for the Otus panel width, plus the vertical nav rail, when the Otus tab is open', () => {
-    expect(calcSidebarPaddingLeft({ isMediumLayoutOrLarger: true, otusTabWidth: 900, pathname: '/otus' })).toBe(970);
+    expect(calcSidebarPaddingLeft({ isMediumLayoutOrLarger: true, otusTabWidth: 900, pathname: '/atlas' })).toBe(970);
   });
 });

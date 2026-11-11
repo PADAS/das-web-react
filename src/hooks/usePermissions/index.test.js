@@ -3,7 +3,12 @@ import { Provider } from 'react-redux';
 import { mockStore } from '../../__test-helpers/MockStore';
 import { renderHook } from '../../test-utils';
 
-import { useEventsPermissions, useMessagesPermissions, useObservationsPermissions, usePatrolsPermissions } from '.';
+import {
+  useEventsPermissions,
+  useMessagesPermissions,
+  useObservationsPermissions,
+  usePatrolsPermissions,
+} from '.';
 import { PERMISSION_KEYS, PERMISSIONS } from '../../constants';
 
 describe('usePermissions', () => {
@@ -13,6 +18,7 @@ describe('usePermissions', () => {
       data: {
         user: {
           permissions: {
+            [PERMISSION_KEYS.EVENT_RELATIONSHIPS]: [PERMISSIONS.DELETE],
             [PERMISSION_KEYS.EVENTS]: [
               PERMISSIONS.CREATE,
               PERMISSIONS.DELETE,
@@ -51,7 +57,6 @@ describe('usePermissions', () => {
   const wrapper = ({ children }) => <Provider store={mockStore(store)}>
     {children}
   </Provider>;
-
 
   describe('useEventsPermissions', () => {
     test('returns the events permissions', async () => {

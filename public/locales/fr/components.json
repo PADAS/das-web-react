@@ -62,6 +62,68 @@
     "hideDetailsButton": "Masquer les Détails",
     "showDetailsButton": "Afficher les Détails"
   },
+  "feedTable": {
+    "clearSelectionButtonLabel": "Effacer",
+    "clientSortFinishedMessage": "Trié par {{column}} : toutes les lignes chargées",
+    "clientSortLoadingMessage": "Tri par {{column}} : {{loaded}} sur {{total}} chargés",
+    "clientSortPausedMessage": "Tri en pause : {{loaded}} sur {{total}} chargés",
+    "clientSortRetryButtonLabel": "Réessayer",
+    "clientSortStartedMessage": "Chargement de toutes les lignes pour trier par {{column}}",
+    "columnsButtonLabel": "Colonnes",
+    "columnsMenuLabel": "Colonnes affichées",
+    "eventsTable": {
+      "bulkUpdateErrorMessage_one": "{{count}} événement n'a pas pu être actualisé",
+      "bulkUpdateErrorMessage_other": "{{count}} événements n'ont pas pu être actualisés",
+      "bulkUpdateSuccessMessage_one": "{{count}} événement actualisé",
+      "bulkUpdateSuccessMessage_other": "{{count}} événements actualisés",
+      "createdAtColumnTitle": "Créé",
+      "eventTimeColumnTitle": "Heure",
+      "eventTypeColumnTitle": "Type",
+      "locationColumnTitle": "Position",
+      "priorityColumnTitle": "Priorité",
+      "reopenButtonLabel": "Réouvrir",
+      "reportedByColumnTitle": "Complété par",
+      "resolveButtonLabel": "Résoudre",
+      "selectedCountMessage_one": "{{count}} sélectionné",
+      "selectedCountMessage_other": "{{count}} sélectionnés",
+      "serialColumnTitle": "N° de série",
+      "stateColumnTitle": "Statut",
+      "titleColumnTitle": "Titre",
+      "updatedAtColumnTitle": "Actualisé"
+    },
+    "exportButtonLabel": "Exporter tous les champs (CSV)",
+    "exportErrorMessage": "Le CSV n'a pas pu être exporté",
+    "grid": {
+      "noRowsMessage": "Rien à afficher"
+    },
+    "headerCell": {
+      "allRowsCheckboxLabel": "Sélectionner toutes les lignes"
+    },
+    "moveColumnHintMessage": "Appuyez sur Alt et la flèche gauche ou droite sur l’en-tête d’une colonne pour la déplacer.",
+    "objectViewModal": {
+      "breadcrumbLabel": "Chemin",
+      "itemCountMessage_one": "{{count}} élément",
+      "itemCountMessage_other": "{{count}} éléments",
+      "openButtonLabel": "Voir"
+    },
+    "patrolsTable": {
+      "leaderColumnTitle": "Chef",
+      "legsColumnTitle": "Étapes",
+      "loadedPatrolsMessage_one": "{{loaded}} patrouille affichée sur {{count}}",
+      "loadedPatrolsMessage_other": "{{loaded}} patrouilles affichées sur {{count}}",
+      "patrolEndColumnTitle": "Fin",
+      "patrolStartColumnTitle": "Début",
+      "patrolTypeColumnTitle": "Type de patrouille",
+      "serialColumnTitle": "N° de série",
+      "stateColumnTitle": "Statut",
+      "titleColumnTitle": "Titre"
+    },
+    "selectedCountMessage_one": "{{count}} sélectionné",
+    "selectedCountMessage_other": "{{count}} sélectionnés",
+    "titleCell": {
+      "rowCheckboxLabel": "Sélectionner {{title}}"
+    }
+  },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Partager votre position pour afficher des données avec des autorisations géographiques",
     "shareLocationToastTitle": "Comment faire?"
@@ -184,6 +246,11 @@
     "recentRadiosGroupLabel": "Radios récentes",
     "restrictedReporterLabel": "RESTRICTION"
   },
+  "rootErrorBoundary": {
+    "errorTitle": "Une erreur s'est produite",
+    "reloadButtonLabel": "Recharger",
+    "reloadMessage": "EarthRanger a rencontré un problème inattendu. Rechargez la page pour continuer."
+  },
   "schemaFields": {
     "addButton": {
       "content": "Ajouter",
@@ -244,19 +311,19 @@
       "featuresTabTitle": "Calques",
       "subjectsTabTitle": "Appareils Suivis"
     },
-    "otusLink": "Otus",
+    "otusLink": "Atlas",
     "otusTab": {
       "header": {
         "betaBadgeLabel": "Bêta",
-        "closeButtonLabel": "Fermer Otus",
+        "closeButtonLabel": "Fermer Atlas",
         "newConversationButtonLabel": "Nouvelle conversation",
         "recentButtonLabel": "Récentes",
-        "title": "Otus"
+        "title": "Atlas"
       },
-      "iframeTitle": "Discussion avec Otus",
-      "loadErrorMessage": "Otus n’a pas pu se charger sur ce site. Réessayez ou contactez l’équipe de Soutien si le problème persiste.",
-      "loadingMessage": "Chargement d’Otus…",
-      "resizeHandleLabel": "Redimensionner le panneau Otus",
+      "iframeTitle": "Discussion avec Atlas",
+      "loadErrorMessage": "Atlas n’a pas pu se charger sur ce site. Réessayez ou contactez l’équipe de Soutien si le problème persiste.",
+      "loadingMessage": "Chargement d’Atlas…",
+      "resizeHandleLabel": "Redimensionner le panneau Atlas",
       "retryButtonLabel": "Réessayer"
     },
     "patrolsLink": "Patrouilles",
@@ -271,9 +338,11 @@
           "legend": "Actualisation de l'application",
           "mapLayersCheckboxLabel": "Calques",
           "mapPositionAndZoomLevelCheckboxLabel": "Positionnement de la carte & niveau du zoom",
-          "patrolFiltersCheckboxLabel": "Filtres de patrouilles"
+          "patrolFiltersCheckboxLabel": "Filtres de patrouilles",
+          "tableViewCheckboxLabel": "Vue en tableau"
         },
         "experimentalFeaturesFieldSet": {
+          "FEED_TABLE": "Vue en tableau des événements et patrouilles",
           "legend": "Fonctionnalités expérimentales"
         },
         "languageSelect": {
@@ -367,6 +436,8 @@
       },
       "mapTabTitle": "Carte"
     },
+    "showListButtonLabel": "Afficher en liste",
+    "showTableButtonLabel": "Afficher en tableau",
     "titleInput": {
       "editButtonLabel": "Modifier le titre"
     }

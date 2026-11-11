@@ -72,7 +72,8 @@ export const TAB_KEYS = {
   EVENTS: 'events',
   GEAR: 'gear',
   LAYERS: 'layers',
-  OTUS: 'otus',
+  // The URL uses the tab's new name, Atlas; the code still calls it Otus.
+  OTUS: 'atlas',
   PATROLS: 'patrols',
   SETTINGS: 'settings',
 };
@@ -339,11 +340,12 @@ export const EXTERNAL_SAME_DOMAIN_ROUTES = [
 ];
 
 export const PERMISSION_KEYS = {
-  PATROLS: 'patrol',
-  PATROL_TYPES: 'patroltype',
+  EVENTS: 'event',
+  EVENT_RELATIONSHIPS: 'event_relationship',
   MESSAGES: 'message',
   OBSERVATIONS: 'observation',
-  EVENTS: 'event',
+  PATROLS: 'patrol',
+  PATROL_TYPES: 'patroltype',
 };
 
 export const PERMISSIONS = {
@@ -377,14 +379,20 @@ export const SUPPORTED_LANGUAGES = {
 
 export const FEATURE_FLAGS = {};
 
-export const DEVELOPMENT_FEATURE_FLAGS = {};
+export const DEVELOPMENT_FEATURE_FLAGS = {
+  // On while the table is previewed; turned off per user in Settings > General.
+  FEED_TABLE: true,
+};
 
 export const LINK_TYPES = { PATROL: 'patrol', EVENT: 'event' };
+
+export const EVENT_LINK_TARGET_TYPES = { INCIDENT: 'incident', PATROL: 'patrol' };
 
 export const EVENT_SORT_OPTIONS = [
   { value: 'updated_at', key: 'updatedAtLabel' },
   { value: 'created_at', key: 'createdAtLabel' },
   { value: 'event_time', key: 'eventTimeLabel' },
+  { value: 'serial_number', key: 'serialNumberLabel' },
 ];
 
 export const MAP_LAYER_SORT_VALUES = {

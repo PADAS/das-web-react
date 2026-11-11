@@ -21,6 +21,13 @@ jobs:
       ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
       APP_NAME: ${{ inputs.app-name }}
     steps:
+      # First, so the link is there even when the sync or health wait fails.
+      - name: Link ArgoCD app
+        run: |
+          ARGOCD_URL="https://${ARGOCD_SERVER}/applications/argocd/${APP_NAME}"
+          echo "ArgoCD: ${ARGOCD_URL}"
+          echo "- [View ${APP_NAME} in ArgoCD](${ARGOCD_URL})" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Install ArgoCD CLI
         run: |
           curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64

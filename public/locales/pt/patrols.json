@@ -22,12 +22,6 @@
     },
     "timeLabel": "Hora"
   },
-  "addToPatrolModal": {
-    "cancel": "Cancelar",
-    "loading": "Carregando...",
-    "noMorePatrols": "Não há mais patrulhas para mostrar",
-    "title": "Adicionar à patrulha"
-  },
   "detailView": {
     "addEmptyNoteAlert": "Não é possivel adicionar uma nova anotação: existe uma anotação vazia que ainda não foi salva",
     "formButtons": {

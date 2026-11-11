@@ -1,10 +1,12 @@
 import { memo, useContext, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ClipIcon } from '../../../../../common/images/icons/link.svg';
+import { ReactComponent as IncidentIcon } from '../../../../../common/images/icons/incident.svg';
 import { ReactComponent as MarkerFeedIcon } from '../../../../../common/images/icons/marker-feed.svg';
+import { ReactComponent as PatrolIcon } from '../../../../../common/images/icons/patrol.svg';
 
 import {
   collectionHasMultipleValidLocations,
@@ -12,7 +14,8 @@ import {
   getReportLink,
   isReportActive,
 } from '../../../../../utils/events';
-import { EVENT_FORM_STATES } from '../../../../../constants';
+import { EVENT_FORM_STATES, EVENT_LINK_TARGET_TYPES } from '../../../../../constants';
+import { selectEventLinkPermissions } from '../../../../../selectors/event-links';
 import { setBounceEventIDs } from '../../../../../ducks/map-ui';
 import { setEventState, updateEvent } from '../../../../../ducks/events';
 import { showToast } from '../../../../../utils/toast';
@@ -34,11 +37,22 @@ const STATE_TOAST_CONFIG = { autoClose: 4000, hideProgressBar: true };
 
 const { ACTIVE, RESOLVED, REVIEW } = EVENT_FORM_STATES;
 
-const Actions = ({ className = '', contextMenuRef, coordinates, event }) => {
+const Actions = ({
+  className = '',
+  contextMenuRef,
+  coordinates,
+  event,
+  isChangingLinks = false,
+  onOpenLinkModal,
+  onRemoveFromIncident,
+  onRemoveFromPatrol,
+}) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('reports', { keyPrefix: 'eventsManager.eventsFeed.eventRow.actions' });
 
   const jumpToLocation = useJumpToLocation();
+
+  const eventLinkPermissions = useSelector((state) => selectEventLinkPermissions(state, event));
 
   const tracker = useContext(TrackerContext);
 
@@ -175,6 +189,34 @@ const Actions = ({ className = '', contextMenuRef, coordinates, event }) => {
 
     <Menu.Divider className={styles.mobileOnlyOption} />
 
+    {eventLinkPermissions.canAddToIncident && <Menu.Option
+      onClick={() => onOpenLinkModal(EVENT_LINK_TARGET_TYPES.INCIDENT, event)}
+    >
+      <IncidentIcon aria-hidden="true" />
+
+      {t('addToIncidentOption')}
+    </Menu.Option>}
+
+    {eventLinkPermissions.canRemoveFromIncident && <Menu.Option onClick={() => onRemoveFromIncident(event)}>
+      <IncidentIcon aria-hidden="true" />
+
+      {t('removeFromIncidentOption')}
+    </Menu.Option>}
+
+    {eventLinkPermissions.canAddToPatrol && <Menu.Option
+      onClick={() => onOpenLinkModal(EVENT_LINK_TARGET_TYPES.PATROL, event)}
+    >
+      <PatrolIcon aria-hidden="true" />
+
+      {t('addToPatrolOption')}
+    </Menu.Option>}
+
+    {eventLinkPermissions.canRemoveFromPatrol && <Menu.Option onClick={() => onRemoveFromPatrol(event)}>
+      <PatrolIcon aria-hidden="true" />
+
+      {t('removeFromPatrolOption')}
+    </Menu.Option>}
+
     <Menu.Option onClick={onCopyLink}>
       <ClipIcon aria-hidden="true" />
 
@@ -205,13 +247,17 @@ const Actions = ({ className = '', contextMenuRef, coordinates, event }) => {
     <KebabMenu
       align="end"
       aria-label={t('moreOptionsButtonLabel')}
-      isLoading={isUpdatingState}
+      isLoading={isChangingLinks || isUpdatingState}
       title={t('moreOptionsButtonLabel')}
     >
       {renderMenuOptions()}
     </KebabMenu>
 
-    <ContextMenu aria-label={t('moreOptionsButtonLabel')} isLoading={isUpdatingState} ref={contextMenuRef}>
+    <ContextMenu
+      aria-label={t('moreOptionsButtonLabel')}
+      isLoading={isChangingLinks || isUpdatingState}
+      ref={contextMenuRef}
+    >
       {renderMenuOptions()}
     </ContextMenu>
   </div>;

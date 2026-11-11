@@ -4,8 +4,13 @@ import { setupServer } from 'msw/node';
 import {
   addPatrolSegmentToEvent,
   calcDisplayPriorityForReport,
+  createNewIncidentCollection,
   createNewReportForEventType,
+  eventBelongsToCollection,
+  eventBelongsToPatrol,
   getCoordinatesForEvent,
+  getEventIncidentId,
+  getEventPatrolId,
   getReportLink,
 } from './events';
 import { EVENT_API_URL } from '../ducks/events';
@@ -80,6 +85,53 @@ describe('utils - events', () => {
         reported_by: null,
         state: 'active',
       });
+    });
+  });
+
+  describe('createNewIncidentCollection', () => {
+    test('creates a new incident with the given priority', () => {
+      expect(createNewIncidentCollection({ priority: 300 })).toMatchObject({
+        event_type: 'incident_collection',
+        icon_id: 'incident_collection',
+        priority: 300,
+        state: 'active',
+      });
+    });
+  });
+
+  describe('getEventIncidentId', () => {
+    test('returns the id of the incident containing the event', () => {
+      expect(getEventIncidentId({ is_contained_in: [{ related_event: { id: 'incident-id' } }] })).toBe('incident-id');
+    });
+
+    test('returns null for an event in no incident', () => {
+      expect(getEventIncidentId({ is_contained_in: [] })).toBeNull();
+      expect(getEventIncidentId({})).toBeNull();
+    });
+  });
+
+  describe('getEventPatrolId', () => {
+    test('returns the id of the patrol the event belongs to', () => {
+      expect(getEventPatrolId({ patrols: ['patrol-id'] })).toBe('patrol-id');
+    });
+
+    test('returns null for an event in no patrol', () => {
+      expect(getEventPatrolId({ patrols: [] })).toBeNull();
+      expect(getEventPatrolId({})).toBeNull();
+    });
+  });
+
+  describe('eventBelongsToCollection', () => {
+    test('tells whether an incident contains the event', () => {
+      expect(eventBelongsToCollection({ is_contained_in: [{ related_event: { id: 'incident-id' } }] })).toBe(true);
+      expect(eventBelongsToCollection({ is_contained_in: [] })).toBe(false);
+    });
+  });
+
+  describe('eventBelongsToPatrol', () => {
+    test('reads the patrols of the event rather than its legs', () => {
+      expect(eventBelongsToPatrol({ patrol_segments: [], patrols: ['patrol-id'] })).toBe(true);
+      expect(eventBelongsToPatrol({ patrol_segments: ['leg-id'], patrols: [] })).toBe(false);
     });
   });
 

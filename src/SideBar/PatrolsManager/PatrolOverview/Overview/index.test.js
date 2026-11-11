@@ -33,6 +33,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Overview', () => {
       data: {
         eventFilter: { filter: { date_range: { lower: '2020-01-01T06:00:00.000Z' } } },
         eventStore: {},
+        eventCategories: {},
         eventTypes: [],
         patrolTypes,
         subjectStore: {},

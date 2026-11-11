@@ -4,13 +4,24 @@ import { adjustColorLightnessByPercentage } from '../utils/colors';
 
 import * as styles from './styles.module.scss';
 
-const FeedListItem = (props) => {
-  const { IconComponent = null, TitleComponent, DateComponent = null, ControlsComponent = null, themeColor = 'gray', themeBgColor = null, className = '', onClick, ...rest } = props;
-
+const FeedListItem = ({
+  className = '',
+  Component = 'li',
+  ControlsComponent = null,
+  DateComponent = null,
+  IconComponent = null,
+  onClick,
+  themeBgColor = null,
+  themeColor = 'gray',
+  TitleComponent,
+  ...otherProps
+}) => {
   const controlsRef = useRef(null);
 
-  const iconSectionColor = themeColor;
-  const bodyBackgroundColor = useMemo(() => themeBgColor || adjustColorLightnessByPercentage(themeColor, 200), [themeBgColor, themeColor]);
+  const bodyBackgroundColor = useMemo(
+    () => themeBgColor || adjustColorLightnessByPercentage(themeColor, 200),
+    [themeBgColor, themeColor]
+  );
 
   // Clicking one of the controls shouldn't open the patrol.
   const onClickItem = useCallback((event) => {
@@ -19,29 +30,32 @@ const FeedListItem = (props) => {
     }
   }, [onClick]);
 
-  return <li
+  return <Component
     className={`${styles.listItem} ${className}`}
     onClick={onClick && onClickItem}
     style={{ backgroundColor: bodyBackgroundColor }}
-    {...rest}
-    >
-    {IconComponent && <div
-      role='img'
-      className={styles.iconContainer}
-      style={{ backgroundColor: iconSectionColor }}
-    >
+    {...otherProps}
+  >
+    {IconComponent && <div className={styles.iconContainer} role="img" style={{ backgroundColor: themeColor }}>
       {IconComponent}
     </div>}
-    <div className={styles.titleContainer} data-testid='feed-list-item-title-container'>
+
+    <div className={styles.titleContainer} data-testid="feed-list-item-title-container">
       {TitleComponent}
     </div>
-    {DateComponent && <div className={styles.dateContainer} data-testid='feed-list-item-date-container'>
+
+    {DateComponent && <div className={styles.dateContainer} data-testid="feed-list-item-date-container">
       {DateComponent}
     </div>}
-    {ControlsComponent && <div className={styles.controlsContainer} data-testid='feed-list-item-controls-container' ref={controlsRef}>
+
+    {ControlsComponent && <div
+      className={styles.controlsContainer}
+      data-testid="feed-list-item-controls-container"
+      ref={controlsRef}
+    >
       {ControlsComponent}
     </div>}
-  </li>;
+  </Component>;
 };
 
 export default memo(FeedListItem);

@@ -82,11 +82,14 @@ export const getEventIdsForCollection = (collection) => collection.contains &&
     .map((contained) => contained.related_event.id)
     .filter((item) => !!item);
 
-export const eventBelongsToCollection = (event) => !!event?.is_contained_in?.length;
+// An event belongs to one incident and one patrol at most.
+export const getEventIncidentId = (event) => event?.is_contained_in?.[0]?.related_event?.id ?? null;
 
-export const eventBelongsToPatrol = event => !!event?.patrol_segments?.length;
+export const getEventPatrolId = (event) => event?.patrols?.[0] ?? null;
 
-export const uniqueEventIds = (value, index, self) => self.indexOf(value) === index;
+export const eventBelongsToCollection = (event) => !!getEventIncidentId(event);
+
+export const eventBelongsToPatrol = (event) => !!getEventPatrolId(event);
 
 export const createNewReportForEventType = (reportType, data) => {
   const location = data?.location;
@@ -108,11 +111,10 @@ export const createNewReportForEventType = (reportType, data) => {
   };
 };
 
-export const createNewIncidentCollection = (attributes) => createNewReportForEventType({
-  contains: [],
-  icon_id: 'incident_collection',
-  is_collection: true,
-  value: 'incident_collection',
+export const INCIDENT_COLLECTION_EVENT_TYPE = 'incident_collection';
+
+export const createNewIncidentCollection = (attributes) => ({
+  ...createNewReportForEventType({ icon_id: INCIDENT_COLLECTION_EVENT_TYPE, value: INCIDENT_COLLECTION_EVENT_TYPE }),
   ...attributes,
 });
 

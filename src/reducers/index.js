@@ -6,7 +6,7 @@ import storage from 'redux-persist/lib/storage';
 import { generateStorageConfig } from './storage-config';
 import coordinateReferenceSystemsReducer from '../ducks/coordinate-reference-systems';
 import tokenReducer, { masterRequestTokenReducer } from '../ducks/auth';
-import eventStoreReducer, { mapEventsReducer, eventFeedReducer, incidentFeedReducer } from '../ducks/events';
+import eventStoreReducer, { eventFeedReducer, mapEventsReducer } from '../ducks/events';
 import communityReducer from '../ducks/community';
 import eventCategoriesReducer from '../ducks/event-categories';
 import eventTypesReducer from '../ducks/event-types';
@@ -65,6 +65,8 @@ import analyzersReducer from '../ducks/analyzers';
 import timeSliderReducer from '../ducks/timeslider';
 import externalReportingReducer from '../ducks/external-reporting';
 import sideBarReducer from '../ducks/side-bar';
+import feedTableSortReducer from '../ducks/feed-table-sort';
+import feedTableViewReducer, { persistenceConfig as feedTableViewPersistenceConfig } from '../ducks/feed-table-view';
 import locallyEditedEventReducer from '../ducks/locally-edited-event';
 import recentEventDataReceivedReducer from '../ducks/recent-event-data-received';
 import experimentalFeaturesReducer from '../ducks/experimental-features';
@@ -94,7 +96,6 @@ const rootReducer = combineReducers({
     patrolsFeed: patrolsFeedReducer,
     patrolStore: patrolStoreReducer,
     feedEvents: eventFeedReducer,
-    feedIncidents: incidentFeedReducer,
     community: communityReducer,
     locallyEditedEvent: locallyEditedEventReducer,
     mapEvents: mapEventsReducer,
@@ -167,6 +168,8 @@ const rootReducer = combineReducers({
     showInactiveRadios: displayInactiveRadiosReducer,
     openMapFeatureTypeNames: openMapFeatureTypesReducer,
     sideBar: sideBarReducer,
+    feedTableSort: feedTableSortReducer,
+    feedTableView: persistReducer(feedTableViewPersistenceConfig, feedTableViewReducer),
   }),
 });
 
