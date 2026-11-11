@@ -84,8 +84,6 @@ const gridTheme = themeQuartz.withParams({
   foregroundColor: styles.foregroundColor,
   headerBackgroundColor: styles.backgroundColor,
   headerCellHoverBackgroundColor: styles.backgroundColor,
-  headerColumnBorder: false,
-  headerColumnResizeHandleColor: 'transparent',
   headerFontSize: 14,
   headerFontWeight: 400,
   headerTextColor: styles.headerTextColor,
