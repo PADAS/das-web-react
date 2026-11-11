@@ -62,7 +62,7 @@
   --bs-primary-bg-subtle: var(--er-ui-background-selected-background);
   --bs-primary-border-subtle: #{colors.tint(var(--er-ui-cta-primary), 65%)};
   --bs-primary-text-emphasis: var(--er-ui-cta-primary);
-  --bs-secondary: var(--er-ui-cta-secondary-blue);
+  --bs-secondary: var(--er-ui-cta-secondary);
   --bs-secondary-bg: var(--er-ui-background-tertiary-background);
   --bs-secondary-bg-subtle: var(--er-ui-background-tertiary-background);
   --bs-secondary-border-subtle: var(--er-ui-divider-lines);
@@ -106,7 +106,7 @@ a {
 }
 
 .btn-secondary {
-  @include button-variant(var(--er-ui-cta-secondary-blue), var(--er-ui-text-primary-text));
+  @include button-variant(var(--er-ui-cta-secondary), var(--er-ui-cta-text));
 }
 
 .btn-success {
