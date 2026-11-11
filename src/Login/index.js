@@ -5,10 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
-import {
-  ReactComponent as EarthRangerLogo,
-} from '../common/images/earth-ranger-logo.svg';
-
 import { ACCOUNT_LINKER_URL, SYSTEM_CONFIG_FLAGS } from '../constants';
 import { APP_ROUTES } from '../constants/routes';
 import appConfig from '../config';
@@ -22,6 +18,8 @@ import {
   takeManagedUserNotProvisioned,
 } from '../utils/auth';
 import useNavigate from '../hooks/useNavigate';
+
+import EarthRangerLogo from '../EarthRangerLogo';
 
 import * as styles from './styles.module.scss';
 
@@ -202,7 +200,7 @@ const LoginPage = () => {
   }, [location.pathname, location.search, location.state, navigate]);
 
   return <div className={styles.container}>
-    <EarthRangerLogo aria-label="EarthRanger" className={styles.logo} role="img" />
+    <EarthRangerLogo className={styles.logo} type="vertical" />
 
     <h1 className={styles.srOnly}>{t('title')}</h1>
 

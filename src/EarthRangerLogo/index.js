@@ -1,20 +1,20 @@
-import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const SOURCES = {
-  horizontal: '#earth-ranger-logo-horizontal',
-  horizontalWhite: '#earth-ranger-logo-horizontal-white',
-  vertical: '#earth-ranger-logo-vertical',
+import horizontalLogoUrl from '@allenai/design-system/er-legacy/assets/EarthRanger-Logo-2026_Ai2-H-short.svg?url';
+import horizontalWhiteLogoUrl
+  from '@allenai/design-system/er-legacy/assets/EarthRanger-Logo-2026_Ai2-white-H-short.svg?url';
+import verticalLogoUrl from '@allenai/design-system/er-legacy/assets/EarthRanger-Logo-2026_Ai2.svg?url';
+
+const LOGO_URLS_BY_TYPE = {
+  horizontal: horizontalLogoUrl,
+  horizontalWhite: horizontalWhiteLogoUrl,
+  vertical: verticalLogoUrl,
 };
 
-const EarthRangerLogo = ({ type = 'horizontalWhite', ...restProps }) => {
+const EarthRangerLogo = ({ type = 'horizontalWhite', ...otherProps }) => {
   const { t } = useTranslation('components', { keyPrefix: 'earthRangerLogo' });
 
-  return <svg {...restProps}>
-    <title>{t('title')}</title>
-
-    <use href={SOURCES[type] || SOURCES.horizontalWhite} />
-  </svg>;
+  return <img alt={t('title')} src={LOGO_URLS_BY_TYPE[type]} {...otherProps} />;
 };
 
-export default memo(EarthRangerLogo);
+export default EarthRangerLogo;
