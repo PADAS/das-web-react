@@ -52,8 +52,8 @@ describe('SideBar - EventsManager - EventOverview - LinksSection', () => {
         tracks: {},
         user: {
           permissions: {
-            [PERMISSION_KEYS.EVENT_RELATIONSHIPS]: [PERMISSIONS.DELETE],
             [PERMISSION_KEYS.EVENT_RELATED_SEGMENTS]: [PERMISSIONS.DELETE],
+            [PERMISSION_KEYS.EVENT_RELATIONSHIPS]: [PERMISSIONS.DELETE],
             [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE],
           },
         },
