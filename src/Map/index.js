@@ -116,7 +116,7 @@ const replaceLayoutTextFieldLanguage = (textField, language) => {
   return textField.map((textField) => replaceLayoutTextFieldLanguage(textField, language));
 };
 
-const Map = ({ children, onMapLoad, socket }) => {
+const Map = ({ children, inert = false, onMapLoad, socket }) => {
   const dispatch = useDispatch();
   const { i18n } = useTranslation();
   const location = useLocation();
@@ -712,6 +712,7 @@ const Map = ({ children, onMapLoad, socket }) => {
       <MapPrintControl />
       <TimeSliderMapControl />
     </>}
+    inert={inert}
     onMapLoaded={setMap}
     >
     {map && <TileEventFeaturesProvider>

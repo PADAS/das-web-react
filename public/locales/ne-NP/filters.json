@@ -80,6 +80,7 @@
       "sortByMenuOption": {
         "createdAtLabel": "सिर्जना मिति",
         "eventTimeLabel": "घटनाको मिति",
+        "serialNumberLabel": "घटना नम्बर",
         "updatedAtLabel": "अद्यावधिक मिति"
       },
       "sortDirectionButtonLabel": {
@@ -96,9 +97,10 @@
     "sortingTypeLabel": ", {{sortDirection}} क्रमबद्ध गरियो",
     "byLabel": "द्वारा",
     "eventSortOptions": {
-      "updatedAtLabel": "मिति अद्यावधिक गरियो",
       "createdAtLabel": "सिर्जना गरिएको मिति",
-      "eventTimeLabel": "घटनाको मिति"
+      "eventTimeLabel": "घटनाको मिति",
+      "serialNumberLabel": "घटना नम्बर",
+      "updatedAtLabel": "मिति अद्यावधिक गरियो"
     },
     "ascendingLabel": "बढ्दो क्रम अनुसार"
   },

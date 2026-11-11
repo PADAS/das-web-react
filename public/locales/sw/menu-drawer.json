@@ -13,25 +13,20 @@
     "exportButton": "Nakili"
   },
   "globalMenuDrawer": {
+    "adminLink": "Usimamizi",
     "alertsButton": "Arifa",
     "alertsModal": {
       "title": "Arifa"
     },
+    "appsHeader": "Programu za EarthRanger",
     "closeButtonLabel": "Funga Menyu Kuu",
     "communityButton": "Jumuiya",
-    "contactSupport": {
-      "body": "Tunawezaje kukusaidia?",
-      "subject": "Ombi la Msaada kutoka kwa Mtumiaji"
-    },
     "contactSupportButton": "Wasiliana na Msaada",
     "dailyReportModal": {
       "title": "Ripoti ya Kila Siku"
     },
-    "ecoscopeAnalysisLink": "Uchambuzi",
-    "ecoscopeAnalysisLinkAriaLabel": "Uchambuzi na Ecoscope",
-    "ecoscopeDownloaderMigrationGuideLink": "Pakua",
-    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Upakuaji wa Ecoscope",
-    "ecoscopeHeading": "Ecoscope",
+    "ecoscopeLink": "Ecoscope",
+    "ecoscopeTag": "Uchambuzi",
     "exportsHeader": "Nakili",
     "fieldReportsModal": {
       "content": "Matukio yaliyonakiliwa yatajumuisha tu yale yanayolingana na vigezo vya uchujaji vilivyowekwa kwa sasa kwenye kichupo cha Matukio.",
@@ -43,13 +38,20 @@
       "dataPrivacyPolicyLink": "Sera ya Faragha ya Data",
       "eulaLink": "Mkataba wa Leseni ya Mtumiaji wa Mwisho",
       "serverVersion": "Toleo la Seva: {{version}}",
+      "systemStatusLink": "Hali ya Mfumo",
       "websitePrivacyPolicyLink": "Sera ya Faragha ya Wavuti"
     },
+    "gundiLink": "Gundi",
+    "gundiTag": "Miunganisho",
     "header": "Menyu Kuu",
     "helpCenterButton": "Kituo cha Msaada",
+    "learnHeader": "Jifunze",
     "masterKMLModal": {
       "title": "KML ya Somo"
     },
+    "mobileAppStoreLink": "App Store (iPhone)",
+    "mobileGooglePlayLink": "Google Play (Android)",
+    "mobileHeader": "EarthRanger Mobile",
     "navigationButton": {
       "gear": "Vifaa",
       "mapLayers": "Tabaka za Ramani",
@@ -65,7 +67,9 @@
       "title": "Maelezo"
     },
     "tableauButton": "Meza",
-    "usersGuideButton": "Mwongozo wa Mtumiaji"
+    "trainingLink": "Mafunzo",
+    "usersGuideButton": "Mwongozo wa Mtumiaji",
+    "whatsNewLink": "Mapya"
   },
   "kmlExportModal": {
     "dataExportModalTitle": "Nakili Faili ya KML ya Somo",

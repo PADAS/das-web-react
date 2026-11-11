@@ -136,6 +136,15 @@
   @media (width: layout.$md-layout-width-min) {
     left: var(--vertical-nav-width);
   }
+
+  // A closing table keeps its width while it slides out, instead of being
+  // cut to the list's width first.
+  &.tableView:not([class*="open"]) {
+    @media (min-width: layout.$md-layout-width-min) {
+      min-width: calc(100vw - var(--vertical-nav-width));
+      transition: none;
+    }
+  }
 }
 
 .tab {
@@ -166,8 +175,10 @@
     }
   }
 
+  // The table view is wider than the detail view, so the tab moves by its
+  // own width to leave the screen at the same pace in every view.
   @media (min-width: layout.$md-layout-width-min) {
-    transform: translateX(calc(calc(#{layout.$sidebar-width-detail} + var(--vertical-nav-width)) * -1));
+    transform: translateX(calc(-100% - var(--vertical-nav-width)));
   }
 }
 
@@ -234,6 +245,23 @@
     @include buttons.icon-button;
 
     .backButtonIcon {
+      height: 1rem;
+      width: 1rem;
+    }
+  }
+
+  .headerActions {
+    align-items: center;
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  // Blue while the table is shown, as other controls are off their default.
+  .tableViewButton {
+    @include buttons.icon-button;
+    @include buttons.chip-active-state;
+
+    .tableViewButtonIcon {
       height: 1rem;
       width: 1rem;
     }

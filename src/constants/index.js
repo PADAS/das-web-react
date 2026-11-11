@@ -398,7 +398,10 @@ export const SUPPORTED_LANGUAGES = {
 
 export const FEATURE_FLAGS = {};
 
-export const DEVELOPMENT_FEATURE_FLAGS = {};
+export const DEVELOPMENT_FEATURE_FLAGS = {
+  // On while the table is previewed; turned off per user in Settings > General.
+  FEED_TABLE: true,
+};
 
 export const LINK_TYPES = { PATROL: 'patrol', EVENT: 'event' };
 
@@ -408,6 +411,7 @@ export const EVENT_SORT_OPTIONS = [
   { value: 'updated_at', key: 'updatedAtLabel' },
   { value: 'created_at', key: 'createdAtLabel' },
   { value: 'event_time', key: 'eventTimeLabel' },
+  { value: 'serial_number', key: 'serialNumberLabel' },
 ];
 
 export const MAP_LAYER_SORT_VALUES = {
