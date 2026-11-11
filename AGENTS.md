@@ -364,7 +364,7 @@ The map fills the screen, framed by a top bar, a sidebar and a global menu. On s
 - **Map**: map behavior and display options, and coordinate systems.
 - **Alerts**: the alerts page, behind the `ALERTS` flag and the alert rule read permission.
 
-**Global menu:** a drawer from the menu button, with Tableau, the alerts modal, Contact Support, help links, data exports, Ecoscope links, and the versions and legal links. Each export needs its own flag or permission, and the field reports export applies the current event filter.
+**Global menu:** a drawer from the menu button: Tableau, the alerts modal, Contact Support and Community; learning links; data exports; the other EarthRanger apps and the mobile app stores; then the system status, legal links and versions. Admin and Gundi show only when the active user or profile is staff, and each export needs its own flag or permission. On a phone, its own app store link moves to the top. The field reports export applies the current event filter.
 
 **Key files**
 - `Nav/`: the top bar.
@@ -609,6 +609,7 @@ Before you call the work done, reread what you wrote — every changed hunk, not
 
 - Run `yarn format`, and fix every problem you introduced.
 - Run `yarn test` over the areas you changed and make sure they pass.
+- If you changed the global menu's labels or order, say so in the PR: the Help Center menu article and training must change with it.
 - If you changed anything under `public/locales/`, bump `I18N_FILES_VERSION` in `src/i18n.js` above develop's and verify with `yarn check-i18n-files-version`.
 - Update this file only under the terms in **Maintaining This File**.
 

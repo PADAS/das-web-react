@@ -13,42 +13,46 @@
     "exportButton": "Exportar"
   },
   "globalMenuDrawer": {
+    "adminLink": "Administración",
     "alertsButton": "Alertas",
     "alertsModal": {
       "title": "Alertas"
     },
+    "appsHeader": "APLICACIONES EARTHRANGER",
+    "closeButtonLabel": "Cerrar menú principal",
+    "closeButtonTitle": "Cerrar",
     "communityButton": "Comunidad",
-    "contactSupport": {
-      "body": "¿Cómo le podemos ayudar?",
-      "subject": "Petición de soporte del usuario"
-    },
     "contactSupportButton": "Contactar soporte",
     "dailyReportModal": {
       "title": "Reportes del día"
     },
+    "ecoscopeLink": "Ecoscope",
+    "ecoscopeTag": "Análisis",
     "exportsHeader": "EXPORTAR",
     "fieldReportsModal": {
       "content": "Eventos exportados solo incluiran aquellos que coincidan con los criterios del filtro actualmente aplicado en la pestaña de Reportes.",
       "title": "Eventos de campo"
     },
-    "ecoscopeAnalysisLinkAriaLabel": "Análisis con Ecoscope",
-    "ecoscopeAnalysisLink": "Análisis",
-    "ecoscopeDownloaderMigrationGuideLinkAriaLabel": "Descargador de Ecoscope",
-    "ecoscopeDownloaderMigrationGuideLink": "Descargar",
-    "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Versión del cliente web: {{version}}",
       "copyright": "©{{year}} EarthRanger",
       "dataPrivacyPolicyLink": "Política de Privacidad de datos",
       "eulaLink": "Acuerdo de Licencia de Usuario Final",
       "serverVersion": "Versión del servidor: {{version}}",
+      "systemStatusLink": "Estado del sistema",
       "websitePrivacyPolicyLink": "Política de Privacidad del sitio web"
     },
+    "gundiLink": "Gundi",
+    "gundiTag": "Integraciones",
     "header": "Menú principal",
     "helpCenterButton": "Centro de ayuda",
+    "learnHeader": "APRENDER",
     "masterKMLModal": {
       "title": "KML Maestro"
     },
+    "mobileAppStoreLink": "App Store (iPhone)",
+    "mobileGooglePlayLink": "Google Play (Android)",
+    "mobileHeader": "EARTHRANGER MOBILE",
     "navigationButton": {
       "gear": "Aparejos",
       "mapLayers": "Capas de mapa",
@@ -64,7 +68,9 @@
       "title": "Eventos de Sujeto"
     },
     "tableauButton": "Tableau",
-    "usersGuideButton": "Guía de Usuario"
+    "trainingLink": "Capacitación",
+    "usersGuideButton": "Guía de Usuario",
+    "whatsNewLink": "Novedades"
   },
   "kmlExportModal": {
     "dataExportModalTitle": "Exportar archivo KML Maestro",
