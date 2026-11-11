@@ -33,12 +33,16 @@ const useReportsFeed = () => {
   const [feedRequest, setFeedRequest] = useState({ id: 0, params: null });
   const [loadingEventFeed, setEventLoadState] = useState(true);
 
-  // The list nests an incident's events under it; the table has a row for each.
+  // Without filters, the list and the table show an incident instead of the
+  // events it contains. A sort is not a filter.
   const shouldExcludeContained = useMemo(() => {
     const { _persist, ...restEventFilter } = eventFilter;
 
-    return !isTableView && isEqual(restEventFilter, INITIAL_FILTER_STATE);
-  }, [eventFilter, isTableView]);
+    return isEqual(
+      { ...restEventFilter, filter: { ...restEventFilter.filter, sort: INITIAL_FILTER_STATE.filter.sort } },
+      INITIAL_FILTER_STATE
+    );
+  }, [eventFilter]);
   const eventParams = useRef(calcEventFilterForRequest({
     params: {
       exclude_contained: shouldExcludeContained,

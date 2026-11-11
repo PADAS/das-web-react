@@ -121,7 +121,7 @@ describe('useReportsFeed', () => {
     expect(includeDetailsParams).not.toContain('true');
   });
 
-  test('leaves out the events incidents contain only in the list without filters', async () => {
+  test('leaves out the events incidents contain in the list without filters', async () => {
     const excludeContainedParams = [];
     server.use(http.get(EVENTS_API_URL, ({ request }) => {
       excludeContainedParams.push(new URL(request.url).searchParams.get('exclude_contained'));
@@ -134,7 +134,7 @@ describe('useReportsFeed', () => {
     await waitFor(() => expect(excludeContainedParams.at(-1)).toBe('true'));
   });
 
-  test('keeps the events incidents contain in the table view without filters', async () => {
+  test('leaves out the events incidents contain in the table view without filters', async () => {
     showEventsTable();
     const excludeContainedParams = [];
     server.use(http.get(EVENTS_API_URL, ({ request }) => {
@@ -145,8 +145,29 @@ describe('useReportsFeed', () => {
 
     const { result } = renderUseReportsFeed(mockStore(store));
 
-    await waitFor(() => expect(excludeContainedParams.length).toBeGreaterThan(0));
-    expect(excludeContainedParams).not.toContain('true');
+    await waitFor(() => expect(excludeContainedParams.at(-1)).toBe('true'));
+    expect(result.current.shouldExcludeContained).toBe(true);
+  });
+
+  test('leaves out the events incidents contain when only the sort changes', async () => {
+    store.data.eventFilter = {
+      ...INITIAL_EVENT_FILTER_STATE,
+      filter: { ...INITIAL_EVENT_FILTER_STATE.filter, sort: ['+', INITIAL_EVENT_FILTER_STATE.filter.sort[1]] },
+    };
+
+    const { result } = renderUseReportsFeed(mockStore(store));
+
+    expect(result.current.shouldExcludeContained).toBe(true);
+  });
+
+  test('keeps the events incidents contain once a filter is set', async () => {
+    store.data.eventFilter = {
+      ...INITIAL_EVENT_FILTER_STATE,
+      filter: { ...INITIAL_EVENT_FILTER_STATE.filter, text: 'snare' },
+    };
+
+    const { result } = renderUseReportsFeed(mockStore(store));
+
     expect(result.current.shouldExcludeContained).toBe(false);
   });
 
