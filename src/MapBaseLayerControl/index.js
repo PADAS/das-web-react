@@ -16,6 +16,7 @@ import {
 import mapboxLogoSrc from '../common/images/icons/mapbox-logo.png';
 import genericGlobeLogoSrc from '../common/images/icons/generic-globe-logo.png';
 import googleMapsLogoSrc from '../common/images/icons/google-maps-logo.png';
+import esriLogoSrc from '../common/images/icons/esri-logo.svg';
 
 import { ReactComponent as BaseMapIcon } from '../common/images/icons/base-map.svg';
 
@@ -24,7 +25,11 @@ import * as styles from './styles.module.scss';
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 const baseLayerTracker = trackEventFactory(BASE_LAYER_CATEGORY);
 
-const renderLayerLogoSrc = ({ attributes: { type, icon_url } }) => {
+const isEsriLayer = ({ name, attributes: { icon_url } }) => /esri/i.test(`${name} ${icon_url}`);
+
+const renderLayerLogoSrc = (layer) => {
+  const { attributes: { type, icon_url } } = layer;
+  if (isEsriLayer(layer)) return esriLogoSrc;
   if (icon_url) return icon_url;
   if (type.toLowerCase().includes('mapbox')) return mapboxLogoSrc;
   if (TILE_LAYER_SOURCE_TYPES.includes(type)) return genericGlobeLogoSrc;
