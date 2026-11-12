@@ -1,41 +1,123 @@
+@use '../common/styles/badges';
+@use '../common/styles/buttons';
+@use '../common/styles/layout';
 @use '../common/styles/vars/colors';
 
-.messageMenu {
-  margin-right: 1rem;
+.primaryNav {
+  align-items: center;
+  background: colors.$title-bar-color;
+  box-shadow: 0 0.25rem 0.25rem 0 rgb(0 0 0 / 33%);
+  color: white;
+  display: flex;
+  gap: 0.5rem;
+  height: var(--nav-height);
+  justify-content: space-between;
+  padding: 0 1rem;
   position: relative;
+  width: 100vw;
+  z-index: 2;
 
-  .messageIcon {
-    opacity: 0.75;
-    width: 2.5rem;
-    height: 2.5rem;
-    margin: -0.625rem;
-    background-color: colors.$transparent-dark-gray;
-    border-radius: 0.125rem;
+  .leftControls {
+    align-items: center;
+    display: flex;
+    flex: 1 0 0;
+    justify-content: flex-start;
+    min-width: max-content;
 
-    path {
-      fill: colors.$light-gray;
+    .globalMenuButton {
+      @include buttons.top-bar-icon-button;
+
+      .globalMenuIcon {
+        height: 1.0625rem;
+        width: 1.375rem;
+      }
+    }
+
+    .logoWrapper {
+      display: none;
+      margin-left: 1rem;
+
+      .logo {
+        max-height: 2rem;
+        max-width: 12.25rem;
+      }
     }
   }
 
-  &:hover {
-    svg {
-      opacity: 0.9;
+  .centerControls {
+    display: flex;
+    flex: 0 1 auto;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .rightControls {
+    align-items: center;
+    display: flex;
+    flex: 1 0 0;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    min-width: max-content;
+  }
+
+  .messageMenu {
+    position: relative;
+
+    .messageMenuToggle {
+      @include buttons.top-bar-icon-button;
+
+      position: relative;
+
+      &::after {
+        display: none;
+      }
+
+      .messageIcon {
+        height: 2.5rem;
+        width: 2.5rem;
+
+        path {
+          fill: currentcolor;
+        }
+      }
+
+      .badge {
+        @include badges.top-bar-unread-count;
+      }
+    }
+
+    [class*='dropdown-menu'] {
+      background: colors.$off-white;
+      border: none;
+      box-shadow: 3px 3px 0.5rem rgba(colors.$dark-gray, 0.25);
+      max-width: 95vw;
+      padding: 0;
     }
   }
 
-  [class*="dropdown-menu"] {
-    border: none;
-    margin-right: -1rem;
-    padding: 0;
+  @media (min-width: layout.$md-layout-width-min) {
+    padding: 0 1.5rem;
   }
 
-  .badge {
-    color: white;
-    font-size: 0.6rem;
-    position: absolute;
-    right: -0.5rem;
-    top: 0;
+  @media (min-width: layout.$lg-layout-width-min) {
+    .leftControls .logoWrapper {
+      display: block;
+    }
+  }
+
+  @media print {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+
+    .rightControls > :first-child,
+    .rightControls > :last-child {
+      display: none !important;
+    }
   }
 }
 
-
+.profilePinModal {
+  [class*='modal-dialog'] {
+    max-width: 17rem;
+  }
+}

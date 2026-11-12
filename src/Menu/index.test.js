@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 
-import { createEvent, fireEvent, render, screen } from '../test-utils';
+import { createEvent, fireEvent, render, screen, within } from '../test-utils';
 
 import Menu, { FOCUS_INTENTS } from './';
 
@@ -135,6 +135,22 @@ describe('Menu', () => {
 
     expect(onFirstOptionClick).toHaveBeenCalled();
     expect(onClose).toHaveBeenCalled();
+  });
+
+  test('checks only the checked radio option, with a check mark', async () => {
+    render(<Menu aria-label="Maps menu" onClose={onClose} onHide={onHide} show>
+      <Menu.Option aria-checked role="menuitemradio">Earth</Menu.Option>
+
+      <Menu.Option aria-checked={false} role="menuitemradio">National Park</Menu.Option>
+    </Menu>);
+
+    const earthOption = await screen.findByRole('menuitemradio', { name: 'Earth' });
+    const parkOption = screen.getByRole('menuitemradio', { name: 'National Park' });
+
+    expect(earthOption).toHaveAttribute('aria-checked', 'true');
+    expect(within(earthOption).getByTestId('menu-checkIcon')).toBeInTheDocument();
+    expect(parkOption).toHaveAttribute('aria-checked', 'false');
+    expect(within(parkOption).queryByTestId('menu-checkIcon')).not.toBeInTheDocument();
   });
 
   test('hides when the user clicks outside of it', async () => {

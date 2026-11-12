@@ -1,4 +1,5 @@
 @use 'sass:color';
+@use '../common/styles/layout';
 @use '../common/styles/vars/colors';
 
 .form {
@@ -8,14 +9,19 @@
 
   .searchBar {
     width: 40%;
+
+    @media (min-width: layout.$md-layout-width-min) {
+      @include layout.feed-search-bar-width(0.75rem);
+    }
   }
 
   .buttons {
     align-items: center;
     display: flex;
+    flex: 1;
     gap: 0.5rem;
     justify-content: flex-end;
-    width: 60%;
+    min-width: 0;
 
     .button {
       align-items: center;
@@ -133,9 +139,23 @@ div.filterPopover {
   align-items: center;
   border-bottom: 1px solid colors.$light-gray-border;
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   justify-content: space-between;
   min-height: 2.81rem;
   padding: 0.5rem 0.3rem 0.3rem;
+
+  // Filled by the feed's table view with its own controls.
+  .summaryActions {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+
+    &:empty {
+      display: none;
+    }
+  }
 
   .friendlyFilterString {
     display: block;

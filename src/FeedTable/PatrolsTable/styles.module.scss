@@ -1,0 +1,36 @@
+@use 'sass:color';
+@use 'sass:map';
+@use '../../common/styles/vars/colors';
+
+@mixin row-theme($theme) {
+  --ag-row-hover-color: #{color.mix(map.get($theme, 'font-color') or map.get($theme, 'base'), white, colors.$patrol-row-tint)};
+  --feed-table-icon-background: #{map.get($theme, 'base')};
+
+  @if map.get($theme, 'font-color') {
+    --feed-table-icon-color: #{map.get($theme, 'font-color')};
+  }
+}
+
+.active {
+  @include row-theme(colors.$patrol-active-theme);
+}
+
+.cancelled, .invalid {
+  @include row-theme(colors.$patrol-cancelled-theme);
+}
+
+.done {
+  @include row-theme(colors.$patrol-done-theme);
+}
+
+.paused {
+  @include row-theme(colors.$patrol-paused-theme);
+}
+
+.readyToStart, .scheduled {
+  @include row-theme(colors.$patrol-ready-theme);
+}
+
+.startOverdue {
+  @include row-theme(colors.$patrol-overdue-theme);
+}

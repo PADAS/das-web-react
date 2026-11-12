@@ -24,9 +24,10 @@ import { fetchPatrolTypes } from './ducks/patrol-types';
 import { fetchAllGear, GEAR_LIST_POLL_INTERVAL_MS } from './ducks/gear';
 import { fetchSubjectGroups } from './ducks/subjects';
 import { fetchSystemStatus } from './ducks/system-status';
-import { getCurrentTabFromURL } from './utils/navigation';
+import { getCurrentIdFromURL, getCurrentTabFromURL } from './utils/navigation';
 import { setDefaultCustomTrackLength, setTrackLength } from './ducks/tracks';
 import { showToast } from './utils/toast';
+import useFeedTableView from './FeedTable/useFeedTableView';
 import useNavigate from './hooks/useNavigate';
 import { userIsGeoPermissionRestricted } from './utils/geo-perms';
 
@@ -72,7 +73,11 @@ export const App = () => {
   const [isDragging, setDragState] = useState(false);
   const [map, setMap] = useState(null);
 
+  const { isTableView } = useFeedTableView();
+
   const currentTab = getCurrentTabFromURL(location.pathname);
+  // The table covers the map, so its controls leave the tab order.
+  const isMapCoveredByTable = isTableView && !getCurrentIdFromURL(location.pathname);
   let sidebarOpen = !!currentTab;
 
   const jumpToStartingLocation = useCallback((map) => {
@@ -229,7 +234,7 @@ export const App = () => {
 
         <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
           {mapboxSupported
-            ? <Map map={map} onMapLoad={onMapHasLoaded} socket={socket} />
+            ? <Map inert={isMapCoveredByTable} map={map} onMapLoad={onMapHasLoaded} socket={socket} />
             : <ErrorMessage className='webgl-error-message' message={t('webGlDisabled')} />}
 
           <SidebarScrollProvider>

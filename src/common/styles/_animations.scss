@@ -29,3 +29,24 @@
 
   animation: fade-in $duration $delay linear;
 }
+
+// A feed's list or table appears once the feed has widened or narrowed into it.
+@mixin feed-view-enter {
+  @keyframes feed-view-enter {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  animation: feed-view-enter 0.3s ease-out 0.25s both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}

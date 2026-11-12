@@ -91,8 +91,6 @@ export const eventBelongsToCollection = (event) => !!getEventIncidentId(event);
 
 export const eventBelongsToPatrol = (event) => !!getEventPatrolId(event);
 
-export const uniqueEventIds = (value, index, self) => self.indexOf(value) === index;
-
 export const createNewReportForEventType = (reportType, data) => {
   const location = data?.location;
   const reportedById = data?.reportedById;

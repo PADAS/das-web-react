@@ -1,0 +1,65 @@
+@use '../../common/styles/filter-popovers';
+@use '../../common/styles/layout';
+@use '../../common/styles/vars/colors';
+
+.statusPopover {
+  @include filter-popovers.filter-popover;
+
+  max-height: min(32rem, calc(100dvh - 5rem));
+  max-width: 98vw;
+  overflow-y: auto;
+
+  .body {
+    padding: 0;
+
+    .statusList {
+      margin: 0;
+      padding: 0;
+
+      .statusItem {
+        align-items: center;
+        display: flex;
+        font-size: 0.85rem;
+        gap: 1rem;
+        justify-content: space-between;
+        list-style: none;
+        padding: 0.5rem 1rem;
+
+        + .statusItem {
+          border-top: 1px solid colors.$light-gray-lines;
+        }
+
+        .summary {
+          align-items: center;
+          color: colors.$off-black;
+          display: flex;
+          gap: 0.5rem;
+
+          .badge {
+            flex-shrink: 0;
+            height: 0.75rem;
+            width: 0.75rem;
+          }
+        }
+
+        .details {
+          align-items: flex-end;
+          color: colors.$secondary-medium-gray;
+          display: flex;
+          flex-direction: column;
+          font-size: 0.8rem;
+          text-align: right;
+
+          .timestamp {
+            margin-left: 0.5rem;
+          }
+        }
+      }
+    }
+  }
+
+  @media (min-width: layout.$md-layout-width-min) {
+    max-width: 30rem;
+    width: auto;
+  }
+}

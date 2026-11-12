@@ -12,25 +12,27 @@ describe('hooks - useModalPopover', () => {
     onClose = jest.fn();
   });
 
-  const ModalPopover = ({ children, isNestedMenuOpen, trigger }) => {
+  const ModalPopover = ({ children, hasButtons, isNestedMenuOpen, trigger }) => {
     const bodyRef = useRef(null);
 
     const { focusPopover, onKeyDown } = useModalPopover(bodyRef, trigger, onClose, isNestedMenuOpen);
 
     return <div aria-label="Popover" onKeyDown={onKeyDown} role="dialog" tabIndex={-1}>
       <div ref={bodyRef}>
-        <button onClick={focusPopover} type="button">First</button>
+        {hasButtons && <>
+          <button onClick={focusPopover} type="button">First</button>
 
-        <button disabled type="button">Disabled</button>
+          <button disabled type="button">Disabled</button>
 
-        <button type="button">Last</button>
+          <button type="button">Last</button>
+        </>}
 
         {children}
       </div>
     </div>;
   };
 
-  const ModalPopoverWithTrigger = ({ children = null, isNestedMenuOpen = false }) => {
+  const ModalPopoverWithTrigger = ({ children = null, hasButtons = true, isNestedMenuOpen = false }) => {
     const [trigger, setTrigger] = useState(null);
 
     return <>
@@ -38,7 +40,9 @@ describe('hooks - useModalPopover', () => {
 
       <button type="button">Outside</button>
 
-      {!!trigger && <ModalPopover isNestedMenuOpen={isNestedMenuOpen} trigger={trigger}>{children}</ModalPopover>}
+      {!!trigger && <ModalPopover hasButtons={hasButtons} isNestedMenuOpen={isNestedMenuOpen} trigger={trigger}>
+        {children}
+      </ModalPopover>}
     </>;
   };
 
@@ -124,6 +128,25 @@ describe('hooks - useModalPopover', () => {
     await userEvent.tab({ shift: true });
 
     expect(screen.getByRole('button', { name: 'Last' })).toHaveFocus();
+  });
+
+  test('moves focus on to a link after the last button when the user tabs', async () => {
+    renderModalPopover({ children: <a href="https://earthranger.com">Link</a> });
+
+    screen.getByRole('button', { name: 'Last' }).focus();
+
+    await userEvent.tab();
+
+    expect(screen.getByRole('link', { name: 'Link' })).toHaveFocus();
+  });
+
+  test('closes a popover with nothing to focus and moves on from the trigger when the user tabs', async () => {
+    renderModalPopover({ children: <p>Read-only content</p>, hasButtons: false });
+
+    await userEvent.tab();
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('button', { name: 'Outside' })).toHaveFocus();
   });
 
   test('skips disabled elements when the user tabs', async () => {
