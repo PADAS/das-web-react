@@ -421,12 +421,13 @@ $chip-height-small: 1.75rem;
 }
 
 // The top bar is dark, so its buttons lighten on hover rather than darken.
-@mixin top-bar-button {
+// Inside a dark-themed subtree, pass the theme's primary text as $text-color.
+@mixin top-bar-button($text-color: var(--er-ui-text-primary-text-reversed)) {
   align-items: center;
   background-color: transparent;
   border: none;
   border-radius: 0.25rem;
-  color: colors.with-opacity(var(--er-ui-text-primary-text-reversed), 85%);
+  color: colors.with-opacity($text-color, 85%);
   display: flex;
   gap: 0.5rem;
   height: $chip-height;
@@ -436,22 +437,22 @@ $chip-height-small: 1.75rem;
 
   &:hover {
     background-color: colors.with-opacity(var(--er-greyscale-white), 10%);
-    color: var(--er-ui-text-primary-text-reversed);
+    color: $text-color;
   }
 
   &:focus-visible {
-    color: var(--er-ui-text-primary-text-reversed);
-    outline: 2px solid var(--er-ui-text-primary-text-reversed);
+    color: $text-color;
+    outline: 2px solid $text-color;
   }
 
   &[aria-expanded='true'] {
     background-color: colors.with-opacity(var(--er-greyscale-white), 20%);
-    color: var(--er-ui-text-primary-text-reversed);
+    color: $text-color;
   }
 }
 
-@mixin top-bar-icon-button {
-  @include top-bar-button;
+@mixin top-bar-icon-button($text-color: var(--er-ui-text-primary-text-reversed)) {
+  @include top-bar-button($text-color);
 
   padding: 0;
   width: $chip-height;

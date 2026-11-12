@@ -234,7 +234,7 @@
       // z-index: 1;
 
       &:hover {
-        text-decoration: underline;
+        background-color: var(--er-ui-background-hover-background);
       }
 
       &::after {

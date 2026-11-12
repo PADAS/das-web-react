@@ -91,6 +91,7 @@ const gridTheme = themeQuartz.withParams({
   headerFontWeight: 400,
   headerTextColor: styles.headerTextColor,
   rowBorder: false,
+  rowHoverColor: styles.rowHoverColor,
   selectedRowBackgroundColor: styles.selectedRowBackgroundColor,
   wrapperBorder: false,
   wrapperBorderRadius: 0,

@@ -3,7 +3,7 @@
 
 @mixin legend-panel {
   backdrop-filter: blur(2px);
-  background: colors.with-opacity(var(--er-ui-background-primary-background), 90%);
+  background: colors.with-opacity(var(--er-ui-background-primary-background), 95%);
   border-radius: 0.25rem;
   box-shadow: 0 4px 4px 0 colors.with-opacity(var(--er-greyscale-0), 25%);
   padding: 0.5rem;

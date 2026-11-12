@@ -9,7 +9,6 @@ const FeedListItem = ({
   DateComponent = null,
   IconComponent = null,
   onClick,
-  themeBgColor = null,
   themeColor = 'var(--er-ui-event-priority-grey)',
   TitleComponent,
   ...otherProps
@@ -26,7 +25,6 @@ const FeedListItem = ({
   return <Component
     className={`${styles.listItem} ${className}`}
     onClick={onClick && onClickItem}
-    style={{ backgroundColor: themeBgColor }}
     {...otherProps}
   >
     {IconComponent && <div className={styles.iconContainer} role="img" style={{ backgroundColor: themeColor }}>

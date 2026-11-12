@@ -96,7 +96,7 @@ $card-expansion-transition-time: 300ms;
       cursor: pointer;
 
       &:hover:not(:has(.actionButton:not(.collapseToggleButton):hover)) {
-        background: var(--item-row-hover-bg, var(--er-ui-background-selected-background));
+        background-color: var(--er-ui-background-hover-background);
       }
     }
 

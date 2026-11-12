@@ -68,7 +68,7 @@ const PatrolListItem = ({
   const { t: tUtils } = useTranslation('utils');
   const isPatrolUnderWayOrDone = isPatrolUnderWay || isPatrolDone;
 
-  const { base: themeColor, background: themeBgColor } = theme;
+  const { base: themeColor } = theme;
 
   const handleClick = useCallback(() => {
     patrolListItemTracker.track('Click patrol list item');
@@ -227,7 +227,6 @@ const PatrolListItem = ({
     IconComponent={renderedIconComponent}
     onClick={handleClick}
     ref={ref}
-    themeBgColor={themeBgColor}
     themeColor={themeColor}
     title={displayTitle}
     TitleComponent={renderedTitleComponent}

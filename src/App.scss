@@ -210,7 +210,7 @@ body {
   @include animations.fade-in;
 
   display: none;
-  background: colors.with-opacity(var(--er-ui-background-primary-background), 85%);
+  background: colors.with-opacity(var(--er-ui-background-primary-background), 95%);
   border-radius: 0.666rem;
   line-height: normal;
   max-width: 14rem;

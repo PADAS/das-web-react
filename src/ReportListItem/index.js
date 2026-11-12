@@ -19,13 +19,6 @@ import LocationJumpButton from '../LocationJumpButton';
 
 import * as styles from './styles.module.scss';
 
-const HOVER_EFFECTS = {
-  300: styles.highPriority,
-  200: styles.mediumPriority,
-  100: styles.lowPriority,
-  0: styles.noPriority,
-};
-
 const ReportListItem = ({
   className = '',
   Component = 'li',
@@ -72,7 +65,7 @@ const ReportListItem = ({
   }, [coordinates, dispatch, jumpToLocation, report]);
 
   return <FeedListItem
-    className={`${HOVER_EFFECTS[displayPriority]} ${className}`}
+    className={`${styles.item} ${className}`}
     Component={Component}
     ControlsComponent={coordinates && !!coordinates.length && showJumpButton ? <LocationJumpButton
       clickAnalytics={[
@@ -99,7 +92,6 @@ const ReportListItem = ({
       {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
     </IconElement>}
     onClick={() => onTitleClick?.(report)}
-    themeBgColor={tokenVar(priorityColors.backgroundToken)}
     themeColor={tokenVar(priorityColors.baseToken)}
     title={displayTitle}
     TitleComponent={<>

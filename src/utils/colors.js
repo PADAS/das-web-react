@@ -23,22 +23,18 @@ export const COLOR_TOKENS = Object.fromEntries(Object.keys(tokens.color).map((sp
 // Token names, so the map draws them as hex and the styles as var().
 export const PRIORITY_COLOR_MAP = {
   300: {
-    backgroundToken: 'red-6',
     baseToken: 'ui-event-priority-red',
     key: 'red',
   },
   200: {
-    backgroundToken: 'amber-6',
     baseToken: 'ui-event-priority-amber',
     key: 'amber',
   },
   100: {
-    backgroundToken: 'green-6',
     baseToken: 'ui-event-priority-green',
     key: 'green',
   },
   0: {
-    backgroundToken: 'greyscale-11',
     baseToken: 'ui-event-priority-grey',
     key: 'none',
   },
