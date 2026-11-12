@@ -59,17 +59,13 @@
     padding: 0.25rem 0.5rem;
     padding-left: 1.75rem;
 
-    &:hover, &.active {
-      background-color: var(--er-ui-background-elevated-component-0);
-    }
-  
     &[aria-selected="true"] {
-      background-color: var(--er-ui-background-hover-background);
+      background-color: var(--er-ui-background-selected-background);
       padding-left: 0.5rem;
+    }
 
-      &:hover, &.active {
-        background-color: colors.deepen(var(--er-ui-background-hover-background), var(--er-ui-cta-primary), colors.$tint-hover-deepen);
-      }
+    &:hover, &.active {
+      background-color: var(--er-ui-background-hover-background);
     }
 
     .checkLightIcon {

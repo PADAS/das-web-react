@@ -118,7 +118,8 @@ const Select = ({
       multiValue: () => styles.multiValue,
       multiValueRemove: () => styles.multiValueRemove,
       noOptionsMessage: () => styles.noOptionsMessage,
-      option: (state) => `${styles.cursorPointer} ${state.isFocused ? styles.optionFocused : ''}`,
+      option: (state) => `${styles.cursorPointer} ${state.isSelected ? styles.optionSelected : ''} ${
+        state.isFocused ? styles.optionFocused : ''}`,
       ...customClassNames,
     }}
     components={{ IndicatorSeparator, MenuList, Option, ...customComponents }}

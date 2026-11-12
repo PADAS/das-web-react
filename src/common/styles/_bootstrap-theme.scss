@@ -205,11 +205,11 @@ a {
   --bs-dropdown-color: var(--er-ui-text-primary-text);
   --bs-dropdown-divider-bg: var(--er-ui-divider-lines);
   --bs-dropdown-header-color: var(--er-ui-text-secondary-text);
-  --bs-dropdown-link-active-bg: var(--er-ui-background-hover-background);
+  --bs-dropdown-link-active-bg: var(--er-ui-background-selected-background);
   --bs-dropdown-link-active-color: var(--er-ui-cta-primary);
   --bs-dropdown-link-color: var(--er-ui-text-primary-text);
   --bs-dropdown-link-disabled-color: var(--er-ui-text-disabled);
-  --bs-dropdown-link-hover-bg: var(--er-ui-background-elevated-component-0);
+  --bs-dropdown-link-hover-bg: var(--er-ui-background-hover-background);
   --bs-dropdown-link-hover-color: var(--er-ui-text-primary-text);
 }
 

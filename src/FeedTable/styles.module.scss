@@ -9,7 +9,7 @@
   foregroundColor: var(--er-ui-text-primary-text);
   headerTextColor: var(--er-ui-text-secondary-text);
   rowHoverColor: var(--er-ui-background-hover-background);
-  selectedRowBackgroundColor: var(--er-ui-background-hover-background);
+  selectedRowBackgroundColor: var(--er-ui-background-selected-background);
 }
 
 .feedTable {
@@ -137,7 +137,7 @@
     }
 
     [class~='ag-row-selected'] [class~='ag-cell'] {
-      background-color: var(--er-ui-background-hover-background);
+      background-color: var(--er-ui-background-selected-background);
     }
   }
 }

@@ -13,7 +13,16 @@
 .option {
   display: flex !important;
   align-items: center;
+  background-color: transparent !important;
   gap: 0.5rem;
+
+  &.optionSelected {
+    background-color: var(--er-ui-background-selected-background) !important;
+  }
+
+  &.optionFocused, &:active {
+    background-color: var(--er-ui-background-hover-background) !important;
+  }
 
   .optionLabel {
     color: var(--er-ui-text-primary-text);

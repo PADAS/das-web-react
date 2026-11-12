@@ -96,6 +96,10 @@ $option-icon-gap: 0.5rem;
   gap: 0.5rem;
   overflow-wrap: anywhere;
 
+  &.optionSelected {
+    background-color: var(--er-ui-background-selected-background) !important;
+  }
+
   &.optionFocused,
   &:active {
     background-color: var(--er-ui-background-hover-background) !important;
