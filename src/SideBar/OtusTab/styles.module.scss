@@ -18,7 +18,7 @@
 
     .loadError {
       align-items: center;
-      color: colors.$ui-text-primary;
+      color: colors.$er-legacy-text-primary;
       display: flex;
       flex: 1;
       flex-direction: column;
@@ -64,12 +64,12 @@
     }
 
     &:hover {
-      background-color: colors.$secondary-light-gray;
+      background-color: colors.$er-legacy-field-outline;
     }
 
     &:focus-visible {
-      background-color: colors.$bright-blue;
-      outline: 2px solid colors.$bright-blue;
+      background-color: colors.$er-legacy-cta-primary;
+      outline: 2px solid colors.$er-legacy-cta-primary;
     }
   }
 }
