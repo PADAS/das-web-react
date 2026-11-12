@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import {
   CellStyleModule,
@@ -19,18 +19,15 @@ import { createPortal } from 'react-dom';
 import isPlainObject from 'lodash/isPlainObject';
 import MoonLoader from 'react-spinners/MoonLoader';
 import omit from 'lodash/omit';
-import Overlay from 'react-bootstrap/Overlay';
-import Popover from 'react-bootstrap/Popover';
 import { useTranslation } from 'react-i18next';
-
-import { ReactComponent as CheckIcon } from '../common/images/icons/check-light.svg';
 
 import FeedTableContext from './FeedTableContext';
 import { format, STANDARD_DATE_FORMAT } from '../utils/datetime';
-import navigateMenuWithKeyboard from '../SideBar/utils/navigateMenuWithKeyboard';
 import { showToast } from '../utils/toast';
+import useMenuToggle from '../hooks/useMenuToggle';
 
 import HeaderCell from './HeaderCell';
+import Menu from '../Menu';
 import TitleCell from './TitleCell';
 
 import * as styles from './styles.module.scss';
@@ -210,13 +207,11 @@ const FeedTable = ({
 }) => {
   const { t } = useTranslation('components', { keyPrefix: 'feedTable' });
 
-  const columnsMenuItemRefs = useRef([]);
+  const columnsMenuToggle = useMenuToggle();
 
-  const columnsMenuId = useId();
   const moveColumnHintId = useId();
 
   const [columnOrders, setColumnOrders] = useState({});
-  const [columnsButton, setColumnsButton] = useState(null);
   const [columnWidths, setColumnWidths] = useState(
     () => readStored(storageKey('columnWidths', tableKey), isPlainObject, {})
   );
@@ -225,7 +220,6 @@ const FeedTable = ({
   const [hiddenColumns, setHiddenColumns] = useState(
     () => readStored(storageKey('hiddenColumns', tableKey), isPlainObject, {})
   );
-  const [isColumnsMenuOpen, setIsColumnsMenuOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
 
@@ -274,12 +268,6 @@ const FeedTable = ({
     gridApi.deselectAll();
 
     gridElement?.querySelector('input[type="checkbox"]')?.focus();
-  };
-
-  const closeColumnsMenu = () => {
-    setIsColumnsMenuOpen(false);
-
-    columnsButton?.focus();
   };
 
   const onBodyScroll = (event) => {
@@ -353,12 +341,6 @@ const FeedTable = ({
     gridApi?.setGridAriaProperty('label', ariaLabel ?? null);
   }, [ariaLabel, gridApi]);
 
-  useEffect(() => {
-    if (isColumnsMenuOpen) {
-      columnsMenuItemRefs.current[0]?.focus();
-    }
-  }, [isColumnsMenuOpen]);
-
   return <div className={styles.feedTable} data-testid={`feedTable-${tableKey}`}>
     {!!toolbarContainer && createPortal(<div className={styles.toolbar}>
       {selectedRows.length > 0 && <div className={styles.selection}>
@@ -401,59 +383,29 @@ const FeedTable = ({
 
       <div className={styles.toolbarEnd}>
         <button
-          aria-controls={columnsMenuId}
-          aria-expanded={isColumnsMenuOpen}
-          aria-haspopup="menu"
           className={styles.toolbarButton}
           data-testid="feedTable-columnsButton"
-          onClick={() => setIsColumnsMenuOpen(true)}
-          ref={setColumnsButton}
           type="button"
+          {...columnsMenuToggle.toggleProps}
         >
           {t('columnsButtonLabel')}
         </button>
 
-        <Overlay
-          onHide={() => setIsColumnsMenuOpen(false)}
+        <Menu
+          aria-label={t('columnsMenuLabel')}
+          className={styles.columnsMenu}
           placement="bottom-end"
-          rootClose
-          show={isColumnsMenuOpen}
-          target={columnsButton}
+          {...columnsMenuToggle.menuProps}
         >
-          <Popover className={styles.columnsMenuPopover} id={columnsMenuId} role="presentation">
-            <ul
-              aria-label={t('columnsMenuLabel')}
-              className={styles.columnsMenu}
-              onKeyDown={(event) => navigateMenuWithKeyboard(
-                event,
-                columnsMenuItemRefs.current.filter(Boolean),
-                closeColumnsMenu
-              )}
-              role="menu"
-            >
-              {orderedColumnDefs.filter((column) => !column.lockVisible).map((column, index) => <li
-                key={column.colId}
-                role="none"
-              >
-                <button
-                  aria-checked={!isColumnHidden(column)}
-                  className={styles.columnsMenuItem}
-                  onClick={() => toggleColumn(column)}
-                  ref={(element) => {
-                    columnsMenuItemRefs.current[index] = element;
-                  }}
-                  role="menuitemcheckbox"
-                  tabIndex={-1}
-                  type="button"
-                >
-                  {!isColumnHidden(column) && <CheckIcon aria-hidden="true" className={styles.checkIcon} />}
-
-                  {column.menuName ?? column.headerName}
-                </button>
-              </li>)}
-            </ul>
-          </Popover>
-        </Overlay>
+          {orderedColumnDefs.filter((column) => !column.lockVisible).map((column) => <Menu.Option
+            aria-checked={!isColumnHidden(column)}
+            key={column.colId}
+            onClick={() => toggleColumn(column)}
+            role="menuitemcheckbox"
+          >
+            {column.menuName ?? column.headerName}
+          </Menu.Option>)}
+        </Menu>
 
         {!!onExport && <button
           className={styles.toolbarButton}

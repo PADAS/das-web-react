@@ -1,11 +1,8 @@
 @use '../../../../common/styles/buttons';
-@use '../../../../common/styles/inputs';
-@use '../../../../common/styles/colors';
 
 .sortingButton {
   @include buttons.chip-text-button;
   @include buttons.chip-active-state;
-  @include buttons.chip-open-state;
 
   min-width: 0;
 
@@ -24,70 +21,6 @@
   @include buttons.sort-direction-button;
 }
 
-.sortByMenuPopover {
-  @include inputs.box-shadow;
-
-  border: none !important;
-  border-radius: 0.25rem !important;
+.sortByMenu {
   min-width: 12rem;
-
-  [class*='popover-arrow'] {
-    display: none;
-  }
-
-  .sortByMenu {
-    margin: 0;
-
-    .sortByMenuItem {
-      &:first-child {
-        .sortByMenuItemOption {
-          border-top-left-radius: 0.25rem;
-          border-top-right-radius: 0.25rem;
-        }
-      }
-
-      &:last-child {
-        .sortByMenuItemOption {
-          border-bottom-left-radius: 0.25rem;
-          border-bottom-right-radius: 0.25rem;
-        }
-      }
-
-      .sortByMenuItemOption {
-        background-color: var(--er-ui-background-primary-background);
-        border: none;
-        outline: none;
-        padding: 0.5rem;
-        text-align: left;
-        width: 100%;
-
-        &:hover {
-          background-color: var(--er-ui-background-elevated-component-0);
-        }
-
-        &:focus {
-          background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
-        }
-
-        &[aria-checked="true"] {
-          background-color: var(--er-ui-background-hover-background);
-
-          &:hover, &:focus {
-            background-color: colors.deepen(var(--er-ui-background-hover-background), var(--er-ui-cta-primary), colors.$tint-hover-deepen);
-          }
-        }
-
-        &[aria-checked="false"] {
-          padding-left: 1.75rem;
-        }
-
-        .checkIcon {
-          color: var(--er-ui-cta-primary);
-          height: 0.75rem;
-          margin-right: 0.5rem;
-          width: 0.75rem;
-        }
-      }
-    }
-  }
 }

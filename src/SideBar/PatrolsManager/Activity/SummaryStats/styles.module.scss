@@ -1,7 +1,4 @@
-@use '../../../../common/styles/inputs';
 @use '../../../../common/styles/layout';
-@use '../../../../common/styles/colors';
-@use '../../shared';
 
 .summaryStats {
   display: grid;
@@ -41,7 +38,7 @@
         gap: 0.5rem;
         padding: 0;
 
-        &:hover {
+        &:hover, &[aria-expanded="true"] {
           color: var(--er-ui-text-primary-text);
 
           .statLabelIcon path {
@@ -73,108 +70,58 @@
   }
 }
 
-.distanceMenuPopover {
-  @include inputs.box-shadow;
-
-  border: none !important;
-  border-radius: 0.25rem !important;
-
-  [class*='popover-arrow'] {
-    display: none;
-  }
-
-  .distanceMenu {
-    list-style: none;
-    margin: 0;
+.distanceMenu {
+  [role="menu"] {
     max-height: 15rem;
     overflow-y: auto;
-    padding: 0;
+  }
 
-    .distanceMenuItem {
-      .distanceMenuItemOption {
-        @include shared.subject-menu-row;
+  .distanceMenuOption {
+    min-height: 2.5rem;
 
-        border: none;
-        outline: none;
-        text-align: left;
-        width: 100%;
+    .labelWrapper {
+      display: flex;
+      flex-direction: column;
+      max-width: 18rem;
+      min-width: 0;
 
-        &:hover {
-          background-color: var(--er-ui-background-elevated-component-0);
-        }
-
-        &:focus {
-          background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
-        }
-
-        &[aria-checked="true"] {
-          background-color: var(--er-ui-background-hover-background);
-
-          &:hover, &:focus {
-            background-color: colors.deepen(var(--er-ui-background-hover-background), var(--er-ui-cta-primary), colors.$tint-hover-deepen);
-          }
-        }
-
-        &[aria-checked="false"] {
-          padding-left: 2rem;
-        }
-
-        .checkIcon {
-          color: var(--er-ui-cta-primary);
-          flex-shrink: 0;
-          height: 0.75rem;
-          width: 0.75rem;
-        }
-
-        .labelWrapper {
-          display: flex;
-          flex-direction: column;
-          max-width: 18rem;
-          min-width: 0;
-
-          .description {
-            color: var(--er-ui-text-secondary-text);
-            font-size: 0.75rem;
-            line-height: 1.25;
-          }
-
-          .label {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-          }
-        }
-
-        .subjectIcon {
-          align-items: center;
-          display: flex;
-          flex-shrink: 0;
-          height: 1.25rem;
-          justify-content: center;
-          width: 1.25rem;
-
-          img {
-            max-height: 100%;
-            max-width: 100%;
-          }
-        }
-
-        .teamLeadIcon {
-          color: var(--er-ui-icons);
-          flex-shrink: 0;
-          height: 0.875rem;
-          width: 0.875rem;
-        }
+      .description {
+        color: var(--er-ui-text-secondary-text);
+        font-size: 0.75rem;
+        line-height: 1.25;
       }
 
-      &:first-child .distanceMenuItemOption {
-        border-top-left-radius: 0.25rem;
-        border-top-right-radius: 0.25rem;
+      .label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
+    }
 
-      &:last-child .distanceMenuItemOption {
-        border-bottom-left-radius: 0.25rem;
-        border-bottom-right-radius: 0.25rem;
+    .subjectIcon {
+      align-items: center;
+      display: flex;
+      flex-shrink: 0;
+      height: 1.25rem;
+      justify-content: center;
+      margin-right: 0.5rem;
+      width: 1.25rem;
+
+      img {
+        max-height: 100%;
+        max-width: 100%;
+      }
+    }
+
+    .teamLeadIcon {
+      color: var(--er-ui-icons);
+      display: flex;
+      flex-shrink: 0;
+      margin-left: 0.5rem;
+
+      svg {
+        height: 0.875rem;
+        width: 0.875rem;
       }
     }
   }

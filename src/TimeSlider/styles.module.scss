@@ -1,5 +1,4 @@
 @use '../common/styles/buttons';
-@use '../common/styles/inputs';
 @use '../common/styles/layout';
 @use '../common/styles/colors';
 
@@ -63,7 +62,6 @@
 
   .speedButton {
     @include buttons.chip-text-button;
-    @include buttons.chip-open-state;
 
     display: none;
     flex-shrink: 0;
@@ -168,7 +166,6 @@
   .dateRangeButton {
     @include buttons.chip-icon-button;
     @include buttons.chip-active-state;
-    @include buttons.chip-open-state;
 
     display: none;
     flex-shrink: 0;
@@ -210,74 +207,6 @@
   }
 }
 
-.speedMenuPopover {
-  @include inputs.box-shadow;
-
-  border: none !important;
-  border-radius: 0.25rem !important;
+.speedMenu {
   min-width: 9rem;
-
-  [class*="popover-arrow"] {
-    display: none;
-  }
-
-  .speedMenuHeader {
-    color: var(--er-ui-text-secondary-text);
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    padding: 0.75rem 0.75rem 0.25rem;
-    text-transform: uppercase;
-  }
-
-  .speedMenu {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-
-    .speedMenuItem {
-      &:last-child {
-        .speedMenuItemOption {
-          border-bottom-left-radius: 0.25rem;
-          border-bottom-right-radius: 0.25rem;
-        }
-      }
-
-      .speedMenuItemOption {
-        background-color: var(--er-ui-background-primary-background);
-        border: none;
-        outline: none;
-        padding: 0.5rem 0.75rem;
-        text-align: left;
-        width: 100%;
-
-        &:hover {
-          background-color: var(--er-ui-background-elevated-component-0);
-        }
-
-        &:focus {
-          background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
-        }
-
-        &[aria-checked="true"] {
-          background-color: var(--er-ui-background-hover-background);
-
-          &:hover, &:focus {
-            background-color: colors.deepen(var(--er-ui-background-hover-background), var(--er-ui-cta-primary), colors.$tint-hover-deepen);
-          }
-        }
-
-        &[aria-checked="false"] {
-          padding-left: 2rem;
-        }
-
-        .checkIcon {
-          color: var(--er-ui-cta-primary);
-          height: 0.75rem;
-          margin-right: 0.5rem;
-          width: 0.75rem;
-        }
-      }
-    }
-  }
 }

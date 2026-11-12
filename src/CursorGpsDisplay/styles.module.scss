@@ -19,26 +19,8 @@
     outline: 2px solid var(--er-ui-cta-primary);
   }
 
-  &:hover {
+  &:hover, &[aria-expanded="true"] {
     background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
-  }
-
-  &[aria-expanded="true"] {
-    color: var(--er-ui-cta-primary);
-
-    .searchIcon {
-      circle {
-        stroke: var(--er-ui-cta-primary);
-      }
-  
-      path {
-        fill: var(--er-ui-cta-primary);
-      }
-    }
-
-    .caret {
-      border-top-color: var(--er-ui-cta-primary);
-    }
   }
 
   .searchIcon {

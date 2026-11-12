@@ -42,7 +42,7 @@
     }
   }
 
-  &:hover {
+  &:hover, &[aria-expanded="true"] {
     background-image: linear-gradient(colors.with-opacity(var(--er-greyscale-0), 8%), colors.with-opacity(var(--er-greyscale-0), 8%));
   }
 
@@ -52,78 +52,10 @@
   }
 }
 
-.menuPopover {
-  @include inputs.box-shadow;
-
-  border: none !important;
-  border-radius: 0.25rem !important;
+.menu {
   min-width: 9rem;
 
-  [class*='popover-arrow'] {
-    display: none;
-  }
-
-  .menu {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-
-    .menuItem {
-      .menuItemOption {
-        align-items: center;
-        background-color: var(--er-ui-background-primary-background);
-        border: none;
-        color: var(--er-ui-text-primary-text);
-        display: flex;
-        outline: none;
-        padding: 0.5rem 0.75rem;
-        text-align: left;
-        white-space: nowrap;
-        width: 100%;
-
-        &:hover {
-          background-color: var(--er-ui-background-elevated-component-0);
-          cursor: pointer;
-        }
-
-        &:focus {
-          background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
-        }
-
-        &[aria-current="true"] {
-          background-color: var(--er-ui-background-hover-background);
-
-          &:hover, &:focus {
-            background-color: colors.deepen(var(--er-ui-background-hover-background), var(--er-ui-cta-primary), colors.$tint-hover-deepen);
-          }
-        }
-
-        &:not([aria-current="true"]) {
-          padding-left: 2rem;
-        }
-
-        .checkIcon {
-          color: var(--er-ui-cta-primary);
-          flex-shrink: 0;
-          height: 0.75rem;
-          margin-right: 0.5rem;
-          width: 0.75rem;
-        }
-      }
-
-      &:first-child .menuItemOption {
-        border-top-left-radius: 0.25rem;
-        border-top-right-radius: 0.25rem;
-      }
-
-      &:last-child .menuItemOption {
-        border-bottom-left-radius: 0.25rem;
-        border-bottom-right-radius: 0.25rem;
-      }
-    }
-  }
-
-  @media print {
-    display: none !important;
+  [role="menuitem"] {
+    white-space: nowrap;
   }
 }

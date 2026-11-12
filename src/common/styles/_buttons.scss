@@ -219,7 +219,7 @@ $chip-height-small: 1.75rem;
   display: flex;
   height: $chip-height;
 
-  &:hover {
+  &:hover, &[aria-expanded='true'] {
     background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
     border-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
   }
@@ -273,7 +273,7 @@ $chip-height-small: 1.75rem;
     border-color: var(--er-ui-cta-primary);
     color: var(--er-ui-text-primary-text-reversed);
 
-    &:hover {
+    &:hover, &[aria-expanded='true'] {
       background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
       border-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
     }
@@ -283,20 +283,6 @@ $chip-height-small: 1.75rem;
       border-color: var(--er-ui-cta-primary);
       color: var(--er-ui-cta-primary);
       outline: 1px solid var(--er-ui-cta-primary);
-    }
-  }
-}
-
-// Include it after chipActiveState, so an open menu keeps the focus look of
-// whichever state its button is in.
-@mixin chip-open-state {
-  &[aria-expanded='true'] {
-    border-color: var(--er-ui-cta-primary);
-    outline: 1px solid var(--er-ui-cta-primary);
-
-    &.active {
-      background-color: var(--er-ui-background-primary-background);
-      color: var(--er-ui-cta-primary);
     }
   }
 }
@@ -435,7 +421,7 @@ $chip-height-small: 1.75rem;
   min-width: $chip-height;
   padding: 0 0.5rem;
 
-  &:hover {
+  &:hover, &[aria-expanded='true'] {
     background-color: colors.with-opacity(var(--er-greyscale-white), 10%);
     color: $text-color;
   }
@@ -443,11 +429,6 @@ $chip-height-small: 1.75rem;
   &:focus-visible {
     color: $text-color;
     outline: 2px solid $text-color;
-  }
-
-  &[aria-expanded='true'] {
-    background-color: colors.with-opacity(var(--er-greyscale-white), 20%);
-    color: $text-color;
   }
 }
 
