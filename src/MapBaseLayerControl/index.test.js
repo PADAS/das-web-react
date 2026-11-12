@@ -6,6 +6,7 @@ import { render, screen } from '../test-utils';
 import { mockStore } from '../__test-helpers/MockStore';
 import { setBaseLayer } from '../ducks/layers';
 import { mockTrack } from '../utils/analytics';
+import esriLogoSrc from '../common/images/icons/esri-logo.svg';
 
 import MapBaseLayerControl from '.';
 
@@ -134,7 +135,7 @@ describe('MapBaseLayerControl', () => {
       await openPopover();
 
       const logo = screen.getByAltText('ESRI Satellite logo');
-      expect(logo).toHaveAttribute('src', 'svg-url');
+      expect(logo).toHaveAttribute('src', esriLogoSrc);
       expect(logo.getAttribute('src')).not.toContain('cloudfront');
     });
 
@@ -146,7 +147,24 @@ describe('MapBaseLayerControl', () => {
 
       await openPopover();
 
-      expect(screen.getByAltText('Satellite logo')).toHaveAttribute('src', 'svg-url');
+      expect(screen.getByAltText('Satellite logo')).toHaveAttribute('src', esriLogoSrc);
+    });
+
+    test('does not treat names that merely contain "esri" inside a word as Esri layers', async () => {
+      renderControl([buildLayer('lookalike', 'Jesrin Tiles', { type: 'tile_server' })]);
+
+      await openPopover();
+
+      expect(screen.getByAltText('Jesrin Tiles logo')).toHaveAttribute('src', 'generic-globe-logo.png');
+    });
+
+    test('renders the default layer, which has no name, with the Mapbox logo', async () => {
+      renderControl([{ id: 'default', nameKey: 'defaultMapLayerName', attributes: { type: 'mapbox_style' } }]);
+
+      await openPopover();
+
+      expect(screen.getByText('EarthRanger Terrain Map')).toBeVisible();
+      expect(screen.getByRole('img')).toHaveAttribute('src', 'mapbox-logo.png');
     });
 
     test('uses the icon url for non-Esri layers that define one', async () => {

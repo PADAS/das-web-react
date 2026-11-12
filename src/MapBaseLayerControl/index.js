@@ -25,7 +25,8 @@ import * as styles from './styles.module.scss';
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 const baseLayerTracker = trackEventFactory(BASE_LAYER_CATEGORY);
 
-const isEsriLayer = ({ name, attributes: { icon_url } }) => /esri/i.test(`${name} ${icon_url}`);
+const ESRI_PATTERN = /(?<![a-z])esri(?![a-z])/i;
+const isEsriLayer = ({ name, attributes: { icon_url } }) => ESRI_PATTERN.test(name ?? '') || ESRI_PATTERN.test(icon_url ?? '');
 
 const renderLayerLogoSrc = (layer) => {
   const { attributes: { type, icon_url } } = layer;
