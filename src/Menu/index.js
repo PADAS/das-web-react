@@ -299,7 +299,7 @@ const Menu = ({
     show={show}
     target={target}
   >
-    <Popover className={`${styles.menuPopover} ${className}`}>
+    <Popover className={`${styles.menuPopover} ${className}`} role="presentation">
       {!!header && <div aria-hidden="true" className={styles.header}>{header}</div>}
 
       <MenuContext.Provider value={menuContextValue}>

@@ -1,5 +1,6 @@
 @use 'buttons';
 @use 'colors';
+@use 'vars/fonts';
 
 // Bootstrap ships compiled with its own palette, so it takes the tokens through
 // its CSS variables. Only src/index.scss uses this partial, which emits rules.
@@ -74,6 +75,7 @@
   --bs-dark: var(--er-greyscale-2);
   --bs-emphasis-color: var(--er-ui-text-primary-text);
   --bs-focus-ring-color: #{colors.with-opacity(var(--er-ui-cta-primary), 25%)};
+  --bs-font-sans-serif: #{fonts.$font-family-sans-serif};
   --bs-form-invalid-border-color: var(--er-ui-status-error-destructive);
   --bs-form-invalid-color: var(--er-ui-status-error-destructive);
   --bs-form-valid-border-color: var(--er-ui-status-success);

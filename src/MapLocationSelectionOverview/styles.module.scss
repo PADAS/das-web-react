@@ -112,7 +112,6 @@
   margin-right: 0.5rem;
 }
 
-// Bootstrap draws every state from these, so hover keeps the destructive tint.
 .discardButton {
   --bs-btn-active-bg: #{colors.deepen(
     var(--er-ui-status-bg-error-bg),

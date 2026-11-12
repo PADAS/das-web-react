@@ -53,6 +53,14 @@ describe('Menu', () => {
     expect(await screen.findByRole('menu', { name: 'Options menu' })).toHaveAttribute('id', 'options-menu');
   });
 
+  test('does not wrap the menu in a tooltip', async () => {
+    renderMenu();
+
+    await screen.findByRole('menu');
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
   test('shows the menu next to the element it is anchored to, at the placement it is given', async () => {
     const { rerender } = renderMenu({ show: false });
 

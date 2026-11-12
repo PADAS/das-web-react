@@ -1,10 +1,20 @@
 .copyBtn {
   button {
+    align-items: center;
     color: var(--er-ui-text-primary-text);
+    display: flex;
     padding-left: 0;
 
     &:hover:not(:disabled) {
       background-color: unset;
+    }
+
+    svg {
+      color: var(--er-ui-icons);
+      flex-shrink: 0;
+      height: 1.125rem;
+      margin-right: 0.5rem;
+      width: 1.125rem;
     }
   }
 }

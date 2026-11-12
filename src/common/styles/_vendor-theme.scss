@@ -1,4 +1,5 @@
 @use 'colors';
+@use 'vars/fonts';
 
 // Only src/index.scss uses this partial. Most of these libraries load their
 // stylesheets later, with lazy chunks, so :root outranks them.
@@ -10,11 +11,17 @@
   --toastify-color-progress-light: var(--er-ui-cta-primary);
   --toastify-color-success: var(--er-ui-status-success);
   --toastify-color-warning: var(--er-ui-status-warning);
+  --toastify-font-family: #{fonts.$font-family-base};
   --toastify-spinner-color: var(--er-ui-icons);
   --toastify-spinner-color-empty-area: var(--er-ui-divider-lines);
   --toastify-text-color-light: var(--er-ui-text-primary-text);
   --toastify-toast-background: var(--er-ui-background-elevated-component);
   --toastify-toast-shadow: 0 4px 12px #{colors.with-opacity(var(--er-greyscale-0), 10%)};
+
+  .mapboxgl-map,
+  .react-datepicker {
+    font-family: inherit;
+  }
 
   .mapboxgl-ctrl-group button + button {
     border-top-color: var(--er-ui-divider-lines);

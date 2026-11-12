@@ -1,4 +1,4 @@
-import tokens from '@allenai/design-system/er-legacy/tokens.json';
+import { color as colorTokenSpecs } from '@allenai/design-system/er-legacy/tokens.json';
 
 const BLACK_CHANNELS = [0, 0, 0];
 const CSS_VARIABLE_REGEX = /^var\(--[a-z0-9-]+\)$/;
@@ -15,9 +15,9 @@ const toTokenName = (specName) => specName.toLowerCase().replace(/[^a-z0-9]+/g, 
 
 // The light values of the tokens tokens.css declares, keyed by their names
 // without the --er- prefix, for Mapbox paint and drawn images.
-export const COLOR_TOKENS = Object.fromEntries(Object.keys(tokens.color).map((specName) => [
+export const COLOR_TOKENS = Object.fromEntries(Object.keys(colorTokenSpecs).map((specName) => [
   toTokenName(specName),
-  (tokens.color[specName].light ?? tokens.color[specName]).$value.hex,
+  (colorTokenSpecs[specName].light ?? colorTokenSpecs[specName]).$value.hex,
 ]));
 
 // Token names, so the map draws them as hex and the styles as var().

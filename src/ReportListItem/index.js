@@ -37,8 +37,6 @@ const ReportListItem = ({
   const { coordinates, displayPriority, displayTitle } = useReport(report);
   const jumpToLocation = useJumpToLocation();
 
-  const priorityColors = PRIORITY_COLOR_MAP[`${displayPriority}`] || PRIORITY_COLOR_MAP['0'];
-
   const dateTime = displayTime || report.updated_at || report.time;
   const iconClickHandler = onIconClick || onTitleClick;
   // With nothing to press they stay text, as a link may wrap the whole item.
@@ -92,7 +90,7 @@ const ReportListItem = ({
       {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
     </IconElement>}
     onClick={() => onTitleClick?.(report)}
-    themeColor={tokenVar(priorityColors.baseToken)}
+    themeColor={tokenVar((PRIORITY_COLOR_MAP[displayPriority] ?? PRIORITY_COLOR_MAP[0]).baseToken)}
     title={displayTitle}
     TitleComponent={<>
       <span className={styles.serialNumber}>{report.serial_number}</span>

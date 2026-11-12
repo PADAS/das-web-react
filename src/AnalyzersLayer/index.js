@@ -12,6 +12,9 @@ const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL, ANALYZER_LINES_WARNING,
 const { ANALYZER_POLYS_WARNING_SOURCE, ANALYZER_POLYS_CRITICAL_SOURCE,
   ANALYZER_LINES_CRITICAL_SOURCE, ANALYZER_LINES_WARNING_SOURCE } = SOURCE_IDS;
 
+// Yellow, not the warning token's orange, which sits too close to critical red.
+const WARNING_LINE_COLOR = COLOR_TOKENS['yellow-4'];
+
 const IF_HAS_STATE = (stateType, activeProp, defaultProp) => [['boolean', ['feature-state', stateType], false], activeProp, defaultProp];
 
 const IF_HAS_PROPERTY = (prop, defaultValue) => {
@@ -22,7 +25,7 @@ const linePaint = {
   'line-dasharray': [1, 1.5],
   'line-color': [
     'case',
-    ...IF_HAS_STATE('active', COLOR_TOKENS['ui-status-warning'], COLOR_TOKENS['greyscale-8']),
+    ...IF_HAS_STATE('active', WARNING_LINE_COLOR, COLOR_TOKENS['greyscale-8']),
   ],
   'line-opacity': [
     'case',
