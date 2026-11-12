@@ -1,5 +1,4 @@
 @use '../common/styles/buttons';
-@use '../common/styles/colors';
 @use './shared';
 
 .trackLegendWrapper {
@@ -42,7 +41,7 @@
         }
 
         .tracksOffIcon {
-          background-color: colors.with-opacity(var(--er-greyscale-7), 15%);
+          background-color: var(--er-ui-background-elevated-component-0);
           border-radius: 0.25rem;
         }
 

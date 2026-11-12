@@ -69,12 +69,12 @@
         width: 100%;
 
         &:hover:not(:focus-visible) {
-          background-color: var(--er-ui-background-tertiary-background);
+          background-color: var(--er-ui-background-elevated-component-0);
           cursor: pointer;
         }
 
         &:focus-visible {
-          background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
+          background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
         }
       }
 

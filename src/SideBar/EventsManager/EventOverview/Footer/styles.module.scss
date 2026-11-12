@@ -26,10 +26,6 @@
 
       min-width: shared.$footer-button-min-width;
 
-      &:hover {
-        color: var(--er-ui-text-secondary-text);
-      }
-
       &:focus-visible {
         outline-offset: 0;
       }

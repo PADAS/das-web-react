@@ -1,11 +1,26 @@
+@use 'buttons';
 @use 'colors';
 
 // Bootstrap ships compiled with its own palette, so it takes the tokens through
 // its CSS variables. Only src/index.scss uses this partial, which emits rules.
 
-@mixin button-variant($background, $color, $border: $background) {
-  --bs-btn-active-bg: #{colors.shade($background, colors.$active-shade)};
-  --bs-btn-active-border-color: #{colors.shade($border, colors.$active-shade)};
+// Bootstrap sizes a button by its padding, so this derives the padding that
+// gives our buttons' height.
+@mixin button-height($height) {
+  --bs-btn-padding-y: calc(
+    (#{$height} - var(--bs-btn-font-size) * var(--bs-btn-line-height)) / 2 - var(--bs-btn-border-width)
+  );
+}
+
+@mixin button-variant(
+  $background,
+  $color,
+  $border: $background,
+  $hover-shade: colors.$hover-shade,
+  $active-shade: colors.$active-shade
+) {
+  --bs-btn-active-bg: #{colors.shade($background, $active-shade)};
+  --bs-btn-active-border-color: #{colors.shade($border, $active-shade)};
   --bs-btn-active-color: #{$color};
   --bs-btn-bg: #{$background};
   --bs-btn-border-color: #{$border};
@@ -13,22 +28,37 @@
   --bs-btn-disabled-bg: #{$background};
   --bs-btn-disabled-border-color: #{$border};
   --bs-btn-disabled-color: #{$color};
-  --bs-btn-hover-bg: #{colors.shade($background, colors.$hover-shade)};
-  --bs-btn-hover-border-color: #{colors.shade($border, colors.$hover-shade)};
+  --bs-btn-hover-bg: #{colors.shade($background, $hover-shade)};
+  --bs-btn-hover-border-color: #{colors.shade($border, $hover-shade)};
+  --bs-btn-hover-color: #{$color};
+}
+
+@mixin button-tint-variant($background, $color, $accent) {
+  --bs-btn-active-bg: #{colors.deepen($background, $accent, colors.$tint-active-deepen)};
+  --bs-btn-active-border-color: #{colors.deepen($background, $accent, colors.$tint-active-deepen)};
+  --bs-btn-active-color: #{$color};
+  --bs-btn-bg: #{$background};
+  --bs-btn-border-color: #{$background};
+  --bs-btn-color: #{$color};
+  --bs-btn-disabled-bg: #{$background};
+  --bs-btn-disabled-border-color: #{$background};
+  --bs-btn-disabled-color: #{$color};
+  --bs-btn-hover-bg: #{colors.deepen($background, $accent, colors.$tint-hover-deepen)};
+  --bs-btn-hover-border-color: #{colors.deepen($background, $accent, colors.$tint-hover-deepen)};
   --bs-btn-hover-color: #{$color};
 }
 
 @mixin button-outline-variant($color) {
-  --bs-btn-active-bg: #{$color};
+  --bs-btn-active-bg: #{colors.deepen(var(--er-ui-background-selected-background), var(--er-ui-cta-primary), colors.$tint-hover-deepen)};
   --bs-btn-active-border-color: #{$color};
-  --bs-btn-active-color: var(--er-ui-text-primary-text-reversed);
+  --bs-btn-active-color: #{$color};
   --bs-btn-border-color: #{$color};
   --bs-btn-color: #{$color};
   --bs-btn-disabled-border-color: #{$color};
   --bs-btn-disabled-color: #{$color};
-  --bs-btn-hover-bg: #{$color};
+  --bs-btn-hover-bg: var(--er-ui-background-selected-background);
   --bs-btn-hover-border-color: #{$color};
-  --bs-btn-hover-color: var(--er-ui-text-primary-text-reversed);
+  --bs-btn-hover-color: #{$color};
 }
 
 :root {
@@ -57,7 +87,7 @@
   --bs-info-text-emphasis: var(--er-ui-status-running);
   --bs-light: var(--er-ui-background-tertiary-background);
   --bs-link-color: var(--er-ui-cta-primary);
-  --bs-link-hover-color: #{colors.shade(var(--er-ui-cta-primary), colors.$hover-shade)};
+  --bs-link-hover-color: #{colors.shade(var(--er-ui-cta-primary), colors.$link-hover-shade)};
   --bs-primary: var(--er-ui-cta-primary);
   --bs-primary-bg-subtle: var(--er-ui-background-selected-background);
   --bs-primary-border-subtle: #{colors.tint(var(--er-ui-cta-primary), 65%)};
@@ -98,7 +128,17 @@ a {
 }
 
 .btn {
+  @include button-height(buttons.$chip-height);
+
+  --bs-btn-border-radius: 0.25rem;
   --bs-btn-focus-box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
+  --bs-btn-font-size: 0.875rem;
+  --bs-btn-font-weight: 500;
+  --bs-btn-padding-x: 0.5rem;
+}
+
+.btn-sm {
+  @include button-height(buttons.$chip-height-small);
 }
 
 .btn-primary {
@@ -106,7 +146,7 @@ a {
 }
 
 .btn-secondary {
-  @include button-variant(var(--er-ui-cta-secondary), var(--er-ui-cta-text));
+  @include button-tint-variant(var(--er-ui-cta-secondary), var(--er-ui-cta-text), var(--er-ui-cta-primary));
 }
 
 .btn-success {
@@ -126,7 +166,12 @@ a {
 }
 
 .btn-light {
-  @include button-variant(var(--er-ui-background-tertiary-background), var(--er-ui-text-secondary-text));
+  @include button-variant(
+    $active-shade: colors.$hover-shade,
+    $background: var(--er-ui-background-elevated-component-0),
+    $color: var(--er-ui-icons),
+    $hover-shade: colors.$surface-hover-shade
+  );
 }
 
 .btn-dark {
@@ -147,6 +192,7 @@ a {
 
 .btn-link {
   --bs-btn-disabled-color: var(--er-ui-text-disabled);
+  --bs-btn-font-weight: 400;
 }
 
 .btn-close {
@@ -159,11 +205,11 @@ a {
   --bs-dropdown-color: var(--er-ui-text-primary-text);
   --bs-dropdown-divider-bg: var(--er-ui-divider-lines);
   --bs-dropdown-header-color: var(--er-ui-text-secondary-text);
-  --bs-dropdown-link-active-bg: var(--er-ui-background-selected-background);
+  --bs-dropdown-link-active-bg: var(--er-ui-background-hover-background);
   --bs-dropdown-link-active-color: var(--er-ui-cta-primary);
   --bs-dropdown-link-color: var(--er-ui-text-primary-text);
   --bs-dropdown-link-disabled-color: var(--er-ui-text-disabled);
-  --bs-dropdown-link-hover-bg: var(--er-ui-background-tertiary-background);
+  --bs-dropdown-link-hover-bg: var(--er-ui-background-elevated-component-0);
   --bs-dropdown-link-hover-color: var(--er-ui-text-primary-text);
 }
 
@@ -185,6 +231,10 @@ a {
   --bs-pagination-active-border-color: var(--er-ui-cta-primary);
   --bs-pagination-active-color: var(--er-ui-text-primary-text-reversed);
   --bs-pagination-focus-box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
+}
+
+.modal {
+  --bs-modal-border-width: 0;
 }
 
 .modal-backdrop {

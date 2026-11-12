@@ -122,7 +122,7 @@
     padding: 0;
 
     &:hover {
-      background-color: var(--er-ui-background-tertiary-background);
+      background-color: var(--er-ui-background-elevated-component-0);
       color: var(--er-ui-text-secondary-text);
     }
   }
@@ -132,7 +132,7 @@
   }
 
   &.readOnly > div:hover {
-    background-color: var(--er-ui-background-tertiary-background);
+    background-color: var(--er-ui-background-elevated-component-0);
     color: var(--er-ui-text-secondary-text);
   }
 }

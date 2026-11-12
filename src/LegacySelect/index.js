@@ -24,7 +24,7 @@ const LegacySelect = ({ styles: customStyles, components, ref, ...rest }) => {
       return {
         ...styles,
         backgroundColor: isFocused
-          ? 'var(--er-ui-background-selected-background)'
+          ? 'var(--er-ui-background-hover-background)'
           : 'var(--er-ui-background-primary-background)',
         color: 'inherit',
         display: isDisabled ? 'none' : 'block',

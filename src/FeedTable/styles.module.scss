@@ -8,7 +8,7 @@
   borderColor: var(--er-ui-divider-lines);
   foregroundColor: var(--er-ui-text-primary-text);
   headerTextColor: var(--er-ui-text-secondary-text);
-  selectedRowBackgroundColor: var(--er-ui-background-selected-background);
+  selectedRowBackgroundColor: var(--er-ui-background-hover-background);
 }
 
 .feedTable {
@@ -90,11 +90,11 @@
       width: 100%;
 
       &:hover {
-        background-color: var(--er-ui-background-tertiary-background);
+        background-color: var(--er-ui-background-elevated-component-0);
       }
 
       &:focus-visible {
-        background-color: var(--er-ui-background-tertiary-background);
+        background-color: var(--er-ui-background-elevated-component-0);
       }
 
       &[aria-checked='true'] {
@@ -136,7 +136,7 @@
     }
 
     [class~='ag-row-selected'] [class~='ag-cell'] {
-      background-color: var(--er-ui-background-selected-background);
+      background-color: var(--er-ui-background-hover-background);
     }
   }
 }

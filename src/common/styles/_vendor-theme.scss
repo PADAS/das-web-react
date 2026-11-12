@@ -28,7 +28,7 @@
 
   .mapboxgl-ctrl button:not(:disabled):hover,
   .mapboxgl-popup-close-button:hover {
-    background-color: var(--er-ui-background-tertiary-background);
+    background-color: var(--er-ui-background-elevated-component-0);
   }
 
   .react-datepicker__header {
@@ -38,7 +38,7 @@
   .react-datepicker__day,
   .react-datepicker__month-text {
     &:hover:not([aria-disabled="true"]) {
-      background-color: var(--er-ui-background-selected-background);
+      background-color: var(--er-ui-background-hover-background);
       color: var(--er-ui-text-primary-text);
     }
 
@@ -48,7 +48,7 @@
     }
 
     &[class*="--keyboard-selected"] {
-      background-color: var(--er-ui-background-selected-background);
+      background-color: var(--er-ui-background-hover-background);
     }
   }
 
@@ -62,7 +62,7 @@
     }
 
     &[class*="--in-selecting-range"]:not([aria-selected="true"]) {
-      background-color: var(--er-ui-background-selected-background);
+      background-color: var(--er-ui-background-hover-background);
       color: var(--er-ui-text-primary-text);
     }
 

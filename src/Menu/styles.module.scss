@@ -41,11 +41,11 @@
         }
 
         &:hover:not(:disabled, [aria-disabled="true"], :focus-visible, :has(:focus-visible)) {
-          background-color: var(--er-ui-background-tertiary-background);
+          background-color: var(--er-ui-background-elevated-component-0);
         }
 
         &:focus-visible, &:has(:focus-visible) {
-          background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
+          background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
         }
 
         img, svg {
@@ -73,11 +73,11 @@
           text-transform: none;
 
           &[aria-checked="true"] {
-            background-color: var(--er-ui-background-selected-background);
+            background-color: var(--er-ui-background-hover-background);
             padding-left: 0.5rem;
 
             &:hover, &:focus-visible {
-              background-color: colors.shade(var(--er-ui-background-selected-background), colors.$surface-hover-shade);
+              background-color: colors.deepen(var(--er-ui-background-hover-background), var(--er-ui-cta-primary), colors.$tint-hover-deepen);
             }
           }
 

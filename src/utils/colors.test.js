@@ -111,7 +111,7 @@ describe('utils - colors', () => {
 
       expect(theme.borderRadius).toBe(4);
       expect(theme.colors.primary).toBe('var(--er-ui-cta-primary)');
-      expect(theme.colors.primary25).toBe('var(--er-ui-background-selected-background)');
+      expect(theme.colors.primary25).toBe('var(--er-ui-background-hover-background)');
     });
   });
 });

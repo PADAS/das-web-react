@@ -55,6 +55,14 @@ describe('#useSortedNodesWithToggleBtn', () => {
     expect(listItems[1]).toHaveTextContent('I am newer!');
   });
 
+  test('marks the sort button pressed while it sorts in ascending order', async () => {
+    expect(timeSortButton).toHaveAttribute('aria-pressed', 'false');
+
+    await userEvent.click(timeSortButton);
+
+    expect(await screen.findByRole('button')).toHaveAttribute('aria-pressed', 'true');
+  });
+
   test('keeping the focus on the sort button after toggling it', async () => {
     timeSortButton.focus();
 

@@ -68,7 +68,6 @@
 @mixin legend-text-button {
   @include buttons.chip-text-button;
 
-  color: var(--er-ui-text-primary-text);
   flex-shrink: 0;
   font-weight: 400;
   height: 1.75rem;

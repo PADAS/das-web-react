@@ -17,7 +17,7 @@
 .wrapper {
   align-items: center;
   backdrop-filter: blur(22px) saturate(175%);
-  background: colors.with-opacity(var(--er-ui-background-primary-background), 55%);
+  background: colors.with-opacity(var(--er-ui-background-primary-background), 90%);
   border-radius: 2rem;
   bottom: 1.5rem;
   display: flex;
@@ -252,18 +252,18 @@
         width: 100%;
 
         &:hover {
-          background-color: var(--er-ui-background-tertiary-background);
+          background-color: var(--er-ui-background-elevated-component-0);
         }
 
         &:focus {
-          background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
+          background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
         }
 
         &[aria-checked="true"] {
-          background-color: var(--er-ui-background-selected-background);
+          background-color: var(--er-ui-background-hover-background);
 
           &:hover, &:focus {
-            background-color: colors.shade(var(--er-ui-background-selected-background), colors.$surface-hover-shade);
+            background-color: colors.deepen(var(--er-ui-background-hover-background), var(--er-ui-cta-primary), colors.$tint-hover-deepen);
           }
         }
 

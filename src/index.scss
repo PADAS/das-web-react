@@ -76,8 +76,6 @@ h6 {
   color: var(--er-ui-text-primary-text-reversed);
   align-items: flex-start;
   border-bottom: 1px solid var(--er-ui-divider-lines);
-  border-top-left-radius: 0.3rem;
-  border-top-right-radius: 0.3rem;
   display: flex;
   justify-content: space-between;
   padding: 1rem;
@@ -90,8 +88,6 @@ h6 {
 
 .modal-footer {
   align-items: center;
-  border-bottom-left-radius: 0.3rem;
-  border-bottom-right-radius: 0.3rem;
   border-top: 1px solid var(--er-ui-divider-lines);
   display: flex;
   justify-content: flex-end;

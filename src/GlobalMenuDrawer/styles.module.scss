@@ -151,7 +151,7 @@ $separator-color: colors.with-opacity(var(--er-ui-text-primary-text-reversed), 2
           text-decoration: underline;
 
           &:hover {
-            color: var(--er-blue-7);
+            color: colors.shade(var(--er-blue-7), colors.$hover-shade);
           }
         }
       }

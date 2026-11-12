@@ -9,8 +9,8 @@
 
   .toggle {
     align-items: center;
-    background-color: var(--kebab-menu-background-color, var(--er-ui-background-tertiary-background));
-    border: 1px solid var(--kebab-menu-background-color, var(--er-ui-background-tertiary-background));
+    background-color: var(--kebab-menu-background-color, var(--er-ui-background-elevated-component-0));
+    border: 1px solid var(--kebab-menu-background-color, var(--er-ui-background-elevated-component-0));
     border-radius: 0.25rem;
     color: var(--kebab-menu-dot-color, var(--er-ui-icons));
     display: flex;
@@ -30,8 +30,8 @@
     }
 
     &:hover:not([aria-disabled="true"]) {
-      background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
-      border-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
+      background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
+      border-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
     }
 
     &:focus-visible {

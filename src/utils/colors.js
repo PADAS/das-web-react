@@ -96,7 +96,7 @@ const REACT_SELECT_COLORS = {
   neutral80: 'var(--er-ui-text-primary-text)',
   neutral90: 'var(--er-ui-text-primary-text)',
   primary: 'var(--er-ui-cta-primary)',
-  primary25: 'var(--er-ui-background-selected-background)',
+  primary25: 'var(--er-ui-background-hover-background)',
   primary50: tint('var(--er-ui-cta-primary)', 80),
   primary75: tint('var(--er-ui-cta-primary)', 25),
 };

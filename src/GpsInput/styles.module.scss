@@ -60,15 +60,15 @@
     padding-left: 1.75rem;
 
     &:hover, &.active {
-      background-color: var(--er-ui-background-tertiary-background);
+      background-color: var(--er-ui-background-elevated-component-0);
     }
   
     &[aria-selected="true"] {
-      background-color: var(--er-ui-background-selected-background);
+      background-color: var(--er-ui-background-hover-background);
       padding-left: 0.5rem;
 
       &:hover, &.active {
-        background-color: colors.shade(var(--er-ui-background-selected-background), colors.$surface-hover-shade);
+        background-color: colors.deepen(var(--er-ui-background-hover-background), var(--er-ui-cta-primary), colors.$tint-hover-deepen);
       }
     }
 
