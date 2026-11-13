@@ -94,7 +94,7 @@ describe('PatrolTrackLegend', () => {
   test('lists the subjects a patrol track is made up of', async () => {
     renderPatrolTrackLegend();
 
-    await userEvent.click(screen.getByLabelText('Open the list of patrols'));
+    await userEvent.click(screen.getByRole('button', { name: 'List of patrols' }));
 
     expect(screen.getByText(LEAD.name)).toBeVisible();
   });
@@ -128,7 +128,7 @@ describe('PatrolTrackLegend', () => {
     store.view.patrolTrackState.visible = [patrol.id, otherPatrol.id];
     renderPatrolTrackLegend();
 
-    await userEvent.click(screen.getByLabelText('Open the list of patrols'));
+    await userEvent.click(screen.getByRole('button', { name: 'List of patrols' }));
 
     expect(screen.getByText('333.6km over 21 days')).toBeVisible();
     expect(screen.getAllByText('111.2km')).toHaveLength(2);
@@ -153,7 +153,7 @@ describe('PatrolTrackLegend', () => {
     };
     renderPatrolTrackLegend();
 
-    await userEvent.click(screen.getByLabelText('Open the list of patrols'));
+    await userEvent.click(screen.getByRole('button', { name: 'List of patrols' }));
     await userEvent.click(screen.getByLabelText('Clear the tracks of Patrol: Northern sweep'));
 
     expect(lastTrackStateAction().payload).toEqual({
@@ -167,7 +167,7 @@ describe('PatrolTrackLegend', () => {
     store.data.tracks[LEAD.id].track.features[0].properties.stroke = '#33A02C';
     renderPatrolTrackLegend();
 
-    await userEvent.click(screen.getByLabelText('Open the list of patrols'));
+    await userEvent.click(screen.getByRole('button', { name: 'List of patrols' }));
 
     expect(screen.getByTestId('tracksList-trackColor')).toHaveStyle({ backgroundColor: '#33A02C' });
   });
@@ -175,7 +175,7 @@ describe('PatrolTrackLegend', () => {
   test('does not show a colour for a subject whose track carries none', async () => {
     renderPatrolTrackLegend();
 
-    await userEvent.click(screen.getByLabelText('Open the list of patrols'));
+    await userEvent.click(screen.getByRole('button', { name: 'List of patrols' }));
 
     expect(screen.queryByTestId('tracksList-trackColor')).not.toBeInTheDocument();
   });
@@ -185,7 +185,7 @@ describe('PatrolTrackLegend', () => {
     store.view.trackSettings.isTimeOfDayColoringActive = true;
     renderPatrolTrackLegend();
 
-    await userEvent.click(screen.getByLabelText('Open the list of patrols'));
+    await userEvent.click(screen.getByRole('button', { name: 'List of patrols' }));
 
     expect(screen.queryByTestId('tracksList-trackColor')).not.toBeInTheDocument();
   });
