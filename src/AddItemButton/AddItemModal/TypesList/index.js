@@ -33,7 +33,7 @@ const CategoryList = ({ category, getTypeUnavailableReason, onClickType, showTit
   </ul>
 </div>;
 
-const TypesList = ({ filterText, getTypeUnavailableReason, onClickType, ref, typesByCategory }) => {
+const TypesList = ({ className = '', filterText, getTypeUnavailableReason, onClickType, ref, typesByCategory }) => {
   const filterTextLowerCase = filterText.toLowerCase();
 
   const filteredCategories = typesByCategory.reduce((accumulator, category) => {
@@ -52,7 +52,7 @@ const TypesList = ({ filterText, getTypeUnavailableReason, onClickType, ref, typ
     return [...accumulator, { ...category, types: filteredTypes }];
   }, []);
 
-  return <div className={styles.typesContainer} ref={ref}>
+  return <div className={`${styles.typesContainer} ${className}`} ref={ref}>
     {filteredCategories.map((category) => <CategoryList
       category={category}
       getTypeUnavailableReason={getTypeUnavailableReason}

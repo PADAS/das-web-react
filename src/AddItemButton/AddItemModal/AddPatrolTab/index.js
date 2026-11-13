@@ -77,7 +77,12 @@ const AddPatrolTab = ({ onHideModal }) => {
       />
     </div>
 
-    <TypesList filterText={searchText} onClickType={onClickPatrolType} typesByCategory={patrolCategories} />
+    <TypesList
+      className={styles.typesList}
+      filterText={searchText}
+      onClickType={onClickPatrolType}
+      typesByCategory={patrolCategories}
+    />
   </>;
 };
 

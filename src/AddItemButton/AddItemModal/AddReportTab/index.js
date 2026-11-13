@@ -90,6 +90,7 @@ const AddReportTab = ({ onHideModal }) => {
     </div>
 
     <TypesList
+      className={styles.typesList}
       filterText={searchText}
       onClickType={onClickReportType}
       ref={reportTypesListRef}
