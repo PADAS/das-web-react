@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import ReactGA4 from 'react-ga4';
 import ResizeObserver from 'resize-observer-polyfill';
 
+import './__test-helpers/analytics';
 import MockSocketContext, { SocketContext } from './__test-helpers/MockSocketContext';
 
 // Set test environment variables.

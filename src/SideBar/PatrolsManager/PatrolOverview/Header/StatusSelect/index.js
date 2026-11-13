@@ -27,7 +27,7 @@ const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
   const onOptionClick = (option) => {
     onSelect(option);
 
-    tracker.track(`Pick the "${option.key}" patrol status from patrol overview`);
+    tracker.track('Select a status from patrol overview', option.key);
   };
 
   if (!hasPatrolsUpdatePermission || options.length < 2) {

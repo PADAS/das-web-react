@@ -1,4 +1,4 @@
-import { useId, useImperativeHandle, useRef } from 'react';
+import { useContext, useEffect, useId, useImperativeHandle, useMemo, useRef } from 'react';
 import { format, isFuture } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { calcUrlForImage } from '../../../../utils/img';
 import { getHoursAndMinutesString } from '../../../../utils/datetime';
 import parseLegDraftDateTime from '../utils/parseLegDraftDateTime';
+import { TrackerContext, trackEventFactory } from '../../../../utils/analytics';
 
 import DatePicker, { isValidDate } from '../../../../DatePicker';
 import LocationPicker from '../../../../LocationPicker';
@@ -15,7 +16,36 @@ import TimePicker, { isValidTime } from '../../../../TimePicker';
 
 import * as styles from './styles.module.scss';
 
+const FIELD_TRACK_DEBOUNCE_DELAY = 1000;
+// React Select names each change: a pick, a removal or a clear.
+const CHANGE_KIND_BY_SELECT_ACTION = {
+  clear: 'clear',
+  'pop-value': 'deselect',
+  'remove-value': 'deselect',
+  'select-option': 'select',
+};
+const TEAM_ACTION_BY_CHANGE_KIND = {
+  clear: 'Clear the team from the leg form',
+  select: 'Select a team from the leg form',
+};
+const TEAM_LEAD_ACTION_BY_CHANGE_KIND = {
+  clear: 'Clear the team lead from the leg form',
+  select: 'Select a team lead from the leg form',
+};
+const TEAM_MEMBER_ACTION_BY_CHANGE_KIND = {
+  clear: 'Clear team members from the leg form',
+  deselect: 'Deselect a team member from the leg form',
+  select: 'Select a team member from the leg form',
+};
+const ASSET_ACTION_BY_CHANGE_KIND = {
+  clear: 'Clear assets from the leg form',
+  deselect: 'Deselect an asset from the leg form',
+  select: 'Select an asset from the leg form',
+};
 const TIME_OPTIONS_INTERVAL_IN_MINUTES = 15;
+
+// Without a tracker provider the form still works, untracked.
+const NO_OP_TRACKER = trackEventFactory('', () => {});
 
 const getOptionLabel = ({ name }) => name;
 const getOptionValue = ({ id }) => id;
@@ -38,6 +68,8 @@ const StaticFields = ({
   const { t } = useTranslation('patrols', { keyPrefix: 'legForm.staticFields' });
 
   const teamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
+
+  const tracker = useContext(TrackerContext) ?? NO_OP_TRACKER;
 
   const endDatePickerRef = useRef();
   const endTimePickerRef = useRef();
@@ -110,6 +142,16 @@ const StaticFields = ({
   const isStartTimeInvalid = !!errors.startTime || !!errors.startDateTime;
   const startDateTimeError = errors.startDate ?? errors.startTime ?? errors.startDateTime;
 
+  // Pickers report each parsed keystroke, so a field tracks once per edit.
+  const debouncedTrackers = useMemo(() => ({
+    endDate: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+    endLocation: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+    endTime: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+    startDate: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+    startLocation: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+    startTime: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+  }), [tracker]);
+
   const renderCheckbox = ({ id, isChecked, isDisabled, isHidden = false, label, onChange }) => <div
     aria-hidden={isHidden ? 'true' : undefined}
     className={`${styles.checkboxWrapper} ${isHidden ? styles.hidden : ''}`}
@@ -137,6 +179,23 @@ const StaticFields = ({
     />
   </div>;
 
+  // React Select also reports Backspace in an empty field and a pick of the
+  // option already chosen, which change nothing.
+  const trackSelectChange = (actionByChangeKind, actionMeta, previousValue, value, label) => {
+    const hasChanged = Array.isArray(value)
+      ? value.length !== (previousValue?.length ?? 0)
+      : value?.id !== previousValue?.id;
+    const action = actionByChangeKind[CHANGE_KIND_BY_SELECT_ACTION[actionMeta.action]];
+    if (hasChanged && action) {
+      tracker.track(action, label);
+    }
+  };
+
+  // Closing the form, saved or discarded, would otherwise drop a pending edit.
+  useEffect(() => () => {
+    Object.values(debouncedTrackers).forEach((debouncedTracker) => debouncedTracker.flush());
+  }, [debouncedTrackers]);
+
   return <div className={styles.staticFields}>
     <div className={styles.columns}>
       <div className={styles.column}>
@@ -151,7 +210,11 @@ const StaticFields = ({
               className={styles.datePicker}
               max={latestDate}
               min={startDateMin}
-              onChange={(startDate) => onChangeLeg({ startDate })}
+              onChange={(startDate) => {
+                onChangeLeg({ startDate });
+
+                debouncedTrackers.startDate('Change the start date from the leg form');
+              }}
               reactDatePickerProps={{ endDate: endDateTime, selectsStart: true, startDate: startDateTime }}
               ref={startDatePickerRef}
               value={leg.startDate}
@@ -164,7 +227,11 @@ const StaticFields = ({
               max={startTimeMax}
               min={startTimeMin}
               minutesInterval={TIME_OPTIONS_INTERVAL_IN_MINUTES}
-              onChange={(startTime) => onChangeLeg({ startTime })}
+              onChange={(startTime) => {
+                onChangeLeg({ startTime });
+
+                debouncedTrackers.startTime('Change the start time from the leg form');
+              }}
               ref={startTimePickerRef}
               value={leg.startTime}
             />
@@ -184,7 +251,11 @@ const StaticFields = ({
           // Only the first leg's start can be a plan.
           isHidden: !isFirstLeg,
           label: t('autoStartCheckboxLabel'),
-          onChange: (isAutoStart) => onChangeLeg({ isAutoStart }),
+          onChange: (isAutoStart) => {
+            onChangeLeg({ isAutoStart });
+
+            tracker.track('Toggle auto-start from the leg form', isAutoStart ? 'on' : 'off');
+          },
         })}
 
         <div className={styles.field}>
@@ -193,7 +264,14 @@ const StaticFields = ({
           <LocationPicker
             id={startLocationId}
             inputProps={{ 'aria-label': t('startLocationLabel') }}
-            onChange={(startLocation) => onChangeLeg({ startLocation: startLocation || null })}
+            onChange={(startLocation) => {
+              onChangeLeg({ startLocation: startLocation || null });
+
+              debouncedTrackers.startLocation(
+                'Change start location from the leg form',
+                startLocation ? 'set' : 'cleared'
+              );
+            }}
             value={leg.startLocation}
           />
         </div>
@@ -211,7 +289,11 @@ const StaticFields = ({
               className={styles.datePicker}
               max={latestDate}
               min={endDateMin}
-              onChange={(endDate) => onChangeLeg({ endDate })}
+              onChange={(endDate) => {
+                onChangeLeg({ endDate });
+
+                debouncedTrackers.endDate('Change the end date from the leg form');
+              }}
               reactDatePickerProps={{ endDate: endDateTime, selectsEnd: true, startDate: startDateTime }}
               ref={endDatePickerRef}
               value={leg.endDate}
@@ -225,7 +307,11 @@ const StaticFields = ({
               max={endTimeMax}
               min={endTimeMin}
               minutesInterval={TIME_OPTIONS_INTERVAL_IN_MINUTES}
-              onChange={(endTime) => onChangeLeg({ endTime })}
+              onChange={(endTime) => {
+                onChangeLeg({ endTime });
+
+                debouncedTrackers.endTime('Change the end time from the leg form');
+              }}
               ref={endTimePickerRef}
               showDurationFromMin={!!endTimeMin}
               value={leg.endTime}
@@ -242,7 +328,11 @@ const StaticFields = ({
           isChecked: leg.isAutoEnd || !canScheduleEnd,
           isDisabled: !canScheduleEnd || !endDateTime || !isFuture(endDateTime),
           label: t('autoEndCheckboxLabel'),
-          onChange: (isAutoEnd) => onChangeLeg({ isAutoEnd }),
+          onChange: (isAutoEnd) => {
+            onChangeLeg({ isAutoEnd });
+
+            tracker.track('Toggle auto-end from the leg form', isAutoEnd ? 'on' : 'off');
+          },
         })}
 
         <div className={styles.field}>
@@ -251,7 +341,14 @@ const StaticFields = ({
           <LocationPicker
             id={endLocationId}
             inputProps={{ 'aria-label': t('endLocationLabel') }}
-            onChange={(endLocation) => onChangeLeg({ endLocation: endLocation || null })}
+            onChange={(endLocation) => {
+              onChangeLeg({ endLocation: endLocation || null });
+
+              debouncedTrackers.endLocation(
+                'Change end location from the leg form',
+                endLocation ? 'set' : 'cleared'
+              );
+            }}
             value={leg.endLocation}
           />
         </div>
@@ -264,7 +361,11 @@ const StaticFields = ({
           getOptionLabel: getTeamOptionLabel,
           id: teamSelectId,
           label: t('teamLabel'),
-          onChange: (team) => onChangeLeg({ team }),
+          onChange: (team, actionMeta) => {
+            onChangeLeg({ team });
+
+            trackSelectChange(TEAM_ACTION_BY_CHANGE_KIND, actionMeta, leg.team, team);
+          },
           options: teamAndTrackingOptions.teams,
           value: leg.team,
         })}
@@ -273,7 +374,17 @@ const StaticFields = ({
           id: teamMembersSelectId,
           isMulti: true,
           label: t('teamMembersLabel'),
-          onChange: (teamMembers) => onChangeLeg({ teamMembers: [...teamMembers] }),
+          onChange: (teamMembers, actionMeta) => {
+            onChangeLeg({ teamMembers: [...teamMembers] });
+
+            trackSelectChange(
+              TEAM_MEMBER_ACTION_BY_CHANGE_KIND,
+              actionMeta,
+              leg.teamMembers,
+              teamMembers,
+              String(teamMembers.length)
+            );
+          },
           options: teamAndTrackingOptions.members,
           renderOptionIcon: renderSubjectOptionIcon,
           value: leg.teamMembers,
@@ -284,7 +395,11 @@ const StaticFields = ({
         {renderSelect({
           id: teamLeadSelectId,
           label: t('teamLeadLabel'),
-          onChange: (teamLead) => onChangeLeg({ teamLead }),
+          onChange: (teamLead, actionMeta) => {
+            onChangeLeg({ teamLead });
+
+            trackSelectChange(TEAM_LEAD_ACTION_BY_CHANGE_KIND, actionMeta, leg.teamLead, teamLead);
+          },
           options: teamAndTrackingOptions.members,
           renderOptionIcon: renderSubjectOptionIcon,
           value: leg.teamLead,
@@ -294,7 +409,11 @@ const StaticFields = ({
           id: assetsSelectId,
           isMulti: true,
           label: t('assetsLabel'),
-          onChange: (assets) => onChangeLeg({ assets: [...assets] }),
+          onChange: (assets, actionMeta) => {
+            onChangeLeg({ assets: [...assets] });
+
+            trackSelectChange(ASSET_ACTION_BY_CHANGE_KIND, actionMeta, leg.assets, assets, String(assets.length));
+          },
           options: teamAndTrackingOptions.assets,
           renderOptionIcon: renderSubjectOptionIcon,
           value: leg.assets,

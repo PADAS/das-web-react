@@ -9,6 +9,11 @@ import { themeReactSelect } from '../utils/colors';
 
 import * as styles from './styles.module.scss';
 
+const ClearIndicator = ({ innerProps, ...otherProps }) => <components.ClearIndicator
+  innerProps={{ ...innerProps, 'data-testid': 'select-clearIndicator' }}
+  {...otherProps}
+/>;
+
 const IndicatorSeparator = () => null;
 
 // React Select scrolls the focused option into view before the menu has been
@@ -122,7 +127,7 @@ const Select = ({
         state.isFocused ? styles.optionFocused : ''}`,
       ...customClassNames,
     }}
-    components={{ IndicatorSeparator, MenuList, Option, ...customComponents }}
+    components={{ ClearIndicator, IndicatorSeparator, MenuList, Option, ...customComponents }}
     formatOptionLabel={renderOptionIcon
       ? (option, { context }) => (shouldRenderOptionIcon(context)
         ? renderOptionLabel(option, renderOptionIcon, getOptionLabel)

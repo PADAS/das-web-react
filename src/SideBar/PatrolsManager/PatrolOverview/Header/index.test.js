@@ -91,7 +91,9 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
   let onChangeState;
   let store;
   let reduxStore;
+  let track;
   beforeEach(() => {
+    track = jest.fn();
     useReactToPrint.mockImplementation(() => handlePrint);
 
     onChangeTitle = jest.fn();
@@ -129,7 +131,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
     return render(
       <Provider store={reduxStore}>
         <MapContext.Provider value={map}>
-          <TrackerContext.Provider value={{ track: jest.fn() }}>
+          <TrackerContext.Provider value={{ track }}>
             <ControlledHeader
               onChangeTitle={onChangeTitle}
               onChangeState={onChangeState}
@@ -230,6 +232,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header', () => {
 
     expect(action).toBeDefined();
     expect(action.payload).toEqual({ visible: [patrolWithLeader.id] });
+    expect(track).toHaveTrackedAction('Toggle track from patrol overview', 'visible');
   });
 
   test('shows the jump to location button', () => {

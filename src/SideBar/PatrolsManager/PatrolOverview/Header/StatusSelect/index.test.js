@@ -301,7 +301,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
     await openMenu();
     await userEvent.click(await screen.findByRole('menuitem', { name: 'End' }));
 
-    expect(track).toHaveBeenCalledWith('Pick the "done" patrol status from patrol overview');
+    expect(track).toHaveTrackedAction('Select a status from patrol overview', 'done');
   });
 
   test('italicizes the status while it is unsaved', () => {
