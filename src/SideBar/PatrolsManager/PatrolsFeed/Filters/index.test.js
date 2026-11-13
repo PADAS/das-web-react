@@ -21,8 +21,10 @@ jest.mock('../../../../ducks/patrol-filter', () => ({
 
 describe('SideBar - PatrolsManager - PatrolsFeed - Filters', () => {
   let store;
+  let track;
 
   beforeEach(() => {
+    track = jest.fn();
     resetGlobalDateRange.mockImplementation(() => () => {});
     updatePatrolFilter.mockImplementation(() => () => {});
 
@@ -46,7 +48,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters', () => {
 
   const renderFilters = (props) => render(
     <Provider store={mockStore(store)}>
-      <TrackerContext.Provider value={{ track: jest.fn() }}>
+      <TrackerContext.Provider value={{ track }}>
         <Filters resultCount={3} {...props} />
       </TrackerContext.Provider>
     </Provider>
@@ -106,6 +108,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - Filters', () => {
 
     expect(filtersButton).toHaveAttribute('aria-expanded', 'true');
     expect(await screen.findByRole('dialog', { name: 'Patrol Filters' })).toBeVisible();
+    expect(track).toHaveTrackedAction('Toggle the filters filter popover');
 
     await userEvent.click(filtersButton);
 

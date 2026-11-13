@@ -94,7 +94,7 @@ const Header = ({ legNumber, legState, patrol, patrolSegment, printableContentRe
   const onToggleTrack = () => {
     dispatch(togglePatrolTrackState(patrol.id));
 
-    tracker.track(`Toggle patrol track state to ${nextTrackToggleStateIfToggled} from leg overview`);
+    tracker.track('Toggle track from leg overview', nextTrackToggleStateIfToggled);
   };
 
   const onJumpToLocation = () => {
