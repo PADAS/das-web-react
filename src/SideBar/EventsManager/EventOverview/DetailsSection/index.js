@@ -211,7 +211,7 @@ const DetailsSection = ({
               />
             </div>
 
-            <div className={`${styles.field} ${styles.timeField}`}>
+            <div className={styles.field}>
               <span className={styles.label} id={timeLabelId}>{t('timeLabel')}</span>
 
               <TimePicker

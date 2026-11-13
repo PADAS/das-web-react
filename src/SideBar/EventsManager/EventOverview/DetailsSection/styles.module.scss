@@ -62,11 +62,13 @@
   .dateTimeFields {
     display: flex;
     flex: 1;
-    gap: 0.5rem;
+    flex-wrap: wrap;
+    gap: 1rem 0.5rem;
     min-width: 0;
 
-    .timeField {
-      flex: none;
+    .field {
+      flex-basis: 0;
+      min-width: auto;
     }
   }
 
