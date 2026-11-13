@@ -193,12 +193,13 @@ describe('MapBaseLayerControl', () => {
       expect(screen.getByRole('img', { name: 'Custom Icon logo' })).toHaveAttribute('src', 'generic-globe-logo.png');
     });
 
-    test('keeps the default logo when it fails to load too', async () => {
+    test('keeps the default logo after closing and reopening the popover', async () => {
       renderMapBaseLayerControl([customIconLayer]);
 
       await openPopover();
       fireEvent.error(screen.getByRole('img', { name: 'Custom Icon logo' }));
-      fireEvent.error(screen.getByRole('img', { name: 'Custom Icon logo' }));
+      await userEvent.keyboard('{Escape}');
+      await openPopover();
 
       expect(screen.getByRole('img', { name: 'Custom Icon logo' })).toHaveAttribute('src', 'generic-globe-logo.png');
     });

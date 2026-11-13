@@ -43,6 +43,8 @@ const BaseLayerControl = (props) => {
   const { baseLayers, currentBaseLayer, setBaseLayer } = props;
   const { t } = useTranslation('map-controls', { keyPrefix: 'baseLayer' });
   const [popoverOpen, setPopoverOpenState] = useState(false);
+  // A stored icon url can point to a host that no longer exists.
+  const [failedLogoLayerIds, setFailedLogoLayerIds] = useState(new Set());
   const wrapperRef = useRef(null);
   const buttonRef = useRef(null);
 
@@ -55,6 +57,8 @@ const BaseLayerControl = (props) => {
     setBaseLayer(layer);
     baseLayerTracker.track(`Select '${layer.name}' Base Layer`);
   };
+
+  const onLogoError = (layerId) => setFailedLogoLayerIds((ids) => ids.has(layerId) ? ids : new Set(ids).add(layerId));
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -101,13 +105,8 @@ const BaseLayerControl = (props) => {
               <button type='button' onClick={() => onItemClick(layer)} className={layer.id === currentBaseLayer?.id ? styles.active : ''}>
                 <img
                   alt={t('logoAlt', { logoName: layer.name ?? t(layer.nameKey) })}
-                  onError={(event) => {
-                    // The stored icon url can point to a host that no longer exists.
-                    if (event.currentTarget.getAttribute('src') !== defaultLogoSrc) {
-                      event.currentTarget.src = defaultLogoSrc;
-                    }
-                  }}
-                  src={layer.attributes.icon_url || defaultLogoSrc}
+                  onError={() => onLogoError(layer.id)}
+                  src={failedLogoLayerIds.has(layer.id) ? defaultLogoSrc : layer.attributes.icon_url || defaultLogoSrc}
                 />
                 {layer.name ?? t(layer.nameKey)}
               </button>
