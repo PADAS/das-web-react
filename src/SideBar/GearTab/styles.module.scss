@@ -26,12 +26,6 @@
   }
 }
 
-/* Outer list: manufacturer accordion rows (matches Map Layers grouped list layout). */
-.gearManufacturerList {
-  cursor: default;
-}
-
-/* Align filter row padding with the rest of the gear tab body (lists, hints). */
 .filterBar {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -116,7 +110,6 @@
   }
 }
 
-/* Match Map Layers → Subjects row timestamp alignment. */
 .gearDateTime {
   margin-right: 0.5rem;
   text-align: right;

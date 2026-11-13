@@ -28,7 +28,11 @@ $hover-color: colors.shade($checkmark-color, 31%);
     }
   }
 
+  &.clickable {
+    cursor: pointer;
+  }
+
   &:hover {
-     fill: colors.with-opacity($hover-color, 10%);
+    fill: colors.with-opacity($hover-color, 10%);
   }
 }
