@@ -210,7 +210,7 @@ body {
   @include animations.fade-in;
 
   display: none;
-  background: colors.with-opacity(var(--er-ui-background-primary-background), 95%);
+  background: var(--er-ui-background-elevated-component);
   border-radius: 0.666rem;
   line-height: normal;
   max-width: 14rem;
@@ -380,7 +380,7 @@ h6 {
 }
 
 div.mapboxgl-popup-content {
-  background: colors.with-opacity(var(--er-ui-background-primary-background), 88%);
+  background: var(--er-ui-background-elevated-component);
   border-radius: 0.5rem;
   text-align: center;
   width: 13rem;
@@ -404,7 +404,7 @@ div.mapboxgl-popup-content {
 }
 
 div.mapboxgl-popup-tip {
-  border-top-color: colors.with-opacity(var(--er-ui-background-primary-background), 88%);
+  border-top-color: var(--er-ui-background-elevated-component);
 }
 
 .modal-dialog {

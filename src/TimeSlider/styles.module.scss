@@ -15,8 +15,7 @@
 
 .wrapper {
   align-items: center;
-  backdrop-filter: blur(22px) saturate(175%);
-  background: colors.with-opacity(var(--er-ui-background-primary-background), 90%);
+  background: var(--er-ui-background-elevated-component);
   border-radius: 2rem;
   bottom: 1.5rem;
   display: flex;

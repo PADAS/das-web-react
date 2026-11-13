@@ -5,7 +5,7 @@
   --close-button-size: 1.75rem;
   --legend-height: 3.25rem;
 
-  background: colors.with-opacity(var(--er-ui-background-primary-background), 95%);
+  background: var(--er-ui-background-elevated-component);
   border-radius: 0 var(--close-button-size) var(--close-button-size) 0;
   box-shadow: 0 0 4px colors.with-opacity(var(--er-greyscale-0), 50%);
   display: flex;

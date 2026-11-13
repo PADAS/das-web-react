@@ -148,8 +148,7 @@
 }
 
 .tab {
-  background: linear-gradient(180deg, var(--er-ui-background-primary-background) 0%, colors.with-opacity(var(--er-ui-background-primary-background), 80%) 100%);
-  backdrop-filter: blur(12px);
+  background: var(--er-ui-background-elevated-component);
   width: auto;
   transform: translateX(calc(calc(var(--sidebar-width) + var(--vertical-nav-width)) * -1));
   transition: transform 0.4s ease-in-out;
