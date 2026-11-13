@@ -452,7 +452,7 @@ Permissions come from the user, or the active profile, through the `use<Domain>P
 
 ### Analytics
 
-Current UIs put a category-scoped tracker on `TrackerContext` at the top of a feature and call `tracker.track(...)` from descendants, so no component names its own category. Older code builds a module-level `trackEventFactory(SOME_CATEGORY)` instead. Either way, an action is a readable sentence describing what the user did.
+Current UIs put a category-scoped tracker on `TrackerContext` at the top of a feature and call `tracker.track(...)` from descendants, so no component names its own category. Older code builds a module-level `trackEventFactory(SOME_CATEGORY)` instead. Either way, an action is a readable sentence describing what the user did, of at most 40 characters: GA4 drops longer event names. Variable data goes in the label, never in the action.
 
 ## Conventions
 

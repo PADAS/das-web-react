@@ -29,6 +29,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow - Actions', () => {
 
   let reduxStore;
   let store;
+  let track;
 
   beforeAll(() => {
     jest.useFakeTimers({ advanceTimers: true }).setSystemTime(new Date('2022-02-01'));
@@ -39,6 +40,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow - Actions', () => {
   });
 
   beforeEach(() => {
+    track = jest.fn();
     updatePatrol.mockImplementation(() => () => Promise.resolve());
 
     store = {
@@ -67,7 +69,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow - Actions', () => {
     return render(
       <Provider store={reduxStore}>
         <MapContext.Provider value={map}>
-          <TrackerContext.Provider value={{ track: jest.fn() }}>
+          <TrackerContext.Provider value={{ track }}>
             <Actions patrol={activePatrol} patrolState={PATROL_UI_STATES.ACTIVE} {...props} />
           </TrackerContext.Provider>
         </MapContext.Provider>
@@ -93,6 +95,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow - Actions', () => {
 
     expect(reduxStore.getActions().find((action) => action.type === UPDATE_PATROL_TRACK_STATE).payload)
       .toEqual({ visible: [activePatrol.id] });
+    expect(track).toHaveTrackedAction('Toggle track from the patrols feed', 'visible');
   });
 
   test('marks a visible track and names pinning it as the next move', () => {
@@ -178,6 +181,7 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow - Actions', () => {
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Cancel' }));
 
     expect(updatePatrol).toHaveBeenCalledWith(expect.objectContaining({ id: activePatrol.id, state: 'cancelled' }));
+    await waitFor(() => expect(track).toHaveTrackedAction('Select a status from the patrols feed', 'cancelled'));
   });
 
   test('holds the menu shut while the move it was given is still saving', async () => {
