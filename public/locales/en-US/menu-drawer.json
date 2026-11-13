@@ -53,9 +53,9 @@
     "mobileGooglePlayLink": "Google Play (Android)",
     "mobileHeader": "EarthRanger Mobile",
     "navigationButton": {
+      "atlas": "Atlas",
       "gear": "Gear",
       "mapLayers": "Map Layers",
-      "otus": "Atlas",
       "patrols": "Patrols",
       "reports": "Events",
       "settings": "Settings"

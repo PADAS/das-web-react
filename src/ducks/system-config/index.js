@@ -8,13 +8,13 @@ import { setDefaultDateRange as setDefaultPatrolDateRange } from '../patrol-filt
 import { setSitenameDimension } from '../../utils/analytics';
 
 // A malformed URL would throw from the component that builds the frame source.
-const parseOtusUrl = (value) => {
+const parseAtlasUrl = (value) => {
   if (value) {
     if (getIsValidWebUrl(value)) {
       return value;
     }
 
-    console.warn('Ignoring an invalid Otus URL from the system status', value);
+    console.warn('Ignoring an invalid Atlas URL from the system status', value);
   }
 
   return null;
@@ -24,7 +24,7 @@ const parseOtusUrl = (value) => {
 export const SET_SYSTEM_CONFIG = 'SYSTEM_CONFIG.SET_SYSTEM_CONFIG';
 
 // Action creators
-// Tableau and Otus depend on who is signed in, so only a signed-in status
+// Tableau and Atlas depend on who is signed in, so only a signed-in status
 // response may set them.
 export const setSystemConfigFromSystemStatus = (systemStatus, { includeUserConfig = true } = {}) => (dispatch) => {
   // Set the Google Analytics 4 sitename dimension.
@@ -50,7 +50,7 @@ export const setSystemConfigFromSystemStatus = (systemStatus, { includeUserConfi
         // Tableau is legacy, so it stays hidden unless the server turns it on.
         [SYSTEM_CONFIG_FLAGS.TABLEAU]: systemStatus[SYSTEM_CONFIG_FLAGS.TABLEAU] ?? false,
         // The env override wins here, unlike default_event_filter_from_days.
-        otusUrl: parseOtusUrl(REACT_APP_OTUS_URL || systemStatus.otus_settings?.url),
+        atlasUrl: parseAtlasUrl(REACT_APP_OTUS_URL || systemStatus.otus_settings?.url),
         userConfigLoaded: true,
       } : {}),
       previewFeatures: systemStatus.preview_features || {},
@@ -99,7 +99,7 @@ export const INITIAL_STATE = {
   [SYSTEM_CONFIG_FLAGS.SUBJECTS]: false,
   [SYSTEM_CONFIG_FLAGS.TABLEAU]: false,
   [SYSTEM_CONFIG_FLAGS.GEO_SPAN]: null,
-  otusUrl: parseOtusUrl(REACT_APP_OTUS_URL),
+  atlasUrl: parseAtlasUrl(REACT_APP_OTUS_URL),
   previewFeatures: {},
   require_idp: null,
   site_slug: null,
@@ -111,12 +111,12 @@ export const INITIAL_STATE = {
 
 const systemConfigReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
-  // Only superusers get Tableau and Otus, so they must not outlive the user.
+  // Only superusers get Tableau and Atlas, so they must not outlive the user.
   case CLEAR_AUTH:
     return {
       ...state,
       [SYSTEM_CONFIG_FLAGS.TABLEAU]: INITIAL_STATE[SYSTEM_CONFIG_FLAGS.TABLEAU],
-      otusUrl: INITIAL_STATE.otusUrl,
+      atlasUrl: INITIAL_STATE.atlasUrl,
       userConfigLoaded: INITIAL_STATE.userConfigLoaded,
     };
 

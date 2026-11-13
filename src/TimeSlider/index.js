@@ -32,7 +32,7 @@ import {
   TrackerContext,
   trackEventFactory,
 } from '../utils/analytics';
-import { selectOtusTabWidth } from '../selectors/otus';
+import { selectAtlasTabWidth } from '../selectors/atlas';
 import { useMatchMedia } from '../hooks';
 
 import DateRangePopover from '../EventFilter/DateRangePopover';
@@ -66,7 +66,7 @@ const TimeSlider = () => {
 
   const eventFilterLowerDateRange = useSelector((state) => state.data.eventFilter.filter.date_range.lower);
   const eventFilterUpperDateRange = useSelector((state) => state.data.eventFilter.filter.date_range.upper);
-  const otusTabWidth = useSelector(selectOtusTabWidth);
+  const atlasTabWidth = useSelector(selectAtlasTabWidth);
   const virtualDate = useSelector((state) => state.view.timeSliderState.virtualDate);
 
   const speedMenuItemOptionRefs = useRef([]);
@@ -82,8 +82,8 @@ const TimeSlider = () => {
   const [speedMenuAnchorEl, setSpeedMenuAnchorEl] = useState();
 
   const sidebarOffsetPixels = calcSidebarPaddingLeft({
+    atlasTabWidth,
     isMediumLayoutOrLarger,
-    otusTabWidth,
     pathname: location.pathname,
   }) ?? 0;
 

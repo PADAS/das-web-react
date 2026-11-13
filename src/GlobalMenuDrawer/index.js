@@ -17,7 +17,7 @@ import { ReactComponent as HeadsetIcon } from '../common/images/icons/headset.sv
 import { ReactComponent as InformationIcon } from '../common/images/icons/information.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
-import { ReactComponent as OtusIcon } from '../common/images/icons/otus.svg';
+import { ReactComponent as AtlasIcon } from '../common/images/icons/atlas.svg';
 import { ReactComponent as PatrolIcon } from '../common/images/icons/patrol.svg';
 import { ReactComponent as PersonIcon } from '../common/images/icons/person-icon.svg';
 import { ReactComponent as PlayCircleIcon } from '../common/images/icons/play-circle.svg';
@@ -125,7 +125,7 @@ const GlobalMenuDrawer = () => {
   const hasGear = useSelector((state) => state.data.gear.hasGear);
   const isDrawerOpen = useSelector((state) => state.view.drawer.isOpen);
   const kmlExportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT]);
-  const otusUrl = useSelector((state) => state.view.systemConfig.otusUrl);
+  const atlasUrl = useSelector((state) => state.view.systemConfig.atlasUrl);
   const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
   const serverVersion = useSelector((state) => state.data.systemStatus.server.version);
@@ -217,9 +217,9 @@ const GlobalMenuDrawer = () => {
     ...(analyzersEnabled || spatialFeaturesEnabled || subjectsEnabled || eventsEnabled
       ? [{ Icon: LayersIcon, sidebarTab: TAB_KEYS.LAYERS, title: t('navigationButton.mapLayers') }]
       : []),
-    ...(otusUrl ? [{ Icon: OtusIcon, sidebarTab: TAB_KEYS.OTUS, title: t('navigationButton.otus') }] : []),
+    ...(atlasUrl ? [{ Icon: AtlasIcon, sidebarTab: TAB_KEYS.ATLAS, title: t('navigationButton.atlas') }] : []),
     { Icon: GearIcon, sidebarTab: TAB_KEYS.SETTINGS, title: t('navigationButton.settings') },
-  ], [analyzersEnabled, canReadPatrols, eventsEnabled, hasGear, otusUrl, spatialFeaturesEnabled, subjectsEnabled, t]);
+  ], [analyzersEnabled, canReadPatrols, eventsEnabled, hasGear, atlasUrl, spatialFeaturesEnabled, subjectsEnabled, t]);
 
   const openTableauReport = async () => {
     tableauAnalysisTracker.track('Click Analysis (via Tableau) menu item');

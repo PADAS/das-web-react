@@ -7,6 +7,7 @@ import userPreferencesReducer, {
   setPlaySoundForNewInReachMessages,
   setPlaySoundForRadioStateChangeToRed,
   updateUserPreferences,
+  userPreferencesMigrations,
 } from './';
 
 describe('Ducks - User preferences', () => {
@@ -60,11 +61,39 @@ describe('Ducks - User preferences', () => {
       expect(userPreferencesReducer(INITIAL_STATE, action)).toEqual(expectedState);
     });
 
-    test('handles an update of the Otus tab width', async () => {
-      const action = updateUserPreferences({ otusTabWidth: 700 });
-      const expectedState = { ...INITIAL_STATE, otusTabWidth: 700 };
+    test('handles an update of the Atlas tab width', async () => {
+      const action = updateUserPreferences({ atlasTabWidth: 700 });
+      const expectedState = { ...INITIAL_STATE, atlasTabWidth: 700 };
 
       expect(userPreferencesReducer(INITIAL_STATE, action)).toEqual(expectedState);
+    });
+  });
+
+  describe('userPreferencesMigrations', () => {
+    describe('0', () => {
+      test('copies the saved otusTabWidth to atlasTabWidth and keeps otusTabWidth', () => {
+        expect(userPreferencesMigrations[0]({ ...INITIAL_STATE, atlasTabWidth: undefined, otusTabWidth: 480 }))
+          .toEqual({ ...INITIAL_STATE, atlasTabWidth: 480, otusTabWidth: 480 });
+      });
+
+      test('copies a saved otusTabWidth when atlasTabWidth is null', () => {
+        expect(userPreferencesMigrations[0]({ atlasTabWidth: null, otusTabWidth: 480 }))
+          .toEqual({ atlasTabWidth: 480, otusTabWidth: 480 });
+      });
+
+      test('does not copy an otusTabWidth that is not a number', () => {
+        expect(userPreferencesMigrations[0]({ otusTabWidth: '480' })).toEqual({ otusTabWidth: '480' });
+        expect(userPreferencesMigrations[0]({ otusTabWidth: null })).toEqual({ otusTabWidth: null });
+      });
+
+      test('keeps an existing atlasTabWidth when both widths are saved', () => {
+        expect(userPreferencesMigrations[0]({ atlasTabWidth: 700, otusTabWidth: 480 }))
+          .toEqual({ atlasTabWidth: 700, otusTabWidth: 480 });
+      });
+
+      test('returns an undefined state unchanged', () => {
+        expect(userPreferencesMigrations[0](undefined)).toBeUndefined();
+      });
     });
   });
 });

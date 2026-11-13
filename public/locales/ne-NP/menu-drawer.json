@@ -53,9 +53,9 @@
     "mobileGooglePlayLink": "Google Play (Android)",
     "mobileHeader": "अर्थरेन्जर मोबाइल",
     "navigationButton": {
+      "atlas": "Atlas",
       "gear": "जाल",
       "mapLayers": "नक्साका तहहरु",
-      "otus": "Atlas",
       "patrols": "गस्तीहरु",
       "reports": "घटनाहरु",
       "settings": "सेटिङ"

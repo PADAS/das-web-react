@@ -48,7 +48,7 @@ import {
 import { mapFeatureHighlightIdReducer } from '../ducks/mapFeatureHighlight';
 import popupReducer from '../ducks/popup';
 import mapImagesReducer from '../ducks/map-images';
-import userPreferencesReducer from '../ducks/user-preferences';
+import userPreferencesReducer, { userPreferencesMigrations } from '../ducks/user-preferences';
 import eventFilterReducer, { persistenceConfig as eventFilterPersistenceConfig } from '../ducks/event-filter';
 import mapLayerFilterReducer, { mapLayerFilterPersistenceConfig } from '../ducks/map-layer-filter';
 import userReducer, { userProfilesReducer, selectedUserProfileReducer, userLocationAccessGrantedReducer } from '../ducks/user';
@@ -75,7 +75,7 @@ import realtimeOverlayEventsReducer from '../ducks/events-realtime-overlay';
 
 const tokenPersistenceConfig = generateStorageConfig('token');
 const homeMapPersistenceConfig = generateStorageConfig('homeMap');
-const userPrefPersistenceConfig = generateStorageConfig('userPreferences');
+const userPrefPersistenceConfig = generateStorageConfig('userPreferences', storage, 0, userPreferencesMigrations);
 const mapLabelPreferencesPersistenceConfig = generateStorageConfig('mapLabelPreferences');
 const heatmapConfigPersistenceConfig = generateStorageConfig('heatmapConfig');
 const userProfilePersistenceConfig = generateStorageConfig('userProfile');

@@ -282,6 +282,21 @@
     "addEventButtonTitle": "Crear Evento",
     "addPatrolButtonLabel": "Crear Patrulla",
     "addPatrolButtonTitle": "Crear Patrulla",
+    "atlasLink": "Atlas",
+    "atlasTab": {
+      "header": {
+        "betaBadgeLabel": "Beta",
+        "closeButtonLabel": "Cerrar Atlas",
+        "newConversationButtonLabel": "Nueva conversación",
+        "recentButtonLabel": "Recientes",
+        "title": "Atlas"
+      },
+      "iframeTitle": "Chat de Atlas",
+      "loadErrorMessage": "Atlas no pudo cargarse en este sitio. Vuelva a intentarlo o contacte con soporte si el problema continúa.",
+      "loadingMessage": "Cargando Atlas…",
+      "resizeHandleLabel": "Redimensionar el panel de Atlas",
+      "retryButtonLabel": "Reintentar"
+    },
     "backButtonLabel": "Volver atrás",
     "backButtonTitle": "Atrás",
     "closeButtonLabel": "Cerrar barra lateral",
@@ -312,21 +327,6 @@
       "eventsTabTitle": "Eventos",
       "featuresTabTitle": "Funcionalidades",
       "subjectsTabTitle": "Sujetos"
-    },
-    "otusLink": "Atlas",
-    "otusTab": {
-      "header": {
-        "betaBadgeLabel": "Beta",
-        "closeButtonLabel": "Cerrar Atlas",
-        "newConversationButtonLabel": "Nueva conversación",
-        "recentButtonLabel": "Recientes",
-        "title": "Atlas"
-      },
-      "iframeTitle": "Chat de Atlas",
-      "loadErrorMessage": "Atlas no pudo cargarse en este sitio. Vuelva a intentarlo o contacte con soporte si el problema continúa.",
-      "loadingMessage": "Cargando Atlas…",
-      "resizeHandleLabel": "Redimensionar el panel de Atlas",
-      "retryButtonLabel": "Reintentar"
     },
     "patrolsLink": "Patrullas",
     "settingsLink": "Preferencias",

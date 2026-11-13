@@ -340,29 +340,29 @@ describe('SideBar', () => {
     expect(screen.getByRole('link', { name: 'Settings' })).not.toHaveClass('active');
   });
 
-  test('shows the Otus tab when an Otus URL is configured', async () => {
-    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+  test('shows the Atlas tab when an Atlas URL is configured', async () => {
+    store.view.systemConfig.atlasUrl = 'https://atlas.example.com';
 
     renderSideBar();
 
     expect(screen.getByRole('link', { name: 'Atlas' })).toBeVisible();
   });
 
-  test('does not show the Otus tab when there is no Otus URL in the store', async () => {
+  test('does not show the Atlas tab when there is no Atlas URL in the store', async () => {
     renderSideBar();
 
     expect(screen.queryByRole('link', { name: 'Atlas' })).toBeNull();
   });
 
-  test('links the Otus tab to /atlas', async () => {
-    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+  test('links the Atlas tab to /atlas', async () => {
+    store.view.systemConfig.atlasUrl = 'https://atlas.example.com';
     renderSideBar();
 
     expect(screen.getByRole('link', { name: 'Atlas' })).toHaveAttribute('href', '/atlas');
   });
 
-  test('sets the Otus tab as active', async () => {
-    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+  test('sets the Atlas tab as active', async () => {
+    store.view.systemConfig.atlasUrl = 'https://atlas.example.com';
     useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
     useLocation.mockImplementation(useLocationMock);
 
@@ -373,14 +373,14 @@ describe('SideBar', () => {
     expect(screen.getByRole('link', { name: 'Settings' })).not.toHaveClass('active');
   });
 
-  test('keeps the Otus frame mounted when navigating to another tab', async () => {
-    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+  test('keeps the Atlas frame mounted when navigating to another tab', async () => {
+    store.view.systemConfig.atlasUrl = 'https://atlas.example.com';
     useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
     useLocation.mockImplementation(useLocationMock);
 
     const { rerender } = renderSideBar();
 
-    const otusFrame = screen.getByTitle('Atlas chat');
+    const atlasFrame = screen.getByTitle('Atlas chat');
 
     expect(screen.getByRole('region', { name: 'Atlas' })).toHaveClass('active');
 
@@ -389,13 +389,13 @@ describe('SideBar', () => {
 
     rerender(sideBarTree(mockStore(store)));
 
-    expect(screen.getByTitle('Atlas chat')).toBe(otusFrame);
-    expect(otusFrame).toBeInTheDocument();
+    expect(screen.getByTitle('Atlas chat')).toBe(atlasFrame);
+    expect(atlasFrame).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Atlas' })).not.toHaveClass('active');
   });
 
-  test('navigates home when the user clicks the active Otus tab link', async () => {
-    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+  test('navigates home when the user clicks the active Atlas tab link', async () => {
+    store.view.systemConfig.atlasUrl = 'https://atlas.example.com';
     useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
     useLocation.mockImplementation(useLocationMock);
 
@@ -407,8 +407,8 @@ describe('SideBar', () => {
     expect(navigate).toHaveBeenCalledWith('/');
   });
 
-  test('leaves a modified click on the active Otus tab link to the browser', async () => {
-    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+  test('leaves a modified click on the active Atlas tab link to the browser', async () => {
+    store.view.systemConfig.atlasUrl = 'https://atlas.example.com';
     useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
     useLocation.mockImplementation(useLocationMock);
     const user = userEvent.setup();
@@ -621,8 +621,8 @@ describe('SideBar', () => {
     expect(screen.getByRole('heading')).toHaveTextContent('Map Layers');
   });
 
-  test('does not show the default header for the Otus tab', async () => {
-    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+  test('does not show the default header for the Atlas tab', async () => {
+    store.view.systemConfig.atlasUrl = 'https://atlas.example.com';
     useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
     useLocation.mockImplementation(useLocationMock);
     renderSideBar();
@@ -695,8 +695,8 @@ describe('SideBar', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  test('does not navigate to home when the current tab is otus and the tab is enabled', async () => {
-    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+  test('does not navigate to home when the current tab is atlas and the tab is enabled', async () => {
+    store.view.systemConfig.atlasUrl = 'https://atlas.example.com';
     useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
     useLocation.mockImplementation(useLocationMock);
 
@@ -715,7 +715,7 @@ describe('SideBar', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  test('redirects from /atlas to home when the signed-in status has no Otus URL', async () => {
+  test('redirects from /atlas to home when the signed-in status has no Atlas URL', async () => {
     useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
     useLocation.mockImplementation(useLocationMock);
 
