@@ -4,34 +4,37 @@ import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import { useTranslation } from 'react-i18next';
 
-import { setBaseLayer } from '../ducks/layers';
-import { trackEventFactory, MAP_INTERACTION_CATEGORY, BASE_LAYER_CATEGORY } from '../utils/analytics';
-
-import {
-  VALID_LAYER_SOURCE_TYPES,
-  TILE_LAYER_SOURCE_TYPES,
-  MAPBOX_STYLE_LAYER_SOURCE_TYPES,
-  GOOGLE_LAYER_SOURCE_TYPES,
-} from '../constants';
-import mapboxLogoSrc from '../common/images/icons/mapbox-logo.png';
-import genericGlobeLogoSrc from '../common/images/icons/generic-globe-logo.png';
-import googleMapsLogoSrc from '../common/images/icons/google-maps-logo.png';
-import esriLogoSrc from '../common/images/icons/esri-logo.svg?url';
-
 import { ReactComponent as BaseMapIcon } from '../common/images/icons/base-map.svg';
+
+import { BASE_LAYER_CATEGORY, MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
+import esriLogoSrc from '../common/images/icons/esri-logo.svg?url';
+import genericGlobeLogoSrc from '../common/images/icons/generic-globe-logo.png';
+import {
+  GOOGLE_LAYER_SOURCE_TYPES,
+  MAPBOX_STYLE_LAYER_SOURCE_TYPES,
+  TILE_LAYER_SOURCE_TYPES,
+  VALID_LAYER_SOURCE_TYPES,
+} from '../constants';
+import googleMapsLogoSrc from '../common/images/icons/google-maps-logo.png';
+import mapboxLogoSrc from '../common/images/icons/mapbox-logo.png';
+import { setBaseLayer } from '../ducks/layers';
 
 import * as styles from './styles.module.scss';
 
-const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
-const baseLayerTracker = trackEventFactory(BASE_LAYER_CATEGORY);
-
 const ESRI_PATTERN = /(?<![a-z])esri(?![a-z])/i;
-const isEsriLayer = ({ name, attributes: { icon_url } }) => ESRI_PATTERN.test(name ?? '') || ESRI_PATTERN.test(icon_url ?? '');
+
+const baseLayerTracker = trackEventFactory(BASE_LAYER_CATEGORY);
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
+
+const isEsriLayer = (layer) =>
+  ESRI_PATTERN.test(layer.name ?? '') || ESRI_PATTERN.test(layer.attributes.icon_url ?? '');
 
 const renderLayerLogoSrc = (layer) => {
-  const { attributes: { type, icon_url } } = layer;
+  const iconUrl = layer.attributes.icon_url;
+  const type = layer.attributes.type;
+
   if (isEsriLayer(layer)) return esriLogoSrc;
-  if (icon_url) return icon_url;
+  if (iconUrl) return iconUrl;
   if (type.toLowerCase().includes('mapbox')) return mapboxLogoSrc;
   if (TILE_LAYER_SOURCE_TYPES.includes(type)) return genericGlobeLogoSrc;
   if (MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(type)) return mapboxLogoSrc;
