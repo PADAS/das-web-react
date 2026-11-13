@@ -6,7 +6,7 @@ import { render, screen } from '../test-utils';
 import { mockStore } from '../__test-helpers/MockStore';
 import { setBaseLayer } from '../ducks/layers';
 import { mockTrack } from '../utils/analytics';
-import esriLogoSrc from '../common/images/icons/esri-logo.svg';
+import esriLogoSrc from '../common/images/icons/esri-logo.svg?url';
 
 import MapBaseLayerControl from '.';
 

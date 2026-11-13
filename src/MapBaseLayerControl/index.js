@@ -16,7 +16,7 @@ import {
 import mapboxLogoSrc from '../common/images/icons/mapbox-logo.png';
 import genericGlobeLogoSrc from '../common/images/icons/generic-globe-logo.png';
 import googleMapsLogoSrc from '../common/images/icons/google-maps-logo.png';
-import esriLogoSrc from '../common/images/icons/esri-logo.svg';
+import esriLogoSrc from '../common/images/icons/esri-logo.svg?url';
 
 import { ReactComponent as BaseMapIcon } from '../common/images/icons/base-map.svg';
 
