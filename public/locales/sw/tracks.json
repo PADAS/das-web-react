@@ -1,8 +1,11 @@
 {
   "patrolTrackLegend": {
-    "icon": "Ikoni kwa {{title}}",
+    "description": "{{distance}} kwa muda wa {{trackTime}}",
+    "icon": "Ikoni kwa {{patrolTitle}}",
     "itemTitle": "Doria: {{patrolTitle}}",
-    "trackLegendItemsName": "doria"
+    "subjectIcon": "Ikoni ya {{subject}}",
+    "trackLegendItemsName": "doria",
+    "trackTimeDescription": "Kwa muda wa {{trackTime}}"
   },
   "subjectTrackLegend": {
     "description": "Pointi {{pointCount}} kwa muda wa {{trackTime}}",
@@ -39,22 +42,10 @@
       "active": "Zima rangi kwa wakati wa siku",
       "inactive": "Amua rangi kwa wakati wa siku"
     },
-    "tracksList": {
-      "closeButtonLabel": "Funga orodha ya {{itemsName}}",
-      "tracksItem": {
-        "removeButton": "Ondoa",
-        "removeButtonLabel": "Ondoa {{title}}"
-      }
-    },
-    "tracksListButtonLabel": {
-      "closed": "Fungua orodha ya {{itemsName}}",
-      "open": "Funga orodha ya {{itemsName}}"
-    },
     "trackSettings": {
-      "closeButtonLabel": "Funga mipangilio ya nyimbo",
       "customLengthErrorMessage": "Tafadhali ingiza urefu wa wimbo kati ya {{min}} na {{max}}.",
-      "customLengthRadioLabel": "Urefu maalum",
       "customLengthInputLabel": "Urefu wa wimbo kwa siku",
+      "customLengthRadioLabel": "Urefu maalum",
       "eventFilterRadioLabel": "Linganisha na kichujio cha matukyo \"kuanzia\" tarehe ({{length}} siku)",
       "title": "Mipangilio ya Nyimbo",
       "trackLengthLegend": "Urefu wa Wimbo"
@@ -62,6 +53,26 @@
     "trackSettingsButtonLabel": {
       "closed": "Fungua mipangilio ya nyimbo",
       "open": "Funga mipangilio ya nyimbo"
+    },
+    "tracksList": {
+      "tracksChildItem": {
+        "toggleTracksButtonLabel": {
+          "hidden": "Onyesha wimbo wa {{title}}",
+          "shown": "Ficha wimbo wa {{title}}"
+        }
+      },
+      "tracksItem": {
+        "clearButton": "Futa",
+        "clearButtonLabel": "Futa nyimbo za {{title}}",
+        "expandButtonLabel": {
+          "closed": "Fungua nyimbo za {{title}}",
+          "open": "Funga nyimbo za {{title}}"
+        }
+      }
+    },
+    "tracksListButtonLabel": {
+      "closed": "Fungua orodha ya {{itemsName}}",
+      "open": "Funga orodha ya {{itemsName}}"
     }
   },
   "trackLength": {

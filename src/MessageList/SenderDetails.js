@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as UserIcon } from '../common/images/icons/solid-user-icon.svg';
@@ -32,7 +32,7 @@ const SenderDetails = ({ message, onMessageSubjectClick, senderDetailStyle, subj
       </span>}
 
       <span
-        className={`${styles.messageSubjectName} ${!!onMessageSubjectClick ? styles.clickable : ''}`}
+        className={`${styles.messageSubjectName} ${onMessageSubjectClick ? styles.clickable : ''}`}
         onClick={() => onMessageSubjectClick?.(subject)}
       >
         {radioImage && <img
@@ -55,7 +55,7 @@ const SenderDetails = ({ message, onMessageSubjectClick, senderDetailStyle, subj
           {calcSenderNameForMessage(message)}
         </>
         : <span
-            className={`${styles.messageSubjectName} ${!!onMessageSubjectClick ? styles.clickable : ''}`}
+            className={`${styles.messageSubjectName} ${onMessageSubjectClick ? styles.clickable : ''}`}
             onClick={() => onMessageSubjectClick?.(subject)}
           >
           {radioImage && <img
@@ -72,7 +72,7 @@ const SenderDetails = ({ message, onMessageSubjectClick, senderDetailStyle, subj
   if (senderDetailStyle === SENDER_DETAIL_STYLES.SUBJECT) {
     return <em className={styles.senderDetails}>
       <span
-        className={`${styles.messageSubjectName} ${!!onMessageSubjectClick ? styles.clickable : ''}`}
+        className={`${styles.messageSubjectName} ${onMessageSubjectClick ? styles.clickable : ''}`}
         onClick={() => onMessageSubjectClick?.(subject)}
       >
         {radioImage && <img

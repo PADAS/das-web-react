@@ -1,4 +1,4 @@
-@import '../common/styles/vars/colors';
+@use '../common/styles/vars/colors';
 
 
 .option {
@@ -18,24 +18,28 @@
 
   &:active, &:hover {
     cursor: pointer;
+
     div {
-      background-color: rgba($bright-blue, 0.3);
+      background-color: rgba(colors.$bright-blue, 0.3);
       color: white;
     }
   }
 
   &.hidden {
-    color: $light-font-color;
+    color: colors.$light-font-color;
     font-style: italic;
   }
+
   &.optionLabel {
     pointer-events: none;
+
     * {
-      color: $secondary-medium-gray; 
+      color: colors.$secondary-medium-gray; 
       font-size: 0.75rem;
       text-transform: uppercase;
     }
   }
+
   &:hover, &:focus, &:active {
     background-color: initial;
     color: initial;
@@ -83,7 +87,7 @@
 
 
 .timeAgo {
-  color: $light-font-color;
+  color: colors.$light-font-color;
   flex-grow: 1;
   font-size: 0.7rem;
   font-style: italic;

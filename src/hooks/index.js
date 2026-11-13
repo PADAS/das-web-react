@@ -3,22 +3,12 @@ import isEqual from 'react-fast-compare';
 import { useSelector } from 'react-redux';
 import noop from 'lodash/noop';
 
+import { getFeatureFlagValue, getPreviewFeatureValue } from '../utils/feature-flags';
+import { MapContext } from '../MapContext';
 
-import { MapContext } from '../App';
+export const useFeatureFlag = (flagName) => useSelector((state) => getFeatureFlagValue(state, flagName));
 
-import { DEVELOPMENT_FEATURE_FLAGS } from '../constants';
-
-export const useFeatureFlag = (flagName) => {
-  const experimentalFeatures = useSelector((state) => state.view.experimentalFeatures) || {};
-
-  if (!DEVELOPMENT_FEATURE_FLAGS.hasOwnProperty(flagName)) {
-    throw new Error('no feature flag with that name exists');
-  }
-
-  // Experimental features reducer properties override the systems development
-  // feature flags.
-  return flagName in experimentalFeatures ? experimentalFeatures[flagName] : DEVELOPMENT_FEATURE_FLAGS[flagName];
-};
+export const usePreviewFeature = (featureKey) => useSelector((state) => getPreviewFeatureValue(state, featureKey));
 
 export const useMatchMedia = (matchMediaDef) => {
   const isClient = typeof window === 'object';
@@ -59,6 +49,8 @@ export const useMapEventBinding = (eventType = 'click', handlerFn = noop, layerI
 
 export const useMemoCompare = (next, compare = isEqual) => {
   const previousRef = useRef();
+  // Using this ref during render is intended.
+  // eslint-disable-next-line react-hooks/refs
   const previous = previousRef.current;
 
   const isEqual = compare(previous, next);

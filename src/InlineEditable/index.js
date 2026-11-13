@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useCallback, useRef, useState } from 'react';
+import { memo, useEffect, useCallback, useRef, useState } from 'react';
 
 import Checkmark from '../Checkmark';
 
@@ -40,6 +40,8 @@ const InlineEditable = ({
   }, [onEsc]);
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setStateValue(originalValue);
 
     setTimeout(() => {

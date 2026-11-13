@@ -17,8 +17,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
       - name: Install dependencies
@@ -32,9 +32,9 @@ jobs:
       build-args: ${{ steps.env-vars.outputs.build-args }}
       image-tag: ${{ steps.tag.outputs.value }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
       - run: |
@@ -52,7 +52,7 @@ jobs:
           BRANCH_SAFE=$(echo "${GITHUB_REF_NAME}" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
           echo "value=${BRANCH_SAFE}-${SHORT_SHA}" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: npm-config
           path: package.json
@@ -61,56 +61,58 @@ jobs:
     needs: config
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: npm-config
           path: .
 
       - name: GCP Auth
         id: auth
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@v3
         with:
-          token_format: 'access_token'
           workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ vars.SERVICE_ACCOUNT }}
 
-      - name: Login to serca-artifact-registry
-        uses: docker/login-action@v3
-        with:
-          registry: europe-west3-docker.pkg.dev/serca-artifact-registry
-          username: oauth2accesstoken
-          password: ${{ steps.auth.outputs.access_token }}
+      - name: Configure Docker
+        run: gcloud auth configure-docker europe-west3-docker.pkg.dev
 
-      - name: Login to padas-app
-        uses: docker/login-action@v3
-        with:
-          registry: europe-west3-docker.pkg.dev/padas-app
-          username: oauth2accesstoken
-          password: ${{ steps.auth.outputs.access_token }}
-
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
         with:
           driver-opts: |
             image=europe-west3-docker.pkg.dev/serca-artifact-registry/virtual-docker/moby/buildkit:buildx-stable-1
 
       - name: Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react
-            europe-west3-docker.pkg.dev/padas-app/er-mt/das-web-react
           tags: |
             type=raw,value=${{ needs.config.outputs.image-tag }}
+
+      # Artifact Registry has tag immutability enabled: re-pushing an existing
+      # {branch}-{sha} tag fails. The tag is keyed on the commit SHA, so an
+      # existing image is the same source; skip the rebuild and let the deploy
+      # jobs reuse it.
+      - name: Check if image already exists
+        id: image-check
+        run: |
+          IMAGE="europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react:${{ needs.config.outputs.image-tag }}"
+          if gcloud artifacts docker images describe "${IMAGE}" --quiet; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Image does not exist yet; proceeding with build."
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Read node version
         id: node-ver
         run: echo "value=$(cat .node-version)" >> $GITHUB_OUTPUT
 
       - name: Build and push
-        uses: docker/build-push-action@v6
+        if: steps.image-check.outputs.exists != 'true'
+        uses: docker/build-push-action@v7
         with:
           push: true
           context: .
@@ -141,3 +143,47 @@ jobs:
       app-name: das-web-react-er-dev
     secrets:
       ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+
+  # Deploys the legacy `develop` site; release.yml explains the legacy chain.
+  deploy-legacy-develop:
+    name: "deploy-legacy-develop (das-dev / develop site)"
+    needs: [config, build, test]
+    uses: ./.github/workflows/_deploy_legacy_kubectl.yml
+    with:
+      environment: ""
+      image_repository: "europe-west3-docker.pkg.dev/serca-artifact-registry/earthranger/das-web-react"
+      image_tag: ${{ needs.config.outputs.image-tag }}
+      deployments: ${{ vars.LEGACY_DEPLOYMENTS }}
+      cluster_name: "das-dev"
+      cluster_zone: "us-west1-a"
+      tenants: "develop"
+      service_account: ${{ vars.LEGACY_DEPLOY_SERVICE_ACCOUNT }}
+
+  # Tells the ER Core team in Slack when mainline `develop` breaks (DASOPS-2238).
+  #
+  # `needs` lists every job in this workflow. It cannot move into the reusable
+  # workflow: the gate below reads *this* workflow's `needs.*.result`, so a job
+  # added here and left out of the list contributes nothing to the trigger, and
+  # if it is the only failure no alert fires at all.
+  #
+  # The condition is deliberately not `failure()`. A run that gets superseded and
+  # cancelled mid-flight is not a broken build, and `!cancelled()` is what keeps
+  # those quiet. `contains(needs.*.result, 'failure')` then fires on a real
+  # failure even when some other job was skipped.
+  notify-failure:
+    needs: [test, config, build, deploy-dev, sync-dev, deploy-legacy-develop]
+    if: ${{ !cancelled() && contains(needs.*.result, 'failure') }}
+    # Local copy, not the shared serca-pipelines one: this repo is public and
+    # that repo is internal, so the cross-repo call is a startup failure. See the
+    # header of _slack-notify-failure.yml for the evidence.
+    #
+    # The workflow reads this run's jobs API. A called workflow's permissions
+    # must be a subset of the caller's, so granting it here keeps this working if
+    # the workflow is ever hardened with a top-level block.
+    permissions:
+      actions: read
+    uses: ./.github/workflows/_slack-notify-failure.yml
+    with:
+      title: "das-web-react develop build failed"
+    secrets:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

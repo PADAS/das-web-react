@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { hidePopup } from '../ducks/popup';
@@ -31,6 +31,7 @@ const FeatureSymbolPopup = ({ data, id }) => {
         formProps={{ onSaveSuccess: onComplete, onSaveError: onComplete }}
         reportData={{ location: { latitude: coordinates[1], longitude: coordinates[0] } }}
         showLabel={false}
+        variant="secondary"
       />
     </>
   );

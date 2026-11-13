@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Popover from 'react-bootstrap/Popover';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';

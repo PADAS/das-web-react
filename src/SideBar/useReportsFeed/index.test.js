@@ -1,5 +1,5 @@
-import React from 'react';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
+import { MemoryRouter } from 'react-router';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 
@@ -54,9 +54,125 @@ describe('useReportsFeed', () => {
     jest.restoreAllMocks();
   });
 
+  const renderUseReportsFeed = (builtStore = mockStore(store), initialEntries = ['/events']) => renderHook(
+    () => useReportsFeed(),
+    {
+      wrapper: ({ children }) => <MemoryRouter initialEntries={initialEntries}>
+        <Provider store={builtStore}>{children}</Provider>
+      </MemoryRouter>,
+    }
+  );
+
+  const captureIncludeDetailsParams = () => {
+    const includeDetailsParams = [];
+    server.use(http.get(EVENTS_API_URL, ({ request }) => {
+      includeDetailsParams.push(new URL(request.url).searchParams.get('include_details'));
+
+      return HttpResponse.json(eventFeedResponse);
+    }));
+
+    return includeDetailsParams;
+  };
+
+  const showEventsTable = () => {
+    store.view.feedTableView = { events: true };
+  };
+
+  test('loads event details in the table view filtered to one event type', async () => {
+    showEventsTable();
+    store.data.eventFilter = {
+      ...INITIAL_EVENT_FILTER_STATE,
+      filter: { ...INITIAL_EVENT_FILTER_STATE.filter, event_type: ['type-id'] },
+    };
+    const includeDetailsParams = captureIncludeDetailsParams();
+
+    renderUseReportsFeed(mockStore(store));
+
+    await waitFor(() => {
+      expect(includeDetailsParams.at(-1)).toBe('true');
+    });
+  });
+
+  test('keeps loading event details while an event of the table is open', async () => {
+    showEventsTable();
+    store.data.eventFilter = {
+      ...INITIAL_EVENT_FILTER_STATE,
+      filter: { ...INITIAL_EVENT_FILTER_STATE.filter, event_type: ['type-id'] },
+    };
+    const includeDetailsParams = captureIncludeDetailsParams();
+
+    renderUseReportsFeed(mockStore(store), ['/events/event-id']);
+
+    await waitFor(() => {
+      expect(includeDetailsParams.length).toBeGreaterThan(0);
+    });
+    expect(includeDetailsParams).not.toContain('false');
+  });
+
+  test('does not load event details in the table view across event types', async () => {
+    showEventsTable();
+    const includeDetailsParams = captureIncludeDetailsParams();
+
+    renderUseReportsFeed(mockStore(store));
+
+    await waitFor(() => {
+      expect(includeDetailsParams.length).toBeGreaterThan(0);
+    });
+    expect(includeDetailsParams).not.toContain('true');
+  });
+
+  test('leaves out the events incidents contain in the list without filters', async () => {
+    const excludeContainedParams = [];
+    server.use(http.get(EVENTS_API_URL, ({ request }) => {
+      excludeContainedParams.push(new URL(request.url).searchParams.get('exclude_contained'));
+
+      return HttpResponse.json(eventFeedResponse);
+    }));
+
+    renderUseReportsFeed(mockStore(store));
+
+    await waitFor(() => expect(excludeContainedParams.at(-1)).toBe('true'));
+  });
+
+  test('leaves out the events incidents contain in the table view without filters', async () => {
+    showEventsTable();
+    const excludeContainedParams = [];
+    server.use(http.get(EVENTS_API_URL, ({ request }) => {
+      excludeContainedParams.push(new URL(request.url).searchParams.get('exclude_contained'));
+
+      return HttpResponse.json(eventFeedResponse);
+    }));
+
+    const { result } = renderUseReportsFeed(mockStore(store));
+
+    await waitFor(() => expect(excludeContainedParams.at(-1)).toBe('true'));
+    expect(result.current.shouldExcludeContained).toBe(true);
+  });
+
+  test('leaves out the events incidents contain when only the sort changes', async () => {
+    store.data.eventFilter = {
+      ...INITIAL_EVENT_FILTER_STATE,
+      filter: { ...INITIAL_EVENT_FILTER_STATE.filter, sort: ['+', INITIAL_EVENT_FILTER_STATE.filter.sort[1]] },
+    };
+
+    const { result } = renderUseReportsFeed(mockStore(store));
+
+    expect(result.current.shouldExcludeContained).toBe(true);
+  });
+
+  test('keeps the events incidents contain once a filter is set', async () => {
+    store.data.eventFilter = {
+      ...INITIAL_EVENT_FILTER_STATE,
+      filter: { ...INITIAL_EVENT_FILTER_STATE.filter, text: 'snare' },
+    };
+
+    const { result } = renderUseReportsFeed(mockStore(store));
+
+    expect(result.current.shouldExcludeContained).toBe(false);
+  });
+
   test('returns the reportsFetchFeed properties and methods', async () => {
-    const wrapper = ({ children }) => <Provider store={mockStore(store)}>{children}</Provider>;
-    const { result } = renderHook(() => useReportsFeed(), { wrapper });
+    const { result } = renderUseReportsFeed();
 
     const reportsFetchFeed = result.current;
 
@@ -64,14 +180,21 @@ describe('useReportsFeed', () => {
     expect(reportsFetchFeed.feedSort).toBe(DEFAULT_EVENT_SORT);
     expect(typeof reportsFetchFeed.loadFeedEvents).toBe('function');
     expect(reportsFetchFeed.loadingEventFeed).toBe(true);
-    expect(typeof reportsFetchFeed.setFeedSort).toBe('function');
     expect(reportsFetchFeed.shouldExcludeContained).toBe(true);
+  });
+
+  test('returns the same feed until something in it changes', () => {
+    const { rerender, result } = renderUseReportsFeed();
+    const initialFeed = result.current;
+
+    rerender();
+
+    expect(result.current).toBe(initialFeed);
   });
 
   test('loads the reports feed for georestricted users', async () => {
     const builtStore = mockStore(store);
-    const wrapper = ({ children }) => <Provider store={builtStore}>{children}</Provider>;
-    renderHook(() => useReportsFeed(), { wrapper });
+    renderUseReportsFeed(builtStore);
 
     const actions = builtStore.getActions();
 
@@ -86,8 +209,7 @@ describe('useReportsFeed', () => {
   test('loads the reports feed normally', async () => {
     store.data.user.permissions = [];
     const builtStore = mockStore(store);
-    const wrapper = ({ children }) => <Provider store={builtStore}>{children}</Provider>;
-    renderHook(() => useReportsFeed(), { wrapper });
+    renderUseReportsFeed(builtStore);
 
     const actions = builtStore.getActions();
 
@@ -97,5 +219,60 @@ describe('useReportsFeed', () => {
       expect(actions[1].type).toBe('UPDATE_EVENT_STORE');
       expect(actions[2].type).toBe('FEED_FETCH_SUCCESS');
     });
+  });
+
+  test('warns and stops loading when the event feed request fails', async () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    server.use(http.get(EVENTS_API_URL, () => new HttpResponse(null, { status: 500 })));
+
+    const { result } = renderUseReportsFeed();
+
+    await waitFor(() => {
+      expect(result.current.loadingEventFeed).toBe(false);
+    });
+    expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to fetch the event feed', expect.any(Error));
+  });
+
+  test('does not warn when a newer event feed request cancels the pending one', async () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    let releaseFirstRequest;
+    const firstRequestGate = new Promise((resolve) => {
+      releaseFirstRequest = resolve;
+    });
+    let requestCount = 0;
+    server.use(http.get(EVENTS_API_URL, async () => {
+      requestCount += 1;
+      if (requestCount === 1) {
+        await firstRequestGate;
+      }
+
+      return HttpResponse.json(eventFeedResponse);
+    }));
+    const builtStore = mockStore(store);
+
+    const { result } = renderUseReportsFeed(builtStore);
+    await waitFor(() => {
+      expect(requestCount).toBe(1);
+    });
+    result.current.loadFeedEvents();
+
+    await waitFor(() => {
+      expect(builtStore.getActions().map((action) => action.type)).toContain('FEED_FETCH_SUCCESS');
+    });
+    releaseFirstRequest();
+
+    expect(builtStore.getActions().map((action) => action.type)).toContain('FEED_FETCH_ERROR');
+    expect(consoleWarnSpy).not.toHaveBeenCalled();
+  });
+
+  test('hands out each feed request with its params, silent refreshes too', async () => {
+    const { result } = renderUseReportsFeed();
+    await waitFor(() => expect(result.current.feedRequest.id).toBeGreaterThan(0));
+    const feedRequestId = result.current.feedRequest.id;
+
+    result.current.loadFeedEvents(true);
+
+    await waitFor(() => expect(result.current.feedRequest.id).toBe(feedRequestId + 1));
+    expect(result.current.feedRequest.params).toMatchObject({ page_size: 50 });
   });
 });

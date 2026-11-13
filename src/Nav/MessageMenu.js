@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +10,8 @@ import {
   fetchAllMessages,
   fetchMessagesSuccess,
   fetchUnreadMessagesCount,
-  updateMessageFromRealtime, updateUnreadMessagesCount
+  updateMessageFromRealtime,
+  updateUnreadMessagesCount,
 } from '../ducks/messaging';
 import MessageContext from '../InReach/context';
 
@@ -22,69 +23,78 @@ import WithMessageContext from '../InReach';
 
 import * as styles from './styles.module.scss';
 
+const MENU_MESSAGES_PAGE_SIZE = 100;
 const RADIO_MESSAGE_REALTIME = 'radio_message';
 const SLEEP_DETECTION_INTERVAL = 60000;
-const MENU_MESSAGES_PAGE_SIZE = 100;
 
 const MessageMenu = () => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'nav.messageMenu' });
 
-  const { dispatch, state } = useContext(MessageContext);
-
   const subjects = useSelector(allSubjects);
+
+  const messageContext = useContext(MessageContext);
 
   const [selectedSubject, setSelectedSubject] = useState(null);
 
-  const { unreadMessagesCount } = state;
-  const badgeCount = unreadMessagesCount > 9 ? '9+' : unreadMessagesCount;
+  const messageDispatch = messageContext.dispatch;
+  const unreadMessagesCount = messageContext.state.unreadMessagesCount;
 
-  const canShowMessageMenu = useMemo(
-    () => !!state.results.length || !!subjects.filter((subject) => !!subject?.messaging?.length).length,
-    [state.results.length, subjects]
-  );
+  const canShowMessageMenu = !!messageContext.state.results.length
+    || subjects.some((subject) => !!subject?.messaging?.length);
 
-  const checkForUnreadMessages = useCallback(() => {
-    fetchUnreadMessagesCount()
-      .then(({ data: { data: { count } } }) => dispatch(updateUnreadMessagesCount(count)))
-      .catch((error) => console.warn('error checking for unread messages', { error }));
-  }, [dispatch]);
+  const checkForUnreadMessages = useCallback(async () => {
+    try {
+      const response = await fetchUnreadMessagesCount();
 
-  const fetchMenuMessages = useCallback(() => {
-    fetchAllMessages({ page_size: MENU_MESSAGES_PAGE_SIZE })
-      .then((results = []) => {
-        dispatch(fetchMessagesSuccess({ results }));
-      })
-      .catch((error) => console.warn('error fetching messages', { error }));
-  }, [dispatch]);
+      messageDispatch(updateUnreadMessagesCount(response.data.data.count));
+    } catch (error) {
+      console.warn('error checking for unread messages', { error });
+    }
+  }, [messageDispatch]);
+
+  const fetchMenuMessages = useCallback(async () => {
+    try {
+      const results = await fetchAllMessages({ page_size: MENU_MESSAGES_PAGE_SIZE });
+
+      messageDispatch(fetchMessagesSuccess({ results: results ?? [] }));
+    } catch (error) {
+      console.warn('error fetching messages', { error });
+    }
+  }, [messageDispatch]);
 
   useEffect(() => {
     checkForUnreadMessages();
-  }, [checkForUnreadMessages, state.results]);
+  }, [checkForUnreadMessages, messageContext.state.results]);
 
-  return canShowMessageMenu ? <Dropdown
-      align="end"
-      className={styles.messageMenu}
-      onToggle={() => setSelectedSubject(null)}
+  if (!canShowMessageMenu) {
+    return null;
+  }
+
+  return <Dropdown align="end" className={styles.messageMenu} onToggle={() => setSelectedSubject(null)}>
+    <Dropdown.Toggle
+      aria-label={unreadMessagesCount ? t('unreadToggleLabel', { count: unreadMessagesCount }) : t('toggleLabel')}
+      as="button"
+      className={styles.messageMenuToggle}
+      title={t('toggleLabel')}
+      type="button"
     >
-    <Dropdown.Toggle aria-label={t('messageMenuToggleLabel')} title={t('messageMenuToggleTitle')}>
-      <ChatIcon className={styles.messageIcon} />
+      <ChatIcon aria-hidden="true" className={styles.messageIcon} />
 
-      {!!unreadMessagesCount && <Badge className={styles.badge} count={badgeCount} />}
+      {!!unreadMessagesCount && <Badge aria-hidden="true" className={styles.badge} count={unreadMessagesCount} />}
     </Dropdown.Toggle>
 
     <Dropdown.Menu>
-      <MessagesModal onSelectSubject={(subject) => setSelectedSubject(subject)}
-                     selectedSubject={selectedSubject} />
+      <MessagesModal onSelectSubject={setSelectedSubject} selectedSubject={selectedSubject} />
     </Dropdown.Menu>
 
     <StateManagedSocketConsumer
-      callback={(payload) => dispatch(updateMessageFromRealtime(payload.data))}
+      callback={(payload) => messageDispatch(updateMessageFromRealtime(payload.data))}
       onStateMismatch={fetchMenuMessages}
       type={RADIO_MESSAGE_REALTIME}
     />
 
     <SleepDetector interval={SLEEP_DETECTION_INTERVAL} onSleepDetected={fetchMenuMessages} />
-  </Dropdown> : null;
+  </Dropdown>;
 };
 
 const MessageMenuWithContext = (props) => <WithMessageContext>

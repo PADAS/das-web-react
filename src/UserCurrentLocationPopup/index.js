@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import isEqual from 'react-fast-compare';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -39,6 +39,7 @@ const UserCurrentLocationPopup = ({ data, id }) => {
         }
       }}
       showLabel={false}
+      variant="secondary"
     />
   </>;
 };

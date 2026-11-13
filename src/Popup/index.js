@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import mapboxgl from 'mapbox-gl';
 import xor from 'lodash/xor';
 
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { validateLngLat } from '../utils/location';
 
 const Popup = ({ className = '', trackPointer = false, offset, coordinates, anchor, children }) => {
@@ -79,6 +79,8 @@ const Popup = ({ className = '', trackPointer = false, offset, coordinates, anch
 
   return createPortal(
     <>{children}</>,
+    // Using this ref during render is intended.
+    // eslint-disable-next-line react-hooks/refs
     popupContainerRef.current
   );
 };

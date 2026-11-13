@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 
 import { showPopup } from '../ducks/popup';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 const RightClickMarkerDropper = () => {
   const dispatch = useDispatch();

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { renderHook } from '../../test-utils';
 import { NavigationContext } from '../../NavigationContextProvider';
 import useBlockNavigation from '.';

@@ -1,6 +1,13 @@
+@use '../common/styles/vars/colors';
+
 .itemIcon {
-  fill: gray;
-  height: 1.5rem;
-  margin-right: 0.5rem;
-  width: 1.5rem;
+  fill: colors.$secondary-medium-gray;
+}
+
+.itemsIcon {
+  color: colors.$secondary-medium-gray;
+}
+
+.subjectIcon {
+  fill: colors.$off-black;
 }

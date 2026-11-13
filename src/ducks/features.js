@@ -22,7 +22,7 @@ export const fetchFeaturesets = () => async (dispatch) => {
       type: FETCH_FEATURESETS_SUCCESS,
       payload: nonEmptySets,
     });
-  } catch (e) {
+  } catch {
     dispatch({
       type: FETCH_FEATURESETS_ERROR,
     });

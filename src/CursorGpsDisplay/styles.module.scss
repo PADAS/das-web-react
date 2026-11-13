@@ -1,5 +1,4 @@
 @use 'sass:color';
-
 @use '../common/styles/vars/colors';
 @use '../common/styles/inputs';
 
@@ -8,7 +7,7 @@
   background: colors.$mapbox-control-bg-color;
   border: none;
   border-radius: 0.125rem;
-  box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px;
+  box-shadow: rgb(0 0 0 / 30%) 0 1px 4px;
   color: colors.$primary-font-color;
   display: flex;
   font-size: 0.75rem;
@@ -66,6 +65,7 @@
 
   .caret {
     @include inputs.dropdown-caret($color: colors.$secondary-medium-gray);
+
     margin-left: 0.5rem;
 
     &.open {

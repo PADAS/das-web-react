@@ -1,0 +1,480 @@
+import axios, { CancelToken, isCancel } from 'axios';
+import omit from 'lodash/omit';
+import uniq from 'lodash/uniq';
+
+import { API_URL, PREVIEW_FEATURES } from '../../constants';
+import { calcPatrolFilterForRequest } from '../../utils/patrol-filter';
+import { getPreviewFeatureValue } from '../../utils/feature-flags';
+import globallyResettableReducer from '../../reducers/global-resettable';
+
+export const PATROLS_API_URL = `${API_URL}activity/patrols/`;
+export const PATROL_CONFIG_API_URL = `${PATROLS_API_URL}config/default/resolved/`;
+export const PATROL_LEADERS_API_URL = `${PATROLS_API_URL}trackedby`;
+
+const PATROLS_FEED_PAGE_SIZE = 200;
+const PATROLS_FEED_EXCLUDED_DETAILS_PARAMS = {
+  include_files: false,
+  include_notes: false,
+  include_segment_events: false,
+  include_updates: false,
+};
+
+export const PATROL_REQUEST_PARAMS = { include_pauses: true };
+
+export const LINK_TARGETS_PAGE_SIZE = 25;
+
+// A planned patrol cannot hold events. No status tells a cancelled patrol that
+// ran from one that never did, so the caller drops the latter.
+const PATROL_LINK_TARGETS_PARAMS = {
+  ...PATROL_REQUEST_PARAMS,
+  ...PATROLS_FEED_EXCLUDED_DETAILS_PARAMS,
+  exclude_empty_patrols: true,
+  page_size: LINK_TARGETS_PAGE_SIZE,
+  status: ['active', 'done', 'cancelled'],
+};
+
+// Actions
+export const ADD_PATROL_NOTE_SUCCESS = 'PATROLS.ADD_PATROL_NOTE_SUCCESS';
+
+export const CREATE_PATROL_SUCCESS = 'PATROLS.CREATE_PATROL_SUCCESS';
+
+export const FETCH_PATROLS_FEED_SUCCESS = 'PATROLS.FETCH_PATROLS_FEED_SUCCESS';
+export const FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS = 'PATROLS.FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS';
+
+export const FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS
+  = 'PATROLS.FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS';
+
+export const UPDATE_PATROL_SUCCESS = 'PATROLS.UPDATE_PATROL_SUCCESS';
+export const UPDATE_PATROL_ERROR = 'PATROLS.UPDATE_PATROL_ERROR';
+
+export const UPDATE_PATROL_STORE = 'PATROLS.UPDATE_PATROL_STORE';
+export const UPDATE_PATROL_TRACK_STATE = 'PATROLS.UPDATE_PATROL_TRACK_STATE';
+
+export const CREATE_PATROL_REALTIME = 'PATROLS.CREATE_PATROL_REALTIME';
+export const UPDATE_PATROL_REALTIME = 'PATROLS.UPDATE_PATROL_REALTIME';
+
+export const ADD_PATROL_TO_FEED = 'PATROLS.ADD_PATROL_TO_FEED';
+export const REMOVE_PATROL_FROM_FEED = 'PATROLS.REMOVE_PATROL_FROM_FEED';
+export const DELETE_PATROL_BY_ID = 'PATROLS.DELETE_PATROL_BY_ID';
+
+// Action creators
+const patrolsFeedPage = (data) => ({
+  count: data.count ?? null,
+  next: data.next ?? null,
+  results: data.results.map((patrol) => patrol.id),
+});
+
+const patrolFeedMembership = (patrolId, matchesCurrentFilter, isNewPatrol) => matchesCurrentFilter
+  ? { payload: { isNewPatrol, patrolId }, type: ADD_PATROL_TO_FEED }
+  : { payload: patrolId, type: REMOVE_PATROL_FROM_FEED };
+
+export const socketCreatePatrol = ({ matches_current_filter, patrol_data }) => (dispatch) => {
+  dispatch({
+    payload: patrol_data,
+    type: CREATE_PATROL_REALTIME,
+  });
+
+  dispatch(patrolFeedMembership(patrol_data.id, matches_current_filter, true));
+};
+
+export const socketUpdatePatrol = ({ matches_current_filter, patrol_data }) => (dispatch) => {
+  dispatch({
+    payload: patrol_data,
+    type: UPDATE_PATROL_REALTIME,
+  });
+
+  dispatch(patrolFeedMembership(patrol_data.id, matches_current_filter, false));
+};
+
+export const socketDeletePatrol = ({ patrol_id }) => ({
+  payload: patrol_id,
+  type: DELETE_PATROL_BY_ID,
+});
+
+export const updatePatrolStore = (patrols) => ({
+  payload: patrols,
+  type: UPDATE_PATROL_STORE,
+});
+
+export const updatePatrolTrackState = (payload) => ({
+  payload,
+  type: UPDATE_PATROL_TRACK_STATE,
+});
+
+// The server leaves pause legs out of a patrol unless they are asked for, so
+// every request that answers with one has to ask.
+export const fetchPatrol = (id) => (dispatch) => axios.get(`${PATROLS_API_URL}${id}`, { params: PATROL_REQUEST_PARAMS })
+  .then((response) => {
+    dispatch({
+      payload: response.data.data,
+      type: UPDATE_PATROL_SUCCESS,
+    });
+
+    return response;
+  })
+  .catch((error) => {
+    console.warn('error fetching patrol', error);
+
+    throw error;
+  });
+
+let nextPatrolsFeedPageCancelToken = CancelToken.source();
+
+export const fetchPatrolLinkTargets = (searchText, { nextPageUrl = null, signal } = {}) => async () => {
+  try {
+    const response = nextPageUrl
+      ? await axios.get(nextPageUrl, { signal })
+      : await axios.get(PATROLS_API_URL, {
+        params: {
+          ...PATROL_LINK_TARGETS_PARAMS,
+          ...(searchText && { filter: JSON.stringify({ text: searchText }) }),
+        },
+        paramsSerializer: { indexes: null },
+        signal,
+      });
+
+    return response.data.data;
+  } catch (error) {
+    if (!isCancel(error)) {
+      console.warn('Error fetching the patrols an event can be added to', error);
+    }
+
+    throw error;
+  }
+};
+
+export const calcPatrolsFeedUrl = (state, params) => `${PATROLS_API_URL}?${calcPatrolFilterForRequest({
+  params: {
+    ...PATROL_REQUEST_PARAMS,
+    // The legacy detail view reads these without refetching the patrol.
+    ...(getPreviewFeatureValue(state, PREVIEW_FEATURES.PATROL_SCHEMAS) && PATROLS_FEED_EXCLUDED_DETAILS_PARAMS),
+    ...params,
+  },
+})}`;
+
+export const fetchPatrolsFeed = () => (dispatch, getState) => {
+  const cancelToken = CancelToken.source();
+
+  // A page of the previous filter's feed must not land in the new one.
+  nextPatrolsFeedPageCancelToken.cancel();
+
+  const request = axios.get(
+    calcPatrolsFeedUrl(getState(), { page_size: PATROLS_FEED_PAGE_SIZE }),
+    { cancelToken: cancelToken.token }
+  )
+    .then((response) => {
+      // The store is filled first so every id the feed lists can be read back
+      // from it.
+      dispatch(updatePatrolStore(response.data.data));
+
+      dispatch({
+        payload: patrolsFeedPage(response.data.data),
+        type: FETCH_PATROLS_FEED_SUCCESS,
+      });
+    })
+    .catch((error) => {
+      if (!isCancel(error)) {
+        console.warn('error fetching patrols', error);
+      }
+    });
+
+  return { cancelToken, request };
+};
+
+// The next page's URL comes from the API and already carries the filter.
+export const fetchNextPatrolsFeedPage = (url) => (dispatch) => {
+  nextPatrolsFeedPageCancelToken.cancel();
+  nextPatrolsFeedPageCancelToken = CancelToken.source();
+
+  return axios.get(url, { cancelToken: nextPatrolsFeedPageCancelToken.token })
+    .then((response) => {
+      dispatch(updatePatrolStore(response.data.data));
+
+      dispatch({
+        payload: patrolsFeedPage(response.data.data),
+        type: FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS,
+      });
+
+      return response;
+    })
+    .catch((error) => {
+      if (!isCancel(error)) {
+        console.warn('error fetching patrols next page', error);
+      }
+
+      throw error;
+    });
+};
+
+// A page of the table's own load of every feed patrol, apart from the feed.
+export const fetchFeedTablePatrolsPage = (url, cancelToken) => async (dispatch) => {
+  try {
+    const response = await axios.get(url, { cancelToken });
+
+    dispatch(updatePatrolStore(response.data.data));
+
+    return response.data.data;
+  } catch (error) {
+    if (!isCancel(error)) {
+      console.warn('error fetching a page of the patrols table', error);
+    }
+
+    throw error;
+  }
+};
+
+export const fetchPatrolTeamAndTrackingOptions = () => async (dispatch) => {
+  // Each endpoint backs lists of its own, so one of them answering is worth
+  // keeping whatever the other one does.
+  const [configResult, leadersResult] = await Promise.allSettled([
+    axios.get(PATROL_CONFIG_API_URL),
+    axios.get(PATROL_LEADERS_API_URL),
+  ]);
+
+  if (configResult.status === 'rejected') {
+    console.warn('error fetching the patrol config', configResult.reason);
+  }
+  if (leadersResult.status === 'rejected') {
+    console.warn('error fetching the patrol leaders', leadersResult.reason);
+  }
+
+  const config = configResult.value?.data?.data;
+  const leadersSchema = leadersResult.value?.data?.data;
+
+  const options = {
+    assets: config?.assets ?? [],
+    // An empty roster is an answer, so only this says whether one was given. A
+    // rejected config leaves it unset, so the next consumer asks again.
+    hasFetched: configResult.status === 'fulfilled',
+    // The leaders endpoint answers with a fragment of the patrol schema
+    // instead of a plain list.
+    leaders: leadersSchema?.properties?.leader?.enum_ext?.map(({ value }) => value) ?? [],
+    members: config?.members ?? [],
+    teams: config?.teams ?? [],
+  };
+
+  dispatch({
+    payload: options,
+    type: FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS,
+  });
+
+  return options;
+};
+
+export const createPatrol = (patrol) => (dispatch) =>
+  axios.post(PATROLS_API_URL, patrol, { params: PATROL_REQUEST_PARAMS })
+    .then((response) => {
+      dispatch({
+        payload: response.data.data,
+        type: CREATE_PATROL_SUCCESS,
+      });
+
+      return response;
+    });
+
+export const updatePatrol = (patrol) => (dispatch) =>
+  axios.patch(`${PATROLS_API_URL}${patrol.id}`, patrol, { params: PATROL_REQUEST_PARAMS })
+    .then((response) => {
+      dispatch({
+        payload: response.data.data,
+        type: UPDATE_PATROL_SUCCESS,
+      });
+
+      return response;
+    })
+    .catch((error) => {
+      dispatch({
+        payload: error,
+        type: UPDATE_PATROL_ERROR,
+      });
+
+      return Promise.reject(error);
+    });
+
+export const addNoteToPatrol = (patrolId, note) => (dispatch) =>
+  axios.post(`${PATROLS_API_URL}${patrolId}/notes/`, note)
+    .then((response) => {
+      dispatch({
+        payload: response.data.data,
+        type: ADD_PATROL_NOTE_SUCCESS,
+      });
+
+      return response;
+    });
+
+export const uploadPatrolFile = (patrolId, file) => {
+  const form = new FormData();
+  form.append('filecontent.file', file);
+
+  return axios.post(`${PATROLS_API_URL}${patrolId}/files/`, form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+};
+
+export const togglePatrolTrackState = (id) => (dispatch, getState) => {
+  const { view: { patrolTrackState: { hiddenSubjects, pinned, visible } } } = getState();
+
+  if (pinned.includes(id)) {
+    return dispatch(updatePatrolTrackState({
+      // A track the user turns off starts over the next time it comes back.
+      hiddenSubjects: omit(hiddenSubjects, id),
+      pinned: pinned.filter((item) => item !== id),
+      visible: visible.filter((item) => item !== id),
+    }));
+  }
+
+  if (visible.includes(id)) {
+    return dispatch(updatePatrolTrackState({
+      pinned: [...pinned, id],
+      visible: visible.filter((item) => item !== id),
+    }));
+  }
+
+  return dispatch(updatePatrolTrackState({ visible: [...visible, id] }));
+};
+
+// A subject a patrol tracks is drawn unless the user says otherwise, so this
+// keeps the ones they hid rather than the ones they kept.
+export const togglePatrolTrackedSubjectState = (patrolId, subjectId) => (dispatch, getState) => {
+  const { view: { patrolTrackState: { hiddenSubjects } } } = getState();
+
+  const patrolHiddenSubjects = hiddenSubjects[patrolId] ?? [];
+
+  return dispatch(updatePatrolTrackState({
+    hiddenSubjects: {
+      ...hiddenSubjects,
+      [patrolId]: patrolHiddenSubjects.includes(subjectId)
+        ? patrolHiddenSubjects.filter((item) => item !== subjectId)
+        : [...patrolHiddenSubjects, subjectId],
+    },
+  }));
+};
+
+// Reducer
+
+// Every consumer takes the first leg for the earliest and the last for the most
+// recent, and the API promises no order.
+const patrolSegmentStartTime = (patrolSegment) =>
+  patrolSegment.time_range?.start_time ?? patrolSegment.scheduled_start ?? null;
+
+const withSortedPatrolSegments = (patrol) => {
+  if (!Array.isArray(patrol.patrol_segments) || patrol.patrol_segments.length < 2) {
+    return patrol;
+  }
+
+  const sortedPatrolSegments = [...patrol.patrol_segments].sort((a, b) => {
+    const aStartTime = patrolSegmentStartTime(a);
+    const bStartTime = patrolSegmentStartTime(b);
+
+    // A leg that has no start of its own goes last, in the order it came in.
+    if (!aStartTime || !bStartTime) {
+      return (aStartTime ? 0 : 1) - (bStartTime ? 0 : 1);
+    }
+
+    return new Date(aStartTime).getTime() - new Date(bStartTime).getTime();
+  });
+
+  return sortedPatrolSegments.every((patrolSegment, index) => patrolSegment === patrol.patrol_segments[index])
+    ? patrol
+    : { ...patrol, patrol_segments: sortedPatrolSegments };
+};
+
+export const INITIAL_STORE_STATE = {};
+
+export const patrolStoreReducer = globallyResettableReducer((state, { type, payload }) => {
+  switch (type) {
+  case UPDATE_PATROL_STORE:
+    return payload.results.reduce((accumulator, patrol) => {
+      accumulator[patrol.id] = withSortedPatrolSegments({ ...state[patrol.id], ...patrol });
+
+      return accumulator;
+    }, { ...state });
+
+  case CREATE_PATROL_REALTIME:
+  case CREATE_PATROL_SUCCESS:
+  case UPDATE_PATROL_REALTIME:
+  case UPDATE_PATROL_SUCCESS:
+    return {
+      ...state,
+      [payload.id]: withSortedPatrolSegments({ ...state[payload.id], ...payload }),
+    };
+
+  case DELETE_PATROL_BY_ID: {
+    const newState = { ...state };
+    delete newState[payload];
+
+    return newState;
+  }
+
+  default:
+    return state;
+  }
+}, INITIAL_STORE_STATE);
+
+export const INITIAL_PATROLS_FEED_STATE = { count: null, next: null, results: [] };
+
+export const patrolsFeedReducer = globallyResettableReducer((state, { type, payload }) => {
+  switch (type) {
+  case FETCH_PATROLS_FEED_SUCCESS:
+    return payload;
+
+  case FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS:
+    return { ...payload, results: uniq([...state.results, ...payload.results]) };
+
+  // An updated patrol may sit in a page not loaded yet, already in the count.
+  case ADD_PATROL_TO_FEED:
+    return state.results.includes(payload.patrolId) ? state : {
+      ...state,
+      count: state.count !== null && (payload.isNewPatrol || !state.next) ? state.count + 1 : state.count,
+      results: [payload.patrolId, ...state.results],
+    };
+
+  case DELETE_PATROL_BY_ID:
+  case REMOVE_PATROL_FROM_FEED:
+    return state.results.includes(payload) ? {
+      ...state,
+      count: state.count === null ? null : Math.max(0, state.count - 1),
+      results: state.results.filter((patrolId) => patrolId !== payload),
+    } : state;
+
+  default:
+    return state;
+  }
+}, INITIAL_PATROLS_FEED_STATE);
+
+export const INITIAL_PATROL_TEAM_AND_TRACKING_OPTIONS_STATE = {
+  assets: [],
+  hasFetched: false,
+  leaders: [],
+  members: [],
+  teams: [],
+};
+
+export const patrolTeamAndTrackingOptionsReducer = globallyResettableReducer((state, { type, payload }) => {
+  switch (type) {
+  case FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS:
+    return payload;
+
+  default:
+    return state;
+  }
+}, INITIAL_PATROL_TEAM_AND_TRACKING_OPTIONS_STATE);
+
+export const INITIAL_PATROL_TRACKS_STATE = {
+  hiddenSubjects: {},
+  pinned: [],
+  visible: [],
+};
+
+export const patrolTracksReducer = globallyResettableReducer((state, { type, payload }) => {
+  switch (type) {
+  case UPDATE_PATROL_TRACK_STATE:
+    return {
+      ...state,
+      ...payload,
+    };
+
+  default:
+    return state;
+  }
+}, INITIAL_PATROL_TRACKS_STATE);

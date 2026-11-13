@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import { format, isFuture, isValid, parseISO } from 'date-fns';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,7 +12,6 @@ import {
   displayEndTimeForPatrol,
   displayStartTimeForPatrol
 } from '../../utils/patrols';
-import { fetchTrackedBySchema } from '../../ducks/trackedby';
 import { getHoursAndMinutesString } from '../../utils/datetime';
 import { updateUserPreferences } from '../../ducks/user-preferences';
 import { setMapLocationSelectionPatrol } from '../../ducks/map-ui';
@@ -58,6 +57,8 @@ const PlanSection = ({
   const [startDate, setStartDate] = useState(format(displayStartDate ?? new Date(), 'yyyy-MM-dd'));
   const [startTime, setStartTime] = useState(getHoursAndMinutesString(displayStartDate));
 
+  // Only the React Compiler needs these dependencies to line up.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleEndDateChange = useCallback((newEndDate) => {
     setEndDate(newEndDate);
 
@@ -69,6 +70,8 @@ const PlanSection = ({
     }
   }, [endTime, isAutoEnd, onPatrolEndDateChange]);
 
+  // Only the React Compiler needs these dependencies to line up.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleStartDateChange = useCallback((newStartDate) => {
     setStartDate(newStartDate);
 
@@ -80,6 +83,8 @@ const PlanSection = ({
     }
   }, [isAutoStart, onPatrolStartDateChange, startTime]);
 
+  // Only the React Compiler needs these dependencies to line up.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleEndTimeChange = useCallback((newEndTime) => {
     setEndTime(newEndTime);
 
@@ -123,12 +128,6 @@ const PlanSection = ({
   }, [dispatch, displayStartDate, isAutoStart, isNewPatrol, onPatrolStartDateChange]);
 
   useEffect(() => {
-    if (!patrolLeaders) {
-      dispatch(fetchTrackedBySchema());
-    }
-  }, [dispatch, patrolLeaders]);
-
-  useEffect(() => {
     dispatch(setMapLocationSelectionPatrol(patrolForm));
 
     return () => {
@@ -150,7 +149,7 @@ const PlanSection = ({
           {t('trackedByLabel')}
           <ReportedBySelect
             onChange={onPatrolReportedByChange}
-            options={patrolLeaders ?? []}
+            options={patrolLeaders}
             placeholder={t('trackedByPlaceholder')}
             value={patrolForm.patrol_segments?.[0]?.leader}
           />

@@ -1,19 +1,22 @@
-@import '../common/styles/vars/colors';
+@use '../common/styles/vars/colors';
 
 .popup {
   padding-bottom: 0.25rem;
+
   h6 {
     font-size: 0.85rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
+
     small {
-      color: $highlight-color;
+      color: colors.$highlight-color;
       font-size: 0.65rem;
       font-style: italic;
       font-weight: normal;
     }
   }
-  [class*=mapboxgl-popup-content] {
+
+  [class*="mapboxgl-popup-content"] {
     background: white;
   }
 }
@@ -42,20 +45,23 @@
   min-height: 2rem;
   text-align: left;
   padding: 0.25rem 0.5rem;
+
   img {
     margin-right: 0.75rem;
     width: 1.5rem;
   }
+
   &:hover {
     text-decoration: underline;
   }
+
   &:last-of-type {
     padding-bottom: 0;
   }
 }
 
 .listItemGearIcon {
-  background: $highlight-color;
+  background: colors.$highlight-color;
   border-radius: 50%;
   flex-shrink: 0;
   height: 0.75rem;

@@ -1,22 +1,31 @@
-import React from 'react';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
 import { EVENT_API_URL } from '../../../ducks/events';
-import { EVENT_TYPE_SCHEMA_API_URL } from '../../../ducks/event-schemas';
+import {
+  EVENT_LINK_TARGET_TYPES,
+  PERMISSION_KEYS,
+  PERMISSIONS,
+  SYSTEM_CONFIG_FLAGS,
+} from '../../../constants';
+import { EVENT_TYPE_SCHEMA_V1_URL } from '../../../ducks/event-schemas';
 import { eventSchemas } from '../../../__test-helpers/fixtures/event-schemas';
 import { eventTypes } from '../../../__test-helpers/fixtures/event-types';
 import { mockStore } from '../../../__test-helpers/MockStore';
+import { NavigationContext } from '../../../NavigationContextProvider';
+import { PRIORITY_COLOR_MAP } from '../../../utils/events';
 import { render, screen, waitFor } from '../../../test-utils';
 import { report } from '../../../__test-helpers/fixtures/reports';
 
 import ContainedReportListItem from '.';
 
+import * as activitySectionStyles from '../styles.module.scss';
+
 const server = setupServer(
   http.get(`${EVENT_API_URL}:eventId`, () => HttpResponse.json( { data: { ...report } })),
-  http.get(`${EVENT_TYPE_SCHEMA_API_URL}/:name`, () => HttpResponse.json( { data: { results: {} } }))
+  http.get(EVENT_TYPE_SCHEMA_V1_URL(':name'), () => HttpResponse.json( { data: { results: {} } }))
 );
 
 beforeAll(() => server.listen());
@@ -27,10 +36,10 @@ describe('ActivitySection - ContainedReportListItem', () => {
   const onCollapse = jest.fn(), onExpand = jest.fn();
   let store;
 
-  const renderCursorGpsDisplay = (props = {}, mockedStore) => render(
+  const renderContainedReportListItem = (props = {}, mockedStore) => render(
     <Provider store={mockedStore}>
       <ContainedReportListItem
-        cardsExpanded={[report]}
+        isOpen={true}
         report={report}
         onCollapse={onCollapse}
         onExpand={onExpand}
@@ -49,7 +58,7 @@ describe('ActivitySection - ContainedReportListItem', () => {
 
   test('fetches the report if it is not in the store', async () => {
     const mockedStore = mockStore(store);
-    renderCursorGpsDisplay(undefined, mockedStore);
+    renderContainedReportListItem(undefined, mockedStore);
 
     await waitFor(() => {
       const actions = mockedStore.getActions();
@@ -61,7 +70,7 @@ describe('ActivitySection - ContainedReportListItem', () => {
   test('does not fetch the report if it is already in the store', async () => {
     store.data.eventStore[report.id] = report;
     const mockedStore = mockStore(store);
-    renderCursorGpsDisplay(undefined, mockedStore);
+    renderContainedReportListItem(undefined, mockedStore);
 
     await waitFor(() => {
       const actions = mockedStore.getActions();
@@ -70,10 +79,26 @@ describe('ActivitySection - ContainedReportListItem', () => {
     });
   });
 
+  test('keeps showing the loader if the report fetch fails', async () => {
+    const onUnhandledRejection = jest.fn();
+    process.on('unhandledRejection', onUnhandledRejection);
+    server.use(http.get(`${EVENT_API_URL}:eventId`, () => HttpResponse.error()));
+
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem(undefined, mockedStore);
+
+    await waitFor(() => expect(mockedStore.getActions()).toHaveLength(0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    process.off('unhandledRejection', onUnhandledRejection);
+
+    expect(onUnhandledRejection).toHaveBeenCalledTimes(0);
+    expect((await screen.findByRole('status', { name: 'Loading Light' }))).toBeDefined();
+  });
+
   test('fetches the schema if it is not in the store', async () => {
     store.data.eventStore[report.id] = report;
     const mockedStore = mockStore(store);
-    renderCursorGpsDisplay(undefined, mockedStore);
+    renderContainedReportListItem(undefined, mockedStore);
 
     await waitFor(() => {
       const actions = mockedStore.getActions();
@@ -86,7 +111,7 @@ describe('ActivitySection - ContainedReportListItem', () => {
     store.data.eventStore[report.id] = report;
     store.data.eventSchemas[report.event_type] = { [report.id]: {} };
     const mockedStore = mockStore(store);
-    renderCursorGpsDisplay(undefined, mockedStore);
+    renderContainedReportListItem(undefined, mockedStore);
 
     await waitFor(() => {
       const actions = mockedStore.getActions();
@@ -99,7 +124,7 @@ describe('ActivitySection - ContainedReportListItem', () => {
     store.data.eventStore[report.id] = report;
     store.data.eventTypes = [];
     const mockedStore = mockStore(store);
-    renderCursorGpsDisplay(undefined, mockedStore);
+    renderContainedReportListItem(undefined, mockedStore);
 
     await waitFor(() => {
       const actions = mockedStore.getActions();
@@ -110,7 +135,7 @@ describe('ActivitySection - ContainedReportListItem', () => {
 
   test('while report has not loaded yet, link to navigate into it does not show up', async () => {
     const mockedStore = mockStore(store);
-    renderCursorGpsDisplay(undefined, mockedStore);
+    renderContainedReportListItem(undefined, mockedStore);
 
     expect((await screen.queryByTestId('arrow-into-icon'))).toBeNull();
   });
@@ -118,53 +143,251 @@ describe('ActivitySection - ContainedReportListItem', () => {
   test('once the report is loaded, link to navigate into it shows up', async () => {
     store.data.eventStore[report.id] = report;
     const mockedStore = mockStore(store);
-    renderCursorGpsDisplay(undefined, mockedStore);
+    renderContainedReportListItem(undefined, mockedStore);
 
     expect((await screen.findByTestId('arrow-into-icon'))).toBeDefined();
   });
 
+  test('the link to navigate into the report points at its detail view', async () => {
+    store.data.eventStore[report.id] = report;
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem(undefined, mockedStore);
+
+    const link = await screen.findByRole('link', { name: 'View event Light' });
+
+    expect(link).toHaveAttribute('href', `/events/${report.id}`);
+    expect(link).toHaveAttribute('title', 'View event Light');
+  });
+
   test('user can open the report collapsible', async () => {
     const mockedStore = mockStore(store);
-    renderCursorGpsDisplay({ cardsExpanded: [] }, mockedStore);
+    renderContainedReportListItem({ isOpen: false }, mockedStore);
 
     expect(onExpand).toHaveBeenCalledTimes(0);
     expect((await screen.findByTestId('activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4')))
       .toHaveClass('collapse');
 
-    const expandNoteButton = await screen.findByTestId('activitySection-arrowDown-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
-    await userEvent.click(expandNoteButton);
+    const expandReportButton = await screen.findByRole('button', { name: 'Expand Light' });
+
+    expect(expandReportButton).toHaveAttribute('aria-expanded', 'false');
+    expect(expandReportButton).toHaveAttribute('title', 'Expand Light');
+
+    await userEvent.click(expandReportButton);
 
     expect(onExpand).toHaveBeenCalledTimes(1);
   });
 
-  test('user can close the note collapsible', async () => {
+  test('user can close the report collapsible', async () => {
     const mockedStore = mockStore(store);
-    renderCursorGpsDisplay(undefined, mockedStore);
+    renderContainedReportListItem(undefined, mockedStore);
 
     expect(onCollapse).toHaveBeenCalledTimes(0);
     expect((await screen.findByTestId('activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4')))
       .toHaveClass('show');
 
-    const colapseNoteButton = await screen.findByTestId('activitySection-arrowUp-d45cb504-4612-41fe-9ea5-f1b423ac3ba4');
-    await userEvent.click(colapseNoteButton);
+    const collapseReportButton = await screen.findByRole('button', { name: 'Collapse Light' });
+
+    expect(collapseReportButton).toHaveAttribute('aria-expanded', 'true');
+    expect(collapseReportButton).toHaveAttribute('title', 'Collapse Light');
+
+    await userEvent.click(collapseReportButton);
 
     expect(onCollapse).toHaveBeenCalledTimes(1);
   });
 
+  test('the report collapsible starts closed', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ isOpen: undefined }, mockedStore);
+
+    expect((await screen.findByTestId('activitySection-collapse-d45cb504-4612-41fe-9ea5-f1b423ac3ba4')))
+      .not.toHaveClass('show');
+  });
+
+  test('clicking anywhere on the row toggles the collapsible', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ isOpen: false }, mockedStore);
+
+    const row = (await screen.findByTestId('activitySection-arrowDown-d45cb504-4612-41fe-9ea5-f1b423ac3ba4')).closest('div');
+    await userEvent.click(row);
+
+    expect(onExpand).toHaveBeenCalledTimes(1);
+  });
+
+  test('clicking the go to report button does not also toggle the collapsible', async () => {
+    store.data.eventStore[report.id] = report;
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ isOpen: false }, mockedStore);
+
+    const goToReportButton = await screen.findByTestId('arrow-into-icon');
+    await userEvent.click(goToReportButton);
+
+    expect(onExpand).toHaveBeenCalledTimes(0);
+  });
+
+  test('clicking the go to report button does not toggle the collapsible while navigation is blocked', async () => {
+    store.data.eventStore[report.id] = report;
+    const mockedStore = mockStore(store);
+    const navigationContextValue = {
+      blocker: { state: 'unblocked' },
+      isNavigationBlocked: true,
+      onNavigationAttemptBlocked: jest.fn(),
+    };
+
+    render(
+      <Provider store={mockedStore}>
+        <NavigationContext.Provider value={navigationContextValue}>
+          <ContainedReportListItem isOpen={false} onCollapse={onCollapse} onExpand={onExpand} report={report} />
+        </NavigationContext.Provider>
+      </Provider>
+    );
+
+    const goToReportButton = await screen.findByTestId('arrow-into-icon');
+    await userEvent.click(goToReportButton);
+
+    expect(navigationContextValue.onNavigationAttemptBlocked).toHaveBeenCalledTimes(1);
+    expect(onExpand).toHaveBeenCalledTimes(0);
+  });
+
+  test('the row is not keyboard focusable, only the collapse toggle button is', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ isOpen: false }, mockedStore);
+
+    const row = (await screen.findByTestId('activitySection-arrowDown-d45cb504-4612-41fe-9ea5-f1b423ac3ba4')).closest('div');
+    const collapseToggleButton = await screen.findByRole('button', { name: 'Expand Light' });
+
+    expect(row).not.toHaveAttribute('tabindex');
+    expect(row).not.toHaveAttribute('role');
+    expect(collapseToggleButton.tagName).toBe('BUTTON');
+  });
+
+  test('shows the date time the report was reported at', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem(undefined, mockedStore);
+
+    expect((await screen.findByTestId(`activitySection-dateTime-${report.id}`)))
+      .toHaveAttribute('dateTime', new Date(report.time).toISOString());
+  });
+
+  test('falls back to the last update time if the report has no report time', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, time: undefined } }, mockedStore);
+
+    expect((await screen.findByTestId(`activitySection-dateTime-${report.id}`)))
+      .toHaveAttribute('dateTime', new Date(report.updated_at).toISOString());
+  });
+
+  test('does not show a date time if the report has neither a report time nor an update', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, time: undefined, updated_at: undefined } }, mockedStore);
+
+    expect((screen.queryByTestId(`activitySection-dateTime-${report.id}`))).toBeNull();
+  });
+
+  test('shows the serial number of the report', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem(undefined, mockedStore);
+
+    expect((await screen.findByText(`${report.serial_number}`))).toBeDefined();
+  });
+
+  test('does not show a serial number if the report has none', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, serial_number: undefined } }, mockedStore);
+
+    expect((screen.queryByText(`${report.serial_number}`))).toBeNull();
+  });
+
+  test('shows the state of the report', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, state: 'resolved' } }, mockedStore);
+
+    expect((await screen.findByText('Resolved'))).toBeDefined();
+  });
+
+  test('shows the review state of the report', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, state: 'review' } }, mockedStore);
+
+    expect((await screen.findByText('Review'))).toBeDefined();
+  });
+
+  test('shows the active state for a report in the legacy new state', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, state: 'new' } }, mockedStore);
+
+    expect((await screen.findByText('Active'))).toBeDefined();
+  });
+
+  test('falls back to the active state if the report has no state', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, state: undefined } }, mockedStore);
+
+    expect((await screen.findByText('Active'))).toBeDefined();
+  });
+
+  test('prefers the state in the event store over the one in the report', async () => {
+    store.data.eventStore[report.id] = { ...report, state: 'resolved' };
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem(undefined, mockedStore);
+
+    expect((await screen.findByText('Resolved'))).toBeDefined();
+    expect((screen.queryByText('Active'))).toBeNull();
+  });
+
+  test('labels the serial number of the report for screen readers', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem(undefined, mockedStore);
+
+    const screenReaderLabel = await screen.findByText('Event number');
+
+    expect(screenReaderLabel).toHaveClass('sr-only');
+    expect(screenReaderLabel.parentElement).toHaveTextContent(`Event number ${report.serial_number}`);
+  });
+
+  test('labels the state of the report for screen readers', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, state: 'resolved' } }, mockedStore);
+
+    const screenReaderLabel = await screen.findByText('State');
+
+    expect(screenReaderLabel).toHaveClass('sr-only');
+    expect(screenReaderLabel.parentElement).toHaveTextContent('State Resolved');
+  });
+
+  test('colors the row after the priority of the report', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem(undefined, mockedStore);
+
+    const row = (await screen.findByTestId('activitySection-arrowUp-d45cb504-4612-41fe-9ea5-f1b423ac3ba4'))
+      .closest(`.${activitySectionStyles.itemRow}`);
+
+    expect(row).toHaveClass(PRIORITY_COLOR_MAP['300'].key);
+  });
+
+  test('falls back to the no priority colors if the report priority is unknown', async () => {
+    const mockedStore = mockStore(store);
+    renderContainedReportListItem({ report: { ...report, priority: 999 } }, mockedStore);
+
+    const row = (await screen.findByTestId('activitySection-arrowUp-d45cb504-4612-41fe-9ea5-f1b423ac3ba4'))
+      .closest(`.${activitySectionStyles.itemRow}`);
+
+    expect(row).toHaveClass(PRIORITY_COLOR_MAP['0'].key);
+  });
+
   test('while report has not loaded yet, the collapsible form does not show up', async () => {
     const mockedStore = mockStore(store);
-    renderCursorGpsDisplay(undefined, mockedStore);
+    renderContainedReportListItem(undefined, mockedStore);
 
     expect((await screen.queryByText('Report Type'))).toBeNull();
   });
 
-  test('once the report and schema loades, the collapsible form shows up', async () => {
+  test('once the report and schema load, the collapsible form shows up', async () => {
     store.data.eventStore[report.id] = report;
     store.data.eventSchemas[report.event_type] = {
       [report.id]: eventSchemas.wildlife_sighting_rep['a78576a5-3c5b-40df-b374-12db53fbfdd6'],
     };
     const mockedStore = mockStore(store);
-    renderCursorGpsDisplay(undefined, mockedStore);
+    renderContainedReportListItem(undefined, mockedStore);
 
     expect((await screen.findByText('Event Type'))).toBeDefined();
   });
@@ -172,7 +395,7 @@ describe('ActivitySection - ContainedReportListItem', () => {
   test('while the schema has not loaded yet, the schema form does not show up', async () => {
     store.data.eventStore[report.id] = report;
     const mockedStore = mockStore(store);
-    renderCursorGpsDisplay(undefined, mockedStore);
+    renderContainedReportListItem(undefined, mockedStore);
 
     expect((await screen.queryByText('Species'))).toBeNull();
   });
@@ -188,8 +411,91 @@ describe('ActivitySection - ContainedReportListItem', () => {
       [report.id]: eventSchemas.wildlife_sighting_rep['a78576a5-3c5b-40df-b374-12db53fbfdd6'],
     };
     const mockedStore = mockStore(store);
-    renderCursorGpsDisplay(undefined, mockedStore);
+    renderContainedReportListItem(undefined, mockedStore);
 
     expect((await screen.findByText('Species'))).toBeDefined();
+  });
+
+  describe('removing the event from a link', () => {
+    let linkedReport;
+    let onRemove;
+
+    beforeEach(() => {
+      linkedReport = {
+        ...report,
+        is_contained_in: [{ related_event: { id: 'incident-id' } }],
+        patrols: ['patrol-id'],
+        updates: [],
+      };
+      onRemove = jest.fn();
+      store.data.eventCategories = {};
+      store.data.eventStore[report.id] = linkedReport;
+      store.data.user = {
+        permissions: {
+          [PERMISSION_KEYS.EVENT_RELATIONSHIPS]: [PERMISSIONS.DELETE],
+          [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
+        },
+      };
+      store.view.systemConfig = { [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true };
+    });
+
+    const renderRemovableContainedReportListItem = (props) => renderContainedReportListItem(
+      { onRemove, removeFrom: EVENT_LINK_TARGET_TYPES.INCIDENT, ...props },
+      mockStore(store)
+    );
+
+    test('shows a button to remove the event from its incident, described by the event title', () => {
+      renderRemovableContainedReportListItem();
+
+      expect(screen.getByRole('button', { name: 'Remove from Incident' })).toHaveAccessibleDescription('Light');
+    });
+
+    test('shows a button to remove the event from its patrol', () => {
+      renderRemovableContainedReportListItem({ removeFrom: EVENT_LINK_TARGET_TYPES.PATROL });
+
+      expect(screen.getByRole('button', { name: 'Remove from Patrol' })).toBeVisible();
+    });
+
+    test('removes the event the store holds when the user clicks the button', async () => {
+      renderRemovableContainedReportListItem();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Remove from Incident' }));
+
+      expect(onRemove).toHaveBeenCalledWith(linkedReport);
+    });
+
+    test('does not show the button without a remove handler', () => {
+      renderRemovableContainedReportListItem({ onRemove: null });
+
+      expect(screen.queryByRole('button', { name: 'Remove from Incident' })).toBeNull();
+    });
+
+    test('does not show the button to a user who may not remove the event', () => {
+      store.data.user.permissions = {};
+
+      renderRemovableContainedReportListItem();
+
+      expect(screen.queryByRole('button', { name: 'Remove from Incident' })).toBeNull();
+    });
+
+    test('does not show the button before the event is fully loaded', () => {
+      delete store.data.eventStore[report.id];
+
+      renderRemovableContainedReportListItem();
+
+      expect(screen.queryByRole('button', { name: 'Remove from Incident' })).toBeNull();
+    });
+
+    test('keeps the button focusable but busy, ignoring presses, while the removal runs', async () => {
+      renderRemovableContainedReportListItem({ isRemoving: true });
+
+      const removeButton = screen.getByRole('button', { name: 'Remove from Incident' });
+      await userEvent.click(removeButton);
+
+      expect(removeButton).toHaveAttribute('aria-busy', 'true');
+      expect(removeButton).toHaveAttribute('aria-disabled', 'true');
+      expect(removeButton).toBeEnabled();
+      expect(onRemove).not.toHaveBeenCalled();
+    });
   });
 });

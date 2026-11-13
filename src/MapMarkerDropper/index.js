@@ -1,9 +1,9 @@
-import React, { memo, useContext, useState, useEffect, useRef } from 'react';
+import { memo, useContext, useState, useEffect, useRef } from 'react';
 import throttle from 'lodash/throttle';
 
 import { addMapImage } from '../utils/map';
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { validateLocation } from '../utils/location';
 
 import MouseMarkerLayer from '../MouseMarkerLayer';

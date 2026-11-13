@@ -1,6 +1,5 @@
-@import '../common/styles/layout';
-@import '../common/styles/vars/colors';
-@import '../common/styles/buttons';
+@use '../common/styles/layout';
+@use '../common/styles/vars/colors';
 
 .patrolDetailView {
   display: flex;
@@ -8,8 +7,8 @@
   height: 100%;
   background-color: white;
 
-  @media (min-width: $md-layout-width-min) {
-    width: 46rem;
+  @media (min-width: layout.$md-layout-width-min) {
+    @include layout.sidebar-width-detail;
   }
 }
 
@@ -21,14 +20,14 @@
   display: flex;
   height: calc(100% - 3.5rem);
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     height: calc(100% - 5rem);
   }
 
   .navigationBar{
     display: none;
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       display: unset;
     }
 
@@ -43,7 +42,7 @@
   flex-direction: column;
   height: 100%;
   background-color: white;
-  border-left: 1px solid $very-light-gray-alt;
+  border-left: 1px solid colors.$very-light-gray-alt;
   width: 100%;
 
   @media print {
@@ -53,8 +52,8 @@
 
 .section {
   background-color: white;
-  border-bottom: 1px solid $very-light-gray-alt;
-  border-top: 1px solid $very-light-gray-alt;
+  border-bottom: 1px solid colors.$very-light-gray-alt;
+  border-top: 1px solid colors.$very-light-gray-alt;
   padding: 1.125rem;
 }
 
@@ -67,21 +66,18 @@
   display: flex;
   justify-content: space-between;
   padding: 0.875rem 1rem;
-  border-top: 1px solid $very-light-gray-alt;
+  border-top: 1px solid colors.$very-light-gray-alt;
 }
 
 .footerActionButtonsContainer {
   display: flex;
-}
-
-.footerActionButton {
-  @include footerActionButton;
+  gap: 0.5rem;
 }
 
 .cancelButton {
   background-color: transparent;
   border-color: transparent;
-  color: $secondary-medium-gray;
+  color: colors.$secondary-medium-gray;
   font-weight: bold;
   margin-right: 0.5rem;
 }

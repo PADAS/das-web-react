@@ -1,6 +1,8 @@
-@mixin popoverTitle {
-  background: $popover-header-color;
-  color: $popover-header-font-color;
+@use 'vars/colors';
+
+@mixin popover-title {
+  background: colors.$popover-header-color;
+  color: colors.$popover-header-font-color;
   font-weight: bold;
   padding: 0.5rem 1rem;
 }

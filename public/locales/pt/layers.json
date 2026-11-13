@@ -4,6 +4,9 @@
         "allAnalyzersCheckboxAriaLabel": "Mostrar todos os analisadores",
         "allFeaturesCheckboxLabel": "Todos os elementos",
         "allFeaturesCheckboxAriaLabel": "Mostrar todos os elementos",
+        "analyzersLoadErrorMessage": "Não foi possível carregar os analisadores.",
+        "analyzersPartialLoadErrorMessage": "Não foi possível carregar alguns analisadores.",
+        "analyzersRetryButtonLabel": "Tentar novamente",
         "subjectsTitle": "Indivíduos rastreados",
         "reportsTitle": "Eventos"
     }

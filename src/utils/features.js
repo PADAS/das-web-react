@@ -56,7 +56,7 @@ export const fitMapBoundsToGeoJson = (map, geojson) => {
  * @param {function} isMatch function to check if feature matches the filter.
  */
 export const filterFeatures = (f, isMatch) => {
-  let newF = [];
+  let newF;
   if (f.featuresByType) { // a featureset obj has featuresByType array
     newF = { ...f, featuresByType: f.featuresByType.map(fbt => filterFeatures(fbt, isMatch)) };
     newF.featuresByType = newF.featuresByType.filter(fbt => !!fbt.features.length);

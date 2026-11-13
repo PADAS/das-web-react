@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef } from 'react';
 
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
 
 
 const useMapSources = (sourceConfigsBatch = [], defaultConfig = { type: 'geojson' }) => {

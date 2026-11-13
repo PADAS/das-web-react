@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import { mockStore } from '../__test-helpers/MockStore';
 
@@ -36,3 +35,21 @@ describe('list item icons', () => {
 });
 
 
+
+describe('controls', () => {
+  test('makes the icon and the title buttons when they open the report', () => {
+    render(<Provider store={store}>
+      <ReportListItem onTitleClick={jest.fn()} report={eventWithoutPatrol} showJumpButton={false} />
+    </Provider>);
+
+    expect(screen.getAllByRole('button')).toHaveLength(2);
+  });
+
+  test('renders the icon and the title as text when nothing handles them', () => {
+    render(<Provider store={store}>
+      <ReportListItem report={eventWithoutPatrol} showJumpButton={false} />
+    </Provider>);
+
+    expect(screen.queryAllByRole('button')).toHaveLength(0);
+  });
+});

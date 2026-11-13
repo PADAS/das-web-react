@@ -1,7 +1,9 @@
+@use '../common/styles/vars/colors';
+
 .copyBtn {
   button {
+    color: colors.$off-black;
     padding-left: 0;
-    color: var(--bs-dropdown-link-color);
 
     &:hover:not(:disabled) {
       background-color: unset;

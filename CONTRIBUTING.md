@@ -48,8 +48,8 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 * Contributions to EarthRanger require documentation and test coverage.
 * Documentation can be in the form of self-describing code, with comments, or proposal documents included in the pull request.
 * Project-wide test coverage should never regress as the result of a contribution, only maintain or increase overall coverage.
-* Our codebase enforces code styles driven by ESLint, which generally follow best practices as per the Airbnb JavaScript code style guidelines and React best practices.
-  * You can try running `npm run lint` to analyze and fix your code styles as necessary.
+* Our codebase enforces code styles driven by ESLint and Stylelint, which generally follow their recommended rules and React best practices.
+  * You can try running `yarn format` to analyze and fix your code styles as necessary.
 * The ultimate assessment of code standards is at the discretion of the EarthRanger team.
 
 

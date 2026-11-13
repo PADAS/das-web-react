@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import CoordinateSystemSettingsView from './CoordinateSystemSettingsView';
 import MainMapSettingsView from './MainMapSettingsView';

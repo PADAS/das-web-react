@@ -1,19 +1,18 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 
 import { createMapMock } from '../__test-helpers/mocks';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { mockStore } from '../__test-helpers/MockStore';
 import { render } from '../test-utils';
 
 import MapImagesLayer from './';
 
 test('rendering without crashing', () => {
-  render(<Provider store={mockStore({ view: { mapImages: { } } })}>
+  expect(() => render(<Provider store={mockStore({ view: { mapImages: { } } })}>
     <MapContext.Provider value={createMapMock()}>
       <MapImagesLayer />
     </MapContext.Provider>
-  </Provider>);
+  </Provider>)).not.toThrow();
 });
 
 describe('adding images to the map', () => {
@@ -79,5 +78,28 @@ describe('adding images to the map', () => {
 
     expect(map.addImage).toHaveBeenCalledWith('id2', state.view.mapImages.id2.image, state.view.mapImages.id2.options);
     expect(map.addImage).not.toHaveBeenCalledWith(EXISTING_IMG_ID, state.view.mapImages[EXISTING_IMG_ID].image, state.view.mapImages[EXISTING_IMG_ID].options);
+  });
+
+  test('skips a falsy/empty image id instead of passing it to mapbox (which would raise "Missing required image id")', () => {
+    map.hasImage.mockImplementation(() => false);
+
+    const state = {
+      view: {
+        mapImages: {
+          '': { image: 'i_have_no_id', options: {} },
+          id2: { image: 'i_am_fine', options: {} },
+        },
+      }
+    };
+
+    render(<Provider store={mockStore(() => state)}>
+      <MapContext.Provider value={map}>
+        <MapImagesLayer />
+      </MapContext.Provider>
+    </Provider>);
+
+    expect(map.hasImage).not.toHaveBeenCalledWith('');
+    expect(map.addImage).not.toHaveBeenCalledWith('', expect.anything(), expect.anything());
+    expect(map.addImage).toHaveBeenCalledWith('id2', 'i_am_fine', {});
   });
 });

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
@@ -6,7 +6,7 @@ import { addFeatureCollectionImagesToMap } from '../utils/map';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
 import { selectShouldSubjectsBeClustered } from '../selectors/clusters';
 import { DEFAULT_SYMBOL_LAYOUT, LAYER_IDS, SOURCE_IDS, SUBJECT_FEATURE_CONTENT_TYPE } from '../constants';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
 import useMapSources from '../hooks/useMapSources';
 
@@ -48,14 +48,46 @@ const SubjectsLayer = ({ mapImages = {}, onSubjectClick }) => {
   ]), []);
 
   useEffect(() => {
-    if (!!subjectFeatureCollection?.features?.length) {
+    if (subjectFeatureCollection?.features?.length) {
       addFeatureCollectionImagesToMap(subjectFeatureCollection);
     }
   }, [subjectFeatureCollection]);
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMapSubjectFeatures({ ...subjectFeatureCollection });
   }, [mapImages, subjectFeatureCollection]);
+
+  // When an unclustered symbol source's data shrinks Mapbox keeps the
+  // previously rendered symbol bucket on screen. Toggling the layer's
+  // visibility rebuilds the bucket.
+  const previousSubjectCountRef = useRef(0);
+  const currentSubjectCount = mapSubjectFeatures.features?.length ?? 0;
+  useEffect(() => {
+    const didShrink = currentSubjectCount < previousSubjectCountRef.current;
+    previousSubjectCountRef.current = currentSubjectCount;
+
+    if (!didShrink || !map || shouldSubjectsBeClustered) return;
+
+    const rebuildLayers = () => [UNCLUSTERED_LAYER_ID, `${UNCLUSTERED_LAYER_ID}-labels`].forEach((layerId) => {
+      // Preserve the layer's current visibility (a user may have name labels turned off);
+      // a hidden layer has nothing stale to clear, so skip it.
+      if (map.getLayer(layerId) && map.getLayoutProperty(layerId, 'visibility') !== 'none') {
+        map.setLayoutProperty(layerId, 'visibility', 'none');
+        map.setLayoutProperty(layerId, 'visibility', 'visible');
+      }
+    });
+
+    const onSourceData = (event) => {
+      if (event.sourceId === UNCLUSTERED_SOURCE_ID && event.isSourceLoaded) {
+        map.off('sourcedata', onSourceData);
+        rebuildLayers();
+      }
+    };
+    map.on('sourcedata', onSourceData);
+    return () => map.off('sourcedata', onSourceData);
+  }, [currentSubjectCount, map, shouldSubjectsBeClustered]);
 
   const onSubjectSymbolClick = useMemo(() => withMultiLayerHandlerAwareness(
     map,

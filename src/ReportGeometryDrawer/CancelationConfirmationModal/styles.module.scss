@@ -1,8 +1,8 @@
-@import '../../common/styles/vars/colors';
+@use '../../common/styles/vars/colors';
 
 .message {
   font-size: 1.125 rem;
-  color: $off-black;
+  color: colors.$off-black;
 }
 
 .buttons {
@@ -12,12 +12,12 @@
   .continueEditingButton {
     background-color: white;
     border: none;
-    color: $secondary-medium-gray;
+    color: colors.$secondary-medium-gray;
     margin-right: 0.5rem;
   }
 
   .discardButton {
-    background-color: $bright-red;
+    background-color: colors.$bright-red;
     border: none;
   }
 }

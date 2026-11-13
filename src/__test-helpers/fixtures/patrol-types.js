@@ -18,16 +18,18 @@ export const routinePatrol = {
   is_active: true,
 };
 
+export const theDonPatrol = {
+  id: 'b3c73502-e5ae-4854-976f-1ba19e02511d',
+  value: 'The_Don_Patrol',
+  display: 'The Don Patrol',
+  ordernum: 5,
+  icon_id: 'suspicious_person_rep',
+  default_priority: 0,
+  is_active: false,
+};
+
 const patrolTypes = [
-  {
-    'id': 'b3c73502-e5ae-4854-976f-1ba19e02511d',
-    'value': 'The_Don_Patrol',
-    'display': 'The Don Patrol',
-    'ordernum': 5,
-    'icon_id': 'suspicious_person_rep',
-    'default_priority': 0,
-    'is_active': false
-  },
+  theDonPatrol,
   routinePatrol,
   dogPatrol,
   {

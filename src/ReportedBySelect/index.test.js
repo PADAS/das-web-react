@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -29,7 +28,7 @@ describe('ReportedBySelect', () => {
   test('displaying the current selection', async () => {
     renderWithWrapper(<ReportedBySelect value={{ id: '9ec20ec8-516c-40bd-a4a3-9a2b49f5ea40' }} />);
 
-    await screen.findByText('Informant');
+    expect(await screen.findByText('Informant')).toBeInTheDocument();
   });
 
   test('listing reporters', async () => {

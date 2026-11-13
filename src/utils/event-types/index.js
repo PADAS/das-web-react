@@ -7,8 +7,8 @@ export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) 
 
   const calcPriorityRatingForEventAndEventType = (eventData) => {
     const { related_event, event_type } = eventData;
-    if (related_event.hasOwnProperty('priority')) return related_event.priority;
-    if (event_type && event_type.hasOwnProperty('default_priority')) return event_type.default_priority;
+    if (Object.hasOwn(related_event, 'priority')) return related_event.priority;
+    if (event_type && Object.hasOwn(event_type, 'default_priority')) return event_type.default_priority;
     return 0;
   };
 

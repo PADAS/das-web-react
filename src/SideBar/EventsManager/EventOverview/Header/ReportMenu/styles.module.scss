@@ -1,0 +1,5 @@
+@use '../../../../shared';
+
+.mobileOnlyOption {
+  @include shared.header-mobile-only-option;
+}

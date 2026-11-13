@@ -1,12 +1,10 @@
-import React from 'react';
-
 import HeatmapToggleButton from './';
 import { render, screen, userEvent, waitFor } from '../test-utils';
 
 const onButtonClick = jest.fn();
 
 test('rendering without crashing', () => {
-  render(<HeatmapToggleButton onClick={onButtonClick} heatmapVisible={true} />);
+  expect(() => render(<HeatmapToggleButton onClick={onButtonClick} heatmapVisible={true} />)).not.toThrow();
 });
 
 test('call onClick', () => {

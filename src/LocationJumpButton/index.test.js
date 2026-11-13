@@ -1,10 +1,9 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import LocationJumpButton from './';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { mockStore } from '../__test-helpers/MockStore';
 import useNavigate from '../hooks/useNavigate';
 import { render, screen } from '../test-utils';

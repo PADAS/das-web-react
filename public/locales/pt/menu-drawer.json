@@ -13,44 +13,49 @@
     "exportButton": "Exportar"
   },
   "globalMenuDrawer": {
+    "adminLink": "Administração",
     "alertsButton": "Alertas",
     "alertsModal": {
       "title": "Alertas"
     },
+    "appsHeader": "Aplicativos EarthRanger",
+    "closeButtonLabel": "Fechar menu principal",
     "communityButton": "Comunidade",
-    "contactSupport": {
-      "body": "Como podemos te ajudar?",
-      "subject": "Solicitação de suporte por um usuário"
-    },
     "contactSupportButton": "Fale com o suporte",
     "dailyReportModal": {
       "title": "Relatório diário"
     },
+    "ecoscopeLink": "Ecoscope",
+    "ecoscopeTag": "Análise",
     "exportsHeader": "Exportar",
     "fieldReportsModal": {
       "content": "Os eventos exportados incluirão apenas aqueles que coincidam com os critérios de Filtros atualmente configurados na aba \"Eventos\".",
       "title": "Relatórios de campo"
     },
-    "ecoscopeAnalysisLinkAriaLabel": "Análise com Ecoscope",
-    "ecoscopeAnalysisLink": "Análise",
-    "ecoscopeDownloaderLinkAriaLabel": "Baixador do Ecoscope",
-    "ecoscopeDownloaderLink": "Baixar",
-    "ecoscopeHeading": "ECOSCOPE",
     "footer": {
       "clientVersion": "Versão do cliente web: {{version}}",
       "copyright": "©{{year}} EarthRanger",
       "dataPrivacyPolicyLink": "Política de privacidade de dados",
       "eulaLink": "Contrato de licença do usuário final ",
       "serverVersion": "Versão do servidor: {{version}}",
+      "systemStatusLink": "Status do sistema",
       "websitePrivacyPolicyLink": "Política de privacidade da página web"
     },
+    "gundiLink": "Gundi",
+    "gundiTag": "Integrações",
     "header": "Menu principal",
     "helpCenterButton": "Central de Ajuda",
+    "learnHeader": "Aprender",
     "masterKMLModal": {
       "title": "KML de indivíduos rastreados"
     },
+    "mobileAppStoreLink": "App Store (iPhone)",
+    "mobileGooglePlayLink": "Google Play (Android)",
+    "mobileHeader": "EarthRanger Mobile",
     "navigationButton": {
+      "gear": "Equipamento",
       "mapLayers": "Camadas",
+      "otus": "Atlas",
       "patrols": "Patrulhas",
       "reports": "Eventos",
       "settings": "Preferências"
@@ -62,7 +67,9 @@
       "title": "Observações"
     },
     "tableauButton": "Tableau",
-    "usersGuideButton": "Guia do usuário"
+    "trainingLink": "Treinamento",
+    "usersGuideButton": "Guia do usuário",
+    "whatsNewLink": "Novidades"
   },
   "kmlExportModal": {
     "dataExportModalTitle": "Exportar archivo KML de indivíduos rastreados",

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect } from 'react';
+import { memo, useCallback, useEffect } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 
@@ -14,6 +14,8 @@ const FilterSettingsControl = ({ isOpen, hideFilterSettings, target, container, 
     }
   }, [hideFilterSettings]);
 
+  // Only the React Compiler needs these dependencies to line up.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleOutsideClick = useCallback((event) => {
     event.stopPropagation();
     event.preventDefault();

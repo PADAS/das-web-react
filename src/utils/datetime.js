@@ -90,6 +90,8 @@ export const getHoursAndMinutesString = (date) => {
   return `${dateHours}:${dateMinutes}`;
 };
 
+const MINUTE_IN_MILLISECONDS = 60 * 1000;
+
 const DEFAULT_HUMANIZED_DURATION_PROPS = {
   delimiter: ' ',
   maxDecimalPoints: 0,
@@ -123,6 +125,12 @@ export const HUMANIZED_DURATION_CONFIGS = {
     units: ['y', 'mo', 'w', 'd', 'h', 'm', 's'],
     spacer: '',
   }),
+  LONG_TERM_FULL_FORMAT: (language = 'en') => ({
+    ...DEFAULT_HUMANIZED_DURATION_PROPS,
+    language,
+    largest: 2,
+    units: ['y', 'mo', 'w', 'd', 'h', 'm'],
+  }),
   LONG_TERM_ABRREVIATED: (abbreviations) => ({
     ...DEFAULT_HUMANIZED_DURATION_PROPS,
     language: 'long_term',
@@ -137,6 +145,40 @@ export const HUMANIZED_DURATION_CONFIGS = {
 
 export const durationHumanizer = (config = HUMANIZED_DURATION_CONFIGS.FULL_FORMAT()) =>
   humanizeDuration.humanizer(config);
+
+// `t` must be bound to the `dates` namespace.
+export const longTermAbbreviatedDurationHumanizer = (t) => durationHumanizer(
+  HUMANIZED_DURATION_CONFIGS.LONG_TERM_ABRREVIATED({
+    d: () => t('timeUnitAbbreviations.day'),
+    h: () => t('timeUnitAbbreviations.hour'),
+    m: () => t('timeUnitAbbreviations.minute'),
+    mo: () => t('timeUnitAbbreviations.month'),
+    w: () => t('timeUnitAbbreviations.week'),
+    y: () => t('timeUnitAbbreviations.year'),
+  })
+);
+
+const SUPPORTED_DURATION_HUMANIZER_LANGUAGES = humanizeDuration.getSupportedLanguages();
+
+export const resolveDurationHumanizerLanguage = (i18nLanguage) => {
+  const baseLanguage = i18nLanguage?.split('-')[0];
+
+  return SUPPORTED_DURATION_HUMANIZER_LANGUAGES.includes(baseLanguage) ? baseLanguage : 'en';
+};
+
+// `t` must be bound to the `dates` namespace.
+export const longTermDurationHumanizer = (t, i18nLanguage) => {
+  const baseLanguage = i18nLanguage?.split('-')[0];
+  // A language the library lacks keeps the units the app translates itself.
+  const humanizeLongTermDuration = SUPPORTED_DURATION_HUMANIZER_LANGUAGES.includes(baseLanguage)
+    ? durationHumanizer(HUMANIZED_DURATION_CONFIGS.LONG_TERM_FULL_FORMAT(baseLanguage))
+    : longTermAbbreviatedDurationHumanizer(t);
+
+  // Whole minutes alone would read a duration under one as no time at all.
+  return (duration) => duration < MINUTE_IN_MILLISECONDS
+    ? t('lessThanAMinuteDurationLabel')
+    : humanizeLongTermDuration(duration);
+};
 
 export const getUserLocaleTime = (date = new Date()) => date.toLocaleTimeString(
   i18next.language,
@@ -156,9 +198,11 @@ export const shouldUse12HourFormat = (locale) => {
 };
 
 export const getTimeInTimezone = (date, timeZone) => new Intl.DateTimeFormat('en-US', {
-  timeZone,
   hour: '2-digit',
-  minute: '2-digit',
   hourCycle: 'h23',
+  minute: '2-digit',
+  // Intl reads a formatter given no time zone as the runtime's own, which is
+  // what a time zone nobody has chosen yet means, but it rejects a null.
+  timeZone: timeZone ?? undefined,
 }).format(date);
 

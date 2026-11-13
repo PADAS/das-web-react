@@ -1,18 +1,18 @@
-@import './_layout.scss';
+@use 'layout';
 
 /* webpack export statement exposes these variables to our JS files
 we have to do this in a separate *.module.scss file because of this bug https://github.com/facebook/create-react-app/issues/10047 */
 
 :export {
-  extraLargeWidthMin: $xl-layout-width-min;
-  largeHeightMin: $lg-height-min;
-  largeWidthMin: $lg-layout-width-min;
-  mediumHeightMax: $md-height-max;
-  mediumHeightMin: $md-height-min;
-  mediumWidthMin: $md-layout-width-min;
-  mediumWidthMax: $md-layout-width-max;
-  pageIsAtMediumHeightAndWidth: $whenPageIsMediumHeightAndWidth;
-  pageIsTallAndMediumWidth: $whenPageIsTallAndMediumWidth;
-  pageIsTallAndWide: $whenPageIsIsTallAndWide;
-  smallHeightMax: $sm-height-max;
+  extraLargeWidthMin: layout.$xl-layout-width-min;
+  largeHeightMin: layout.$lg-height-min;
+  largeWidthMin: layout.$lg-layout-width-min;
+  mediumHeightMax: layout.$md-height-max;
+  mediumHeightMin: layout.$md-height-min;
+  mediumWidthMin: layout.$md-layout-width-min;
+  mediumWidthMax: layout.$md-layout-width-max;
+  pageIsAtMediumHeightAndWidth: layout.$when-page-is-medium-height-and-width;
+  pageIsTallAndMediumWidth: layout.$when-page-is-tall-and-medium-width;
+  pageIsTallAndWide: layout.$when-page-is-tall-and-wide;
+  smallHeightMax: layout.$sm-height-max;
 }

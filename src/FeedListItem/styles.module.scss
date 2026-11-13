@@ -1,6 +1,6 @@
-@import '../common/styles/vars/colors';
-@import '../common/styles/buttons';
-@import '../common/styles/layout';
+@use '../common/styles/vars/colors';
+@use '../common/styles/buttons';
+@use '../common/styles/layout';
 
 .iconContainer {
   align-items: center;
@@ -10,7 +10,7 @@
   position: relative;
   width: 2.625rem;
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     width: 3.75rem;
   }
 
@@ -24,21 +24,21 @@
 }
 
 .listItem {
-  --listItemHeight: 3rem;
+  --list-item-height: 3rem;
 
-  @media (min-width: $md-layout-width-min) {
-    --listItemHeight: 3.85rem;
+  @media (min-width: layout.$md-layout-width-min) {
+    --list-item-height: 3.85rem;
   }
 
   align-items: center;
-  color: $primary-font-color;
-  height: var(--listItemHeight);
+  color: colors.$primary-font-color;
+  height: var(--list-item-height);
   display: flex;
   line-height: normal;
   padding: 0 0.5rem 0 0;
 
   + .listItem {
-    border-top: 1px solid $light-gray-border;
+    border-top: 1px solid colors.$light-gray-border;
   }
 
   > * {
@@ -64,7 +64,7 @@
   max-width: 20.5rem;
   width: 100%;
 
-  @media (min-width: $md-layout-width-max) {
+  @media (min-width: layout.$md-layout-width-max) {
     overflow: unset;
     margin-right: 1rem;
   }

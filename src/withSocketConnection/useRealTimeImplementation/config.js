@@ -1,5 +1,5 @@
 import { SOCKET_HEALTHY_STATUS, SOCKET_UNHEALTHY_STATUS, SOCKET_WARNING_STATUS, SOCKET_SERVICE_STATUS } from '../../ducks/system-status';
-import { SOCKET_SUBJECT_STATUS } from '../../ducks/subjects';
+import { SOCKET_SUBJECT_STATUS, socketNewSubject, socketDeleteSubject } from '../../ducks/subjects';
 import { socketUpdatePatrol, socketCreatePatrol, socketDeletePatrol } from '../../ducks/patrols';
 import { refreshTrackOnBulkObservationUpdateIfNecessary } from '../../ducks/tracks';
 import { updateMessageFromRealtime } from '../../ducks/messaging';
@@ -17,6 +17,8 @@ const SOCKET_DISPATCHES = {
   service_status: [SOCKET_SERVICE_STATUS, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
   socket_error: [/* 'SOCKET_WEBSOCKET_ERROR' ,*/() => updateSocketHealthStatus(SOCKET_UNHEALTHY_STATUS)],
   subject_status: [SOCKET_SUBJECT_STATUS, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
+  new_subject: [socketNewSubject, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
+  delete_subject: [socketDeleteSubject, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
   new_patrol: [socketCreatePatrol, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
   update_patrol: [socketUpdatePatrol, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],
   delete_patrol: [socketDeletePatrol, () => updateSocketHealthStatus(SOCKET_HEALTHY_STATUS)],

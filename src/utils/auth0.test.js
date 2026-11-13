@@ -1,4 +1,4 @@
-import { hasAuth0CallbackParams } from './auth0';
+import { buildAuth0AuthorizationParams, hasAuth0CallbackParams } from './auth0';
 
 describe('auth0 utils', () => {
   describe('hasAuth0CallbackParams', () => {
@@ -45,6 +45,38 @@ describe('auth0 utils', () => {
 
     test('returns false when mixed params lack state/error with code', () => {
       expect(hasAuth0CallbackParams('?foo=bar&code=abc123&baz=qux')).toBe(false);
+    });
+  });
+
+  describe('buildAuth0AuthorizationParams', () => {
+    const AUDIENCE = 'https://example.org/api';
+
+    test('forwards the connection when one is provided', () => {
+      expect(buildAuth0AuthorizationParams(AUDIENCE, 'gdl-zoo')).toEqual({
+        audience: AUDIENCE,
+        connection: 'gdl-zoo',
+      });
+    });
+
+    test('forwards a trimmed connection when it has surrounding whitespace', () => {
+      expect(buildAuth0AuthorizationParams(AUDIENCE, '  gdl-zoo  ')).toEqual({
+        audience: AUDIENCE,
+        connection: 'gdl-zoo',
+      });
+    });
+
+    test('omits the connection entirely when it is not provided', () => {
+      const params = buildAuth0AuthorizationParams(AUDIENCE);
+      expect(params).toEqual({ audience: AUDIENCE });
+      expect(params).not.toHaveProperty('connection');
+    });
+
+    test('omits the connection entirely when it is null, empty, or only whitespace', () => {
+      [null, '', '   '].forEach((connection) => {
+        const params = buildAuth0AuthorizationParams(AUDIENCE, connection);
+        expect(params).toEqual({ audience: AUDIENCE });
+        expect(params).not.toHaveProperty('connection');
+      });
     });
   });
 });

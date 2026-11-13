@@ -1,22 +1,28 @@
-**/.classpath
-**/.dockerignore
-**/.git
-**/.gitignore
-**/.project
-**/.settings
-**/.toolstarget
-**/.vs
-**/.vscode
-**/*.*proj.user
-**/*.dbmdl
-**/*.jfm
-**/charts
-**/docker-compose*
-**/compose*
-**/Dockerfile*
-**/node_modules
-**/npm-debug.log
-**/obj
-**/secrets.dev.yaml
-**/values.dev.yaml
-README.md
+# Version control and CI
+.git
+.github
+
+# Dependencies and Yarn state, reinstalled in the image
+node_modules
+.yarn/cache
+.yarn/install-state.gz
+
+# Build and test output
+build
+coverage
+
+# Local environment and runtime config, never baked into the image
+*.local
+public/config.js
+
+# Not part of the build
+.dockerignore
+Dockerfile*
+terraform
+*.md
+
+# Editors and tools
+**/.DS_Store
+.idea
+.vscode
+.claude

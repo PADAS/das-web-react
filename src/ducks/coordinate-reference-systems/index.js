@@ -26,7 +26,7 @@ export const INITIAL_STATE = {
 
 const coordinateReferenceSystemsReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
-  case SET_SELECTED_COORDINATE_REPRESENTATIONS:
+  case SET_SELECTED_COORDINATE_REPRESENTATIONS: {
     // Make sure DEG is always selected and that the list never has more than
     // the maximum allowed selected coordinate representations.
     const selectedCoordinateRepresentations = [...action.payload];
@@ -38,6 +38,7 @@ const coordinateReferenceSystemsReducer = (state = INITIAL_STATE, action) => {
       ...state,
       selectedCoordinateRepresentations: selectedCoordinateRepresentations.slice(0, MAX_SELECTED_COORDINATE_REPRESENTATIONS),
     };
+  }
 
   case SET_STORED_COORDINATE_REFERENCE_SYSTEMS:
     // Sort the stored coordinate reference systems by their EPSG code and make

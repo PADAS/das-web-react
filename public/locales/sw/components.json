@@ -24,6 +24,16 @@
       "noOptionsMessage": "Hakuna chaguo za kuonyesha"
     }
   },
+  "communityPage": {
+    "coolOffChooseAnotherType": "Chagua aina nyingine ya tukio",
+    "coolOffMessage": "Umetuma fomu ya {{eventType}} hivi karibuni. Unaweza kutuma nyingine baada ya {{timeRemaining}}.",
+    "coolOffTimeRemaining": "Muda uliobaki: {{timeRemaining}}",
+    "coolOffTitle": "Tafadhali subiri kabla ya kutuma tena",
+    "coolOffTypeUnavailable": "Itapatikana baada ya {{timeRemaining}}",
+    "formSubmitted": "Imetumwa kwa mafanikio",
+    "invalidCommunityUrl": "URL ya jumuiya si sahihi",
+    "searchPlaceholder": "Tafuta aina za matukio..."
+  },
   "datePicker": {
     "calendarPopper": {
       "menuButtonLabel": "Fungua kalenda",
@@ -57,11 +67,74 @@
     "hideDetailsButton": "Ficha Maelezo",
     "showDetailsButton": "Angalia Maelezo"
   },
+  "feedTable": {
+    "clearSelectionButtonLabel": "Futa",
+    "clientSortFinishedMessage": "Imepangwa kwa {{column}}: safu zote zimepakiwa",
+    "clientSortLoadingMessage": "Inapanga kwa {{column}}: {{loaded}} kati ya {{total}} zimepakiwa",
+    "clientSortPausedMessage": "Upangaji umesitishwa: {{loaded}} kati ya {{total}} zimepakiwa",
+    "clientSortRetryButtonLabel": "Jaribu tena",
+    "clientSortStartedMessage": "Inapakia safu zote ili kupanga kwa {{column}}",
+    "columnsButtonLabel": "Safu wima",
+    "columnsMenuLabel": "Safu wima zinazoonyeshwa",
+    "eventsTable": {
+      "bulkUpdateErrorMessage_one": "Tukio {{count}} halikuweza kusasishwa",
+      "bulkUpdateErrorMessage_other": "Matukio {{count}} hayakuweza kusasishwa",
+      "bulkUpdateSuccessMessage_one": "Tukio {{count}} limesasishwa",
+      "bulkUpdateSuccessMessage_other": "Matukio {{count}} yamesasishwa",
+      "createdAtColumnTitle": "Imeundwa",
+      "eventTimeColumnTitle": "Muda wa Tukio",
+      "eventTypeColumnTitle": "Aina",
+      "locationColumnTitle": "Mahali",
+      "priorityColumnTitle": "Kipaumbele",
+      "reopenButtonLabel": "Fungua tena",
+      "reportedByColumnTitle": "Iliripotiwa na",
+      "resolveButtonLabel": "Tatua",
+      "selectedCountMessage_one": "{{count}} kimechaguliwa",
+      "selectedCountMessage_other": "{{count}} vimechaguliwa",
+      "serialColumnTitle": "Na. ya mfuatano",
+      "stateColumnTitle": "Hali",
+      "titleColumnTitle": "Kichwa",
+      "updatedAtColumnTitle": "Imesasishwa"
+    },
+    "exportButtonLabel": "Nakili sehemu zote (CSV)",
+    "exportErrorMessage": "Imeshindwa kunakili CSV",
+    "grid": {
+      "noRowsMessage": "Hakuna cha kuonyesha"
+    },
+    "headerCell": {
+      "allRowsCheckboxLabel": "Chagua safu mlalo zote"
+    },
+    "moveColumnHintMessage": "Bonyeza Alt na mshale wa kushoto au kulia kwenye kichwa cha safu wima ili kuisogeza.",
+    "objectViewModal": {
+      "breadcrumbLabel": "Njia",
+      "itemCountMessage_one": "Kipengee {{count}}",
+      "itemCountMessage_other": "Vipengee {{count}}",
+      "openButtonLabel": "Tazama"
+    },
+    "patrolsTable": {
+      "leaderColumnTitle": "Kiongozi",
+      "legsColumnTitle": "Vipande",
+      "loadedPatrolsMessage_one": "Inaonyesha doria {{loaded}} kati ya {{count}}",
+      "loadedPatrolsMessage_other": "Inaonyesha doria {{loaded}} kati ya {{count}}",
+      "patrolEndColumnTitle": "Mwisho",
+      "patrolStartColumnTitle": "Mwanzo",
+      "patrolTypeColumnTitle": "Aina ya doria",
+      "serialColumnTitle": "Na. ya mfuatano",
+      "stateColumnTitle": "Hali",
+      "titleColumnTitle": "Kichwa"
+    },
+    "selectedCountMessage_one": "{{count}} kimechaguliwa",
+    "selectedCountMessage_other": "{{count}} vimechaguliwa",
+    "titleCell": {
+      "rowCheckboxLabel": "Chagua {{title}}"
+    }
+  },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Shiriki eneo lako ili uone data yenye idhini ya kijiografia",
     "shareLocationToastTitle": "Jifunze zaidi"
   },
   "getUserLocationButton": {
+    "cancelButtonLabel": "Ghairi",
     "errorToastMessage": "Imeshindikana kusoma eneo lako la sasa: {{errorMessage}}",
     "loadingOverlayMessage": "Inajaribu kusoma eneo lako...",
     "userLocationButtonLabel": "Pata eneo la sasa"
@@ -104,6 +177,7 @@
     "menuPopover": {
       "dialogLabel": "Eneo",
       "getUserLocationButton": "Tumia eneo langu",
+      "permissionBlockedMessage": "Kushiriki eneo kumezuiwa na kivinjari. Ruhusu katika mipangilio ya kivinjari.",
       "pickMapLocationButton": "Weka kwenye ramani"
     },
     "setLocationButtonLabel": {
@@ -156,12 +230,6 @@
     "instructionsPopupLabel": "Bonyeza ili kuchagua mahali",
     "pickLocationButtonLabel": "Chagua mahali kwenye ramani"
   },
-  "priorityPicker": {
-    "amber": "Ambari",
-    "green": "Kijani",
-    "none": "Hakuna",
-    "red": "Nyekundu"
-  },
   "reportedBySelect": {
     "control": {
       "radioIconPlaceholder": "Nafasi ya alama ya redio kwa chagua la aliye ripoti"
@@ -177,6 +245,16 @@
     "singleValue": {
       "radioIcon": "Alama ya redio kwa {{name}} thamani"
     }
+  },
+  "reporterSelect": {
+    "allReportersGroupLabel": "Zote",
+    "recentRadiosGroupLabel": "Redio za hivi karibuni",
+    "restrictedReporterLabel": "ILIZUIWA"
+  },
+  "rootErrorBoundary": {
+    "errorTitle": "Kitu kimeenda kombo",
+    "reloadButtonLabel": "Pakia tena",
+    "reloadMessage": "EarthRanger imekumbwa na tatizo lisilotarajiwa. Pakia tena ukurasa ili kuendelea."
   },
   "schemaFields": {
     "addButton": {
@@ -197,6 +275,9 @@
     "clearButtonLabel": "Futa kisanduku cha utafutaji",
     "defaultPlaceholder": "Tafuta..."
   },
+  "select": {
+    "noOptionsMessage": "Hakuna chaguo za kuonyesha"
+  },
   "serviceWorkerWatcher": {
     "confirmNotification": "Pakia tena",
     "newVersionAvailableNotification": "Toleo jipya la EarthRanger linapatikana. Itapakia mara ya mwisho unapochakaza tena kivinjari chako."
@@ -208,12 +289,13 @@
     "addPatrolButtonTitle": "Unda Doria",
     "backButtonLabel": "Nenda Nyuma",
     "backButtonTitle": "Nyuma",
-    "closeButtonTitle": "Funga",
-    "closeEventFeedButtonLabel": "Funga Onyesha Matukio",
-    "closeMapLayersButtonLabel": "Funga Safu za Ramani",
-    "closePatrolFeedButtonLabel": "Funga Onyesha Doria",
-    "closeSettingsButtonLabel": "Funga Mipangilio",
-    "closeGearTabButtonLabel": "Funga vifaa",
+    "closeButtonLabel": "Funga upau wa pembeni",
+    "detailViewHeader": {
+      "closeButtonLabel": "Funga upau wa pembeni"
+    },
+    "eventsLink": "Matukio",
+    "eventsLinkWithUpdatesLabel_one": "Matukio, {{count}} jipya au lililosasishwa",
+    "eventsLinkWithUpdatesLabel_other": "Matukio, {{count}} mapya au yaliyosasishwa",
     "gearLink": "Vifaa",
     "gearTab": {
       "loadErrorFallback": "Ombi halikufaulu",
@@ -236,12 +318,23 @@
       "featuresTabTitle": "Vipengele",
       "subjectsTabTitle": "Masomo"
     },
-    "patrolsLink": "Doria",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "Haikuweza kupakia matukio. Tafadhali jaribu tena.",
-      "tryAgainButton": "Jaribu tena"
+    "otusLink": "Atlas",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "Beta",
+        "closeButtonLabel": "Funga Atlas",
+        "newConversationButtonLabel": "Mazungumzo mapya",
+        "recentButtonLabel": "Za hivi karibuni",
+        "title": "Atlas"
+      },
+      "iframeTitle": "Gumzo na Atlas",
+      "loadErrorMessage": "Atlas haikuweza kupakia kwenye tovuti hii. Jaribu tena, au wasiliana na Msaada tatizo likiendelea.",
+      "loadingMessage": "Atlas inapakia…",
+      "resizeHandleLabel": "Badilisha ukubwa wa kidirisha cha Atlas",
+      "retryButtonLabel": "Jaribu tena"
     },
-    "eventsLink": "Matukio",
+    "patrolsLink": "Doria",
+    "settingsLink": "Mipangilio",
     "settingsPane": {
       "alertsFrameTitle": "Sanidi tahadhari zako za EarthRanger",
       "alertsTabTitle": "Tahadhari",
@@ -252,10 +345,11 @@
           "legend": "Upya wa Programu",
           "mapLayersCheckboxLabel": "Safu za Ramani",
           "mapPositionAndZoomLevelCheckboxLabel": "Nafasi ya Ramani & Kiwango cha Kukaribia",
-          "patrolFiltersCheckboxLabel": "Vichuja vya Doria"
+          "patrolFiltersCheckboxLabel": "Vichuja vya Doria",
+          "tableViewCheckboxLabel": "Mwonekano wa Jedwali"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Mifumo ya Marejeo ya Koordinati",
+          "FEED_TABLE": "Mwonekano wa jedwali kwa matukio na doria",
           "legend": "Vipengele vya Majaribio"
         },
         "languageSelect": {
@@ -349,7 +443,11 @@
       },
       "mapTabTitle": "Ramani"
     },
-    "settingsLink": "Mipangilio"
+    "showListButtonLabel": "Onyesha kama orodha",
+    "showTableButtonLabel": "Onyesha kama jedwali",
+    "titleInput": {
+      "editButtonLabel": "Hariri kichwa"
+    }
   },
   "sortedNodes": {
     "labelAscending": "Badilisha Kwa Mpangilio wa Kushuka",
@@ -371,13 +469,19 @@
     "periodInputLabel": "Sehemu ya siku"
   },
   "timeSlider": {
-    "popoverHeader": "Upeo wa Tarehe",
-    "popoverResetButton": "Rudisha",
-    "slider": "Kishikilia Muda",
+    "closeButtonLabel": "Funga kishikilia muda",
+    "dateRangeButtonLabel": "Badilisha masafa ya tarehe",
+    "endDateNowSliderLabel": "Sasa",
+    "sliderLabel": "Kishikilia Muda",
+    "speedButtonLabel": "Fungua chaguo za kasi ya uchezaji",
+    "speedMenuHeader": "Kasi ya Uchezaji",
+    "speedMenuLabel": "Chaguo za kasi ya uchezaji",
+    "speedMenuOptionLabel": "Weka kasi ya uchezaji kuwa {{speed}}",
     "timeSliderMapControl": {
       "iconTitle": "Kishikilia Muda"
     },
-    "untilNowButton": "Sasa"
+    "playButtonLabel": "Cheza kishikilia muda",
+    "stopButtonLabel": "Simama kishikilia muda"
   },
   "toastBody": {
     "defaultLinkTitle": "Bonyeza hapa",

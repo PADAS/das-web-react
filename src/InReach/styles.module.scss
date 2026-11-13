@@ -1,4 +1,4 @@
-@import '../common/styles/vars/colors';
+@use '../common/styles/vars/colors';
 
 .emulator {
   align-items: center;
@@ -12,13 +12,15 @@
   position: absolute;
   transition: .3s transform linear;
   width: 21rem;
+
   h3 {
-    background: $dark-gray;
+    background: colors.$dark-gray;
     color: white;
     margin-bottom: 1rem;
     padding: 0.5rem 1rem;
     width: 100%;
   }
+
   &.hidden {
     transform: translateY(20rem);
   }

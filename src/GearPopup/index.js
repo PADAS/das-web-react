@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -9,10 +9,25 @@ import { gearHumanReadableLabel } from '../utils/gear';
 
 import * as styles from './styles.module.scss';
 
+const sortByLastDeployed = (a, b) => {
+  if (!a.last_deployed && !b.last_deployed) return 0;
+  if (!a.last_deployed) return 1;
+  if (!b.last_deployed) return -1;
+  return new Date(a.last_deployed) - new Date(b.last_deployed);
+};
+
 const GearPopup = ({ data }) => {
   const { t } = useTranslation('map-popups', { keyPrefix: 'gearPopup' });
   const gearId = data?.properties?.id;
   const gear = useSelector((state) => (gearId ? state.data.gear.byId[gearId] : null));
+
+  const mostRecentDate = useMemo(() => {
+    const lastDeployedDeviceDate = (gear?.devices || []).reduce((best, device) => {
+      if (!device.last_deployed) return best;
+      return !best || new Date(device.last_deployed) > new Date(best) ? device.last_deployed : best;
+    }, null);
+    return lastDeployedDeviceDate || gear?.last_updated;
+  }, [gear]);
 
   if (!gear) return null;
 
@@ -26,12 +41,12 @@ const GearPopup = ({ data }) => {
     <div className={styles.header}>
       <h2 className={styles.title} data-testid="gear-popup-title">{popupTitle}</h2>
 
-      {gear.last_updated && <div className={styles.dateTimeWrapper}>
-        <DateTime className={styles.dateTimeDetails} date={gear.last_updated} showElapsed={false} />
+      {mostRecentDate && <div className={styles.dateTimeWrapper}>
+        <DateTime className={styles.dateTimeDetails} date={mostRecentDate} showElapsed={false} />
 
         <span className={styles.dateTimeComma}>, </span>
 
-        <TimeAgo className={styles.timeAgo} date={gear.last_updated} suffix={t('dateTimeSuffix')} />
+        <TimeAgo className={styles.timeAgo} date={mostRecentDate} suffix={t('dateTimeSuffix')} />
       </div>}
     </div>
 
@@ -46,13 +61,13 @@ const GearPopup = ({ data }) => {
         <dt>{t('typeLabel')}</dt>
         <dd>{gear.type}</dd>
 
-        {(gear.devices || []).map((device) => <React.Fragment key={device.device_id}>
+        {[...(gear.devices || [])].sort(sortByLastDeployed).map((device) => <React.Fragment key={device.device_id}>
           <dt>{t('deviceLabel', { label: device.label || device.mfr_device_id || device.device_id })}</dt>
           <dd>
             <span className={styles.deviceId}>{device.mfr_device_id || device.device_id}</span>
-            {device.last_updated && <>
+            {device.last_deployed && <>
               {' '}
-              <DateTime date={device.last_updated} showElapsed={false} />
+              <DateTime date={device.last_deployed} showElapsed={false} />
             </>}
           </dd>
         </React.Fragment>)}

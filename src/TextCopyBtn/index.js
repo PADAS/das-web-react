@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 
@@ -11,7 +11,7 @@ const TOAST_AUTOCLOSE_TIME = 2000;
 const TextCopyBtn = ({
   className = '',
   getText = null,
-  icon = <ClipboardIcon data-testid="clipboard-icon" />,
+  icon = <ClipboardIcon aria-hidden="true" data-testid="clipboard-icon" />,
   label = '',
   permitPropagation = false,
   successMessage = null,

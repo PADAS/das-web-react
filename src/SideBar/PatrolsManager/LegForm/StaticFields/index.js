@@ -1,0 +1,426 @@
+import { useContext, useEffect, useId, useImperativeHandle, useMemo, useRef } from 'react';
+import { format, isFuture } from 'date-fns';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+
+import { calcUrlForImage } from '../../../../utils/img';
+import { getHoursAndMinutesString } from '../../../../utils/datetime';
+import parseLegDraftDateTime from '../utils/parseLegDraftDateTime';
+import { TrackerContext, trackEventFactory } from '../../../../utils/analytics';
+
+import DatePicker, { isValidDate } from '../../../../DatePicker';
+import LocationPicker from '../../../../LocationPicker';
+import Select from '../../../../Select';
+import SvgIcon from '../../../../SvgIcon';
+import TimePicker, { isValidTime } from '../../../../TimePicker';
+
+import * as styles from './styles.module.scss';
+
+const FIELD_TRACK_DEBOUNCE_DELAY = 1000;
+// React Select names each change: a pick, a removal or a clear.
+const CHANGE_KIND_BY_SELECT_ACTION = {
+  clear: 'clear',
+  'pop-value': 'deselect',
+  'remove-value': 'deselect',
+  'select-option': 'select',
+};
+const TEAM_ACTION_BY_CHANGE_KIND = {
+  clear: 'Clear the team from the leg form',
+  select: 'Select a team from the leg form',
+};
+const TEAM_LEAD_ACTION_BY_CHANGE_KIND = {
+  clear: 'Clear the team lead from the leg form',
+  select: 'Select a team lead from the leg form',
+};
+const TEAM_MEMBER_ACTION_BY_CHANGE_KIND = {
+  clear: 'Clear team members from the leg form',
+  deselect: 'Deselect a team member from the leg form',
+  select: 'Select a team member from the leg form',
+};
+const ASSET_ACTION_BY_CHANGE_KIND = {
+  clear: 'Clear assets from the leg form',
+  deselect: 'Deselect an asset from the leg form',
+  select: 'Select an asset from the leg form',
+};
+const TIME_OPTIONS_INTERVAL_IN_MINUTES = 15;
+
+// Without a tracker provider the form still works, untracked.
+const NO_OP_TRACKER = trackEventFactory('', () => {});
+
+const getOptionLabel = ({ name }) => name;
+const getOptionValue = ({ id }) => id;
+const getTeamOptionLabel = ({ display }) => display;
+
+const renderSubjectOptionIcon = ({ image_url }) => !!image_url
+  && <SvgIcon imageUrl={calcUrlForImage(image_url)} type="subjects" />;
+
+const StaticFields = ({
+  earliestStartDateTime = null,
+  errors,
+  isFirstLeg = true,
+  isLastLeg = true,
+  isPause = false,
+  latestEndDateTime = null,
+  leg,
+  onChangeLeg,
+  ref,
+}) => {
+  const { t } = useTranslation('patrols', { keyPrefix: 'legForm.staticFields' });
+
+  const teamAndTrackingOptions = useSelector((state) => state.data.patrolTeamAndTrackingOptions);
+
+  const tracker = useContext(TrackerContext) ?? NO_OP_TRACKER;
+
+  const endDatePickerRef = useRef();
+  const endTimePickerRef = useRef();
+  const startDatePickerRef = useRef();
+  const startTimePickerRef = useRef();
+
+  useImperativeHandle(ref, () => ({
+    focusField: (field) => {
+      const fieldRefs = {
+        endDateTime: endDatePickerRef,
+        endTime: endTimePickerRef,
+        startDate: startDatePickerRef,
+        startDateTime: startDatePickerRef,
+        startTime: startTimePickerRef,
+      };
+
+      // Each picker is a group of inputs, the first one begins the value.
+      fieldRefs[field]?.current?.querySelector('input')?.focus();
+    },
+  }));
+
+  const assetsSelectId = useId();
+  const autoEndCheckboxId = useId();
+  const autoStartCheckboxId = useId();
+  const endDateTimeErrorId = useId();
+  const endLocationId = useId();
+  const endTimeLabelId = useId();
+  const startDateTimeErrorId = useId();
+  const startLocationId = useId();
+  const startTimeLabelId = useId();
+  const teamLeadSelectId = useId();
+  const teamMembersSelectId = useId();
+  const teamSelectId = useId();
+
+  const endDateTime = parseLegDraftDateTime(leg.endDate, leg.endTime);
+  const startDateTime = parseLegDraftDateTime(leg.startDate, leg.startTime);
+
+  // Only the last leg's end can be a plan, or that of a first leg still planned.
+  const canScheduleEnd = isLastLeg || (isFirstLeg && !leg.isAutoStart && !!startDateTime && isFuture(startDateTime));
+
+  // An empty start date would reach the picker's calendar as an invalid bound.
+  const endDateMin = isValidDate(leg.startDate) ? leg.startDate : undefined;
+
+  // The end time is bounded by the start only on the same day, and only once
+  // the start time is complete: a partial one discards every option.
+  const endTimeMin = isValidDate(leg.endDate) && leg.endDate === leg.startDate && isValidTime(leg.startTime)
+    ? leg.startTime
+    : undefined;
+
+  const startDateMin = earliestStartDateTime ? format(earliestStartDateTime, 'yyyy-MM-dd') : undefined;
+
+  const startTimeMin = startDateMin === leg.startDate
+    ? getHoursAndMinutesString(earliestStartDateTime)
+    : undefined;
+
+  // Neither bound of the leg may pass the start of the leg after it, and a
+  // time is only bounded by it on its own day.
+  const latestDate = latestEndDateTime ? format(latestEndDateTime, 'yyyy-MM-dd') : undefined;
+
+  const endTimeMax = latestDate === leg.endDate ? getHoursAndMinutesString(latestEndDateTime) : undefined;
+
+  const startTimeMax = latestDate === leg.startDate ? getHoursAndMinutesString(latestEndDateTime) : undefined;
+
+  // A group shows a single message, wherever within it the error belongs, and
+  // an error about the moment as a whole marks both of its pickers.
+  const endDateTimeError = errors.endTime ?? errors.endDateTime;
+  const isEndDateInvalid = !!errors.endDateTime;
+  const isEndTimeInvalid = !!errors.endTime || !!errors.endDateTime;
+  const isStartDateInvalid = !!errors.startDate || !!errors.startDateTime;
+  const isStartTimeInvalid = !!errors.startTime || !!errors.startDateTime;
+  const startDateTimeError = errors.startDate ?? errors.startTime ?? errors.startDateTime;
+
+  // Pickers report each parsed keystroke, so a field tracks once per edit.
+  const debouncedTrackers = useMemo(() => ({
+    endDate: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+    endLocation: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+    endTime: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+    startDate: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+    startLocation: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+    startTime: tracker.debouncedTrack(FIELD_TRACK_DEBOUNCE_DELAY),
+  }), [tracker]);
+
+  const renderCheckbox = ({ id, isChecked, isDisabled, isHidden = false, label, onChange }) => <div
+    aria-hidden={isHidden ? 'true' : undefined}
+    className={`${styles.checkboxWrapper} ${isHidden ? styles.hidden : ''}`}
+    >
+    <input
+      checked={isChecked}
+      className={styles.checkbox}
+      disabled={isDisabled}
+      id={id}
+      onChange={(event) => onChange(event.target.checked)}
+      type="checkbox"
+    />
+
+    <label className={`${styles.checkboxLabel} ${isDisabled ? styles.disabled : ''}`} htmlFor={id}>{label}</label>
+  </div>;
+
+  const renderSelect = ({ id, label, ...selectProps }) => <div className={styles.field}>
+    <label className={styles.label} htmlFor={id}>{label}</label>
+
+    <Select
+      getOptionLabel={getOptionLabel}
+      getOptionValue={getOptionValue}
+      inputId={id}
+      {...selectProps}
+    />
+  </div>;
+
+  // React Select also reports Backspace in an empty field and a pick of the
+  // option already chosen, which change nothing.
+  const trackSelectChange = (actionByChangeKind, actionMeta, previousValue, value, label) => {
+    const hasChanged = Array.isArray(value)
+      ? value.length !== (previousValue?.length ?? 0)
+      : value?.id !== previousValue?.id;
+    const action = actionByChangeKind[CHANGE_KIND_BY_SELECT_ACTION[actionMeta.action]];
+    if (hasChanged && action) {
+      tracker.track(action, label);
+    }
+  };
+
+  // Closing the form, saved or discarded, would otherwise drop a pending edit.
+  useEffect(() => () => {
+    Object.values(debouncedTrackers).forEach((debouncedTracker) => debouncedTracker.flush());
+  }, [debouncedTrackers]);
+
+  return <div className={styles.staticFields}>
+    <div className={styles.columns}>
+      <div className={styles.column}>
+        <div aria-labelledby={startTimeLabelId} className={styles.field} role="group">
+          <span className={styles.label} id={startTimeLabelId}>{t('startTimeLabel')}</span>
+
+          <div className={styles.dateTimeInputs}>
+            <DatePicker
+              aria-errormessage={isStartDateInvalid ? startDateTimeErrorId : undefined}
+              aria-invalid={isStartDateInvalid ? 'true' : 'false'}
+              aria-label={t('startDateInputLabel')}
+              className={styles.datePicker}
+              max={latestDate}
+              min={startDateMin}
+              onChange={(startDate) => {
+                onChangeLeg({ startDate });
+
+                debouncedTrackers.startDate('Change the start date from the leg form');
+              }}
+              reactDatePickerProps={{ endDate: endDateTime, selectsStart: true, startDate: startDateTime }}
+              ref={startDatePickerRef}
+              value={leg.startDate}
+            />
+
+            <TimePicker
+              aria-errormessage={isStartTimeInvalid ? startDateTimeErrorId : undefined}
+              aria-invalid={isStartTimeInvalid ? 'true' : 'false'}
+              aria-label={t('startTimeInputLabel')}
+              max={startTimeMax}
+              min={startTimeMin}
+              minutesInterval={TIME_OPTIONS_INTERVAL_IN_MINUTES}
+              onChange={(startTime) => {
+                onChangeLeg({ startTime });
+
+                debouncedTrackers.startTime('Change the start time from the leg form');
+              }}
+              ref={startTimePickerRef}
+              value={leg.startTime}
+            />
+          </div>
+
+          {!!startDateTimeError && <p className={styles.errorMessage} id={startDateTimeErrorId} role="alert">
+            {startDateTimeError}
+          </p>}
+        </div>
+
+        {/* A pause neither starts nor ends by itself, so neither checkbox is
+            rendered on one and the column closes the gap they leave. */}
+        {!isPause && renderCheckbox({
+          id: autoStartCheckboxId,
+          isChecked: leg.isAutoStart,
+          isDisabled: !startDateTime || !isFuture(startDateTime),
+          // Only the first leg's start can be a plan.
+          isHidden: !isFirstLeg,
+          label: t('autoStartCheckboxLabel'),
+          onChange: (isAutoStart) => {
+            onChangeLeg({ isAutoStart });
+
+            tracker.track('Toggle auto-start from the leg form', isAutoStart ? 'on' : 'off');
+          },
+        })}
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor={startLocationId}>{t('startLocationLabel')}</label>
+
+          <LocationPicker
+            id={startLocationId}
+            inputProps={{ 'aria-label': t('startLocationLabel') }}
+            onChange={(startLocation) => {
+              onChangeLeg({ startLocation: startLocation || null });
+
+              debouncedTrackers.startLocation(
+                'Change start location from the leg form',
+                startLocation ? 'set' : 'cleared'
+              );
+            }}
+            value={leg.startLocation}
+          />
+        </div>
+      </div>
+
+      <div className={styles.column}>
+        <div aria-labelledby={endTimeLabelId} className={styles.field} role="group">
+          <span className={styles.label} id={endTimeLabelId}>{t('endTimeLabel')}</span>
+
+          <div className={styles.dateTimeInputs}>
+            <DatePicker
+              aria-errormessage={isEndDateInvalid ? endDateTimeErrorId : undefined}
+              aria-invalid={isEndDateInvalid ? 'true' : 'false'}
+              aria-label={t('endDateInputLabel')}
+              className={styles.datePicker}
+              max={latestDate}
+              min={endDateMin}
+              onChange={(endDate) => {
+                onChangeLeg({ endDate });
+
+                debouncedTrackers.endDate('Change the end date from the leg form');
+              }}
+              reactDatePickerProps={{ endDate: endDateTime, selectsEnd: true, startDate: startDateTime }}
+              ref={endDatePickerRef}
+              value={leg.endDate}
+            />
+
+            <TimePicker
+              aria-errormessage={isEndTimeInvalid ? endDateTimeErrorId : undefined}
+              aria-invalid={isEndTimeInvalid ? 'true' : 'false'}
+              aria-label={t('endTimeInputLabel')}
+              disabled={!isValidDate(leg.endDate)}
+              max={endTimeMax}
+              min={endTimeMin}
+              minutesInterval={TIME_OPTIONS_INTERVAL_IN_MINUTES}
+              onChange={(endTime) => {
+                onChangeLeg({ endTime });
+
+                debouncedTrackers.endTime('Change the end time from the leg form');
+              }}
+              ref={endTimePickerRef}
+              showDurationFromMin={!!endTimeMin}
+              value={leg.endTime}
+            />
+          </div>
+
+          {!!endDateTimeError && <p className={styles.errorMessage} id={endDateTimeErrorId} role="alert">
+            {endDateTimeError}
+          </p>}
+        </div>
+
+        {!isPause && renderCheckbox({
+          id: autoEndCheckboxId,
+          isChecked: leg.isAutoEnd || !canScheduleEnd,
+          isDisabled: !canScheduleEnd || !endDateTime || !isFuture(endDateTime),
+          label: t('autoEndCheckboxLabel'),
+          onChange: (isAutoEnd) => {
+            onChangeLeg({ isAutoEnd });
+
+            tracker.track('Toggle auto-end from the leg form', isAutoEnd ? 'on' : 'off');
+          },
+        })}
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor={endLocationId}>{t('endLocationLabel')}</label>
+
+          <LocationPicker
+            id={endLocationId}
+            inputProps={{ 'aria-label': t('endLocationLabel') }}
+            onChange={(endLocation) => {
+              onChangeLeg({ endLocation: endLocation || null });
+
+              debouncedTrackers.endLocation(
+                'Change end location from the leg form',
+                endLocation ? 'set' : 'cleared'
+              );
+            }}
+            value={leg.endLocation}
+          />
+        </div>
+      </div>
+    </div>
+
+    {!isPause && <div className={styles.columns}>
+      <div className={styles.column}>
+        {renderSelect({
+          getOptionLabel: getTeamOptionLabel,
+          id: teamSelectId,
+          label: t('teamLabel'),
+          onChange: (team, actionMeta) => {
+            onChangeLeg({ team });
+
+            trackSelectChange(TEAM_ACTION_BY_CHANGE_KIND, actionMeta, leg.team, team);
+          },
+          options: teamAndTrackingOptions.teams,
+          value: leg.team,
+        })}
+
+        {renderSelect({
+          id: teamMembersSelectId,
+          isMulti: true,
+          label: t('teamMembersLabel'),
+          onChange: (teamMembers, actionMeta) => {
+            onChangeLeg({ teamMembers: [...teamMembers] });
+
+            trackSelectChange(
+              TEAM_MEMBER_ACTION_BY_CHANGE_KIND,
+              actionMeta,
+              leg.teamMembers,
+              teamMembers,
+              String(teamMembers.length)
+            );
+          },
+          options: teamAndTrackingOptions.members,
+          renderOptionIcon: renderSubjectOptionIcon,
+          value: leg.teamMembers,
+        })}
+      </div>
+
+      <div className={styles.column}>
+        {renderSelect({
+          id: teamLeadSelectId,
+          label: t('teamLeadLabel'),
+          onChange: (teamLead, actionMeta) => {
+            onChangeLeg({ teamLead });
+
+            trackSelectChange(TEAM_LEAD_ACTION_BY_CHANGE_KIND, actionMeta, leg.teamLead, teamLead);
+          },
+          options: teamAndTrackingOptions.members,
+          renderOptionIcon: renderSubjectOptionIcon,
+          value: leg.teamLead,
+        })}
+
+        {renderSelect({
+          id: assetsSelectId,
+          isMulti: true,
+          label: t('assetsLabel'),
+          onChange: (assets, actionMeta) => {
+            onChangeLeg({ assets: [...assets] });
+
+            trackSelectChange(ASSET_ACTION_BY_CHANGE_KIND, actionMeta, leg.assets, assets, String(assets.length));
+          },
+          options: teamAndTrackingOptions.assets,
+          renderOptionIcon: renderSubjectOptionIcon,
+          value: leg.assets,
+        })}
+      </div>
+    </div>}
+  </div>;
+};
+
+export default StaticFields;

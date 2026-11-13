@@ -1,14 +1,12 @@
-import { useContext, useMemo } from 'react';
-import { LngLatBounds } from 'mapbox-gl';
+import { useContext } from 'react';
 import { useLocation as useRouterLocation } from 'react-router';
+import { useStore } from 'react-redux';
 
 import { BREAKPOINTS } from '../../constants';
-import { getCurrentTabFromURL, getCurrentIdFromURL } from '../../utils/navigation';
-import { MapContext } from '../../App';
+import { calcSidebarPaddingLeft } from '../../utils/map';
+import { MapContext } from '../../MapContext';
+import { selectOtusTabWidth } from '../../selectors/otus';
 import { useMatchMedia } from '../';
-
-const SIDEBAR_WIDTH_PIXELS = 512;
-const SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS = 736;
 
 const DEFAULT_LOCATION_JUMP_PADDING = {
   left: 12,
@@ -16,34 +14,24 @@ const DEFAULT_LOCATION_JUMP_PADDING = {
   bottom: 12,
   right: 12,
 };
+const MAP_CONTROLS_PADDING_PIXELS = 90;
+const MIN_UNPADDED_MAP_WIDTH_PIXELS = 150;
 
-const calcPadding = (currentTab, isArray, itemId, isMediumLayoutOrLarger) => {
-  const padding = { ...DEFAULT_LOCATION_JUMP_PADDING };
-  const polygonPadding = 350;
+const flattenToCoordinatePairs = (coords) => (Array.isArray(coords[0]) ? coords.flatMap(flattenToCoordinatePairs) : [coords]);
 
-  if (isMediumLayoutOrLarger) {
-    if (itemId) {
-      padding.left = isArray
-        ? ( SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS - polygonPadding )
-        : SIDEBAR_DETAIL_VIEW_WIDTH_PIXELS;
-    } else if (currentTab) {
-      padding.left = isArray
-        ? ( SIDEBAR_WIDTH_PIXELS - polygonPadding )
-        : SIDEBAR_WIDTH_PIXELS + 80;
-    }
-    padding.right = 90;
-  }
-  return padding;
-};
+const calcLocationJumpPadding = (isMediumLayoutOrLarger, otusTabWidth, pathname) => {
+  const right = isMediumLayoutOrLarger ? MAP_CONTROLS_PADDING_PIXELS : DEFAULT_LOCATION_JUMP_PADDING.right;
+  const sidebarPaddingLeft = calcSidebarPaddingLeft({ isMediumLayoutOrLarger, otusTabWidth, pathname });
 
-const extendBoundsForMultiDimensionalCoords = (coords, mapBounds) => {
-  coords.forEach(coord => mapBounds.extend(coord));
-  return mapBounds;
-};
-
-const buildLocationJumpBounds = (bounds, coords) => {
-  const isMultiDimensionalCoords = Array.isArray(coords[0]);
-  return isMultiDimensionalCoords ? extendBoundsForMultiDimensionalCoords(coords, bounds) : bounds.extend(coords);
+  return {
+    ...DEFAULT_LOCATION_JUMP_PADDING,
+    right,
+    // Mapbox fits nothing into a canvas its padding leaves no room in, so the
+    // sidebar's share of the map stops where the map's own begins.
+    ...(sidebarPaddingLeft !== undefined && {
+      left: Math.min(sidebarPaddingLeft, window.innerWidth - right - MIN_UNPADDED_MAP_WIDTH_PIXELS),
+    }),
+  };
 };
 
 const useJumpToLocation = () => {
@@ -51,21 +39,31 @@ const useJumpToLocation = () => {
   const map = useContext(MapContext);
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
-  const { currentTab, itemId } = useMemo(() => ({
-    currentTab: getCurrentTabFromURL(routerLocation.pathname),
-    itemId: getCurrentIdFromURL(routerLocation.pathname),
-  }), [routerLocation.pathname]);
+  const store = useStore();
 
-  return (coords, zoom = 15) => {
+  return (coords, zoom = 15, options = {}) => {
     const isArrayCoords = Array.isArray(coords[0]);
 
-    const padding = calcPadding(currentTab, isArrayCoords, itemId, isMediumLayoutOrLarger);
+    // Read when jumping, since a panel resize never needs to re-render the caller.
+    const padding = calcLocationJumpPadding(
+      isMediumLayoutOrLarger,
+      selectOtusTabWidth(store.getState()),
+      routerLocation.pathname
+    );
 
     if (isArrayCoords && coords.length > 1) {
-      const mapBoundaries = coords.reduce(buildLocationJumpBounds, new LngLatBounds());
-      map.fitBounds(mapBoundaries, { linear: true, speed: 200, padding });
+      const points = coords.flatMap(flattenToCoordinatePairs);
+      let west = Infinity, south = Infinity, east = -Infinity, north = -Infinity;
+      points.forEach(([lng, lat]) => {
+        if (lng < west) west = lng;
+        if (lng > east) east = lng;
+        if (lat < south) south = lat;
+        if (lat > north) north = lat;
+      });
+      const mapBoundaries = [[west, south], [east, north]];
+      map.fitBounds(mapBoundaries, { linear: true, speed: 200, padding, ...options });
     } else {
-      map.easeTo({ center: isArrayCoords ? coords[0] : coords, zoom, padding, speed: 200 });
+      map.easeTo({ center: isArrayCoords ? coords[0] : coords, zoom, padding, speed: 200, ...options });
     }
   };
 };

@@ -1,46 +1,59 @@
-import React, { useCallback, useState } from 'react';
-import { Dropdown } from 'react-bootstrap';
+import MoonLoader from 'react-spinners/MoonLoader';
 
-import KebabMenuIcon from '../KebabMenuIcon';
+import useMenuToggle from '../hooks/useMenuToggle';
+
+import Menu from '../Menu';
 
 import * as styles from './styles.module.scss';
 
-const Option = ({ className = '', children, ...rest }) => (
-  <Dropdown.Item className={`${styles.itemBtn} ${className}`} {...rest}>
-    {children}
-  </Dropdown.Item>
-);
+const LOADER_SIZE = 18;
 
-const KebabMenu = ({ children, className = '', defaultShow = false, ref, ...rest }) => {
-  const [show, setShow] = useState(defaultShow);
+const KebabMenu = ({
+  align = 'start',
+  'aria-label': ariaLabel,
+  backgroundColor,
+  children,
+  className = '',
+  defaultShow = false,
+  dotColor,
+  isLoading = false,
+  size,
+  title,
+  ...otherProps
+}) => {
+  const menuToggle = useMenuToggle({ defaultShow, isDisabled: isLoading });
 
-  const onKeyDown = useCallback((event) => {
-    if (event.key === 'Escape') {
-      setShow(false);
-      event.stopPropagation();
-    }
-  }, []);
+  return <div className={`${styles.kebabMenu} ${className}`} {...otherProps}>
+    <button
+      aria-busy={isLoading}
+      aria-disabled={isLoading}
+      aria-label={ariaLabel}
+      className={styles.toggle}
+      style={{
+        '--kebab-menu-background-color': backgroundColor,
+        '--kebab-menu-dot-color': dotColor,
+        '--kebab-menu-size': size,
+      }}
+      title={title}
+      type="button"
+      {...menuToggle.toggleProps}
+    >
+      {isLoading
+        ? <MoonLoader aria-hidden="true" color="currentColor" size={LOADER_SIZE} />
+        : <span aria-hidden="true" className={styles.dots} />}
+    </button>
 
-  return (
-    <Dropdown
-        className={`${styles.kebabMenu} ${className}`}
-        onKeyDown={onKeyDown}
-        onToggle={(nextShow) => setShow(nextShow)}
-        show={show}
-        {...rest}
-      >
-      <Dropdown.Toggle as='button'>
-        <KebabMenuIcon />
-      </Dropdown.Toggle>
-
-      <Dropdown.Menu ref={ref} className={styles.menuDropdown}>
-        {children}
-      </Dropdown.Menu>
-    </ Dropdown>
-  );
+    <Menu
+      aria-label={ariaLabel}
+      placement={align === 'end' ? 'bottom-end' : 'bottom-start'}
+      {...menuToggle.menuProps}
+    >
+      {children}
+    </Menu>
+  </div>;
 };
 
-
-KebabMenu.Option = Option;
+KebabMenu.Divider = Menu.Divider;
+KebabMenu.Option = Menu.Option;
 
 export default KebabMenu;

@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useCallback } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 import isNil from 'lodash/isNil';
 import isEqual from 'react-fast-compare';
 import { formatDistanceToNow } from 'date-fns';

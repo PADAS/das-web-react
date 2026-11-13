@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { connect } from 'react-redux';
 import Collapsible from 'react-collapsible';
 import { useTranslation } from 'react-i18next';

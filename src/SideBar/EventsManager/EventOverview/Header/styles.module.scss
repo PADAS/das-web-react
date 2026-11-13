@@ -1,0 +1,46 @@
+@use '../../../../common/styles/vars/colors';
+@use '../../../shared';
+
+.desktopActions {
+  @include shared.header-desktop-actions;
+
+  .multiLocationIcon {
+    @include shared.multi-location-icon;
+  }
+}
+
+.titleBarMain {
+  @include shared.header-title-bar-main;
+
+  .icon {
+    position: relative;
+
+    &.red {
+      @include shared.header-icon-tile(colors.$report-high-priority-theme);
+    }
+
+    &.amber {
+      @include shared.header-icon-tile(colors.$report-medium-priority-theme);
+    }
+
+    &.green {
+      @include shared.header-icon-tile(colors.$report-low-priority-theme);
+    }
+
+    &.none {
+      @include shared.header-icon-tile(colors.$report-no-priority-theme);
+    }
+
+    .patrolIndicator {
+      @include shared.patrol-indicator-badge;
+    }
+  }
+
+  .titleStack {
+    @include shared.header-title-stack;
+  }
+}
+
+.pills {
+  @include shared.header-pills;
+}

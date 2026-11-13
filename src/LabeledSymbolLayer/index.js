@@ -1,7 +1,7 @@
 import { memo, useCallback, useContext, useEffect } from 'react';
 
 import { DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT } from '../constants';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { useMapEventBinding } from '../hooks';
 import useMapLayers from '../hooks/useMapLayers';
 import withMapViewConfig from '../WithMapViewConfig';

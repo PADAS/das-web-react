@@ -1,6 +1,5 @@
 // https://testing-library.com/docs/react-testing-library/setup/#custom-render
 
-import React from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { MemoryRouter } from 'react-router';
 import { render } from '@testing-library/react';

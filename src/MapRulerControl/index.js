@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState, useEffect, useCallback } from 'react';
+import { memo, useContext, useState, useEffect, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import { connect } from 'react-redux';
 import isEqual from 'react-fast-compare';
@@ -8,16 +8,21 @@ import { ReactComponent as RulerIcon } from '../common/images/icons/ruler-icon.s
 
 import { LAYER_IDS } from '../MapDrawingTools/MapLayers';
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import { setIsPickingLocation } from '../ducks/map-ui';
 import { useMapEventBinding } from '../hooks';
 
-import MapDrawingTools, { DRAWING_MODES } from '../MapDrawingTools';
+import MapDrawingTools, { DefaultCursorPopup, DRAWING_MODES } from '../MapDrawingTools';
+import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import PointPopup from './PointPopup';
+
+import { calcCursorPolygonAreaDisplayString } from './utils';
 
 import * as styles from './styles.module.scss';
 
 const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
+
+const MEASUREMENT_LAYER_IDS = [LAYER_IDS.POINTS, LAYER_IDS.LINES, LAYER_IDS.FILL];
 
 const MapRulerControl = ({ setIsPickingLocation }) => {
   const { t } = useTranslation('map-controls', { keyPrefix: 'mapRuler' });
@@ -73,16 +78,25 @@ const MapRulerControl = ({ setIsPickingLocation }) => {
     setDrawingState(false);
   }, []);
 
+  const renderCursorPopup = useCallback((cursorPopupProps) => <DefaultCursorPopup
+    {...cursorPopupProps}
+    area={calcCursorPolygonAreaDisplayString(cursorPopupProps.points, cursorPopupProps.coords)}
+  />, []);
+
   const popupPointSelected = (selectedPointIndex > -1) && !!points[selectedPointIndex];
 
   useEffect(() => {
     if (!drawing && active) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNextClickResetsState(true);
     }
   }, [active, drawing]);
 
   useEffect(() => {
     if (!active || drawing) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNextClickResetsState(false);
     }
   }, [active, drawing]);
@@ -122,12 +136,16 @@ const MapRulerControl = ({ setIsPickingLocation }) => {
   }, []);
 
   useEffect(() => {
+    // Updating state from this effect is intended.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPoints([]);
     setDrawingState(active);
   }, [active]);
 
   useEffect(() => {
     if (!drawing && points.length > 1) {
+      // Updating state from this effect is intended.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedPointIndex(points.length - 1);
     }
   }, [drawing, points.length]);
@@ -155,11 +173,11 @@ const MapRulerControl = ({ setIsPickingLocation }) => {
   useEffect(() => {
     if (map && nextClickResetsState) {
       const onMapClickToReset = (e) => {
-        const isPointClick = !!map.queryRenderedFeatures(e.point, {
-          layers: [LAYER_IDS.POINTS],
+        const isMeasurementClick = !!map.queryRenderedFeatures(e.point, {
+          layers: MEASUREMENT_LAYER_IDS.filter((layerId) => !!map.getLayer(layerId)),
         }).length;
 
-        if (!isPointClick) {
+        if (!isMeasurementClick) {
           setActiveState(false);
           map.off('click', onMapClickToReset);
         }
@@ -189,13 +207,17 @@ const MapRulerControl = ({ setIsPickingLocation }) => {
       {drawing && <PointPopup map={map} points={points} pointIndex={points.length - 1} drawing={drawing} onClickFinish={onFinish} />}
       {!drawing && popupPointSelected && <PointPopup map={map} points={points} pointIndex={selectedPointIndex} drawing={drawing} />}
     </>}
-    {active && <MapDrawingTools
-      drawing={drawing}
-      drawingMode={DRAWING_MODES.LINE}
-      points={points}
-      onChange={onDrawChange}
-      onClickPoint={onClickPoint}
-    />}
+    {active && <MapDrawingToolsContextProvider>
+      <MapDrawingTools
+        drawing={drawing}
+        drawingMode={DRAWING_MODES.LINE}
+        points={points}
+        onChange={onDrawChange}
+        onClickPoint={onClickPoint}
+        renderCursorPopup={renderCursorPopup}
+        showLineFill
+      />
+    </MapDrawingToolsContextProvider>}
   </>;
 };
 

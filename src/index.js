@@ -1,5 +1,5 @@
-import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router';
 import { createRoot } from 'react-dom/client';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistStore } from 'redux-persist';
@@ -13,28 +13,32 @@ import 'react-toastify/dist/ReactToastify.css';
 import './i18n';
 import './index.scss';
 
-import { EXTERNAL_SAME_DOMAIN_ROUTES, REACT_APP_GA4_TRACKING_ID, REACT_APP_ROUTE_PREFIX } from './constants';
-import registerServiceWorker from './registerServiceWorker';
+import { APP_ROUTES } from './constants/routes';
 import appConfig from './config';
-import { setClientReleaseIdentifier } from './utils/analytics';
+import { Auth0Provider } from '@auth0/auth0-react';
+import { EXTERNAL_SAME_DOMAIN_ROUTES, REACT_APP_GA4_TRACKING_ID, REACT_APP_ROUTE_PREFIX } from './constants';
+import { fetchSystemStatus } from './ducks/system-status';
 import { isSystemConfigLoaded } from './utils/auth';
+import registerServiceWorker from './registerServiceWorker';
+import { registerStaleBuildRecovery } from './utils/stale-build';
+import { setClientReleaseIdentifier } from './utils/analytics';
 import store from './store';
 import withTracker from './WithTracker';
-import { Auth0Provider } from '@auth0/auth0-react';
-import { fetchSystemStatus } from './ducks/system-status';
 
+import Auth0TokenManager from './Auth0TokenManager';
 import DetectOffline from './DetectOffline';
 import GeoLocationWatcher from './GeoLocationWatcher';
 import JiraSupportWidget from './JiraSupportWidget';
 import LoadingOverlay from './EarthRangerIconLoadingOverlay';
 import NavigationContextProvider from './NavigationContextProvider';
 import RequestConfigManager from './RequestConfigManager';
-import Auth0TokenManager from './Auth0TokenManager';
 import RequireAccessToken from './RequireAccessToken';
 import RequireEulaConfirmation from './RequireEulaConfirmation';
+import RootErrorBoundary, { RootErrorFallback } from './RootErrorBoundary';
 import useWebVitals from './hooks/useWebVitals';
 
 const App = lazy(() => import('./App'));
+const CommunityPage = lazy(() => import('./CommunityPage'));
 const EulaPage = lazy(() => import('./views/EULA'));
 const Login = lazy(() => import('./Login'));
 
@@ -50,16 +54,19 @@ ReactGA4.initialize(REACT_APP_GA4_TRACKING_ID, {
 
 setClientReleaseIdentifier();
 
-const PathNormalizationRouteComponent = ({ location }) => {
+registerStaleBuildRecovery();
+
+const PathNormalizationRouteComponent = () => {
+  const location = useLocation();
   const externalRedirectRef = useRef(null);
 
   useEffect(() => {
     !!externalRedirectRef.current && externalRedirectRef.current.click();
-  });
+  }, [location.pathname]);
 
   const localMatch = EXTERNAL_SAME_DOMAIN_ROUTES.find(item => item === location.pathname);
   if (!import.meta.env.PROD || !localMatch) {
-    return <Navigate replace to={REACT_APP_ROUTE_PREFIX} />;
+    return <Navigate replace to={APP_ROUTES.ROOT} />;
   }
   return <a href={localMatch} ref={externalRedirectRef} style={{ opacity: 0 }} target="_self">{localMatch}</a>;
 };
@@ -73,7 +80,8 @@ const RootApp = () => {
   useWebVitals();
 
   useEffect(() => {
-    dispatch(fetchSystemStatus())
+    // No 401 recovery is attached yet, so this request must stay token-free.
+    dispatch(fetchSystemStatus({ anonymous: true }))
       .catch(() => setConfigError(true));
   }, [dispatch]);
 
@@ -87,7 +95,7 @@ const RootApp = () => {
   // Block until system config is loaded from the server
   if (!isSystemConfigLoaded(systemConfig)) {
     if (configError) {
-      return <div>Failed to load system configuration. Please refresh.</div>;
+      return <RootErrorFallback />;
     }
     return <LoadingOverlay />;
   }
@@ -98,17 +106,22 @@ const RootApp = () => {
 
     <Suspense fallback={<LoadingOverlay />}>
       <Routes>
-        <Route path={`${REACT_APP_ROUTE_PREFIX}login`} element={<LoginWithTracker />} />
+        <Route path={APP_ROUTES.LOGIN} element={<LoginWithTracker />} />
 
         <Route
-          path={`${REACT_APP_ROUTE_PREFIX}eula`}
+          path={APP_ROUTES.EULA}
           element={<RequireAccessToken>
             <EulaPageWithTracker />
           </RequireAccessToken>}
         />
 
         <Route
-          path={`${REACT_APP_ROUTE_PREFIX}*`}
+          path={APP_ROUTES.COMMUNITY}
+          element={<CommunityPage />}
+        />
+
+        <Route
+          path={APP_ROUTES.MAIN}
           element={<RequireAccessToken>
             <RequireEulaConfirmation>
               <AppWithTracker />
@@ -124,31 +137,34 @@ const RootApp = () => {
 
 const root = createRoot(document.getElementById('root'));
 root.render(
-  <Provider store={store}>
-    <PersistGate loading={null} persistor={persistStore(store)} >
-      <Auth0Provider
-        domain={appConfig.auth0.domain}
-        clientId={appConfig.auth0.clientId}
-        authorizationParams={{
-          audience: appConfig.auth0.audience,
-          redirect_uri: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}`,
-        }}
-        cacheLocation="localstorage"
-      >
-        <BrowserRouter>
-          <NavigationContextProvider>
-            <RootApp />
-          </NavigationContextProvider>
-        </BrowserRouter>
-      </Auth0Provider>
+  <RootErrorBoundary>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistStore(store)} >
+        <Auth0Provider
+          domain={appConfig.auth0.domain}
+          clientId={appConfig.auth0.clientId}
+          authorizationParams={{
+            audience: appConfig.auth0.audience,
+            redirect_uri: `${window.location.origin}${REACT_APP_ROUTE_PREFIX}`,
+          }}
+          cacheLocation="localstorage"
+          useRefreshTokens={true}
+        >
+          <BrowserRouter basename={REACT_APP_ROUTE_PREFIX}>
+            <NavigationContextProvider>
+              <RootApp />
+            </NavigationContextProvider>
+          </BrowserRouter>
+        </Auth0Provider>
 
-      <DetectOffline />
-    </PersistGate>
+        <DetectOffline />
+      </PersistGate>
 
-    <GeoLocationWatcher />
+      <GeoLocationWatcher />
 
-    <JiraSupportWidget />
-  </Provider>
+      <JiraSupportWidget />
+    </Provider>
+  </RootErrorBoundary>
 );
 
 registerServiceWorker();

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useRef } from 'react';
+import { useContext, useEffect, useMemo, useRef } from 'react';
 import intersection from 'lodash/intersection';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +7,7 @@ import { filterFeatures, getUniqueIDsFromFeatures } from '../../../utils/feature
 import { getFeatureLayerListState } from './selectors';
 import { hideFeatures, showFeatures } from '../../../ducks/map-layer-filter';
 import { MAP_LAYERS_CATEGORY, trackEventFactory } from '../../../utils/analytics';
-import { MapContext } from '../../../App';
+import { MapContext } from '../../../MapContext';
 
 import CheckableList from '../../../CheckableList';
 import Checkmark from '../../../Checkmark';

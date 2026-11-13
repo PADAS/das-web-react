@@ -1,18 +1,20 @@
-import React from 'react';
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw/http';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
 import { createMapMock } from '../__test-helpers/mocks';
+import { BREAKPOINTS } from '../constants';
+import { clearModals } from '../ducks/modals';
 import { clearUserProfile, USER_API_URL, CURRENT_USER_API_URL, USER_PROFILES_API_URL } from '../ducks/user';
+import { hideDrawer } from '../ducks/drawer';
 import { cleanup, render, screen, waitFor } from '../test-utils';
 import getWindowLocation from '../utils/getWindowLocation';
 import { NEWS_API_URL } from '../ducks/news';
 import { userWithPin, userWithoutPin, userWithoutEula, userList } from '../__test-helpers/fixtures/users';
 
 import store from '../store';
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import Nav from './';
 import ModalRenderer from '../ModalRenderer';
 import useNavigate from '../hooks/useNavigate';
@@ -25,15 +27,10 @@ const generateResponse = (data = []) => ({ data });
 const anotherPinProfile = userWithoutEula;
 
 const server = setupServer(
-  http.get(`${USER_API_URL}/:userId`, ({ params }) => {
-    const { userId } = params;
-    const userMatch = userList.find(user => user.id === userId);
-
-    return HttpResponse.json(generateResponse(userMatch));
-  }),
-  http.get(CURRENT_USER_API_URL, () => {
-    return HttpResponse.json(generateResponse(userWithPin));
-  }),
+  http.get(CURRENT_USER_API_URL, () => HttpResponse.json(generateResponse(userWithPin))),
+  http.get(`${USER_API_URL}/:userId`, ({ params }) => HttpResponse.json(
+    generateResponse(userList.find((user) => user.id === params.userId))
+  )),
   http.get(USER_PROFILES_API_URL, () => {
     return HttpResponse.json(generateResponse(userList.filter(user => user.id !== userWithPin.id)));
   }),
@@ -45,7 +42,9 @@ const server = setupServer(
 beforeAll(() => server.listen());
 afterEach(() => {
   server.resetHandlers();
+  store.dispatch(clearModals());
   store.dispatch(clearUserProfile());
+  store.dispatch(hideDrawer());
 });
 afterAll(() => server.close());
 
@@ -53,6 +52,14 @@ describe('the Nav component', () => {
   const reload = jest.fn();
 
   let map, navigate, useNavigateMock;
+
+  const renderNav = () => render(<Provider store={store}>
+    <MapContext.Provider value={map}>
+      <Nav map={map} />
+      <ModalRenderer />
+    </MapContext.Provider>
+  </Provider>);
+
   beforeEach(() => {
     navigate = jest.fn();
     getWindowLocation.mockImplementation(() => ({ reload }));
@@ -60,21 +67,18 @@ describe('the Nav component', () => {
     useNavigate.mockImplementation(useNavigateMock);
     map = createMapMock();
 
-    render(
-      <Provider store={store}>
-        <MapContext.Provider value={map}>
-          <Nav map={map} />
-          <ModalRenderer />
-        </MapContext.Provider>
-      </Provider>
-    );
+    renderNav();
   });
 
   afterEach(() => {
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = true;
+
     jest.restoreAllMocks();
   });
 
   test('navigates to login if can not fetch the current user', async () => {
+    await waitFor(() => expect(store.getState().data.user).not.toEqual({}));
+
     server.use(
       http.get(CURRENT_USER_API_URL, () => {
         return HttpResponse.json(null, { status: 403 });
@@ -82,14 +86,7 @@ describe('the Nav component', () => {
     );
 
     cleanup();
-    render(
-      <Provider store={store}>
-        <MapContext.Provider value={map}>
-          <Nav map={map} />
-          <ModalRenderer />
-        </MapContext.Provider>
-      </Provider>
-    );
+    renderNav();
 
     expect(navigate).not.toHaveBeenCalled();
 
@@ -98,22 +95,45 @@ describe('the Nav component', () => {
       expect(navigate).toHaveBeenCalledWith({ pathname: '/login', search: '' });
     });
   });
-  describe('changing profiles', () => {
-    let userToggleBtn;
 
+  test('opens the main menu from a button that names it and reports it expanded', async () => {
+    const globalMenuButton = screen.getByRole('button', { name: 'Open main menu' });
+
+    expect(globalMenuButton).toHaveAttribute('title', 'Open main menu');
+    expect(globalMenuButton).toHaveAttribute('aria-haspopup', 'dialog');
+    expect(globalMenuButton).toHaveAttribute('aria-expanded', 'false');
+
+    await userEvent.click(globalMenuButton);
+
+    expect(globalMenuButton).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('shows the notifications button on medium screens and up', async () => {
+    expect(await screen.findByRole('button', { name: /^Notifications/ })).toBeInTheDocument();
+  });
+
+  test('does not show the notifications button on small screens', async () => {
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = false;
+
+    cleanup();
+    renderNav();
+
+    expect(await screen.findByRole('button', { name: /^User settings:/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Notifications/ })).not.toBeInTheDocument();
+  });
+
+  describe('changing profiles', () => {
     beforeEach(async () => {
       window.localStorage.setItem('persist:userProfile', '{"username":""profile""}');
 
-      userToggleBtn = await screen.findByTestId('user-menu-toggle-btn');
+      await userEvent.click(await screen.findByRole('button', { name: /^User settings:/ }));
 
-      userToggleBtn.click();
-
+      await screen.findByRole('menu', { name: 'User settings' });
     });
-    test('selecting a non-PIN-protected profile', async () => {
+
+    test('reloads as the profile the user selects when it has no PIN', async () => {
       jest.useFakeTimers();
-      const nonPinProfileLink = await screen.getByRole('button', {
-        name: userWithoutPin.username,
-      });
+      const nonPinProfileLink = screen.getByRole('menuitemradio', { name: userWithoutPin.username });
 
       nonPinProfileLink.click();
 
@@ -128,13 +148,11 @@ describe('the Nav component', () => {
       jest.useRealTimers();
     });
 
-    test('selecting a PIN-protected profile', async () => {
+    test('asks for the PIN of a protected profile before reloading as it', async () => {
       jest.useFakeTimers();
 
       let pinInputs, state;
-      const profileProtectedLink = await screen.getByRole('button', {
-        name: anotherPinProfile.username,
-      });
+      const profileProtectedLink = screen.getByRole('menuitemradio', { name: anotherPinProfile.username });
 
       profileProtectedLink.click();
 
@@ -163,13 +181,11 @@ describe('the Nav component', () => {
       jest.useRealTimers();
     });
 
-    test('does not redirect until the profile is persisted', async () => {
+    test('does not reload until the selected profile is persisted', async () => {
       jest.useFakeTimers();
 
       window.localStorage.removeItem('persist:userProfile');
-      const nonPinProfileLink = await screen.getByRole('button', {
-        name: userWithoutPin.username,
-      });
+      const nonPinProfileLink = screen.getByRole('menuitemradio', { name: userWithoutPin.username });
       nonPinProfileLink.click();
 
       const state = store.getState();
@@ -188,6 +204,33 @@ describe('the Nav component', () => {
 
       jest.useRealTimers();
     });
+
+    test('does not reload as the main user until the profile is cleared from storage', async () => {
+      const mainUserOption = await screen.findByRole('menuitemradio', { name: userWithPin.username });
+
+      jest.useFakeTimers();
+
+      mainUserOption.click();
+
+      const pinInputs = await screen.findAllByRole('input');
+      const user = userEvent.setup({ delay: null });
+
+      await user.type(pinInputs[0], userWithPin.pin[0]);
+      await user.type(pinInputs[1], userWithPin.pin[1]);
+      await user.type(pinInputs[2], userWithPin.pin[2]);
+      await user.type(pinInputs[3], userWithPin.pin[3]);
+
+      jest.advanceTimersByTime(500);
+
+      expect(reload).not.toHaveBeenCalled();
+
+      window.localStorage.removeItem('persist:userProfile');
+
+      jest.advanceTimersByTime(500);
+
+      expect(reload).toHaveBeenCalled();
+
+      jest.useRealTimers();
+    });
   });
 });
-

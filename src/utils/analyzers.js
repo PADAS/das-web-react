@@ -65,8 +65,7 @@ export const getAnalyzerAdminPoint = (geometry) => {
   return centerPt.geometry.coordinates;
 };
 
-export const findAnalyzerIdByChildFeatureId = (featureId, analyzerFeatures) => {
-  const analyzers = analyzerFeatures?.data ?? [];
+export const findAnalyzerIdByChildFeatureId = (featureId, analyzers = []) => {
   const searchResult = analyzers.find((analyzer) => analyzer.geojson.features.some(f => f.properties.id === featureId));
   return searchResult ? searchResult.id : null;
 };

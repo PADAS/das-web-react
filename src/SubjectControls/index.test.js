@@ -1,6 +1,6 @@
-import React from 'react';
 import userEvent from '@testing-library/user-event';
 
+import { fetchTracksIfNecessary } from '../utils/tracks';
 import { subjectIsStatic } from '../utils/subjects';
 
 import mockSubjectData from '../__test-helpers/fixtures/subjects';
@@ -12,6 +12,10 @@ import { render, screen } from '../test-utils';
 
 import SubjectControls from './';
 
+jest.mock('../utils/tracks', () => ({
+  ...jest.requireActual('../utils/tracks'),
+  fetchTracksIfNecessary: jest.fn(),
+}));
 jest.mock('../ducks/modals', () => {
   const real = jest.requireActual('../ducks/modals');
   return {
@@ -28,6 +32,7 @@ describe('SubjectControls', () => {
   beforeEach(() => {
     addModalMock = jest.fn(() => () => {});
     addModal.mockImplementation(addModalMock);
+    fetchTracksIfNecessary.mockReturnValue(new Promise(() => {}));
     store = mockStore({
       data: {
         tracks: {},
@@ -41,10 +46,10 @@ describe('SubjectControls', () => {
   });
 
   test('rendering without crashing', () => {
-    render(
+    expect(() => render(
       <Provider store={store}>
         <SubjectControls subject={subject} />
-      </Provider>);
+      </Provider>)).not.toThrow();
   });
 
   describe('the histrical data button', () => {
@@ -57,7 +62,7 @@ describe('SubjectControls', () => {
         </Provider>
       );
 
-      await screen.findByTestId(buttonTestId);
+      expect(await screen.findByTestId(buttonTestId)).toBeInTheDocument();
 
     });
 
@@ -73,6 +78,32 @@ describe('SubjectControls', () => {
       await userEvent.click(button);
 
       expect(addModal).toHaveBeenCalledWith(expect.objectContaining({ subjectId: subject.id, subjectIsStatic: subjectIsStatic(subject), title: `Historical Data: ${subject.name}` }));
+    });
+  });
+
+  describe('the track and heatmap buttons', () => {
+    const renderSubjectControls = () => render(
+      <Provider store={store}>
+        <SubjectControls subject={subject} />
+      </Provider>
+    );
+
+    test('shows the loading state only on the track button while the subject tracks load', async () => {
+      renderSubjectControls();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Tracks off' }));
+
+      expect(screen.getByRole('button', { name: 'Tracks off' })).toHaveAttribute('aria-busy', 'true');
+      expect(screen.getByRole('button', { name: 'Heatmap off' })).not.toHaveAttribute('aria-busy');
+    });
+
+    test('shows the loading state only on the heatmap button while the subject tracks load', async () => {
+      renderSubjectControls();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Heatmap off' }));
+
+      expect(screen.getByRole('button', { name: 'Heatmap off' })).toHaveAttribute('aria-busy', 'true');
+      expect(screen.getByRole('button', { name: 'Tracks off' })).not.toHaveAttribute('aria-busy');
     });
   });
 });

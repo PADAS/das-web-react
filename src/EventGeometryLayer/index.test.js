@@ -1,11 +1,10 @@
-import React from 'react';
 import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
 import { SOURCE_IDS, LAYER_IDS } from '../constants';
 import { MAP_LOCATION_SELECTION_MODES } from '../ducks/map-ui';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import EventGeometryLayer from './';
 
 import { createMapMock } from '../__test-helpers/mocks';

@@ -1,25 +1,11 @@
-import isEqual from 'react-fast-compare';
 import isNil from 'lodash/isNil';
 import merge from 'lodash/merge';
 
 import { cleanedUpFilterObject, objectToParamString } from './query';
 import { generateMonthsAgoDate } from './datetime';
-import { INITIAL_FILTER_STATE } from '../ducks/event-filter/';
 import { DEFAULT_EVENT_SORT, SORT_DIRECTION } from '../constants';
 
 import store from '../store';
-
-export const EVENT_SORT_ORDER_OPTIONS = [
-  { value: SORT_DIRECTION.down, key: 'newest' },
-  { value: SORT_DIRECTION.up, key: 'oldest' },
-];
-
-export const isFilterModified = ({ state, filter: { priority, reported_by, text } }) => (
-  !isEqual(INITIAL_FILTER_STATE.state, state)
-    || !isEqual(INITIAL_FILTER_STATE.filter.priority, priority)
-    || !isEqual(INITIAL_FILTER_STATE.filter.text, text)
-    || !isEqual(INITIAL_FILTER_STATE.filter.reported_by, reported_by)
-);
 
 export const calcSortParamForEventFilter = ([direction, sortProp]) =>
   `${direction === SORT_DIRECTION.down ? '-' : ''}${sortProp.value}`;
@@ -29,16 +15,15 @@ export const calcTimePropForSortConfig = ([, sortProp]) => sortProp.value === 'e
 export const sortEventsBySortConfig = (events, sortConfig) => {
   const [direction] = sortConfig;
   const comparisonProp = calcTimePropForSortConfig(sortConfig);
+  const sortValue = (event) => comparisonProp === 'serial_number'
+    ? Number(event.serial_number)
+    : new Date(event[comparisonProp]).getTime();
+  const sign = direction === SORT_DIRECTION.up ? 1 : -1;
 
-  return [...events].sort((a, b) => {
-    const date1 = new Date(a[comparisonProp]).getTime();
-    const date2 = new Date(b[comparisonProp]).getTime();
-
-    if (direction === SORT_DIRECTION.up) {
-      return date1 - date2;
-    }
-    return date2 - date1;
-  });
+  return events
+    .map((event) => ({ event, value: sortValue(event) }))
+    .sort((sortable, otherSortable) => sign * (sortable.value - otherSortable.value))
+    .map((sortable) => sortable.event);
 };
 
 export const calcEventFilterForRequest = (options = {}, sortConfig = DEFAULT_EVENT_SORT) => {

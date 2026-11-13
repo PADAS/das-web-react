@@ -1,10 +1,10 @@
-@import '../../../common/styles/vars/colors';
+@use '../../../common/styles/vars/colors';
 
 .historyListItem {
   display: flex;
   justify-content: space-between;
   padding: 0.5rem;
-  border-bottom: 1px solid $light-gray-border;
+  border-bottom: 1px solid colors.$light-gray-border;
 
   &:last-of-type {
     border-bottom: none;

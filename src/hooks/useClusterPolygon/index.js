@@ -3,7 +3,7 @@ import { buffer, concave, featureCollection } from '@turf/turf';
 import { useSelector } from 'react-redux';
 
 import { CLUSTERS_MAX_ZOOM, LAYER_IDS, SOURCE_IDS } from '../../constants';
-import { MapContext } from '../../App';
+import { MapContext } from '../../MapContext';
 
 const ZOOM_FACTOR_BASE_DISTANCE = 0.75;
 const ZOOM_FACTOR_BASE_ZOOM = 10;

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
@@ -9,7 +8,7 @@ import { GPS_FORMATS } from '../utils/location';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import { mockStore } from '../__test-helpers/MockStore';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 
 import LocationPicker from './';
 
@@ -210,6 +209,27 @@ describe('LocationPicker', () => {
     expect(screen.getByLabelText('Location')).toHaveValue('15.000000°, 10.000000°');
   });
 
+  test('adds a description given through the input props to the one of the input', async () => {
+    render(
+      <Provider store={mockStore(store)}>
+        <MapContext.Provider value={map}>
+          <LocationPicker
+            id="locationPicker"
+            inputProps={{ 'aria-describedby': 'locationPicker-customDescription' }}
+            onChange={onChange}
+            value={null}
+          />
+
+          <p id="locationPicker-customDescription">Custom description</p>
+        </MapContext.Provider>
+      </Provider>
+    );
+
+    expect(screen.getByLabelText('Location')).toHaveAccessibleDescription(
+      'Click the button to set a value from the location picker menu. Custom description'
+    );
+  });
+
   test('shows the coordinates in DEG format and a warning tooltip if the coordinates representation is a CRS and the value is outside the BBOX', async () => {
     store.view.coordinateReferenceSystems.selectedCoordinateRepresentations = [
       GPS_FORMATS.DEG,
@@ -316,7 +336,10 @@ describe('LocationPicker', () => {
 
     await userEvent.click(setLocationButton);
 
-    expect(screen.getByRole('dialog')).toBeVisible();
+    const locationDialog = screen.getByRole('dialog', { name: 'Location' });
+
+    expect(locationDialog).toBeVisible();
+    expect(locationDialog).toHaveStyle({ position: 'fixed' });
     expect(setLocationButton).toHaveAttribute('aria-expanded', 'true');
   });
 
@@ -325,9 +348,9 @@ describe('LocationPicker', () => {
 
     const setLocationButton = screen.getByLabelText('Open the location picker menu to set a value');
     await userEvent.click(setLocationButton);
-    const menuPopover = screen.getByRole('dialog');
+    const locationDialog = screen.getByRole('dialog', { name: 'Location' });
 
-    expect(menuPopover).toBeVisible();
+    expect(locationDialog).toBeVisible();
     expect(setLocationButton).toHaveAttribute('aria-expanded', 'true');
 
     await userEvent.click(setLocationButton);
@@ -335,7 +358,7 @@ describe('LocationPicker', () => {
     expect(setLocationButton).toHaveAttribute('aria-expanded', 'false');
 
     await waitFor(() => {
-      expect(menuPopover).not.toBeVisible();
+      expect(locationDialog).not.toBeVisible();
     });
   });
 });

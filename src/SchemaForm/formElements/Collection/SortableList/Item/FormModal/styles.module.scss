@@ -1,0 +1,115 @@
+@use 'sass:color';
+@use '../../../../../../common/styles/buttons';
+@use '../../../../../../common/styles/vars/colors';
+@use '../../../../../../common/styles/inputs';
+
+.dimmedBackground {
+  background: rgb(0 0 0 / 50%);
+}
+
+.noBackground {
+  background: none !important;
+}
+
+// So much detail is needed to override the App.scss .modal[role=dialog] display: flex !important
+.hide[class*="modal"][role="dialog"] {
+  display: none !important;
+}
+
+.header {
+  background-color: white;
+  flex-direction: column;
+
+  .list {
+    margin-bottom: 0.25rem;
+
+    .breadcrumb {
+      color: colors.$secondary-medium-gray;
+      font-size: 0.75rem;
+
+      &.current {
+        color: colors.$off-black;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .title {
+    color: colors.$off-black;
+    font-size: 1.125rem;
+  }
+}
+
+.body {
+  height: 40vh;
+
+  .columns {
+    display: flex;
+
+    .column {
+      &.fullWidth {
+        width: 100%;
+      }
+    
+      &.halfWidthLeft {
+        padding-right: 0.5rem;
+        width: 50%;
+      }
+    
+      &.halfWidthRight {
+        padding-left: 0.5rem;
+        width: 50%;
+      }
+
+      > *:not(:last-child) {
+        margin-bottom: 1rem;
+      }
+    }
+  }
+}
+
+.footer {
+  padding: 0.5rem 1rem;
+
+  &.alignEvenly{
+    justify-content: space-between;
+  }
+
+  &.alignRight{
+    justify-content: right;
+  }
+
+  .deleteButton {
+    @include buttons.chip-icon-button;
+
+    background-color: colors.$high-priority-bg-hover;
+    border-color: colors.$high-priority-bg-hover;
+    color: colors.$bright-red;
+
+    svg {
+      height: 1rem;
+      width: 1rem;
+    }
+
+    &:hover {
+      background-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
+      border-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
+    }
+
+    &:disabled:hover {
+      background-color: colors.$high-priority-bg-hover;
+      border-color: colors.$high-priority-bg-hover;
+    }
+  }
+
+  .cancelButton {
+    @include buttons.chip-text-button;
+
+    display: inline-flex;
+    margin-right: 0.5rem;
+  }
+
+  .doneButton {
+    @include buttons.primary-action-button;
+  }
+}

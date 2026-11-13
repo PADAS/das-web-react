@@ -1,0 +1,321 @@
+import { memo, useContext, useEffect, useMemo, useRef } from 'react';
+import debounce from 'lodash/debounce';
+import { featureCollection } from '@turf/turf';
+import noop from 'lodash/noop';
+import { useDispatch, useSelector } from 'react-redux';
+
+import {
+  addRealtimeOverlayEvent,
+  clearHiddenRealtimeOverlayEvents,
+  pruneRealtimeOverlayEvents,
+} from '../ducks/events-realtime-overlay';
+import {
+  buildEventIconLayout,
+  buildEventTimeSliderFadeColor,
+  buildEventTimeSliderHideFilter,
+  EVENT_GEOMETRY_FILL_PAINT,
+  resolveEventTimeSliderParameters,
+} from '../utils/event-vector-tiles';
+import {
+  EVENT_TILE_FILTER_DEBOUNCE_MS,
+  IF_IS_GENERIC,
+  LAYER_IDS,
+  REALTIME_OVERLAY_WINDOW_MS,
+  SOURCE_IDS,
+} from '../constants';
+import { fetchRecentEventsIntoRealtimeOverlay } from '../ducks/events';
+import { MAP_LOCATION_SELECTION_MODES } from '../ducks/map-ui';
+import {
+  selectRealtimeOverlayFeatureCollection,
+  selectRealtimeOverlayPolygonFeatureCollection,
+} from '../selectors/events-realtime-overlay';
+import { selectShouldEventsBeClustered } from '../selectors/clusters';
+import LabeledSymbolLayer from '../LabeledSymbolLayer';
+import { MapContext } from '../MapContext';
+import { safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
+import { useMapEventBinding } from '../hooks';
+import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
+
+const EMPTY_FEATURE_COLLECTION = featureCollection([]);
+const FETCH_RECENT_EVENTS_DEBOUNCE_MS = 400;
+const LABELS_LAYER_ID = `${LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS}-labels`;
+const PRUNE_INTERVAL_MS = 60 * 1000;
+
+// Overlay layers that show a pointer cursor.
+const POINTER_LAYER_IDS = [
+  LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS,
+  LABELS_LAYER_ID,
+  LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY,
+];
+
+const ICON_LAYOUT = buildEventIconLayout({ iconIdExpression: ['get', 'icon_id'], ifIsGeneric: IF_IS_GENERIC });
+
+const LABEL_LAYOUT = {
+  'text-field': '{display_title}',
+  'text-size': ['interpolate', ['exponential', 0.5], ['zoom'], 0, 5, 6, 8, 14, 13],
+  'text-font': [
+    'case',
+    ['==', ['get', 'locallyEdited'], true],
+    ['literal', ['Open Sans Italic']],
+    ['literal', ['Open Sans Semibold', 'Arial Unicode MS Bold']],
+  ],
+};
+
+// Renders recent and locally-changed events as a GeoJSON layer above the
+// tiles, so creates and edits show immediately instead of waiting for the
+// next tile refresh.
+const EventsRealtimeOverlayLayer = ({ onEventClick }) => {
+  const dispatch = useDispatch();
+
+  const map = useContext(MapContext);
+
+  const drawingEventId = useSelector((state) => {
+    const mapLocationSelection = state.view?.mapLocationSelection;
+    const isDrawingEventGeometry = mapLocationSelection?.isPickingLocation
+      && mapLocationSelection.mode === MAP_LOCATION_SELECTION_MODES.EVENT_GEOMETRY;
+
+    return isDrawingEventGeometry ? (mapLocationSelection.event?.id ?? '') : '';
+  });
+  const eventFilter = useSelector((state) => state.data.eventFilter);
+  const eventFilterDateRange = eventFilter?.filter?.date_range;
+  const locallyEditedEventId = useSelector((state) => state.data.locallyEditedEvent?.id);
+  const realtimeOverlayFeatureCollection = useSelector(selectRealtimeOverlayFeatureCollection);
+  const realtimeOverlayPolygonFeatureCollection = useSelector(selectRealtimeOverlayPolygonFeatureCollection);
+  const shouldEventsBeClustered = useSelector(selectShouldEventsBeClustered);
+  const showReportsOnMap = useSelector((state) => state.data.mapLayerFilter.showReportsOnMap);
+  const timeSliderState = useSelector((state) => state.view?.timeSliderState);
+
+  // Guards against the click firing twice when the icon and label layers
+  // overlap.
+  const clicking = useRef(false);
+
+  // While clustering, the symbols hand off to the cluster source, so hide the
+  // overlay's own symbols.
+  const overlayVisibility = shouldEventsBeClustered ? 'none' : 'visible';
+  const sourceData = showReportsOnMap ? realtimeOverlayFeatureCollection : EMPTY_FEATURE_COLLECTION;
+  const polygonSourceData = useMemo(() => {
+    if (!showReportsOnMap) {
+      return EMPTY_FEATURE_COLLECTION;
+    }
+
+    if (!drawingEventId) {
+      // Drop the fill for the polygon being drawn so it doesn't sit on top of
+      // the live draw geometry.
+      return realtimeOverlayPolygonFeatureCollection;
+    }
+
+    return featureCollection(
+      realtimeOverlayPolygonFeatureCollection.features.filter((feature) => feature.properties.id !== drawingEventId)
+    );
+  }, [showReportsOnMap, drawingEventId, realtimeOverlayPolygonFeatureCollection]);
+
+  const iconLayout = useMemo(() => ({ ...ICON_LAYOUT, visibility: overlayVisibility }), [overlayVisibility]);
+  const labelLayout = useMemo(() => ({ ...LABEL_LAYOUT, visibility: overlayVisibility }), [overlayVisibility]);
+
+  const fetchRecentEvents = useMemo(
+    () => debounce(() => dispatch(fetchRecentEventsIntoRealtimeOverlay(map)), FETCH_RECENT_EVENTS_DEBOUNCE_MS),
+    [dispatch, map]
+  );
+
+  const eventTimeSliderParameters = useMemo(
+    () => resolveEventTimeSliderParameters(timeSliderState, eventFilterDateRange),
+    [timeSliderState, eventFilterDateRange]
+  );
+
+  const textPaint = useMemo(
+    () => ({
+      'icon-color': buildEventTimeSliderFadeColor(
+        eventTimeSliderParameters.active,
+        eventTimeSliderParameters.totalRangeDistance,
+        eventTimeSliderParameters.virtualDateMs
+      )
+    }),
+    [eventTimeSliderParameters]
+  );
+
+  const hideFilter = useMemo(
+    () => buildEventTimeSliderHideFilter(
+      eventTimeSliderParameters.active,
+      eventTimeSliderParameters.virtualDateIso
+    ) ?? ['all'],
+    [eventTimeSliderParameters]
+  );
+
+  useEffect(() => {
+    // Create the point source once; the symbol layers on it are added by the
+    // LabeledSymbolLayer below.
+    if (map && !map.getSource(SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE)) {
+      map.addSource(SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE, {
+        type: 'geojson',
+        data: EMPTY_FEATURE_COLLECTION,
+      });
+    }
+
+    return () => {
+      safeRemoveMapLayer(map, LABELS_LAYER_ID);
+      safeRemoveMapLayer(map, LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS);
+      safeRemoveMapSource(map, SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE);
+    };
+  }, [map]);
+
+  useEffect(() => {
+    map?.getSource?.(SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE)?.setData?.(sourceData);
+  }, [map, sourceData]);
+
+  useEffect(() => {
+    // Polygons need their own source + fill layer.
+    if (map) {
+      if (!map.getSource(SOURCE_IDS.EVENTS_REALTIME_OVERLAY_POLYGON_SOURCE)) {
+        map.addSource(SOURCE_IDS.EVENTS_REALTIME_OVERLAY_POLYGON_SOURCE, {
+          type: 'geojson',
+          data: EMPTY_FEATURE_COLLECTION,
+        });
+      }
+
+      if (!map.getLayer(LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY)) {
+        // Place the fill below the overlay symbols so icons stay on top.
+        const before = map.getLayer(LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS)
+          ? LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS
+          : (map.getLayer(LAYER_IDS.SUBJECT_SYMBOLS) ? LAYER_IDS.SUBJECT_SYMBOLS : undefined);
+        map.addLayer({
+          id: LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY,
+          type: 'fill',
+          source: SOURCE_IDS.EVENTS_REALTIME_OVERLAY_POLYGON_SOURCE,
+          layout: {},
+          paint: EVENT_GEOMETRY_FILL_PAINT,
+        }, before);
+      }
+    }
+
+    return () => {
+      safeRemoveMapLayer(map, LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY);
+      safeRemoveMapSource(map, SOURCE_IDS.EVENTS_REALTIME_OVERLAY_POLYGON_SOURCE);
+    };
+  }, [map]);
+
+  useEffect(() => {
+    map?.getSource?.(SOURCE_IDS.EVENTS_REALTIME_OVERLAY_POLYGON_SOURCE)?.setData?.(polygonSourceData);
+  }, [map, polygonSourceData]);
+
+  useEffect(() => {
+    // Apply the time-slider hide to the fill.
+    if (map?.getLayer?.(LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY)) {
+      map.setFilter(LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY, hideFilter);
+    }
+  }, [map, hideFilter]);
+
+  useEffect(() => {
+    // Keep the event being edited in the overlay so its unsaved changes are
+    // visible right away.
+    if (locallyEditedEventId) {
+      dispatch(addRealtimeOverlayEvent(locallyEditedEventId));
+    }
+  }, [locallyEditedEventId, dispatch]);
+
+  useEffect(() => {
+    // Periodically drop overlay members once they're past the retention
+    // window.
+    const interval = setInterval(
+      () => dispatch(pruneRealtimeOverlayEvents(Date.now() - REALTIME_OVERLAY_WINDOW_MS)),
+      PRUNE_INTERVAL_MS
+    );
+
+    return () => clearInterval(interval);
+  }, [dispatch]);
+
+  useEffect(() => {
+    // A new filter loads its own fresh data, so any events being hidden no
+    // longer need to be.
+    if (map) {
+      let isWaitingForTileReload = false;
+
+      const handleSourceData = (event) => {
+        if (isWaitingForTileReload && event.sourceId === SOURCE_IDS.EVENTS_VECTOR_SOURCE) {
+          isWaitingForTileReload = false;
+          dispatch(clearHiddenRealtimeOverlayEvents());
+        }
+      };
+      map.on('sourcedata', handleSourceData);
+
+      const startWaitingForTileReload = setTimeout(() => {
+        isWaitingForTileReload = true;
+      }, EVENT_TILE_FILTER_DEBOUNCE_MS);
+      return () => {
+        map.off('sourcedata', handleSourceData);
+        clearTimeout(startWaitingForTileReload);
+      };
+    }
+  }, [eventFilter, map, dispatch]);
+
+  useEffect(() => {
+    // Reconcile against the backend now and after every map move.
+    if (map) {
+      fetchRecentEvents();
+      map.on('moveend', fetchRecentEvents);
+
+      return () => {
+        map.off('moveend', fetchRecentEvents);
+        fetchRecentEvents.cancel();
+      };
+    }
+  }, [map, fetchRecentEvents]);
+
+  // Overlay features are full flattened events, so no eventStore hydration is
+  // needed.
+  /* eslint-disable react-hooks/refs */
+  const handleEventClick = useMemo(() => (map ? withMultiLayerHandlerAwareness(
+    map,
+    (event) => {
+      if (!clicking.current) {
+        clicking.current = true;
+        setTimeout(() => {
+          clicking.current = false;
+        });
+
+        const clickedFeature = map.queryRenderedFeatures(
+          event.point,
+          {
+            layers: [
+              LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS,
+              LABELS_LAYER_ID,
+              LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY,
+            ].filter((id) => map.getLayer(id)),
+          }
+        )[0];
+        if (clickedFeature && onEventClick) {
+          onEventClick({ event, layer: clickedFeature });
+        }
+      }
+    }
+  ) : noop), [map, onEventClick]);
+  /* eslint-enable react-hooks/refs */
+
+  const onFillMouseEnter = useMemo(() => (map ? () => {
+    map.getCanvas().style.cursor = 'pointer';
+  } : noop), [map]);
+
+  const onFillMouseLeave = useMemo(() => (map ? (event) => {
+    const layers = POINTER_LAYER_IDS.filter((id) => map.getLayer(id));
+    if (!map.queryRenderedFeatures(event.point, { layers }).length) {
+      map.getCanvas().style.cursor = '';
+    }
+  } : noop), [map]);
+
+  useMapEventBinding('click', handleEventClick, LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY, !!onEventClick);
+  useMapEventBinding('mouseenter', onFillMouseEnter, LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY);
+  useMapEventBinding('mouseleave', onFillMouseLeave, LAYER_IDS.EVENTS_REALTIME_OVERLAY_GEOMETRY);
+
+  return <LabeledSymbolLayer
+    before={map?.getLayer?.(LAYER_IDS.SUBJECT_SYMBOLS) ? LAYER_IDS.SUBJECT_SYMBOLS : undefined}
+    filter={hideFilter}
+    id={LAYER_IDS.EVENTS_REALTIME_OVERLAY_SYMBOLS}
+    layout={iconLayout}
+    onClick={handleEventClick}
+    sourceId={SOURCE_IDS.EVENTS_REALTIME_OVERLAY_SOURCE}
+    textLayout={labelLayout}
+    textPaint={textPaint}
+    type="symbol"
+  />;
+};
+
+export default memo(EventsRealtimeOverlayLayer);

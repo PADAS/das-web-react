@@ -13,23 +13,36 @@
         "restrictedOptionLabel": "RESTRITO"
     },
     "nav": {
+        "hamburgerMenuLabel": "Abrir menu principal",
+        "messageMenu": {
+            "toggleLabel": "Mensagens",
+            "unreadToggleLabel_one": "Mensagens, {{count}} não lidas",
+            "unreadToggleLabel_other": "Mensagens, {{count}} não lidas"
+        },
         "navHomeMenu": {
-            "myCurrentLocationItem": "Minha localização atual"
+            "homeMenuLabel": "Links rápidos do mapa",
+            "homeMenuToggleLabel": "Links rápidos do mapa: {{mapTitle}}",
+            "myCurrentLocationOptionLabel": "Minha localização atual"
         }
     },
     "notificationMenu": {
-        "errorFetchingHeader": "Erro ao buscar anúncios recentes.",
-        "noNewNotificationsHeader": "Não há novas notificações no momento.",
-        "notificationItem": {
-            "confirmButton": "Confirmar",
-            "dismissButton": "Ignorar",
-            "moreInformationLink": "Mais informações"
+        "notificationsPopover": {
+            "allNewsLink": "Veja todas as notícias",
+            "label": "Notificações",
+            "newsFetchErrorMessage": "Erro ao buscar anúncios recentes.",
+            "noNotificationsMessage": "Não há novas notificações no momento.",
+            "notificationItem": {
+                "confirmButton": "Confirmar",
+                "dismissButton": "Ignorar",
+                "moreInformationLink": "Mais informações",
+                "readMoreLink": "Ler mais",
+                "unreadLabel": "Não lida"
+            },
+            "retryButton": "Tentar novamente"
         },
-        "outdatedNotifications_one": "Você tem {{count}} não lidas.",
-        "outdatedNotifications_other": "Você tem {{count}} não lidas.",
-        "readMore": "Ler mais",
-        "seeAllNewsButton": "Veja todas as notícias >",
-        "tryAgainButton": "Tentar novamente"
+        "toggleLabel": "Notificações",
+        "unreadToggleLabel_one": "Notificações, {{count}} não lidas",
+        "unreadToggleLabel_other": "Notificações, {{count}} não lidas"
     },
     "profilePINModal": {
         "error": "PIN incorreto",
@@ -39,14 +52,17 @@
     "systemStatus": {
         "datasourceDefTitle": "Atividade do dispositivo",
         "dateTimeSuffix": "Atrás",
-        "heartBeatDefTitle": "Atividade do sistema",
-        "initialRealTimeStatusTitle": "EarthRanger em tempo real",
-        "initialRealTimeStatusDetails": "Atividade",
-        "initialNetworkStatusTitle": "Conexão",
-        "networkOnlineLabel": "conectado",
-        "networkOfflineLabel": "desconectado",
-        "serverVersionLabel": "Servidor EarthRanger {{version}}",
         "HEALTHY": "Íntegro",
+        "heartBeatDefTitle": "Atividade do sistema",
+        "initialNetworkStatusTitle": "Conexão",
+        "initialRealTimeStatusDetails": "Atividade",
+        "initialRealTimeStatusTitle": "EarthRanger em tempo real",
+        "networkOfflineLabel": "desconectado",
+        "networkOnlineLabel": "conectado",
+        "popoverLabel": "Status do sistema",
+        "serverVersionLabel": "Servidor EarthRanger {{version}}",
+        "toggleLabel": "Status do sistema: {{status}}",
+        "toggleTitle": "Status do sistema",
         "UNHEALTHY": "Não íntegro",
         "UNKNOWN": "Desconhecido",
         "WARNING": "Alerta"
@@ -54,8 +70,8 @@
     "userMenu": {
         "cookieSettingsItem": "Configuração de cookies",
         "logoutItem": "Encerrar sessão",
-        "toggleLabel": "Abrir configuração de usuário",
-        "toggleTitle": "Configuração de usuário",
-        "userAndProfilesHeader": "Usuário e perfis"
+        "menuLabel": "Configuração de usuário",
+        "toggleLabel": "Configuração de usuário: {{username}}",
+        "userAndProfilesGroupLabel": "Usuário e perfis"
     }
 }

@@ -1,6 +1,6 @@
-@import '../../common/styles/vars/colors';
-@import '../../common/styles/layout';
-@import '../../common/styles/inputs';
+@use '../../common/styles/vars/colors';
+@use '../../common/styles/layout';
+@use '../../common/styles/inputs';
 
 .sectionHeader {
   align-items: center;
@@ -19,7 +19,7 @@
   }
 
   svg {
-    color: $secondary-medium-gray;
+    color: colors.$secondary-medium-gray;
     margin-right: 0.5rem;
     width: 1.5rem;
   }
@@ -29,7 +29,7 @@
   .row {
     display: block;
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       align-items: flex-end;
       display: flex;
 
@@ -45,7 +45,7 @@
   display: flex;
   width: 100%;
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     width: 50%;
   }
 }
@@ -54,7 +54,8 @@
   margin-top: 1.5rem;
   width: 100%;
   position: relative;
-  @include label-styles;
+
+  @include inputs.label-styles;
 
   > div:first-child, 
   > label {

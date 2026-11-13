@@ -60,7 +60,7 @@ const popupReducer = (state = null, action = {}) => {
         },
       }
     };
-    if (payload.hasOwnProperty('device_status_properties')) {
+    if (Object.hasOwn(payload, 'device_status_properties')) {
       returnVal.data.properties.device_status_properties = JSON.stringify(payload.device_status_properties);
     }
 

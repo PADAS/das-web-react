@@ -1,11 +1,11 @@
-import React, { memo, useEffect, useMemo, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import { components } from 'react-select';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { allSubjects } from '../selectors/subjects';
 
-import Select from '../Select';
+import LegacySelect from '../LegacySelect';
 
 const getOptionLabel = (t) => (option) => {
   if (option.hidden) {
@@ -40,7 +40,7 @@ const MessagingSelect = ({ onChange }) => {
     selectRef.current?.focus?.();
   }, []);
 
-  return <Select
+  return <LegacySelect
     components={{ Option }}
     getOptionLabel={getOptionLabel(t)}
     getOptionValue={(option) => option.hidden ? t('hiddenValue') : option.id}

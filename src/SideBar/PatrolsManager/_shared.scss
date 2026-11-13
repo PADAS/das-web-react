@@ -1,0 +1,43 @@
+@forward '../shared';
+@use '../../common/styles/vars/colors';
+@use '../shared';
+
+// Keyed by the patrol UI state keys, plus the new state of a draft.
+@mixin header-icon-tile-by-state {
+  &.active {
+    @include shared.header-icon-tile(colors.$patrol-active-theme);
+  }
+
+  &.cancelled, &.invalid {
+    @include shared.header-icon-tile(colors.$patrol-cancelled-theme);
+  }
+
+  &.done {
+    @include shared.header-icon-tile(colors.$patrol-done-theme);
+  }
+
+  &.new {
+    @include shared.header-icon-tile(('base': colors.$bright-blue));
+  }
+
+  &.paused {
+    @include shared.header-icon-tile(colors.$patrol-paused-theme);
+  }
+
+  &.readyToStart, &.scheduled {
+    @include shared.header-icon-tile(colors.$patrol-ready-theme);
+  }
+
+  &.startOverdue {
+    @include shared.header-icon-tile(colors.$patrol-overdue-theme);
+  }
+}
+
+@mixin subject-menu-row {
+  align-items: center;
+  background-color: white;
+  display: flex;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+}

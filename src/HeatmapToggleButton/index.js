@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import * as styles from './styles.module.scss';
@@ -17,7 +17,7 @@ const HeatmapToggleButton = ({
   const visibilityClassName = heatmapVisible ? 'visible' : heatmapPartiallyVisible ? 'partial' : '';
 
   return <SubjectControlButton
-    buttonClassName={`${styles.button} ${styles[visibilityClassName]} ${className || ''}`}
+    buttonClassName={`${styles.button} ${visibilityClassName ? styles[visibilityClassName] : ''} ${className || ''}`}
     containerClassName={`${styles.container} ${visibilityClassName}`}
     labelText={visibilityClassName ? t('heatmapOnLabel') : t('heatmapOffLabel')}
     onClick={onButtonClick}

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 import cloneDeep from 'lodash/cloneDeep';
@@ -103,7 +102,7 @@ describe('MapLocationSelectionOverview', () => {
 
   describe('with a single-point location', () => {
     test('the title is "Choose report location"', async () => {
-      await screen.findByText('Choose event location');
+      expect(await screen.findByText('Choose event location')).toBeInTheDocument();
     });
   });
 
@@ -125,7 +124,7 @@ describe('MapLocationSelectionOverview', () => {
     });
 
     test('the title is "Create report area"', async () => {
-      await screen.findByText('Create event area');
+      expect(await screen.findByText('Create event area')).toBeInTheDocument();
     });
 
     test('renders default values for area and perimeter', async () => {

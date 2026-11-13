@@ -14,6 +14,16 @@
     "defaultLabel": "Create Event or Patrol",
     "defaultTitle": "Create"
   },
+  "communityPage": {
+    "coolOffChooseAnotherType": "Choose a different event type",
+    "coolOffMessage": "You recently submitted a {{eventType}} form. You can submit another one in {{timeRemaining}}.",
+    "coolOffTimeRemaining": "Time remaining: {{timeRemaining}}",
+    "coolOffTitle": "Please wait before submitting again",
+    "coolOffTypeUnavailable": "Available in {{timeRemaining}}",
+    "formSubmitted": "Successfully Submitted",
+    "invalidCommunityUrl": "Invalid Community URL",
+    "searchPlaceholder": "Search event types..."
+  },
   "checkMark": {
     "fullyCheckedTitle": "Visible",
     "partiallyCheckedTitle": "Partially visible",
@@ -57,11 +67,74 @@
     "hideDetailsButton": "Hide Details",
     "showDetailsButton": "See Details"
   },
+  "feedTable": {
+    "clearSelectionButtonLabel": "Clear",
+    "clientSortFinishedMessage": "Sorted by {{column}}: every row loaded",
+    "clientSortLoadingMessage": "Sorting by {{column}}: loaded {{loaded}} of {{total}}",
+    "clientSortPausedMessage": "Sorting paused: loaded {{loaded}} of {{total}}",
+    "clientSortRetryButtonLabel": "Retry",
+    "clientSortStartedMessage": "Loading every row to sort by {{column}}",
+    "columnsButtonLabel": "Columns",
+    "columnsMenuLabel": "Columns shown",
+    "eventsTable": {
+      "bulkUpdateErrorMessage_one": "{{count}} event could not be updated",
+      "bulkUpdateErrorMessage_other": "{{count}} events could not be updated",
+      "bulkUpdateSuccessMessage_one": "{{count}} event updated",
+      "bulkUpdateSuccessMessage_other": "{{count}} events updated",
+      "createdAtColumnTitle": "Created",
+      "eventTimeColumnTitle": "Event time",
+      "eventTypeColumnTitle": "Type",
+      "locationColumnTitle": "Location",
+      "priorityColumnTitle": "Priority",
+      "reopenButtonLabel": "Reopen",
+      "reportedByColumnTitle": "Reported by",
+      "resolveButtonLabel": "Resolve",
+      "selectedCountMessage_one": "{{count}} selected",
+      "selectedCountMessage_other": "{{count}} selected",
+      "serialColumnTitle": "Serial #",
+      "stateColumnTitle": "State",
+      "titleColumnTitle": "Title",
+      "updatedAtColumnTitle": "Updated"
+    },
+    "exportButtonLabel": "Export all fields (CSV)",
+    "exportErrorMessage": "Could not export the CSV",
+    "grid": {
+      "noRowsMessage": "Nothing to show"
+    },
+    "headerCell": {
+      "allRowsCheckboxLabel": "Select all rows"
+    },
+    "moveColumnHintMessage": "Press Alt and the left or right arrow on a column header to move the column.",
+    "objectViewModal": {
+      "breadcrumbLabel": "Path",
+      "itemCountMessage_one": "{{count}} item",
+      "itemCountMessage_other": "{{count}} items",
+      "openButtonLabel": "View"
+    },
+    "patrolsTable": {
+      "leaderColumnTitle": "Leader",
+      "legsColumnTitle": "Legs",
+      "loadedPatrolsMessage_one": "Showing {{loaded}} of {{count}} patrol",
+      "loadedPatrolsMessage_other": "Showing {{loaded}} of {{count}} patrols",
+      "patrolEndColumnTitle": "End",
+      "patrolStartColumnTitle": "Start",
+      "patrolTypeColumnTitle": "Patrol type",
+      "serialColumnTitle": "Serial #",
+      "stateColumnTitle": "State",
+      "titleColumnTitle": "Title"
+    },
+    "selectedCountMessage_one": "{{count}} selected",
+    "selectedCountMessage_other": "{{count}} selected",
+    "titleCell": {
+      "rowCheckboxLabel": "Select {{title}}"
+    }
+  },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Share your location to view data with geo-permissions",
     "shareLocationToastTitle": "Learn how"
   },
   "getUserLocationButton": {
+    "cancelButtonLabel": "Cancel",
     "errorToastMessage": "Could not read your current location: {{errorMessage}}",
     "loadingOverlayMessage": "Trying to read your location...",
     "userLocationButtonLabel": "Get current position"
@@ -104,6 +177,7 @@
     "menuPopover": {
       "dialogLabel": "Location",
       "getUserLocationButton": "Use my location",
+      "permissionBlockedMessage": "Location sharing blocked by browser. Allow it in your browser settings.",
       "pickMapLocationButton": "Set on map"
     },
     "setLocationButtonLabel": {
@@ -156,12 +230,6 @@
     "instructionsPopupLabel": "Click to select a location",
     "pickLocationButtonLabel": "Pick a location on the map"
   },
-  "priorityPicker": {
-    "amber": "Amber",
-    "green": "Green",
-    "none": "None",
-    "red": "Red"
-  },
   "reportedBySelect": {
     "control": {
       "radioIconPlaceholder": "Radio icon placeholder for reported by selector"
@@ -177,6 +245,16 @@
     "singleValue": {
       "radioIcon": "Radio icon for {{name}} value"
     }
+  },
+  "reporterSelect": {
+    "allReportersGroupLabel": "All",
+    "recentRadiosGroupLabel": "Recent radios",
+    "restrictedReporterLabel": "RESTRICTED"
+  },
+  "rootErrorBoundary": {
+    "errorTitle": "Something went wrong",
+    "reloadButtonLabel": "Reload",
+    "reloadMessage": "EarthRanger ran into an unexpected problem. Reload the page to continue."
   },
   "schemaFields": {
     "addButton": {
@@ -197,6 +275,9 @@
     "clearButtonLabel": "Clear search",
     "defaultPlaceholder": "Search..."
   },
+  "select": {
+    "noOptionsMessage": "No options to display"
+  },
   "serviceWorkerWatcher": {
     "confirmNotification": "Reload",
     "newVersionAvailableNotification": "A new version of EarthRanger is available. It will be loaded the next time you refresh your browser."
@@ -208,12 +289,13 @@
     "addPatrolButtonTitle": "Create Patrol",
     "backButtonLabel": "Go Back",
     "backButtonTitle": "Back",
-    "closeButtonTitle": "Close",
-    "closeEventFeedButtonLabel": "Close Event Feed",
-    "closeGearTabButtonLabel": "Close Gear",
-    "closeMapLayersButtonLabel": "Close Map Layers",
-    "closePatrolFeedButtonLabel": "Close Patrol Feed",
-    "closeSettingsButtonLabel": "Close Settings",
+    "closeButtonLabel": "Close sidebar",
+    "detailViewHeader": {
+      "closeButtonLabel": "Close sidebar"
+    },
+    "eventsLink": "Events",
+    "eventsLinkWithUpdatesLabel_one": "Events, {{count}} new or updated",
+    "eventsLinkWithUpdatesLabel_other": "Events, {{count}} new or updated",
     "gearLink": "Gear",
     "gearTab": {
       "loadErrorFallback": "Request failed",
@@ -236,12 +318,23 @@
       "featuresTabTitle": "Features",
       "subjectsTabTitle": "Subjects"
     },
-    "patrolsLink": "Patrols",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "Could not load events. Please try again.",
-      "tryAgainButton": "Try again"
+    "otusLink": "Atlas",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "Beta",
+        "closeButtonLabel": "Close Atlas",
+        "newConversationButtonLabel": "New conversation",
+        "recentButtonLabel": "Recent",
+        "title": "Atlas"
+      },
+      "iframeTitle": "Atlas chat",
+      "loadErrorMessage": "Atlas couldn't load on this site. Try again, or contact support if this keeps happening.",
+      "loadingMessage": "Loading Atlas…",
+      "resizeHandleLabel": "Resize Atlas panel",
+      "retryButtonLabel": "Try again"
     },
-    "eventsLink": "Events",
+    "patrolsLink": "Patrols",
+    "settingsLink": "Settings",
     "settingsPane": {
       "alertsFrameTitle": "Configure your EarthRanger alerts",
       "alertsTabTitle": "Alerts",
@@ -252,10 +345,11 @@
           "legend": "App Refresh",
           "mapLayersCheckboxLabel": "Map Layers",
           "mapPositionAndZoomLevelCheckboxLabel": "Map Position & Zoom Level",
-          "patrolFiltersCheckboxLabel": "Patrol Filters"
+          "patrolFiltersCheckboxLabel": "Patrol Filters",
+          "tableViewCheckboxLabel": "Table View"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Coordinate Reference Systems",
+          "FEED_TABLE": "Table view for events and patrols",
           "legend": "Experimental Features"
         },
         "languageSelect": {
@@ -349,7 +443,11 @@
       },
       "mapTabTitle": "Map"
     },
-    "settingsLink": "Settings"
+    "showListButtonLabel": "Show as list",
+    "showTableButtonLabel": "Show as table",
+    "titleInput": {
+      "editButtonLabel": "Edit title"
+    }
   },
   "sortedNodes": {
     "labelAscending": "Change Order to Descending",
@@ -371,13 +469,19 @@
     "periodInputLabel": "Time period"
   },
   "timeSlider": {
-    "popoverHeader": "Date Range",
-    "popoverResetButton": "Reset",
-    "slider": "Timeslider",
+    "closeButtonLabel": "Close timeslider",
+    "dateRangeButtonLabel": "Change date range",
+    "endDateNowSliderLabel": "Now",
+    "sliderLabel": "Timeslider",
+    "speedButtonLabel": "Open playback speed options",
+    "speedMenuHeader": "Playback Speed",
+    "speedMenuLabel": "Playback speed options",
+    "speedMenuOptionLabel": "Set playback speed to {{speed}}",
     "timeSliderMapControl": {
       "iconTitle": "Timeslider"
     },
-    "untilNowButton": "Now"
+    "playButtonLabel": "Play timeslider",
+    "stopButtonLabel": "Stop timeslider"
   },
   "toastBody": {
     "defaultLinkTitle": "Click here",

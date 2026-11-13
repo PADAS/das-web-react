@@ -123,11 +123,35 @@ describe('Selectors - Tracks', () => {
           },
         }]);
     });
+
+    test('leaves out a subject whose track came back with no positions', () => {
+      state.view.heatmapSubjectIDs = ['123'];
+      state.data.tracks = {
+        123: {
+          points: { features: [], type: 'FeatureCollection' },
+          track: { features: [], type: 'FeatureCollection' },
+        },
+      };
+
+      expect(selectHeatmapSubjectTracksTrimmedToTrackTimeEnvelope(state)).toEqual([]);
+    });
   });
 
   describe('selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod', () => {
     beforeAll(() => {
       jest.useFakeTimers().setSystemTime(new Date('2021-01-01'));
+    });
+
+    test('leaves out a subject whose track came back with no positions', () => {
+      state.view.subjectTrackState.visible = ['123'];
+      state.data.tracks = {
+        123: {
+          points: { features: [], type: 'FeatureCollection' },
+          track: { features: [], type: 'FeatureCollection' },
+        },
+      };
+
+      expect(selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod(state)).toEqual([]);
     });
 
     test('builds the subject tracks from the subjects with tracks active trimmed to the time envelope', () => {

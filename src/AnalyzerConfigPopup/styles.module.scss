@@ -1,16 +1,18 @@
-@import '../common/styles/vars/colors';
+@use '../common/styles/vars/colors';
 
 .analyzerPopup {
     padding: .25rem;
     line-height: normal;
+
     h4 {
       display: flex;
       font-size: 1.15rem;
       font-weight: normal;
       line-height: normal;
     }
+
     h5 {
-      color: $medium-light-gray;
+      color: colors.$medium-light-gray;
       font-size: .75rem;
       font-weight: normal;
       margin-top: 1.0rem;
@@ -21,13 +23,13 @@
 .gearIcon {
   height: 1.0rem;
   width: 1.0rem;
-  fill: $bright-blue; 
+  fill: colors.$bright-blue; 
   margin-left: .5rem;
 }
 
 .typeIcon {
   height: 2.0rem;
   width: 2.0rem;
-  stroke: $primary-font-color;
+  stroke: colors.$primary-font-color;
   margin-right: .25rem;
 }

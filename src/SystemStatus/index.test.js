@@ -1,111 +1,173 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { mockStore } from '../__test-helpers/MockStore';
+import { render, screen, within } from '../test-utils';
 import { STATUSES } from '../constants';
+
 import SystemStatus from './';
-import { render, screen } from '../test-utils';
 
 describe('SystemStatus', () => {
   let store;
+
   beforeEach(() => {
     store = {
       data: {
         systemStatus: {
           network: {
-            title: 'Network',
-            status: STATUSES.HEALTHY_STATUS,
             details: 'online',
+            status: STATUSES.HEALTHY_STATUS,
+            title: 'Network',
+          },
+          realtime: {
+            details: 'Activity',
+            status: STATUSES.HEALTHY_STATUS,
+            timestamp: '2022-02-15T18:06:56.657Z',
+            title: 'EarthRanger Realtime',
           },
           server: {
-            version: '2.43.1-dev.30033',
             details: 'https://develop.pamdas.org',
             status: STATUSES.HEALTHY_STATUS,
             title: 'EarthRanger Server 2.43.1-dev.30033',
+            version: '2.43.1-dev.30033',
           },
-          realtime: {
-            title: 'EarthRanger Realtime',
-            status: STATUSES.HEALTHY_STATUS,
-            details: 'Activity',
-            timestamp: '2022-02-15T18:06:56.657Z',
-          },
-          services: [],
-        }
-      }
+          services: [{
+            datasource: { timestamp: null, title: null },
+            heartbeat: { timestamp: '2022-02-15T18:06:56.657Z', title: null },
+            provider_key: 'gundi',
+            status: STATUSES.WARNING_STATUS,
+            title: 'Gundi',
+          }],
+        },
+      },
     };
   });
 
-  test('renders the indicator for a healthy status', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <SystemStatus />
-      </Provider>
-    );
+  const renderSystemStatus = () => render(<Provider store={mockStore(store)}>
+    <SystemStatus />
+  </Provider>);
 
-    expect((await screen.findByTestId('badgeIcon'))).toHaveClass('green');
-    expect((await screen.findByTestId('systemStatus-statusLabel'))).toHaveTextContent('Healthy');
+  const getToggle = () => screen.getByRole('button', { name: /^System status:/ });
+
+  test('names the toggle after the worst status of the system', () => {
+    renderSystemStatus();
+
+    expect(getToggle()).toHaveAccessibleName('System status: Warning');
+    expect(getToggle()).toHaveAttribute('title', 'System status');
+    expect(getToggle()).toHaveTextContent('Warning');
   });
 
-  test('renders the indicator for a warning status', async () => {
-    store.data.systemStatus.network.status = STATUSES.WARNING_STATUS;
-    render(
-      <Provider store={mockStore(store)}>
-        <SystemStatus />
-      </Provider>
-    );
+  test('names the toggle healthy when every part of the system is healthy', () => {
+    store.data.systemStatus.services = [];
 
-    expect((await screen.findByTestId('badgeIcon'))).toHaveClass('orange');
-    expect((await screen.findByTestId('systemStatus-statusLabel'))).toHaveTextContent('Warning');
+    renderSystemStatus();
+
+    expect(getToggle()).toHaveAccessibleName('System status: Healthy');
   });
 
-  test('renders the indicator for an unhealthy status', async () => {
+  test('names the toggle unhealthy when a part of the system is unhealthy', () => {
     store.data.systemStatus.network.status = STATUSES.UNHEALTHY_STATUS;
-    render(
-      <Provider store={mockStore(store)}>
-        <SystemStatus />
-      </Provider>
-    );
 
-    expect((await screen.findByTestId('badgeIcon'))).toHaveClass('red');
-    expect((await screen.findByTestId('systemStatus-statusLabel'))).toHaveTextContent('Unhealthy');
+    renderSystemStatus();
+
+    expect(getToggle()).toHaveAccessibleName('System status: Unhealthy');
   });
 
-  test('opens the menu when the user clicks the systems status indicator', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <SystemStatus />
-      </Provider>
-    );
+  test('names the toggle unhealthy when a part of the system is in an unknown state', () => {
+    store.data.systemStatus.realtime.status = STATUSES.UNKNOWN_STATUS;
 
-    expect((await screen.queryByText('Network'))).toBeNull();
-    expect((await screen.queryByText('EarthRanger Server 2.43.1-dev.30033'))).toBeNull();
-    expect((await screen.queryByText('EarthRanger Realtime'))).toBeNull();
+    renderSystemStatus();
 
-    const statusIndicatorToggle = await screen.findByRole('button');
-    await userEvent.click(statusIndicatorToggle);
-
-    expect((await screen.findByText('Network'))).toBeDefined();
-    expect((await screen.findByText('EarthRanger Server 2.43.1-dev.30033'))).toBeDefined();
-    expect((await screen.findByText('EarthRanger Realtime'))).toBeDefined();
+    expect(getToggle()).toHaveAccessibleName('System status: Unhealthy');
   });
 
-  test('updates the style of the indicator when the user opens the menu', async () => {
-    render(
-      <Provider store={mockStore(store)}>
-        <SystemStatus />
-      </Provider>
-    );
+  test('shows the toggle collapsed, with the popover closed, by default', () => {
+    renderSystemStatus();
 
-    expect((await screen.findByTestId('arrow-down-small-icon'))).toBeDefined();
-    expect((await screen.queryByTestId('arrow-up-small-icon'))).toBeNull();
-    expect((await screen.findByTestId('systemStatus-indicator'))).not.toHaveClass('open');
+    expect(getToggle()).toHaveAttribute('aria-haspopup', 'dialog');
+    expect(getToggle()).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
 
-    const statusIndicatorToggle = await screen.findByRole('button');
-    await userEvent.click(statusIndicatorToggle);
+  test('opens the popover and focuses it when the user clicks the toggle', async () => {
+    renderSystemStatus();
 
-    expect((await screen.queryByTestId('arrow-down-small-icon'))).toBeNull();
-    expect((await screen.findByTestId('arrow-up-small-icon'))).toBeDefined();
-    expect((await screen.findByTestId('systemStatus-indicator'))).toHaveClass('open');
+    await userEvent.click(getToggle());
+
+    const popover = await screen.findByRole('dialog', { name: 'System status' });
+
+    expect(popover).toHaveFocus();
+    expect(getToggle()).toHaveAttribute('aria-expanded', 'true');
+    expect(getToggle()).toHaveAttribute('aria-controls', popover.id);
+  });
+
+  test('lists each part of the system, naming its status for assistive technology', async () => {
+    renderSystemStatus();
+
+    await userEvent.click(getToggle());
+
+    const statusItems = within(await screen.findByRole('dialog')).getAllByRole('listitem');
+
+    expect(statusItems).toHaveLength(4);
+    expect(statusItems[0]).toHaveTextContent('Network');
+    expect(statusItems[0]).toHaveTextContent('Healthy');
+    expect(statusItems[3]).toHaveTextContent('Gundi');
+    expect(statusItems[3]).toHaveTextContent('Warning');
+  });
+
+  test('shows the server address without its protocol', async () => {
+    renderSystemStatus();
+
+    await userEvent.click(getToggle());
+
+    expect(await screen.findByText('develop.pamdas.org')).toBeInTheDocument();
+  });
+
+  test('lists the activity of a service, falling back to default titles', async () => {
+    renderSystemStatus();
+
+    await userEvent.click(getToggle());
+
+    const serviceItem = within(await screen.findByRole('dialog')).getAllByRole('listitem')[3];
+
+    expect(serviceItem).toHaveTextContent('system activity:');
+    expect(serviceItem).toHaveTextContent('device activity');
+  });
+
+  test('closes the popover and returns focus to the toggle when the user presses escape', async () => {
+    renderSystemStatus();
+
+    await userEvent.click(getToggle());
+    await screen.findByRole('dialog');
+    await userEvent.keyboard('{Escape}');
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(getToggle()).toHaveFocus();
+    expect(getToggle()).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('closes the popover when the user clicks the toggle again', async () => {
+    renderSystemStatus();
+
+    await userEvent.click(getToggle());
+    await screen.findByRole('dialog');
+    await userEvent.click(getToggle());
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  test('closes the popover and moves on from the toggle when the user tabs', async () => {
+    render(<Provider store={mockStore(store)}>
+      <SystemStatus />
+
+      <button type="button">Next control</button>
+    </Provider>);
+
+    await userEvent.click(getToggle());
+    await screen.findByRole('dialog');
+    await userEvent.tab();
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next control' })).toHaveFocus();
   });
 });

@@ -11,12 +11,23 @@
       },
       "addReportTabTitle": "Crear Evento"
     },
+    "defaultLabel": "Crear Evento o Patrulla",
     "defaultTitle": "Crear"
   },
   "choiceList": {
     "select": {
       "noOptionsMessage": "No hay opciones para mostrar"
     }
+  },
+  "communityPage": {
+    "coolOffChooseAnotherType": "Elegir otro tipo de evento",
+    "coolOffMessage": "Ha enviado recientemente un formulario de {{eventType}}. Podrá enviar otro en {{timeRemaining}}.",
+    "coolOffTimeRemaining": "Tiempo restante: {{timeRemaining}}",
+    "coolOffTitle": "Espere antes de volver a enviar",
+    "coolOffTypeUnavailable": "Disponible en {{timeRemaining}}",
+    "formSubmitted": "Enviado correctamente",
+    "invalidCommunityUrl": "URL de comunidad no válida",
+    "searchPlaceholder": "Buscar tipos de evento..."
   },
   "datePicker": {
     "calendarPopper": {
@@ -51,11 +62,74 @@
     "hideDetailsButton": "Ocultar Detalles",
     "showDetailsButton": "Mostrar Detalles"
   },
+  "feedTable": {
+    "clearSelectionButtonLabel": "Limpiar",
+    "clientSortFinishedMessage": "Ordenado por {{column}}: todas las filas cargadas",
+    "clientSortLoadingMessage": "Ordenando por {{column}}: {{loaded}} de {{total}} cargados",
+    "clientSortPausedMessage": "Ordenación en pausa: {{loaded}} de {{total}} cargados",
+    "clientSortRetryButtonLabel": "Reintentar",
+    "clientSortStartedMessage": "Cargando todas las filas para ordenar por {{column}}",
+    "columnsButtonLabel": "Columnas",
+    "columnsMenuLabel": "Columnas visibles",
+    "eventsTable": {
+      "bulkUpdateErrorMessage_one": "No se pudo actualizar {{count}} evento",
+      "bulkUpdateErrorMessage_other": "No se pudieron actualizar {{count}} eventos",
+      "bulkUpdateSuccessMessage_one": "{{count}} evento actualizado",
+      "bulkUpdateSuccessMessage_other": "{{count}} eventos actualizados",
+      "createdAtColumnTitle": "Creado",
+      "eventTimeColumnTitle": "Hora del evento",
+      "eventTypeColumnTitle": "Tipo",
+      "locationColumnTitle": "Ubicación",
+      "priorityColumnTitle": "Prioridad",
+      "reopenButtonLabel": "Reabrir",
+      "reportedByColumnTitle": "Reportado por",
+      "resolveButtonLabel": "Resolver",
+      "selectedCountMessage_one": "{{count}} seleccionado",
+      "selectedCountMessage_other": "{{count}} seleccionados",
+      "serialColumnTitle": "N.º de serie",
+      "stateColumnTitle": "Estado",
+      "titleColumnTitle": "Título",
+      "updatedAtColumnTitle": "Actualizado"
+    },
+    "exportButtonLabel": "Exportar todos los campos (CSV)",
+    "exportErrorMessage": "No se pudo exportar el CSV",
+    "grid": {
+      "noRowsMessage": "No hay nada que mostrar"
+    },
+    "headerCell": {
+      "allRowsCheckboxLabel": "Seleccionar todas las filas"
+    },
+    "moveColumnHintMessage": "Presione Alt y la flecha izquierda o derecha en el encabezado de una columna para moverla.",
+    "objectViewModal": {
+      "breadcrumbLabel": "Ruta",
+      "itemCountMessage_one": "{{count}} elemento",
+      "itemCountMessage_other": "{{count}} elementos",
+      "openButtonLabel": "Ver"
+    },
+    "patrolsTable": {
+      "leaderColumnTitle": "Líder",
+      "legsColumnTitle": "Tramos",
+      "loadedPatrolsMessage_one": "Mostrando {{loaded}} de {{count}} patrulla",
+      "loadedPatrolsMessage_other": "Mostrando {{loaded}} de {{count}} patrullas",
+      "patrolEndColumnTitle": "Fin",
+      "patrolStartColumnTitle": "Inicio",
+      "patrolTypeColumnTitle": "Tipo de patrulla",
+      "serialColumnTitle": "N.º de serie",
+      "stateColumnTitle": "Estado",
+      "titleColumnTitle": "Título"
+    },
+    "selectedCountMessage_one": "{{count}} seleccionado",
+    "selectedCountMessage_other": "{{count}} seleccionados",
+    "titleCell": {
+      "rowCheckboxLabel": "Seleccionar {{title}}"
+    }
+  },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Comparte tu ubicación para ver datos con permisos geográficos.",
     "shareLocationToastTitle": "Aprende cómo"
   },
   "getUserLocationButton": {
+    "cancelButtonLabel": "Cancelar",
     "errorToastMessage": "No se pudo obtener tu ubicación actual: {{errorMessage}}",
     "loadingOverlayMessage": "Intentando obtener tu ubicación...",
     "userLocationButtonLabel": "Obtener ubicación actual"
@@ -98,6 +172,7 @@
     "menuPopover": {
       "dialogLabel": "Ubicación",
       "getUserLocationButton": "Usar mi ubicación",
+      "permissionBlockedMessage": "El navegador bloqueó el uso compartido de la ubicación. Permítelo en la configuración del navegador.",
       "pickMapLocationButton": "Establecer en el mapa"
     },
     "setLocationButtonLabel": {
@@ -145,12 +220,6 @@
     "instructionsPopupLabel": "Haz clic para seleccionar una ubicación",
     "pickLocationButtonLabel": "Selecciona una ubicación en el mapa"
   },
-  "priorityPicker": {
-    "amber": "Ambar",
-    "green": "Verde",
-    "none": "N/A",
-    "red": "Roja"
-  },
   "numericInput": {
     "numericInputLabel": "Campo numérico",
     "incrementValueNumericInputButtonLabel": "Botón para aumentar el valor numérico",
@@ -172,6 +241,16 @@
       "radioIcon": "Ícono de radio para el valor {{name}}"
     }
   },
+  "reporterSelect": {
+    "allReportersGroupLabel": "Todos",
+    "recentRadiosGroupLabel": "Radios recientes",
+    "restrictedReporterLabel": "RESTRINGIDO"
+  },
+  "rootErrorBoundary": {
+    "errorTitle": "Algo salió mal",
+    "reloadButtonLabel": "Recargar",
+    "reloadMessage": "EarthRanger tuvo un problema inesperado. Recargue la página para continuar."
+  },
   "schemaFields": {
     "addButton": {
       "content": "Nuevo",
@@ -191,12 +270,27 @@
     "clearButtonLabel": "Limpiar la barra de búsqueda",
     "defaultPlaceholder": "Buscar..."
   },
+  "select": {
+    "noOptionsMessage": "No hay opciones para mostrar"
+  },
   "serviceWorkerWatcher": {
     "confirmNotification": "Recargar",
     "newVersionAvailableNotification": "Una nueva versión de EarthRanger está disponible. Se cargará la siguiente vez que recargue su navegador."
   },
   "sideBar": {
-    "closeGearTabButtonLabel": "Cerrar aparejos",
+    "addEventButtonLabel": "Crear Evento",
+    "addEventButtonTitle": "Crear Evento",
+    "addPatrolButtonLabel": "Crear Patrulla",
+    "addPatrolButtonTitle": "Crear Patrulla",
+    "backButtonLabel": "Volver atrás",
+    "backButtonTitle": "Atrás",
+    "closeButtonLabel": "Cerrar barra lateral",
+    "detailViewHeader": {
+      "closeButtonLabel": "Cerrar barra lateral"
+    },
+    "eventsLink": "Eventos",
+    "eventsLinkWithUpdatesLabel_one": "Eventos, {{count}} nuevo o actualizado",
+    "eventsLinkWithUpdatesLabel_other": "Eventos, {{count}} nuevos o actualizados",
     "gearLink": "Aparejos",
     "gearTab": {
       "loadErrorFallback": "Error en la solicitud",
@@ -219,12 +313,23 @@
       "featuresTabTitle": "Funcionalidades",
       "subjectsTabTitle": "Sujetos"
     },
-    "patrolsLink": "Patrullas",
-    "reportsFeedTab": {
-      "fetchReportsErrorMessage": "No se pudieron cargar los eventos. Por favor intente de nuevo.",
-      "tryAgainButton": "Intentar de nuevo"
+    "otusLink": "Atlas",
+    "otusTab": {
+      "header": {
+        "betaBadgeLabel": "Beta",
+        "closeButtonLabel": "Cerrar Atlas",
+        "newConversationButtonLabel": "Nueva conversación",
+        "recentButtonLabel": "Recientes",
+        "title": "Atlas"
+      },
+      "iframeTitle": "Chat de Atlas",
+      "loadErrorMessage": "Atlas no pudo cargarse en este sitio. Vuelva a intentarlo o contacte con soporte si el problema continúa.",
+      "loadingMessage": "Cargando Atlas…",
+      "resizeHandleLabel": "Redimensionar el panel de Atlas",
+      "retryButtonLabel": "Reintentar"
     },
-    "eventsLink": "Eventos",
+    "patrolsLink": "Patrullas",
+    "settingsLink": "Preferencias",
     "settingsPane": {
       "alertsFrameTitle": "Configure sus alertas de EarthRanger",
       "alertsTabTitle": "Alertas",
@@ -235,10 +340,11 @@
           "legend": "Recargar la página",
           "mapLayersCheckboxLabel": "Capas de mapa",
           "mapPositionAndZoomLevelCheckboxLabel": "Posición del mapa y nivel de zoom",
-          "patrolFiltersCheckboxLabel": "Filtros de patrullas"
+          "patrolFiltersCheckboxLabel": "Filtros de patrullas",
+          "tableViewCheckboxLabel": "Vista de tabla"
         },
         "experimentalFeaturesFieldSet": {
-          "CUSTOM_COORDINATE_SYSTEMS_ENABLED": "Sistemas de referencia de coordenadas",
+          "FEED_TABLE": "Vista de tabla para eventos y patrullas",
           "legend": "Funcionalidades experimentales"
         },
         "languageSelect": {
@@ -332,7 +438,11 @@
       },
       "mapTabTitle": "Mapa"
     },
-    "settingsLink": "Preferencias"
+    "showListButtonLabel": "Mostrar como lista",
+    "showTableButtonLabel": "Mostrar como tabla",
+    "titleInput": {
+      "editButtonLabel": "Editar título"
+    }
   },
   "soundNotificationsPlayer": {
     "alarmRadioStateToastMessage": "{{subjectName}} necesita atención inmediata"
@@ -348,13 +458,19 @@
     "periodInputLabel": "Parte del día"
   },
   "timeSlider": {
-    "popoverHeader": "Rango de fechas",
-    "popoverResetButton": "Reiniciar",
-    "slider": "Control de tiempo",
+    "closeButtonLabel": "Cerrar control de tiempo",
+    "dateRangeButtonLabel": "Cambiar rango de fechas",
+    "endDateNowSliderLabel": "Ahora",
+    "sliderLabel": "Control de tiempo",
+    "speedButtonLabel": "Abrir opciones de velocidad de reproducción",
+    "speedMenuHeader": "Velocidad de Reproducción",
+    "speedMenuLabel": "Opciones de velocidad de reproducción",
+    "speedMenuOptionLabel": "Establecer la velocidad de reproducción en {{speed}}",
     "timeSliderMapControl": {
       "iconTitle": "Control de tiempo"
     },
-    "untilNowButton": "Ahora"
+    "playButtonLabel": "Reproducir control de tiempo",
+    "stopButtonLabel": "Detener control de tiempo"
   },
   "toastBody": {
     "defaultLinkTitle": "Haga clic aquí",

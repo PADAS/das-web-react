@@ -1,15 +1,32 @@
-import { DEFAULT_SHOW_TRACK_DAYS, SYSTEM_CONFIG_FLAGS } from '../../constants';
+import { CLEAR_AUTH } from '../auth';
+import { DEFAULT_SHOW_TRACK_DAYS, REACT_APP_OTUS_URL, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { endOfToday, generateDaysAgoDate } from '../../utils/datetime';
 import { EVENT_FILTER_STORAGE_KEY, setDefaultDateRange as setDefaultEventDateRange } from '../event-filter';
+import { getIsValidWebUrl } from '../../utils/string';
 import { getKeyIsRestorable } from '../../reducers/storage-config';
 import { setDefaultDateRange as setDefaultPatrolDateRange } from '../patrol-filter';
 import { setSitenameDimension } from '../../utils/analytics';
+
+// A malformed URL would throw from the component that builds the frame source.
+const parseOtusUrl = (value) => {
+  if (value) {
+    if (getIsValidWebUrl(value)) {
+      return value;
+    }
+
+    console.warn('Ignoring an invalid Otus URL from the system status', value);
+  }
+
+  return null;
+};
 
 // Actions
 export const SET_SYSTEM_CONFIG = 'SYSTEM_CONFIG.SET_SYSTEM_CONFIG';
 
 // Action creators
-export const setSystemConfigFromSystemStatus = (systemStatus) => (dispatch) => {
+// Tableau and Otus depend on who is signed in, so only a signed-in status
+// response may set them.
+export const setSystemConfigFromSystemStatus = (systemStatus, { includeUserConfig = true } = {}) => (dispatch) => {
   // Set the Google Analytics 4 sitename dimension.
   const sitename = systemStatus.site_name || window.location.hostname;
   setSitenameDimension(sitename);
@@ -28,12 +45,20 @@ export const setSystemConfigFromSystemStatus = (systemStatus) => (dispatch) => {
       [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: systemStatus[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT] ?? true,
       [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: systemStatus[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES] ?? true,
       [SYSTEM_CONFIG_FLAGS.SUBJECTS]: systemStatus[SYSTEM_CONFIG_FLAGS.SUBJECTS] ?? true,
-      [SYSTEM_CONFIG_FLAGS.TABLEAU]: systemStatus[SYSTEM_CONFIG_FLAGS.TABLEAU] ?? true,
       [SYSTEM_CONFIG_FLAGS.GEO_SPAN]: systemStatus[SYSTEM_CONFIG_FLAGS.GEO_SPAN] ?? null,
-      showTrackDays: systemStatus.show_track_days,
-      sitename,
+      ...(includeUserConfig ? {
+        // Tableau is legacy, so it stays hidden unless the server turns it on.
+        [SYSTEM_CONFIG_FLAGS.TABLEAU]: systemStatus[SYSTEM_CONFIG_FLAGS.TABLEAU] ?? false,
+        // The env override wins here, unlike default_event_filter_from_days.
+        otusUrl: parseOtusUrl(REACT_APP_OTUS_URL || systemStatus.otus_settings?.url),
+        userConfigLoaded: true,
+      } : {}),
+      previewFeatures: systemStatus.preview_features || {},
       require_idp: !!systemStatus.require_idp,
-      idp_org_id: systemStatus.idp_org_id || null,
+      site_slug: systemStatus.site_slug || null,
+      sitename,
+      support_managed_users: !!systemStatus.support_managed_users,
+      showTrackDays: systemStatus.show_track_days,
     },
   });
 
@@ -74,14 +99,27 @@ export const INITIAL_STATE = {
   [SYSTEM_CONFIG_FLAGS.SUBJECTS]: false,
   [SYSTEM_CONFIG_FLAGS.TABLEAU]: false,
   [SYSTEM_CONFIG_FLAGS.GEO_SPAN]: null,
-  showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
+  otusUrl: parseOtusUrl(REACT_APP_OTUS_URL),
+  previewFeatures: {},
+  require_idp: null,
+  site_slug: null,
   sitename: '',
-  require_idp: null,  // null = not loaded yet
-  idp_org_id: null,
+  support_managed_users: false,
+  showTrackDays: DEFAULT_SHOW_TRACK_DAYS,
+  userConfigLoaded: false,
 };
 
 const systemConfigReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
+  // Only superusers get Tableau and Otus, so they must not outlive the user.
+  case CLEAR_AUTH:
+    return {
+      ...state,
+      [SYSTEM_CONFIG_FLAGS.TABLEAU]: INITIAL_STATE[SYSTEM_CONFIG_FLAGS.TABLEAU],
+      otusUrl: INITIAL_STATE.otusUrl,
+      userConfigLoaded: INITIAL_STATE.userConfigLoaded,
+    };
+
   case SET_SYSTEM_CONFIG:
     return { ...state, ...action.payload };
 

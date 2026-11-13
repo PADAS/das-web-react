@@ -1,20 +1,20 @@
-@import '../../common/styles/layout';
-@import '../../common/styles/vars/colors';
-@import '../../common/styles/inputs';
+@use '../../common/styles/layout';
+@use '../../common/styles/vars/colors';
+@use '../../common/styles/inputs';
 
 .header {
   align-items: center;
-  background-color: $very-light-gray;
-  border-bottom: 1px solid $secondary-light-gray;
-  border-top: 1px solid $secondary-light-gray;
-  box-shadow: 0 0.25rem 0.75rem -0.125rem rgba(0, 0, 0, 0.25);
+  background-color: colors.$very-light-gray;
+  border-bottom: 1px solid colors.$secondary-light-gray;
+  border-top: 1px solid colors.$secondary-light-gray;
+  box-shadow: 0 0.25rem 0.75rem -0.125rem rgb(0 0 0 / 25%);
   display: flex;
   height: 4rem;
   position: relative;
   width: 100%;
   z-index: 1;
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     height: 5rem;
   }
 
@@ -24,6 +24,7 @@
 }
 
 .icon {
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -34,19 +35,19 @@
   svg {
     width: 1.5rem;
     height: 1.5rem;
-    fill: white;
+    fill: currentcolor;
 
-    &[class*=newPatrol] {
-      fill: $dark-gray;
+    &[class*="newPatrol"] {
+      fill: colors.$dark-gray;
     }
 
-    @media (min-width: $md-layout-width-min) {
+    @media (min-width: layout.$md-layout-width-min) {
       width: 2rem;
       height: 2rem;
     }
   }
   
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     min-width: 4.5rem;
     width: 4.5rem;
   }
@@ -58,10 +59,10 @@
 
 .serialNumber {
   font-size: 0.75rem;
-  color: $secondary-medium-gray;
+  color: colors.$secondary-medium-gray;
   margin: 0 0.5rem;
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     font-size: 1rem;
     margin: 0 0.75rem;
   }
@@ -72,15 +73,15 @@
   flex-direction: column;
   width: 8rem;
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     width: 20.25rem;
   }
 }
 
 .title {
-  @include editableItemTitle;
+  @include inputs.editable-item-title;
 
-  border-bottom: 1px dashed $secondary-light-gray;
+  border-bottom: 1px dashed colors.$secondary-light-gray;
 }
 
 .description {
@@ -91,7 +92,7 @@
   margin-right: 0.5rem;
   text-align: right;
   
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     font-size: 1rem;
     margin-right: 1rem;
   }
@@ -103,14 +104,15 @@
 
 .patrolTrackControls {
   display: none;
-  --buttonDimensions: 2.5rem;
+
+  --button-dimensions: 2.5rem;
 
   button {
-    height: var(--buttonDimensions);
-    width: var(--buttonDimensions);
+    height: var(--button-dimensions);
+    width: var(--button-dimensions);
   }
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     display: flex;
   }
 
@@ -123,11 +125,11 @@
   display: none;
   align-items: center;
   font-size: 1rem;
-  background-color: $transparent-dark-gray;
+  background-color: colors.$transparent-dark-gray;
   border: none;
   height: 2rem;
   border-radius: 4px;
-  color: $secondary-medium-gray;
+  color: colors.$secondary-medium-gray;
   font-weight: 700;
   margin-left: 0.5rem;
 
@@ -136,8 +138,8 @@
   }
 
   &:hover {
-    background: $hover-button-background;
-    color: $secondary-medium-gray;
+    background: colors.$hover-button-background;
+    color: colors.$secondary-medium-gray;
   }
 }
 
@@ -147,14 +149,14 @@
     margin-right: 0.5rem;
   }
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     display: flex;
     height: 2.75rem;
   }
 }
 
 .restorePatrolButton {
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     display: flex;
     height: 2.75rem;
   }
@@ -165,7 +167,7 @@
 }
 
 .distanceCovered {
-  &:before {
+  &::before {
     content: ' | ';
   }
 }
@@ -174,7 +176,7 @@
   width: 15rem;
   font-size: 0.79rem;
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     width: unset;
     font-size: unset;
   }
@@ -183,13 +185,14 @@
 .scheduledStartTime {
   font-size: 0.79rem;
 
-  @media (min-width: $md-layout-width-min) {
+  @media (min-width: layout.$md-layout-width-min) {
     font-size: unset;
   }
 }
 
 .patrolMenu {
   margin-left: 0.5rem;
+  margin-right: 0.5rem;
   min-width: 2.25rem;
 
   @media print {

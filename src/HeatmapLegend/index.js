@@ -1,4 +1,4 @@
-import React, { isValidElement, memo } from 'react';
+import { isValidElement, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';

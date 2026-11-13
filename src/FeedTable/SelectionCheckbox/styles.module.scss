@@ -1,0 +1,31 @@
+@use '../../common/styles/vars/colors';
+
+.selectionCheckbox {
+  align-items: center;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  flex-shrink: 0;
+  height: 2rem;
+  justify-content: center;
+  margin: 0;
+  transition: background-color 200ms ease-in-out;
+  width: 2rem;
+
+  &:hover {
+    background: rgba(colors.$bright-blue, 0.08);
+  }
+
+  .input {
+    cursor: pointer;
+    height: 1rem;
+    margin: 0;
+    width: 1rem;
+
+    &:focus-visible {
+      outline: 2px solid colors.$bright-blue;
+      outline-offset: 2px;
+    }
+  }
+}

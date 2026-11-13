@@ -1,11 +1,11 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import mapLabel from '../common/images/icons/symbol-label-outline.png';
 
-import { MapContext } from '../App';
+import { MapContext } from '../MapContext';
 import {
   MAPBOX_STYLE_LAYER_SOURCE_TYPES,
   MAX_ZOOM,
@@ -29,7 +29,7 @@ const getStartingMapPositionValues = (mapPosition) => mapPosition?.center && map
   ? { bearing: mapPosition.bearing, center: mapPosition.center, pitch: mapPosition.pitch, zoom: mapPosition.zoom }
   : {};
 
-const EarthRangerMap = ({ children, controls, onMapLoaded, ...otherProps }) => {
+const EarthRangerMap = ({ children, controls, inert = false, onMapLoaded, ...otherProps }) => {
   const { t } = useTranslation('map-controls', { keyPrefix: 'earthRangerMap' });
 
   const currentBaseLayer = useSelector(state => state.view.currentBaseLayer);
@@ -61,6 +61,8 @@ const EarthRangerMap = ({ children, controls, onMapLoaded, ...otherProps }) => {
   /* Keep latest access token in a ref so transformRequest always sees it without
    needing to recreate the map instance when the token changes. */
   const tokenRef = useRef();
+  // Using this ref during render is intended.
+  // eslint-disable-next-line react-hooks/refs
   tokenRef.current = token?.access_token;
 
   /* Ensures Authorization header is added to any spatial features tile requests. 
@@ -114,13 +116,19 @@ const EarthRangerMap = ({ children, controls, onMapLoaded, ...otherProps }) => {
     }
   }, [currentBaseLayer]);
 
+  // Using this ref during render is intended.
+  // eslint-disable-next-line react-hooks/refs
   return <MapContext.Provider value={mapRef.current}>
-    <div className="map-wrapper" style={{ height: '100%' }}>
+    <div className="map-wrapper" inert={inert} style={{ height: '100%' }}>
       <div ref={mapContainerRef} {...otherProps} />
 
       {mapLoaded && <>
+        {/* Using this ref during render is intended. */}
+        {/* eslint-disable-next-line react-hooks/refs */}
         <MapTerrain map={mapRef.current} />
 
+        {/* Using this ref during render is intended. */}
+        {/* eslint-disable-next-line react-hooks/refs */}
         <SkyLayer map={mapRef.current} />
 
         <div className='map-controls-container'>{controls}</div>

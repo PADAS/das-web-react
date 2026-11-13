@@ -4,6 +4,9 @@
     "allAnalyzersCheckboxAriaLabel": "Afficher tous les analyseurs",
     "allFeaturesCheckboxLabel": "Toutes les entités",
     "allFeaturesCheckboxAriaLabel": "Afficher toutes les entités",
+    "analyzersLoadErrorMessage": "Impossible de charger les analyseurs.",
+    "analyzersPartialLoadErrorMessage": "Certains analyseurs n'ont pas pu être chargés.",
+    "analyzersRetryButtonLabel": "Réessayer",
     "subjectsTitle": "Appareils Suivis",
     "reportsTitle": "Événements"
   }

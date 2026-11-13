@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useMemo, useState, useRef } from 'react';
+import { memo, useCallback, useContext, useMemo, useState, useRef } from 'react';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import { useTranslation } from 'react-i18next';
@@ -75,7 +75,7 @@ const EditableItemHeader = ({
     afterMenuToggle && afterMenuToggle(!headerPopoverOpen);
     !!analyticsMetadata && trackEvent(
       analyticsMetadata.category,
-      `${headerPopoverOpen?'Close':'Open'} Hamburger Menu${!!analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`
+      `${headerPopoverOpen?'Close':'Open'} Hamburger Menu${analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`
     );
   };
 
@@ -83,7 +83,7 @@ const EditableItemHeader = ({
     setHistoryPopoverState(!historyPopoverOpen);
     !!analyticsMetadata && trackEvent(
       analyticsMetadata.category,
-      `${historyPopoverOpen?'Close':'Open'} History${!!analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`
+      `${historyPopoverOpen?'Close':'Open'} History${analyticsMetadata.location ? ` for ${analyticsMetadata.location}` : ''}`
     );
   };
 
@@ -118,7 +118,7 @@ const EditableItemHeader = ({
     </Popover.Body>
   </Popover>;
 
-  return <div className={`${styles.formHeader} ${styles[`priority-${priority}`]} ${readonly ? styles.readonly : ''}`} onKeyDown={handleEscapePress}>
+  return <div className={`${styles.formHeader} ${styles[`priority${priority}`]} ${readonly ? styles.readonly : ''}`} onKeyDown={handleEscapePress}>
     <h4>
       {!!Icon && <span className={styles.headerIcon}>{Icon}</span>}
 
@@ -142,6 +142,8 @@ const EditableItemHeader = ({
           <HamburgerMenuIcon ref={menuRef} isOpen={headerPopoverOpen} onClick={onHamburgerMenuIconClick} />
           <Overlay
             show={headerPopoverOpen}
+            // Using this ref during render is intended.
+            // eslint-disable-next-line react-hooks/refs
             target={menuRef.current}
             shouldUpdatePosition={true}
             rootClose
@@ -158,6 +160,8 @@ const EditableItemHeader = ({
 
         <Overlay
           show={historyPopoverOpen}
+          // Using this ref during render is intended.
+          // eslint-disable-next-line react-hooks/refs
           target={historyRef.current}
           shouldUpdatePosition={true}
           rootClose
@@ -165,11 +169,13 @@ const EditableItemHeader = ({
           placement={popoverPlacement}
           trigger='click'
         >
+          {/* Creating this component during render is intended. */}
+          {/* eslint-disable-next-line react-hooks/static-components */}
           <HistoryPopover />
         </Overlay>
 
-        {data.state === 'resolved' && <small>
-          {t('resolvedLabel')}
+        {(data.state === 'resolved' || data.state === 'review') && <small>
+          {t(`${data.state}Label`)}
         </small>}
       </div>
     </h4>

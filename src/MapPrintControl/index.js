@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
@@ -94,7 +94,11 @@ const MapPrintControl = () => {
 
     <Overlay
       show={active}
+      // Using this ref during render is intended.
+      // eslint-disable-next-line react-hooks/refs
       target={buttonRef.current}
+      // Using this ref during render is intended.
+      // eslint-disable-next-line react-hooks/refs
       container={wrapperRef.current}
       placement='left'
     >

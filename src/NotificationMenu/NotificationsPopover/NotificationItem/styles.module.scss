@@ -1,0 +1,72 @@
+@use '../../../common/styles/badges';
+@use '../../../common/styles/buttons';
+@use '../../../common/styles/vars/colors';
+
+.notificationItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  list-style: none;
+  padding: 0.75rem 1rem;
+
+  + .notificationItem {
+    border-top: 1px solid colors.$light-gray-lines;
+  }
+
+  .header {
+    align-items: flex-start;
+    display: flex;
+    gap: 0.5rem;
+
+    .unreadDot {
+      @include badges.unread-dot;
+
+      margin-top: 0.25rem;
+    }
+
+    .title {
+      color: colors.$off-black;
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.25rem;
+      margin: 0;
+    }
+  }
+
+  .dateTime {
+    color: colors.$secondary-medium-gray;
+    font-size: 0.75rem;
+  }
+
+  .message {
+    color: colors.$off-black;
+    font-size: 0.875rem;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .infoLink {
+    color: colors.$bright-blue;
+    font-size: 0.875rem;
+
+    &:focus-visible {
+      border-radius: 0.125rem;
+      outline: 2px solid colors.$bright-blue;
+    }
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-top: 0.25rem;
+
+    .primaryButton {
+      @include buttons.primary-action-button;
+    }
+
+    .secondaryButton {
+      @include buttons.secondary-action-button;
+    }
+  }
+}

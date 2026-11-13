@@ -1,0 +1,88 @@
+name: Split list into chunks
+
+# Splits a comma-separated list into N contiguous chunks and emits them as a
+# JSON array of comma-joined strings, suitable for feeding a downstream matrix:
+#
+#   split:
+#     uses: PADAS/serca-pipelines/.github/workflows/_split-list.yml@main
+#     with: { list: "${{ vars.LEGACY_TENANTS_PROD }}", groups: 3 }
+#   deploy:
+#     needs: [split]
+#     strategy:
+#       matrix:
+#         chunk: ${{ fromJson(needs.split.outputs.chunks) }}
+#     with: { tenants: "${{ matrix.chunk }}" }
+
+on:
+  workflow_call:
+    inputs:
+      list:
+        description: 'Comma-separated list to split'
+        required: true
+        type: string
+      groups:
+        description: 'Number of chunks to split the list into'
+        required: false
+        type: number
+        default: 3
+    outputs:
+      chunks:
+        description: 'JSON array of comma-joined chunk strings (empty chunks dropped)'
+        value: ${{ jobs.split.outputs.chunks }}
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    outputs:
+      chunks: ${{ steps.split.outputs.chunks }}
+    steps:
+      - name: Split list into chunks
+        id: split
+        env:
+          LIST: ${{ inputs.list }}
+          INPUT_GROUPS: ${{ inputs.groups }}
+        run: |
+          if [ -z "$LIST" ]; then
+            echo "❌ list input is empty"
+            exit 1
+          fi
+
+          # Parse + trim items
+          IFS=',' read -ra RAW <<< "$LIST"
+          ITEMS=()
+          for it in "${RAW[@]}"; do
+            it="${it#"${it%%[![:space:]]*}"}"
+            it="${it%"${it##*[![:space:]]}"}"
+            [ -z "$it" ] && continue
+            ITEMS+=("$it")
+          done
+
+          N=${#ITEMS[@]}
+          if [ "$N" -eq 0 ]; then
+            echo "chunks=[]" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [[ "$INPUT_GROUPS" =~ ^[0-9]+$ ]] && [ "$INPUT_GROUPS" -gt 0 ]; then
+            G=$INPUT_GROUPS
+          else
+            G=3
+          fi
+          if [ "$N" -lt "$G" ]; then G=$N; fi
+
+          # Contiguous chunks with ceil sizing so chunks are balanced
+          BASE=$(( (N + G - 1) / G ))
+
+          CHUNKS=()
+          idx=0
+          while [ "$idx" -lt "$N" ]; do
+            part=("${ITEMS[@]:idx:BASE}")
+            idx=$(( idx + BASE ))
+            [ ${#part[@]} -eq 0 ] && continue
+            joined=$(IFS=','; printf '%s' "${part[*]}")
+            CHUNKS+=("$joined")
+          done
+
+          JSON=$(printf '%s\n' "${CHUNKS[@]}" | jq -R . | jq -s -c .)
+          echo "Split $N items into ${#CHUNKS[@]} chunk(s): $JSON"
+          echo "chunks=$JSON" >> "$GITHUB_OUTPUT"

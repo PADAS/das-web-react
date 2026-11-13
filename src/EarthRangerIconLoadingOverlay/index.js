@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo.svg';
 
 import * as styles from './styles.module.scss';

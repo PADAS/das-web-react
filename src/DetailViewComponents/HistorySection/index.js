@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useContext, useMemo } from 'react';
+import { memo, useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as HistoryIcon } from '../../common/images/icons/history.svg';
@@ -12,7 +12,7 @@ import * as styles from './styles.module.scss';
 
 const FILTERED_UPDATE_MESSAGES = ['Updated fields: ', 'Note Updated: '];
 
-const HistorySection = ({ className = '', updates }) => {
+const HistorySection = ({ className = '', headingRef = null, updates }) => {
   const tracker = useContext(TrackerContext);
   const { t } = useTranslation('details-view', { keyPrefix: 'historySection' });
 
@@ -36,20 +36,20 @@ const HistorySection = ({ className = '', updates }) => {
     tracker.track(`Sort history section in ${order} order`);
   }, [tracker]);
 
-  const [SortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(updatesRendered, onSort);
+  const [sortButton, sortedItemsRendered] = useSortedNodesWithToggleBtn(updatesRendered, onSort);
 
   return <div className={className} data-testid="detailView-historySection">
     <div className={styles.sectionHeader}>
       <div className={styles.title}>
         <HistoryIcon />
 
-        <h2>{t('sectionTitle')}</h2>
+        <h2 ref={headingRef} tabIndex={-1}>{t('sectionTitle')}</h2>
       </div>
 
       <div className={styles.actions}>
         <label>{t('timeLabel')}</label>
 
-        <SortButton />
+        {sortButton}
       </div>
     </div>
 

@@ -58,6 +58,10 @@ export const selectTrackTimeEnvelope = createSelector(
     return { from: trackLengthStartFromNow, until: null };
   });
 
+// Everything reading these lists takes the subject a track belongs to from its
+// line, so one fetched with no positions has nothing to be listed under.
+const hasTrackFeature = (trackData) => !!trackData?.track?.features?.[0];
+
 /** Heatmap track payloads: skips ropeless-gear subjects (handled on GearLayer). */
 const selectHeatmapSubjectTracks = createSelector(
   [selectHeatmapSubjectIDs, selectTracks, selectSubjectStore],
@@ -66,7 +70,7 @@ const selectHeatmapSubjectTracks = createSelector(
     heatmapSubjectIDs.forEach((subjectId) => {
       const subject = subjectStore?.[subjectId];
       if (subject && isGearSubjectSubtype(subject)) return;
-      if (tracks[subjectId]) {
+      if (hasTrackFeature(tracks[subjectId])) {
         heatmapSubjectTracks.push(tracks[subjectId]);
       }
     });
@@ -91,7 +95,7 @@ const selectSubjectShownTracks = createSelector(
     uniq([...subjectTrackState.pinned, ...subjectTrackState.visible]).forEach((subjectId) => {
       const subject = subjectStore?.[subjectId];
       if (subject && isGearSubjectSubtype(subject)) return;
-      if (tracks[subjectId]) {
+      if (hasTrackFeature(tracks[subjectId])) {
         subjectTracks.push(tracks[subjectId]);
       }
     });

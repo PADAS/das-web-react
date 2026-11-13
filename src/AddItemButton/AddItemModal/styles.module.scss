@@ -1,20 +1,20 @@
-@import '../../common/styles/vars/colors';
+@use '../../common/styles/vars/colors';
 
 .modalBody {
   padding: 0;
 
   .tabs {
     border: 0;
-    background-color: $light-gray;
+    background-color: colors.$light-gray;
 
-    button[role=tab] {
+    button[role="tab"] {
       border: 0;
-      border-bottom: 3px solid $light-gray;
-      color: $secondary-medium-gray;
+      border-bottom: 3px solid colors.$light-gray;
+      color: colors.$secondary-medium-gray;
 
-      &[class*=active] {
-        border-bottom: 3px solid $bright-blue;
-        color: $bright-blue;
+      &[class*="active"] {
+        border-bottom: 3px solid colors.$bright-blue;
+        color: colors.$bright-blue;
       }
     }
   }

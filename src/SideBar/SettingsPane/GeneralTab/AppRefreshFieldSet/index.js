@@ -1,12 +1,13 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { EVENT_FILTER_STORAGE_KEY } from '../../../../ducks/event-filter';
+import { FEED_TABLE_VIEW_STORAGE_KEY } from '../../../../ducks/feed-table-view';
 import { MAP_LAYER_FILTER_STORAGE_KEY } from '../../../../ducks/map-layer-filter';
 import { MAP_POSITION_STORAGE_KEY } from '../../../../ducks/map-position';
 import { PATROL_FILTER_STORAGE_KEY } from '../../../../ducks/patrol-filter';
 import { SETTINGS_CATEGORY, trackEventFactory } from '../../../../utils/analytics';
 import { useOptionalPersistence } from '../../../../reducers/storage-config';
+import { useFeatureFlag } from '../../../../hooks';
 
 import * as styles from '../../styles.module.scss';
 
@@ -15,10 +16,13 @@ const settingsTracker = trackEventFactory(SETTINGS_CATEGORY);
 const AppRefreshFieldSet = () => {
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.settingsPane.generalTab.appRefreshFieldSet' });
 
+  const isFeedTableEnabled = useFeatureFlag('FEED_TABLE');
+
   const { restorable: eventFilterRestorable, setRestorable: setEventFilterIsRestorable } = useOptionalPersistence(EVENT_FILTER_STORAGE_KEY, true);
   const { restorable: mapLayersRestorable, setRestorable: setMapLayerFiltersAreRestorable } = useOptionalPersistence(MAP_LAYER_FILTER_STORAGE_KEY, true);
   const { restorable: mapPositionRestorable, setRestorable: setMapPositionIsRestorable } = useOptionalPersistence(MAP_POSITION_STORAGE_KEY, true);
   const { restorable: patrolFilterRestorable, setRestorable: setPatrolFilterIsRestorable } = useOptionalPersistence(PATROL_FILTER_STORAGE_KEY, true);
+  const { restorable: tableViewRestorable, setRestorable: setTableViewIsRestorable } = useOptionalPersistence(FEED_TABLE_VIEW_STORAGE_KEY);
 
   const onMapPositionAndZoomLevelCheckboxChange = (event) => {
     setMapPositionIsRestorable(event.target.checked);
@@ -44,6 +48,12 @@ const AppRefreshFieldSet = () => {
     setMapLayerFiltersAreRestorable(event.target.checked);
 
     settingsTracker.track(`${event.target.checked ? 'Check' : 'Uncheck'} 'App refresh: map layers' checkbox`);
+  };
+
+  const onTableViewCheckboxChange = (event) => {
+    setTableViewIsRestorable(event.target.checked);
+
+    settingsTracker.track(`${event.target.checked ? 'Check' : 'Uncheck'} 'App refresh: table view' checkbox`);
   };
 
   return <fieldset aria-describedby="app-refresh-settings-description" className={styles.section}>
@@ -115,6 +125,24 @@ const AppRefreshFieldSet = () => {
           {t('mapLayersCheckboxLabel')}
         </label>
       </div>
+
+      {!!isFeedTableEnabled && <>
+        <hr className={styles.separator} />
+
+        <div className={styles.checkboxWrapper}>
+          <input
+            checked={tableViewRestorable}
+            className={styles.checkbox}
+            id="general-app-refresh-table-view-checkbox"
+            onChange={onTableViewCheckboxChange}
+            type="checkbox"
+          />
+
+          <label className={styles.label} htmlFor="general-app-refresh-table-view-checkbox">
+            {t('tableViewCheckboxLabel')}
+          </label>
+        </div>
+      </>}
     </div>
   </fieldset>;
 };

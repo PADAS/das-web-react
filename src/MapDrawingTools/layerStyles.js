@@ -97,3 +97,4 @@ export const circlePaint = {
 
 export const fillLayout = { visibility: 'visible' };
 export const fillPaint = { 'fill-color': 'red', 'fill-opacity': 0.4 };
+export const lightFillPaint = { ...fillPaint, 'fill-opacity': 0.1 };
