@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import esriLogoSrc from '../common/images/icons/esri-logo.svg?url';
 import { mockStore } from '../__test-helpers/MockStore';
-import { render, screen } from '../test-utils';
+import { fireEvent, render, screen } from '../test-utils';
 import { setBaseLayer } from '../ducks/layers';
 
 import MapBaseLayerControl from './';
@@ -128,10 +128,33 @@ describe('MapBaseLayerControl', () => {
   });
 
   describe('layer logos', () => {
-    test('shows the bundled Esri logo instead of the stored icon url for Esri layers', async () => {
+    test('shows the stored icon url when the layer defines one', async () => {
+      renderMapBaseLayerControl([customIconLayer]);
+
+      await openPopover();
+
+      expect(screen.getByRole('img', { name: 'Custom Icon logo' })).toHaveAttribute(
+        'src',
+        'https://example.com/custom.png'
+      );
+    });
+
+    test('keeps the stored icon url of an Esri layer when it loads', async () => {
       renderMapBaseLayerControl([esriLayer]);
 
       await openPopover();
+
+      expect(screen.getByRole('img', { name: 'ESRI Satellite logo' })).toHaveAttribute(
+        'src',
+        esriLayer.attributes.icon_url
+      );
+    });
+
+    test('shows the bundled Esri logo when the icon url of an Esri layer fails to load', async () => {
+      renderMapBaseLayerControl([esriLayer]);
+
+      await openPopover();
+      fireEvent.error(screen.getByRole('img', { name: 'ESRI Satellite logo' }));
 
       expect(screen.getByRole('img', { name: 'ESRI Satellite logo' })).toHaveAttribute('src', esriLogoSrc);
     });
@@ -145,38 +168,39 @@ describe('MapBaseLayerControl', () => {
       ]);
 
       await openPopover();
+      fireEvent.error(screen.getByRole('img', { name: 'Satellite logo' }));
 
       expect(screen.getByRole('img', { name: 'Satellite logo' })).toHaveAttribute('src', esriLogoSrc);
     });
 
     test('does not treat names that merely contain esri inside a word as Esri layers', async () => {
-      renderMapBaseLayerControl([buildLayer('lookalike', 'Jesrin Tiles', { type: 'tile_server' })]);
+      renderMapBaseLayerControl([
+        buildLayer('lookalike', 'Jesrin Tiles', { icon_url: 'https://example.com/gone.png', type: 'tile_server' }),
+      ]);
 
       await openPopover();
+      fireEvent.error(screen.getByRole('img', { name: 'Jesrin Tiles logo' }));
 
       expect(screen.getByRole('img', { name: 'Jesrin Tiles logo' })).toHaveAttribute('src', 'generic-globe-logo.png');
     });
 
-    test('shows the Mapbox logo for the default layer, which has no name', async () => {
-      renderMapBaseLayerControl([
-        { attributes: { type: 'mapbox_style' }, id: 'default', nameKey: 'defaultMapLayerName' },
-      ]);
-
-      await openPopover();
-
-      expect(screen.getByRole('button', { name: /EarthRanger Terrain Map$/ })).toBeVisible();
-      expect(screen.getByRole('img')).toHaveAttribute('src', 'mapbox-logo.png');
-    });
-
-    test('shows the icon url for non-Esri layers that define one', async () => {
+    test('shows the generic globe logo when the icon url of a tile layer fails to load', async () => {
       renderMapBaseLayerControl([customIconLayer]);
 
       await openPopover();
+      fireEvent.error(screen.getByRole('img', { name: 'Custom Icon logo' }));
 
-      expect(screen.getByRole('img', { name: 'Custom Icon logo' })).toHaveAttribute(
-        'src',
-        'https://example.com/custom.png'
-      );
+      expect(screen.getByRole('img', { name: 'Custom Icon logo' })).toHaveAttribute('src', 'generic-globe-logo.png');
+    });
+
+    test('keeps the default logo when it fails to load too', async () => {
+      renderMapBaseLayerControl([customIconLayer]);
+
+      await openPopover();
+      fireEvent.error(screen.getByRole('img', { name: 'Custom Icon logo' }));
+      fireEvent.error(screen.getByRole('img', { name: 'Custom Icon logo' }));
+
+      expect(screen.getByRole('img', { name: 'Custom Icon logo' })).toHaveAttribute('src', 'generic-globe-logo.png');
     });
 
     test('shows the Mapbox logo for mapbox style layers', async () => {
@@ -193,6 +217,19 @@ describe('MapBaseLayerControl', () => {
       await openPopover();
 
       expect(screen.getByRole('img', { name: 'Custom Tiles logo' })).toHaveAttribute('src', 'generic-globe-logo.png');
+    });
+
+    test('names the logo of the default layer, which has no name, after its translated name', async () => {
+      renderMapBaseLayerControl([
+        { attributes: { type: 'mapbox_style' }, id: 'default', nameKey: 'defaultMapLayerName' },
+      ]);
+
+      await openPopover();
+
+      expect(screen.getByRole('img', { name: 'EarthRanger Terrain Map logo' })).toHaveAttribute(
+        'src',
+        'mapbox-logo.png'
+      );
     });
   });
 });

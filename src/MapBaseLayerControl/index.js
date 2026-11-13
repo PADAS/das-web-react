@@ -29,12 +29,10 @@ const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 const isEsriLayer = (layer) =>
   ESRI_PATTERN.test(layer.name ?? '') || ESRI_PATTERN.test(layer.attributes.icon_url ?? '');
 
-const renderLayerLogoSrc = (layer) => {
-  const iconUrl = layer.attributes.icon_url;
+const getDefaultLogoSrc = (layer) => {
   const type = layer.attributes.type;
 
   if (isEsriLayer(layer)) return esriLogoSrc;
-  if (iconUrl) return iconUrl;
   if (type.toLowerCase().includes('mapbox')) return mapboxLogoSrc;
   if (TILE_LAYER_SOURCE_TYPES.includes(type)) return genericGlobeLogoSrc;
   if (MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(type)) return mapboxLogoSrc;
@@ -97,11 +95,20 @@ const BaseLayerControl = (props) => {
       <Popover className={styles.popup} title={t('popoverTitle')}>
         <ul className={styles.layerList}>
           {baseLayers.map(layer => {
-            const logoSrc = renderLayerLogoSrc(layer);
+            const defaultLogoSrc = getDefaultLogoSrc(layer);
 
             return <li key={`${layer.id}`}>
               <button type='button' onClick={() => onItemClick(layer)} className={layer.id === currentBaseLayer?.id ? styles.active : ''}>
-                <img src={logoSrc} alt={t('logoAlt', { logoName: layer.name })} />
+                <img
+                  alt={t('logoAlt', { logoName: layer.name ?? t(layer.nameKey) })}
+                  onError={(event) => {
+                    // The stored icon url can point to a host that no longer exists.
+                    if (event.currentTarget.getAttribute('src') !== defaultLogoSrc) {
+                      event.currentTarget.src = defaultLogoSrc;
+                    }
+                  }}
+                  src={layer.attributes.icon_url || defaultLogoSrc}
+                />
                 {layer.name ?? t(layer.nameKey)}
               </button>
             </li>;
