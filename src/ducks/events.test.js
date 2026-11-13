@@ -36,6 +36,8 @@ import {
   removeEventFromPatrol,
   SOCKET_EVENT_DATA,
   socketEventData,
+  socketUpdatePatrolEventLinks,
+  UPDATE_EVENT_PATROL_LINKS,
   UPDATE_EVENT_STORE,
   updateEvent,
   uploadEventFile,
@@ -52,6 +54,95 @@ jest.mock('../utils/events', () => ({
 
 describe('eventStoreReducer', () => {
   const details = { species: 'elephant' };
+
+  let eventStore;
+  let patrol;
+
+  beforeEach(() => {
+    eventStore = {
+      'linked-event-id': {
+        id: 'linked-event-id',
+        patrol_segments: ['other-patrol-segment-id', 'first-patrol-segment-id'],
+        patrols: ['other-patrol-id', 'patrol-id'],
+      },
+      'unlinked-event-id': { id: 'unlinked-event-id', patrol_segments: [], patrols: [] },
+    };
+    patrol = {
+      id: 'patrol-id',
+      patrol_segments: [
+        { events: [{ id: 'linked-event-id' }], id: 'first-patrol-segment-id' },
+        { events: [], id: 'second-patrol-segment-id' },
+      ],
+    };
+  });
+
+  const reducePatrolPush = (shouldUnlinkUnlistedEvents = true) => eventStoreReducer(eventStore, {
+    payload: { patrol, shouldUnlinkUnlistedEvents },
+    type: UPDATE_EVENT_PATROL_LINKS,
+  });
+
+  test('links a stored event to the patrol a push links it to', () => {
+    patrol.patrol_segments[1].events = [{ id: 'unlinked-event-id' }];
+
+    expect(reducePatrolPush()['unlinked-event-id']).toEqual({
+      id: 'unlinked-event-id',
+      patrol_segments: ['second-patrol-segment-id'],
+      patrols: ['patrol-id'],
+    });
+  });
+
+  test('unlinks a stored event from the patrol a push no longer links it to, keeping its other patrols', () => {
+    patrol.patrol_segments[0].events = [];
+
+    expect(reducePatrolPush()['linked-event-id']).toEqual({
+      id: 'linked-event-id',
+      patrol_segments: ['other-patrol-segment-id'],
+      patrols: ['other-patrol-id'],
+    });
+  });
+
+  test('moves a stored event to the legs of the patrol a push links it to', () => {
+    patrol.patrol_segments[0].events = [];
+    patrol.patrol_segments[1].events = [{ id: 'linked-event-id' }];
+
+    expect(reducePatrolPush()['linked-event-id']).toEqual({
+      id: 'linked-event-id',
+      patrol_segments: ['other-patrol-segment-id', 'second-patrol-segment-id'],
+      patrols: ['other-patrol-id', 'patrol-id'],
+    });
+  });
+
+  test('keeps the store when a push changes no stored event\'s links', () => {
+    patrol.patrol_segments[1].events = [{ id: 'unstored-event-id' }];
+
+    expect(reducePatrolPush()).toBe(eventStore);
+  });
+
+  test('keeps the store when a push leaves out the events of a leg', () => {
+    delete patrol.patrol_segments[0].events;
+
+    expect(reducePatrolPush()).toBe(eventStore);
+  });
+
+  test('keeps the store when a push leaves out the legs of the patrol', () => {
+    delete patrol.patrol_segments;
+
+    expect(reducePatrolPush()).toBe(eventStore);
+  });
+
+  test('keeps stored events linked when the push may leave out some of them, but links the ones it lists', () => {
+    patrol.patrol_segments[0].events = [];
+    patrol.patrol_segments[1].events = [{ id: 'unlinked-event-id' }];
+
+    const nextEventStore = reducePatrolPush(false);
+
+    expect(nextEventStore['linked-event-id']).toBe(eventStore['linked-event-id']);
+    expect(nextEventStore['unlinked-event-id']).toEqual({
+      id: 'unlinked-event-id',
+      patrol_segments: ['second-patrol-segment-id'],
+      patrols: ['patrol-id'],
+    });
+  });
 
   test('keeps loaded event details when a fetch that skips them answers null', () => {
     const state = { e1: { event_details: details, id: 'e1', title: 'Old' } };
@@ -481,6 +572,35 @@ describe('socketEventData', () => {
     const types = store.getActions().map((action) => action.type);
     expect(types).not.toContain(addRealtimeOverlayEvent(EVENT_ID).type);
     expect(types).not.toContain(removeRealtimeOverlayEvent(EVENT_ID).type);
+  });
+});
+
+describe('socketUpdatePatrolEventLinks', () => {
+  const PATROL = { id: 'patrol-id', patrol_segments: [] };
+
+  test('unlinks the events a patrol push leaves out when reads see the same events as pushes', () => {
+    const store = mockStore({ data: {}, view: {} });
+
+    store.dispatch(socketUpdatePatrolEventLinks({ patrol_data: PATROL }));
+
+    expect(store.getActions()).toEqual([{
+      payload: { patrol: PATROL, shouldUnlinkUnlistedEvents: true },
+      type: UPDATE_EVENT_PATROL_LINKS,
+    }]);
+  });
+
+  test('keeps the events a patrol push leaves out linked when reads send the user location', () => {
+    const store = mockStore({
+      data: { user: { permissions: { view_events_geographic_distance: ['view'] } } },
+      view: { userLocation: { coords: { latitude: 10, longitude: 20 } } },
+    });
+
+    store.dispatch(socketUpdatePatrolEventLinks({ patrol_data: PATROL }));
+
+    expect(store.getActions()).toEqual([{
+      payload: { patrol: PATROL, shouldUnlinkUnlistedEvents: false },
+      type: UPDATE_EVENT_PATROL_LINKS,
+    }]);
   });
 });
 

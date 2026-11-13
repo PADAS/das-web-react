@@ -159,7 +159,12 @@ describe('SideBar - PatrolsManager - Activity', () => {
       removeEventFromPatrol.mockImplementation(() => () => Promise.resolve());
       store.data.eventStore[report.id] = patrolEvent;
       store.data.eventTypes = eventTypes;
-      store.data.user = { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] } };
+      store.data.user = {
+        permissions: {
+          [PERMISSION_KEYS.EVENT_RELATED_SEGMENTS]: [PERMISSIONS.DELETE],
+          [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE],
+        },
+      };
       store.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT] = true;
     });
 
