@@ -1,5 +1,7 @@
 import axios, { CancelToken, isCancel } from 'axios';
 import union from 'lodash/union';
+import without from 'lodash/without';
+import xor from 'lodash/xor';
 
 import { API_URL, API_V2_URL, PREVIEW_FEATURES, REALTIME_OVERLAY_WINDOW_MS, TAB_KEYS } from '../constants';
 import globallyResettableReducer from '../reducers/global-resettable';
@@ -9,7 +11,7 @@ import { generateErrorMessageForRequest } from '../utils/request';
 import { getBboxParamsFromMap, objectToParamString } from '../utils/query';
 import { getPreviewFeatureValue } from '../utils/feature-flags';
 import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
-  uniqueEventIds, validateReportAgainstCurrentEventFilter } from '../utils/events';
+  validateReportAgainstCurrentEventFilter } from '../utils/events';
 import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
 import { calcEventFilterForRequest } from '../utils/event-filter';
@@ -60,12 +62,12 @@ const ADD_EVENT_NOTE_START = 'ADD_EVENT_NOTE_START';
 const ADD_EVENT_NOTE_SUCCESS = 'ADD_EVENT_NOTE_SUCCESS';
 const ADD_EVENT_NOTE_ERROR = 'ADD_EVENT_NOTE_ERROR';
 
-const EVENT_FEED_NAME = 'EVENT_FEED';
+export const EVENT_FEED_NAME = 'EVENT_FEED';
 
 const FEED_FETCH_START = 'FEED_FETCH_START';
-const FEED_FETCH_SUCCESS = 'FEED_FETCH_SUCCESS';
-const FEED_FETCH_NEXT_PAGE_SUCCESS = 'FEED_FETCH_NEXT_PAGE_SUCCESS';
-const FEED_FETCH_ERROR = 'FEED_FETCH_ERROR';
+export const FEED_FETCH_SUCCESS = 'FEED_FETCH_SUCCESS';
+export const FEED_FETCH_NEXT_PAGE_SUCCESS = 'FEED_FETCH_NEXT_PAGE_SUCCESS';
+export const FEED_FETCH_ERROR = 'FEED_FETCH_ERROR';
 
 const FETCH_MAP_EVENTS_START = 'FETCH_MAP_EVENTS_START';
 const FETCH_MAP_EVENTS_COMPLETE = 'FETCH_MAP_EVENTS_COMPLETE';
@@ -74,6 +76,7 @@ const FETCH_MAP_EVENTS_PAGE_SUCCESS = 'FETCH_MAP_EVENTS_PAGE_SUCCESS';
 
 const NEW_EVENT_TYPE = 'new_event';
 export const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
+export const UPDATE_EVENT_PATROL_LINKS = 'EVENTS.UPDATE_EVENT_PATROL_LINKS';
 export const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
 const shouldAppendLocationToRequest = (state) => {
@@ -130,16 +133,31 @@ export const socketEventData = (payload) => (dispatch, getState) => {
   }
 };
 
+// The server pushes link changes as patrol updates only, never as event ones.
+export const socketUpdatePatrolEventLinks = ({ patrol_data }) => (dispatch, getState) => {
+  dispatch({
+    payload: {
+      patrol: patrol_data,
+      // Pushes leave out the geographic-only events a location lets reads add.
+      shouldUnlinkUnlistedEvents: !shouldAppendLocationToRequest(getState()),
+    },
+    type: UPDATE_EVENT_PATROL_LINKS,
+  });
+};
+
 
 // higher-order action creators
 const fetchNamedFeedActionCreator = (name) => {
   let cancelToken = CancelToken.source();
+  let nextPageCancelToken = CancelToken.source();
 
   const fetchFn = (config, paramString) => (dispatch, getState) => {
     const state = getState();
 
     cancelToken.cancel();
     cancelToken = CancelToken.source();
+    // A page of the feed being replaced must not land in the new one.
+    nextPageCancelToken.cancel();
 
     dispatch({
       name,
@@ -162,7 +180,7 @@ const fetchNamedFeedActionCreator = (name) => {
           dispatch({
             name,
             type: FEED_FETCH_SUCCESS,
-            payload: response.data.data,
+            payload: { ...response.data.data, isExcludingContained: paramString.includes('exclude_contained=true') },
           });
         }
         return response;
@@ -177,28 +195,27 @@ const fetchNamedFeedActionCreator = (name) => {
       });
   };
 
-  const fetchNextPageFn = url => (dispatch, getState) => {
-    cancelToken.cancel();
-    cancelToken = CancelToken.source();
+  // A failed page leaves the feed's error alone: the rows loaded so far stay,
+  // and the page can be asked for again.
+  const fetchNextPageFn = (url) => (dispatch, getState) => {
+    nextPageCancelToken.cancel();
+    nextPageCancelToken = CancelToken.source();
 
-    return axios.get(url, {
-      cancelToken: cancelToken.token,
-    })
-      .then(response => {
-        dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, getState().data.eventStore)));
+    return axios.get(url, { cancelToken: nextPageCancelToken.token })
+      .then((response) => {
+        const eventStore = getState().data.eventStore;
+        dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(response.data.data.results, eventStore)));
         dispatch({
           name,
           type: FEED_FETCH_NEXT_PAGE_SUCCESS,
-          payload: response.data.data,
+          payload: { ...response.data.data, url },
         });
         return response;
       })
       .catch((error) => {
-        dispatch({
-          name,
-          type: FEED_FETCH_ERROR,
-          payload: error,
-        });
+        if (!isCancel(error)) {
+          console.warn('Failed to fetch the next page of the event feed', error);
+        }
         return Promise.reject(error);
       });
   };
@@ -549,6 +566,26 @@ const [fetchEventFeed, fetchNextEventFeedPage, fetchEventFeedCancelToken] = fetc
 
 export { fetchEventFeed, fetchEventFeedCancelToken, fetchNextEventFeedPage };
 
+// A page of the table's own load of every feed event, apart from the feed.
+export const fetchFeedTableEventsPage = (url, cancelToken) => async (dispatch, getState) => {
+  try {
+    const response = await axios.get(url, { cancelToken });
+
+    dispatch(updateEventStore(...excludeOpenEventIfAlreadyInEventStore(
+      response.data.data.results,
+      getState().data.eventStore
+    )));
+
+    return response.data.data;
+  } catch (error) {
+    if (!isCancel(error)) {
+      console.warn('Failed to fetch a page of the events table', error);
+    }
+
+    throw error;
+  }
+};
+
 const generateNewCancelToken = () => new CancelToken(function executor(cancelFn) {
   mapEventsCancelFn = cancelFn;
 });
@@ -769,32 +806,89 @@ const namedFeedReducer = (name, reducer = state => state) => globallyResettableR
       error: generateErrorMessageForRequest(payload),
     };
   }
-  if (type === FEED_FETCH_NEXT_PAGE_SUCCESS) {
-    const { results: events, count, next, previous } = payload;
+  // A page asked for before the feed was refreshed belongs to the old feed.
+  if (type === FEED_FETCH_NEXT_PAGE_SUCCESS && payload.url === state.next) {
+    const loadedIds = new Set(state.results);
     return {
       ...state,
-      count,
-      next,
-      previous,
-      results: [...state.results, ...events.map(event => event.id)].filter( uniqueEventIds ),
+      count: payload.count,
+      next: payload.next,
+      previous: payload.previous,
+      results: [...state.results, ...payload.results.map((event) => event.id).filter((id) => !loadedIds.has(id))],
     };
   }
 
   return reducer(state, action);
 }, INITIAL_EVENT_FEED_STATE);
 
-// reducers
-const INITIAL_STORE_STATE = {};
-export const eventStoreReducer = (state, { type, payload }) => {
-  if (type === CLEAR_EVENT_DATA) {
-    return { ...INITIAL_STORE_STATE };
+const EMPTY_ARRAY = [];
+
+const applyPatrolLinksToEventStore = (eventStore, patrol, shouldUnlinkUnlistedEvents) => {
+  const patrolSegments = patrol.patrol_segments;
+  const hasEventsOfEveryLeg = Array.isArray(patrolSegments)
+    && patrolSegments.every((patrolSegment) => Array.isArray(patrolSegment.events));
+  if (!hasEventsOfEveryLeg) {
+    return eventStore;
   }
 
-  if (type === UPDATE_EVENT_STORE) {
+  const patrolSegmentIds = new Set(patrolSegments.map((patrolSegment) => patrolSegment.id));
+  const linkedSegmentIdsByEventId = patrolSegments.reduce((accumulator, patrolSegment) => {
+    patrolSegment.events.forEach((event) => {
+      accumulator[event.id] = [...(accumulator[event.id] ?? EMPTY_ARRAY), patrolSegment.id];
+    });
+
+    return accumulator;
+  }, {});
+
+  const isStoredAsLinked = (event) => event.patrols?.includes(patrol.id)
+    || event.patrol_segments?.some((patrolSegmentId) => patrolSegmentIds.has(patrolSegmentId));
+  const affectedEvents = shouldUnlinkUnlistedEvents
+    ? Object.values(eventStore).filter((event) => linkedSegmentIdsByEventId[event.id] || isStoredAsLinked(event))
+    : Object.keys(linkedSegmentIdsByEventId).map((eventId) => eventStore[eventId]).filter(Boolean);
+
+  const relinkedEvents = affectedEvents.reduce((accumulator, event) => {
+    const eventPatrolSegmentIds = event.patrol_segments ?? EMPTY_ARRAY;
+    const eventPatrolIds = event.patrols ?? EMPTY_ARRAY;
+    const linkedSegmentIds = linkedSegmentIdsByEventId[event.id] ?? EMPTY_ARRAY;
+    const isLinked = linkedSegmentIds.length > 0;
+    const storedSegmentIds = eventPatrolSegmentIds
+      .filter((patrolSegmentId) => patrolSegmentIds.has(patrolSegmentId));
+
+    if (xor(storedSegmentIds, linkedSegmentIds).length > 0 || isLinked !== eventPatrolIds.includes(patrol.id)) {
+      accumulator[event.id] = {
+        ...event,
+        patrol_segments: [
+          ...eventPatrolSegmentIds.filter((patrolSegmentId) => !patrolSegmentIds.has(patrolSegmentId)),
+          ...linkedSegmentIds,
+        ],
+        patrols: isLinked ? union(eventPatrolIds, [patrol.id]) : without(eventPatrolIds, patrol.id),
+      };
+    }
+
+    return accumulator;
+  }, {});
+
+  return Object.keys(relinkedEvents).length > 0 ? { ...eventStore, ...relinkedEvents } : eventStore;
+};
+
+// reducers
+const INITIAL_STORE_STATE = {};
+export const eventStoreReducer = (state, { payload, type }) => {
+  switch (type) {
+  case CLEAR_EVENT_DATA:
+    return { ...INITIAL_STORE_STATE };
+
+  case UPDATE_EVENT_STORE: {
     const toAdd = payload.reduce((accumulator, event) => {
       addNormalizingPropertiesToEventDataFromAPI(event);
 
-      accumulator[event.id] = { ...state[event.id], ...event };
+      // Fetches that skip details (map, realtime overlay) still answer `event_details: null`; keep loaded ones.
+      const keepLoadedDetails = event.event_details === null && !!state[event.id]?.event_details;
+      accumulator[event.id] = {
+        ...state[event.id],
+        ...event,
+        ...(keepLoadedDetails && { event_details: state[event.id].event_details }),
+      };
 
       if (event?.is_contained_in?.length) {
         const incidentsToUpdate = event.is_contained_in
@@ -818,8 +912,6 @@ export const eventStoreReducer = (state, { type, payload }) => {
         });
       }
 
-
-
       return accumulator;
     }, {});
 
@@ -828,7 +920,13 @@ export const eventStoreReducer = (state, { type, payload }) => {
       ...toAdd,
     };
   }
-  return state;
+
+  case UPDATE_EVENT_PATROL_LINKS:
+    return applyPatrolLinksToEventStore(state, payload.patrol, payload.shouldUnlinkUnlistedEvents);
+
+  default:
+    return state;
+  }
 };
 
 export const INITIAL_EVENT_FEED_STATE = {
@@ -841,7 +939,7 @@ export const INITIAL_EVENT_FEED_STATE = {
 
 export const eventFeedReducer = namedFeedReducer(EVENT_FEED_NAME, (state, { type, payload }) => {
   if (type === SOCKET_EVENT_DATA) {
-    if (eventBelongsToCollection(payload.event_data)) {
+    if (state.isExcludingContained && eventBelongsToCollection(payload.event_data)) {
       return {
         ...state,
         results: state.results.filter(id => id !== payload.event_data.id),

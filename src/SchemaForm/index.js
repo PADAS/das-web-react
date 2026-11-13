@@ -100,7 +100,7 @@ const SchemaForm = ({
 
   const normalizedFormData = useMemo(() => normalizeChoiceListValues(formData, formElements), [formData, formElements]);
 
-  const runSchemaValidations = useSchemaValidations(schema);
+  const runSchemaValidations = useSchemaValidations(schema, formElements);
   const runUploadValidations = useUploadValidations(formElements);
 
   const validate = ({ shouldFocusFirstError = true } = {}) => {
@@ -320,7 +320,7 @@ const SchemaForm = ({
         <p>{t('validationErrorsAnnouncement')}</p>
 
         <ul>
-          {lastSubmissionErroneousFields.map((fieldId) => <li key={fieldId}>
+          {lastSubmissionErroneousFields.filter((fieldId) => formElements[fieldId]).map((fieldId) => <li key={fieldId}>
             {formElements[fieldId].details.label}
           </li>)}
         </ul>

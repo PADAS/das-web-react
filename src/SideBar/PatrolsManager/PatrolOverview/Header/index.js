@@ -93,7 +93,7 @@ const Header = ({
   const onToggleTrack = () => {
     dispatch(togglePatrolTrackState(patrol.id));
 
-    tracker.track(`Toggle patrol track state to ${nextTrackToggleStateIfToggled} from patrol overview`);
+    tracker.track('Toggle track from patrol overview', nextTrackToggleStateIfToggled);
   };
 
   const onJumpToLocation = () => {

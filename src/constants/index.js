@@ -114,6 +114,25 @@ export const FOCUSABLE_SELECTOR = [
 // would anchor to itself rather than to the viewport.
 export const POPOVER_POPPER_CONFIG = { modifiers: [{ name: 'computeStyles', options: { gpuAcceleration: false } }] };
 
+// On small screens a top bar popover drops centered on the screen rather than
+// from its toggle, which would leave it lopsided.
+export const TOP_BAR_POPOVER_POPPER_CONFIG = {
+  modifiers: [
+    ...POPOVER_POPPER_CONFIG.modifiers,
+    {
+      enabled: true,
+      fn: ({ state }) => {
+        if (!BREAKPOINTS.screenIsMediumLayoutOrLarger.matches) {
+          state.modifiersData.popperOffsets.x = (document.documentElement.clientWidth - state.rects.popper.width) / 2;
+        }
+      },
+      name: 'centerOnSmallScreens',
+      phase: 'main',
+      requiresIfExists: ['preventOverflow'],
+    },
+  ],
+};
+
 export const LAYER_IDS = {
   ANALYZER_LINES_CRITICAL: 'analyzer-line-critical',
   ANALYZER_LINES_WARNING: 'analyzer-line-warning',
@@ -341,6 +360,7 @@ export const EXTERNAL_SAME_DOMAIN_ROUTES = [
 
 export const PERMISSION_KEYS = {
   EVENTS: 'event',
+  EVENT_RELATED_SEGMENTS: 'event_related_segments',
   EVENT_RELATIONSHIPS: 'event_relationship',
   MESSAGES: 'message',
   OBSERVATIONS: 'observation',
@@ -379,7 +399,10 @@ export const SUPPORTED_LANGUAGES = {
 
 export const FEATURE_FLAGS = {};
 
-export const DEVELOPMENT_FEATURE_FLAGS = {};
+export const DEVELOPMENT_FEATURE_FLAGS = {
+  // On while the table is previewed; turned off per user in Settings > General.
+  FEED_TABLE: true,
+};
 
 export const LINK_TYPES = { PATROL: 'patrol', EVENT: 'event' };
 
@@ -389,6 +412,7 @@ export const EVENT_SORT_OPTIONS = [
   { value: 'updated_at', key: 'updatedAtLabel' },
   { value: 'created_at', key: 'createdAtLabel' },
   { value: 'event_time', key: 'eventTimeLabel' },
+  { value: 'serial_number', key: 'serialNumberLabel' },
 ];
 
 export const MAP_LAYER_SORT_VALUES = {

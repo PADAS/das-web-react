@@ -9,8 +9,9 @@ import { ReactComponent as ArrowUpIcon } from '../../../../common/images/icons/a
 import { ReactComponent as CheckIcon } from '../../../../common/images/icons/check-light.svg';
 import { ReactComponent as SortLinesIcon } from '../../../../common/images/icons/sort-lines.svg';
 
-import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION } from '../../../../constants';
+import { DEFAULT_EVENT_SORT, EVENT_SORT_OPTIONS, SORT_DIRECTION, TAB_KEYS } from '../../../../constants';
 import navigateMenuWithKeyboard from '../../../utils/navigateMenuWithKeyboard';
+import { setFeedTableClientSort } from '../../../../ducks/feed-table-sort';
 import { TrackerContext } from '../../../../utils/analytics';
 import { updateEventFilter } from '../../../../ducks/event-filter';
 
@@ -21,10 +22,11 @@ const NEXT_SORT_DIRECTION_BY_SORT_DIRECTION = {
   [SORT_DIRECTION.up]: SORT_DIRECTION.down,
 };
 
-const SortControls = () => {
+const SortControls = ({ isTableView = false }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('filters', { keyPrefix: 'eventFilters.sortControls' });
 
+  const clientSort = useSelector((state) => state.view.feedTableSort[TAB_KEYS.EVENTS].clientSort);
   const eventSort = useSelector((state) => state.data.eventFilter.filter.sort);
 
   const tracker = useContext(TrackerContext);
@@ -36,8 +38,13 @@ const SortControls = () => {
   const [isSortByMenuOpen, setIsSortByMenuOpen] = useState(false);
   const [sortByMenuAnchorEl, setSortByMenuAnchorEl] = useState(null);
 
-  const sortDirection = eventSort[0];
+  // A table sort on a column the events API can't sort by shows here too.
+  const tableSort = isTableView && clientSort?.feedSort === eventSort ? clientSort : null;
+
   const sortOption = eventSort[1];
+  const sortByLabel = tableSort ? tableSort.label : t(`sortByMenuOption.${sortOption.key}`);
+  const tableSortDirection = tableSort?.sort === 'asc' ? SORT_DIRECTION.up : SORT_DIRECTION.down;
+  const sortDirection = tableSort ? tableSortDirection : eventSort[0];
 
   const isSortAscending = sortDirection === SORT_DIRECTION.up;
 
@@ -54,6 +61,9 @@ const SortControls = () => {
   );
 
   const onSortByMenuOptionClick = (option) => {
+    if (tableSort) {
+      dispatch(setFeedTableClientSort(TAB_KEYS.EVENTS, null));
+    }
     dispatch(updateEventFilter({ filter: { sort: [sortDirection, option] } }));
 
     tracker.track(`Sort the feed by ${option.value}`);
@@ -64,34 +74,43 @@ const SortControls = () => {
   const onSortDirectionClick = () => {
     const nextSortDirection = NEXT_SORT_DIRECTION_BY_SORT_DIRECTION[sortDirection];
 
-    dispatch(updateEventFilter({ filter: { sort: [nextSortDirection, sortOption] } }));
+    if (tableSort) {
+      dispatch(setFeedTableClientSort(
+        TAB_KEYS.EVENTS,
+        { ...tableSort, sort: nextSortDirection === SORT_DIRECTION.up ? 'asc' : 'desc' }
+      ));
+    } else {
+      dispatch(updateEventFilter({ filter: { sort: [nextSortDirection, sortOption] } }));
+    }
 
     tracker.track(`Sort the feed in ${nextSortDirection === SORT_DIRECTION.up ? 'ascending' : 'descending'} order`);
   };
 
   useEffect(() => {
     if (isSortByMenuOpen) {
-      const selectedSortByMenuItemOptionIndex = EVENT_SORT_OPTIONS.findIndex(
-        (option) => option.value === sortOption.value
-      );
+      const selectedSortByMenuItemOptionIndex = tableSort
+        ? 0
+        : EVENT_SORT_OPTIONS.findIndex((option) => option.value === sortOption.value);
       sortByMenuItemOptionRefs.current[selectedSortByMenuItemOptionIndex]?.focus();
     }
-  }, [isSortByMenuOpen, sortOption.value]);
+  }, [isSortByMenuOpen, sortOption.value, tableSort]);
 
   return <>
     <button
       aria-controls={sortByMenuPopoverId}
       aria-expanded={isSortByMenuOpen}
       aria-haspopup="menu"
-      aria-label={t('setSortByButtonLabel', { sortBy: t(`sortByMenuOption.${sortOption.key}`) })}
-      className={`${styles.sortingButton} ${sortOption.value === DEFAULT_EVENT_SORT[1].value ? '' : styles.active}`}
+      aria-label={t('setSortByButtonLabel', { sortBy: sortByLabel })}
+      className={`${styles.sortingButton} ${!tableSort && sortOption.value === DEFAULT_EVENT_SORT[1].value
+        ? ''
+        : styles.active}`}
       onClick={() => setIsSortByMenuOpen(true)}
       ref={setSortByMenuAnchorEl}
       type="button"
       >
       <SortLinesIcon aria-hidden="true" className={styles.sortingButtonIcon} />
 
-      <span className={styles.sortingButtonLabel}>{t(`sortByMenuOption.${sortOption.key}`)}</span>
+      <span className={styles.sortingButtonLabel}>{sortByLabel}</span>
     </button>
 
     <Overlay
@@ -105,7 +124,7 @@ const SortControls = () => {
         <ul aria-label={t('sortByMenuLabel')} className={styles.sortByMenu} onKeyDown={onMenuKeyDown} role="menu">
           {EVENT_SORT_OPTIONS.map((option, index) => <li className={styles.sortByMenuItem} key={option.value} role="none">
             <button
-              aria-checked={sortOption.value === option.value}
+              aria-checked={!tableSort && sortOption.value === option.value}
               className={styles.sortByMenuItemOption}
               onClick={() => onSortByMenuOptionClick(option)}
               ref={(element) => {
@@ -115,7 +134,7 @@ const SortControls = () => {
               tabIndex={-1}
               type="button"
             >
-              {sortOption.value === option.value && <CheckIcon aria-hidden="true" className={styles.checkIcon} />}
+              {!tableSort && sortOption.value === option.value && <CheckIcon aria-hidden="true" className={styles.checkIcon} />}
 
               {t(`sortByMenuOption.${option.key}`)}
             </button>

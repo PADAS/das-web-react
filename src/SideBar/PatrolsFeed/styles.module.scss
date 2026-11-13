@@ -1,0 +1,24 @@
+@use '../../common/styles/layout';
+@use '../shared';
+
+// This feed mounts its table view instead of toggling a class, so it widens
+// from the feed's width on mount.
+@keyframes widen {
+  from {
+    @include layout.sidebar-width-base;
+  }
+}
+
+.tableView {
+  @include shared.default-view-width;
+  @include shared.table-view-width;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+  @media (min-width: layout.$md-layout-width-min) and (prefers-reduced-motion: no-preference) {
+    animation: widen 0.4s ease-in-out;
+  }
+}

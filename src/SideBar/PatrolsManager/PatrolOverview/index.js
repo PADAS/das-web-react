@@ -224,7 +224,7 @@ const PatrolOverviewContent = ({ patrol }) => {
           aria-label={t('tabsLabel')}
           className={styles.tabs}
           defaultActiveKey={TAB_KEYS.OVERVIEW}
-          onSelect={(key) => patrolOverviewTracker.track(`Click the "${TAB_LABELS[key]}" tab in patrol overview`)}
+          onSelect={(key) => patrolOverviewTracker.track('Click a tab in patrol overview', TAB_LABELS[key])}
           variant="underline"
         >
           <Tab

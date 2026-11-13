@@ -275,6 +275,18 @@ describe('Map', () => {
 
   });
 
+  test('takes the map and its controls out of the tab order while something covers them', () => {
+    const { container } = renderMap({ inert: true });
+
+    expect(container.querySelector('.map-wrapper')).toHaveAttribute('inert');
+  });
+
+  test('keeps the map and its controls in the tab order otherwise', () => {
+    const { container } = renderMap();
+
+    expect(container.querySelector('.map-wrapper')).not.toHaveAttribute('inert');
+  });
+
   describe('map events fetch gating (vector tiles flag)', () => {
     beforeEach(() => jest.useFakeTimers());
     afterEach(() => {

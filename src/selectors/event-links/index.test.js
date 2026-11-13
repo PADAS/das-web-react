@@ -32,8 +32,9 @@ describe('selectors - event-links', () => {
           ],
           user: {
             permissions: {
+              [PERMISSION_KEYS.EVENT_RELATED_SEGMENTS]: [PERMISSIONS.DELETE],
               [PERMISSION_KEYS.EVENT_RELATIONSHIPS]: [PERMISSIONS.DELETE],
-              [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
+              [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE],
             },
           },
         },
@@ -71,15 +72,20 @@ describe('selectors - event-links', () => {
       });
     });
 
-    test('does not let the user change the links of an event whose category they cannot edit', () => {
+    test('does not let the user add an event whose category they cannot edit to an incident', () => {
       setEventCategoryPermissions(['read']);
 
       expect(selectEventLinkPermissions(state, event).canAddToIncident).toBe(false);
-      expect(selectEventLinkPermissions(state, event).canAddToPatrol).toBe(false);
+    });
+
+    test('lets the user change the patrol of an event whose category they cannot edit', () => {
+      setEventCategoryPermissions(['read']);
+
+      expect(selectEventLinkPermissions(state, event).canAddToPatrol).toBe(true);
 
       linkEventToIncidentAndPatrol();
 
-      expect(selectEventLinkPermissions(state, event).canRemoveFromPatrol).toBe(false);
+      expect(selectEventLinkPermissions(state, event).canRemoveFromPatrol).toBe(true);
     });
 
     test('lets the user remove an event from an incident with the delete permission alone', () => {
@@ -91,9 +97,16 @@ describe('selectors - event-links', () => {
 
     test('does not let the user remove an event from an incident without the delete permission', () => {
       linkEventToIncidentAndPatrol();
-      state.data.user.permissions = { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] };
+      delete state.data.user.permissions[PERMISSION_KEYS.EVENT_RELATIONSHIPS];
 
       expect(selectEventLinkPermissions(state, event).canRemoveFromIncident).toBe(false);
+    });
+
+    test('does not let the user remove an event from a patrol without the permission to do so', () => {
+      linkEventToIncidentAndPatrol();
+      delete state.data.user.permissions[PERMISSION_KEYS.EVENT_RELATED_SEGMENTS];
+
+      expect(selectEventLinkPermissions(state, event).canRemoveFromPatrol).toBe(false);
     });
 
     test('does not offer patrols when patrol management is off', () => {
@@ -106,8 +119,18 @@ describe('selectors - event-links', () => {
       expect(selectEventLinkPermissions(state, event).canRemoveFromPatrol).toBe(false);
     });
 
-    test('does not offer patrols to a user who cannot read them', () => {
-      state.data.user.permissions = {};
+    test('does not offer patrols to a user who cannot change them', () => {
+      state.data.user.permissions[PERMISSION_KEYS.PATROLS] = [PERMISSIONS.READ];
+
+      expect(selectEventLinkPermissions(state, event).canAddToPatrol).toBe(false);
+
+      linkEventToIncidentAndPatrol();
+
+      expect(selectEventLinkPermissions(state, event).canRemoveFromPatrol).toBe(false);
+    });
+
+    test('does not offer patrols to a user who can change them but not view them', () => {
+      state.data.user.permissions[PERMISSION_KEYS.PATROLS] = [PERMISSIONS.UPDATE];
 
       expect(selectEventLinkPermissions(state, event).canAddToPatrol).toBe(false);
 

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 const FOCUSABLE_SELECTOR = [
+  'a[href]:not([tabindex="-1"])',
   'button:not(:disabled):not([tabindex="-1"])',
   'input:not(:disabled):not([type="hidden"]):not([tabindex="-1"])',
   '[tabindex]:not([tabindex="-1"])',
@@ -86,7 +87,13 @@ const useModalPopover = (bodyRef, trigger, onClose, isNestedMenuOpen = false) =>
       const tabStops = focusableElements.filter((element) => isTabStop(element, focusableElements));
       const focusedTabStopIndex = tabStops.indexOf(document.activeElement);
 
-      if (event.shiftKey && focusedTabStopIndex <= 0) {
+      // A popover with nothing to focus traps nothing: Tab closes it and moves
+      // on from the trigger, as if the popover had never opened.
+      if (!tabStops.length) {
+        onClose();
+
+        trigger.focus();
+      } else if (event.shiftKey && focusedTabStopIndex <= 0) {
         event.preventDefault();
 
         tabStops.at(-1).focus();

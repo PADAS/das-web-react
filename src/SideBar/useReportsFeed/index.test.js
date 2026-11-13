@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw/http';
+import { MemoryRouter } from 'react-router';
 import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 
@@ -53,8 +54,121 @@ describe('useReportsFeed', () => {
     jest.restoreAllMocks();
   });
 
-  const renderUseReportsFeed = (builtStore = mockStore(store)) => renderHook(() => useReportsFeed(), {
-    wrapper: ({ children }) => <Provider store={builtStore}>{children}</Provider>,
+  const renderUseReportsFeed = (builtStore = mockStore(store), initialEntries = ['/events']) => renderHook(
+    () => useReportsFeed(),
+    {
+      wrapper: ({ children }) => <MemoryRouter initialEntries={initialEntries}>
+        <Provider store={builtStore}>{children}</Provider>
+      </MemoryRouter>,
+    }
+  );
+
+  const captureIncludeDetailsParams = () => {
+    const includeDetailsParams = [];
+    server.use(http.get(EVENTS_API_URL, ({ request }) => {
+      includeDetailsParams.push(new URL(request.url).searchParams.get('include_details'));
+
+      return HttpResponse.json(eventFeedResponse);
+    }));
+
+    return includeDetailsParams;
+  };
+
+  const showEventsTable = () => {
+    store.view.feedTableView = { events: true };
+  };
+
+  test('loads event details in the table view filtered to one event type', async () => {
+    showEventsTable();
+    store.data.eventFilter = {
+      ...INITIAL_EVENT_FILTER_STATE,
+      filter: { ...INITIAL_EVENT_FILTER_STATE.filter, event_type: ['type-id'] },
+    };
+    const includeDetailsParams = captureIncludeDetailsParams();
+
+    renderUseReportsFeed(mockStore(store));
+
+    await waitFor(() => {
+      expect(includeDetailsParams.at(-1)).toBe('true');
+    });
+  });
+
+  test('keeps loading event details while an event of the table is open', async () => {
+    showEventsTable();
+    store.data.eventFilter = {
+      ...INITIAL_EVENT_FILTER_STATE,
+      filter: { ...INITIAL_EVENT_FILTER_STATE.filter, event_type: ['type-id'] },
+    };
+    const includeDetailsParams = captureIncludeDetailsParams();
+
+    renderUseReportsFeed(mockStore(store), ['/events/event-id']);
+
+    await waitFor(() => {
+      expect(includeDetailsParams.length).toBeGreaterThan(0);
+    });
+    expect(includeDetailsParams).not.toContain('false');
+  });
+
+  test('does not load event details in the table view across event types', async () => {
+    showEventsTable();
+    const includeDetailsParams = captureIncludeDetailsParams();
+
+    renderUseReportsFeed(mockStore(store));
+
+    await waitFor(() => {
+      expect(includeDetailsParams.length).toBeGreaterThan(0);
+    });
+    expect(includeDetailsParams).not.toContain('true');
+  });
+
+  test('leaves out the events incidents contain in the list without filters', async () => {
+    const excludeContainedParams = [];
+    server.use(http.get(EVENTS_API_URL, ({ request }) => {
+      excludeContainedParams.push(new URL(request.url).searchParams.get('exclude_contained'));
+
+      return HttpResponse.json(eventFeedResponse);
+    }));
+
+    renderUseReportsFeed(mockStore(store));
+
+    await waitFor(() => expect(excludeContainedParams.at(-1)).toBe('true'));
+  });
+
+  test('leaves out the events incidents contain in the table view without filters', async () => {
+    showEventsTable();
+    const excludeContainedParams = [];
+    server.use(http.get(EVENTS_API_URL, ({ request }) => {
+      excludeContainedParams.push(new URL(request.url).searchParams.get('exclude_contained'));
+
+      return HttpResponse.json(eventFeedResponse);
+    }));
+
+    const { result } = renderUseReportsFeed(mockStore(store));
+
+    await waitFor(() => expect(excludeContainedParams.at(-1)).toBe('true'));
+    expect(result.current.shouldExcludeContained).toBe(true);
+  });
+
+  test('leaves out the events incidents contain when only the sort changes', async () => {
+    store.data.eventFilter = {
+      ...INITIAL_EVENT_FILTER_STATE,
+      filter: { ...INITIAL_EVENT_FILTER_STATE.filter, sort: ['+', INITIAL_EVENT_FILTER_STATE.filter.sort[1]] },
+    };
+
+    const { result } = renderUseReportsFeed(mockStore(store));
+
+    expect(result.current.shouldExcludeContained).toBe(true);
+  });
+
+  test('keeps the events incidents contain once a filter is set', async () => {
+    store.data.eventFilter = {
+      ...INITIAL_EVENT_FILTER_STATE,
+      filter: { ...INITIAL_EVENT_FILTER_STATE.filter, text: 'snare' },
+    };
+
+    const { result } = renderUseReportsFeed(mockStore(store));
+
+    expect(result.current.shouldExcludeContained).toBe(false);
   });
 
   test('returns the reportsFetchFeed properties and methods', async () => {
@@ -149,5 +263,16 @@ describe('useReportsFeed', () => {
 
     expect(builtStore.getActions().map((action) => action.type)).toContain('FEED_FETCH_ERROR');
     expect(consoleWarnSpy).not.toHaveBeenCalled();
+  });
+
+  test('hands out each feed request with its params, silent refreshes too', async () => {
+    const { result } = renderUseReportsFeed();
+    await waitFor(() => expect(result.current.feedRequest.id).toBeGreaterThan(0));
+    const feedRequestId = result.current.feedRequest.id;
+
+    result.current.loadFeedEvents(true);
+
+    await waitFor(() => expect(result.current.feedRequest.id).toBe(feedRequestId + 1));
+    expect(result.current.feedRequest.params).toMatchObject({ page_size: 50 });
   });
 });

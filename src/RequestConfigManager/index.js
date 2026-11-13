@@ -108,12 +108,6 @@ const RequestConfigManager = ({
     if (config.url && !config.url.includes('/user/me') && profile) {
       config.headers['USER-PROFILE'] = profile;
     }
-    const isStatusEndpoint = typeof config.url === 'string'
-      && /(?:^|\/)api\/v1\.0\/status(?:[?#]|$)/.test(config.url);
-
-    if (isStatusEndpoint) {
-      delete config.headers['Authorization'];
-    }
   }, [selectedUserProfile, user]);
 
   const attachRequestInterceptors = useCallback(() => {

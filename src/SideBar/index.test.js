@@ -20,7 +20,8 @@ import patrols from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import { act, createEvent, fireEvent, render, screen, waitFor } from '../test-utils';
 import SideBar from '.';
-import { PERMISSION_KEYS, PERMISSIONS, PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { BREAKPOINTS, PERMISSION_KEYS, PERMISSIONS, PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { SET_FEED_TABLE_VIEW, setFeedTableView } from '../ducks/feed-table-view';
 import useNavigate from '../hooks/useNavigate';
 import { MapContext } from '../MapContext';
 import { report } from '../__test-helpers/fixtures/reports';
@@ -157,6 +158,7 @@ describe('SideBar', () => {
           [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true,
           [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true,
           [SYSTEM_CONFIG_FLAGS.SUBJECTS]: true,
+          userConfigLoaded: true,
         },
       },
     };
@@ -254,6 +256,23 @@ describe('SideBar', () => {
     });
   });
 
+  test('counts each event created or updated through the socket once, naming the events link with the count',
+    async () => {
+      useLocationMock = jest.fn((() => ({ pathname: '/' })));
+      useLocation.mockImplementation(useLocationMock);
+
+      renderSideBar();
+
+      mockedSocket.socketClient.emit('new_event', { event_id: 'event-1', matches_current_filter: true });
+      mockedSocket.socketClient.emit('update_event', { event_id: 'event-1', matches_current_filter: true });
+      mockedSocket.socketClient.emit('update_event', { event_id: 'event-2', matches_current_filter: true });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('badgeIcon')).toHaveTextContent('2');
+      });
+      expect(screen.getByRole('link', { name: 'Events, 2 new or updated' })).toBeInTheDocument();
+    });
+
   test('does not show the report badge if sidebar is open in reports tab', async () => {
     renderSideBar();
 
@@ -326,20 +345,20 @@ describe('SideBar', () => {
 
     renderSideBar();
 
-    expect(screen.getByRole('link', { name: 'Otus' })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Atlas' })).toBeVisible();
   });
 
   test('shows the Otus tab even when there is no Otus URL in the store, for the actions playground', async () => {
     renderSideBar();
 
-    expect(screen.getByRole('link', { name: 'Otus' })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Atlas' })).toBeVisible();
   });
 
   test('links the Otus tab to /atlas', async () => {
     store.view.systemConfig.otusUrl = 'https://otus.example.com';
     renderSideBar();
 
-    expect(screen.getByRole('link', { name: 'Otus' })).toHaveAttribute('href', '/atlas');
+    expect(screen.getByRole('link', { name: 'Atlas' })).toHaveAttribute('href', '/atlas');
   });
 
   test('sets the Otus tab as active', async () => {
@@ -350,7 +369,7 @@ describe('SideBar', () => {
     renderSideBar();
 
     expect(screen.getByRole('link', { name: 'Events' })).not.toHaveClass('active');
-    expect(screen.getByRole('link', { name: 'Otus' })).toHaveClass('active');
+    expect(screen.getByRole('link', { name: 'Atlas' })).toHaveClass('active');
     expect(screen.getByRole('link', { name: 'Settings' })).not.toHaveClass('active');
   });
 
@@ -370,7 +389,7 @@ describe('SideBar', () => {
 
     renderSideBar();
 
-    await userEvent.click(screen.getByRole('link', { name: 'Otus' }));
+    await userEvent.click(screen.getByRole('link', { name: 'Atlas' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(navigate).toHaveBeenCalledWith('/');
@@ -385,7 +404,7 @@ describe('SideBar', () => {
     renderSideBar();
 
     await user.keyboard('{Meta>}');
-    await user.click(screen.getByRole('link', { name: 'Otus' }));
+    await user.click(screen.getByRole('link', { name: 'Atlas' }));
     await user.keyboard('{/Meta}');
 
     expect(navigate).not.toHaveBeenCalledWith('/');
@@ -511,7 +530,7 @@ describe('SideBar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/patrols', {});
+    expect(navigate).toHaveBeenCalledWith('/patrols');
   });
 
   test('navigates to current tab when user clicks the back button in the patrol detail view and location.state.comesFromLogin is true', async () => {
@@ -529,7 +548,7 @@ describe('SideBar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/patrols', {});
+    expect(navigate).toHaveBeenCalledWith('/patrols');
   });
 
   test('navigates to current tab when user clicks the back button in the patrol detail view and location.state.comesFromLngLatRedirection is true', async () => {
@@ -547,7 +566,7 @@ describe('SideBar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith('/patrols', {});
+    expect(navigate).toHaveBeenCalledWith('/patrols');
   });
 
   test('navigates back when user clicks the back button in the patrol detail view and none of the special conditions are met', async () => {
@@ -565,7 +584,7 @@ describe('SideBar', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Go Back' }));
 
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(navigate).toHaveBeenCalledWith(-1, {});
+    expect(navigate).toHaveBeenCalledWith(-1);
   });
 
   test('sets the tab title for the Events tab', async () => {
@@ -595,7 +614,7 @@ describe('SideBar', () => {
     useLocation.mockImplementation(useLocationMock);
     renderSideBar();
 
-    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Otus');
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Atlas');
     expect(screen.getByRole('link', { name: 'Close sidebar' })).toBeInTheDocument();
   });
 
@@ -672,6 +691,25 @@ describe('SideBar', () => {
     renderSideBar();
 
     expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('does not redirect away from /atlas while the signed-in status is still loading', async () => {
+    store.view.systemConfig.userConfigLoaded = false;
+    useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  test('keeps /atlas open for the actions playground when the signed-in status has no Otus URL', async () => {
+    useLocationMock = jest.fn((() => ({ pathname: '/atlas' })));
+    useLocation.mockImplementation(useLocationMock);
+
+    renderSideBar();
+
+    expect(navigate).not.toHaveBeenCalledWith('/', { replace: true });
   });
 
   test('clears events badge when navigating to events tab and not in report detail view', async () => {
@@ -881,6 +919,47 @@ describe('SideBar', () => {
       await waitFor(() => expect(screen.queryByTestId('settingsPane')).toBeNull());
     });
 
+    test('keeps the table view of the feed while the sidebar slides out', () => {
+      store.view.feedTableView = { events: true };
+      render(
+        <Provider store={mockStore(store)}>
+          <MockSocketProvider>
+            <MapContext.Provider value={map}>
+              <RouterNavigateCapture />
+
+              <SideBar />
+            </MapContext.Provider>
+          </MockSocketProvider>
+        </Provider>,
+        { initialEntries: ['/events'] }
+      );
+
+      navigateTo('/');
+
+      expect(screen.getByTestId('sideBar-tab').parentElement).toHaveClass('tableView');
+      expect(screen.getByRole('button', { name: 'Show as list' })).toBeInTheDocument();
+    });
+
+    test('slides out at the detail view\'s width from an event opened from the table', () => {
+      store.view.feedTableView = { events: true };
+      render(
+        <Provider store={mockStore(store)}>
+          <MockSocketProvider>
+            <MapContext.Provider value={map}>
+              <RouterNavigateCapture />
+
+              <SideBar />
+            </MapContext.Provider>
+          </MockSocketProvider>
+        </Provider>,
+        { initialEntries: ['/events/123'] }
+      );
+
+      navigateTo('/');
+
+      expect(screen.getByTestId('sideBar-tab').parentElement).not.toHaveClass('tableView');
+    });
+
     test('renders the new tab when the sidebar opens again while it slides out', () => {
       renderOpenSideBar();
 
@@ -890,6 +969,88 @@ describe('SideBar', () => {
       expect(screen.getByTestId('mapLayersTab')).toBeInTheDocument();
       expect(screen.queryByTestId('settingsPane')).toBeNull();
       expect(screen.getByTestId('sideBar-tab')).not.toHaveAttribute('inert');
+    });
+  });
+
+  describe('table view button', () => {
+    const tableViewActions = (mockedStore) => mockedStore.getActions()
+      .filter((action) => action.type === SET_FEED_TABLE_VIEW);
+
+    const renderWithFeedTable = (feedTableView = {}) => {
+      store.view.feedTableView = feedTableView;
+      const mockedStore = mockStore(store);
+      renderSideBar(mockedStore);
+
+      return mockedStore;
+    };
+
+    test('shows the events feed as a table', async () => {
+      const mockedStore = renderWithFeedTable();
+
+      await userEvent.click(screen.getByRole('button', { name: 'Show as table' }));
+
+      expect(tableViewActions(mockedStore)).toEqual([setFeedTableView('events', true)]);
+    });
+
+    test('marks the button as active only while the table is shown', () => {
+      renderWithFeedTable({ events: true });
+
+      expect(screen.getByRole('button', { name: 'Show as list' })).toHaveClass('active');
+    });
+
+    test('leaves the button inactive in the list', () => {
+      renderWithFeedTable();
+
+      expect(screen.getByRole('button', { name: 'Show as table' })).not.toHaveClass('active');
+    });
+
+    test('shows the table as a list again', async () => {
+      const mockedStore = renderWithFeedTable({ events: true });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Show as list' }));
+
+      expect(tableViewActions(mockedStore)).toEqual([setFeedTableView('events', false)]);
+    });
+
+    test('opens the table from a shared table link', () => {
+      useLocation.mockImplementation(jest.fn(() => ({ pathname: '/events', search: '?view=table' })));
+
+      const mockedStore = renderWithFeedTable();
+
+      expect(tableViewActions(mockedStore)).toEqual([setFeedTableView('events', true)]);
+    });
+
+    test('is not shown with the table feature flag turned off', () => {
+      store.view.experimentalFeatures = { FEED_TABLE: false };
+      renderSideBar();
+
+      expect(screen.queryByRole('button', { name: 'Show as table' })).toBeNull();
+    });
+
+    test('is not shown below the medium layout', () => {
+      BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = false;
+
+      renderWithFeedTable();
+
+      expect(screen.queryByRole('button', { name: 'Show as table' })).toBeNull();
+
+      BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = true;
+    });
+
+    test('is not shown on a detail view', () => {
+      useLocation.mockImplementation(jest.fn(() => ({ pathname: '/events/123' })));
+
+      renderWithFeedTable();
+
+      expect(screen.queryByRole('button', { name: 'Show as table' })).toBeNull();
+    });
+
+    test('is not shown on tabs without a feed', () => {
+      useLocation.mockImplementation(jest.fn(() => ({ pathname: '/layers' })));
+
+      renderWithFeedTable();
+
+      expect(screen.queryByRole('button', { name: 'Show as table' })).toBeNull();
     });
   });
 });

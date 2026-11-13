@@ -1,0 +1,76 @@
+@use '../../common/styles/buttons';
+@use '../../common/styles/vars/colors';
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+
+  li + li::before {
+    color: colors.$secondary-medium-gray;
+    content: '/';
+    margin-right: 0.35rem;
+  }
+}
+
+.breadcrumbButton {
+  @include buttons.link-button;
+
+  color: colors.$link-color;
+  padding: 0;
+
+  &:focus-visible {
+    outline: 2px solid colors.$bright-blue;
+    outline-offset: 2px;
+  }
+}
+
+.breadcrumbCurrent {
+  color: colors.$off-black;
+  font-weight: 600;
+}
+
+.entries {
+  margin: 0;
+}
+
+.entry {
+  border-bottom: 1px solid colors.$light-gray-lines;
+  display: flex;
+  gap: 1rem;
+  padding: 0.35rem 0;
+
+  dt {
+    flex: 0 0 40%;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+.valueLink {
+  @include buttons.link-button;
+
+  align-items: center;
+  color: colors.$link-color;
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0;
+
+  &:focus-visible {
+    outline: 2px solid colors.$bright-blue;
+    outline-offset: 2px;
+  }
+
+  svg {
+    height: 0.9rem;
+    width: 0.9rem;
+  }
+}

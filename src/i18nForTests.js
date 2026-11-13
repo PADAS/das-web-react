@@ -23,13 +23,11 @@ import utilsEnUS from '../public/locales/en-US/utils.json';
 i18n
   .use(initReactI18next)
   .init({
-    lng: 'en-US',
     fallbackLng: 'en-US',
-
     interpolation: {
       escapeValue: false, // not needed for react!!
     },
-
+    lng: 'en-US',
     resources: {
       'en-US': {
         'components': componentsEnUS,
@@ -52,6 +50,7 @@ i18n
         'utils': utilsEnUS,
       },
     },
+    returnEmptyString: true,
   });
 
 export default i18n;

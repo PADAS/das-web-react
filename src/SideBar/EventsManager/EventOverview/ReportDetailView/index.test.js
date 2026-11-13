@@ -1567,7 +1567,12 @@ describe('SideBar - EventsManager - EventOverview - ReportDetailView', () => {
 
   describe('links', () => {
     beforeEach(() => {
-      state.data.user = { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] } };
+      state.data.user = {
+        permissions: {
+          [PERMISSION_KEYS.EVENT_RELATED_SEGMENTS]: [PERMISSIONS.DELETE],
+          [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE],
+        },
+      };
       state.view.systemConfig = { [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true };
     });
 

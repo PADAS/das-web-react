@@ -13,34 +13,36 @@
         "restrictedOptionLabel": "प्रतिबन्धित"
     },
     "nav": {
-        "navHomeMenu": {
-            "myCurrentLocationItem": "मेरो हालको लोकेसन",
-            "homeMenuToggleTitle": "नक्साको द्रुत लिकंहरु"
-        },
         "hamburgerMenuLabel": "मुख्य मेनु खोल्नुहोस्",
-        "hamburgerMenuTitle": "मेनु",
         "messageMenu": {
-            "messageMenuToggleLabel": "सन्देशहरु खोल्नुहोस्",
-            "messageMenuToggleTitle": "सन्देशहरु"
+            "toggleLabel": "सन्देशहरु",
+            "unreadToggleLabel_one": "सन्देशहरु, {{count}} नपढिएको",
+            "unreadToggleLabel_other": "सन्देशहरु, {{count}} नपढिएको"
         },
-        "notificationMenu": {
-            "toggleLabel": "अर्थरेन्जरको सुचनाहरु खोल्नुहोस्",
-            "toggleTitle": "अर्थरेन्जरको सुचनाहरु"
+        "navHomeMenu": {
+            "homeMenuLabel": "नक्साको द्रुत लिकंहरु",
+            "homeMenuToggleLabel": "नक्साको द्रुत लिकंहरु: {{mapTitle}}",
+            "myCurrentLocationOptionLabel": "मेरो हालको लोकेसन"
         }
     },
     "notificationMenu": {
-        "errorFetchingHeader": "हालैका घोषणाहरु प्राप्त गर्दा त्रुटि भयो ।",
-        "noNewNotificationsHeader": "हालका लागि कुनै नयाँ सुचना छैन ।",
-        "notificationItem": {
-            "confirmButton": "पुष्टि गर्नुहोस्",
-            "dismissButton": "खारेज गर्नुहोस्",
-            "moreInformationLink": "थप जानकारी"
+        "notificationsPopover": {
+            "allNewsLink": "सबै समाचार हेर्नुहोस्",
+            "label": "सुचनाहरु",
+            "newsFetchErrorMessage": "हालैका घोषणाहरु प्राप्त गर्दा त्रुटि भयो ।",
+            "noNotificationsMessage": "हालका लागि कुनै नयाँ सुचना छैन ।",
+            "notificationItem": {
+                "confirmButton": "पुष्टि गर्नुहोस्",
+                "dismissButton": "खारेज गर्नुहोस्",
+                "moreInformationLink": "थप जानकारी",
+                "readMoreLink": "थप पढ्नुहोस्",
+                "unreadLabel": "नपढिएको"
+            },
+            "retryButton": "फेरी प्रयास गर्नुहोस्"
         },
-        "outdatedNotifications_one": "तपाईंले {{count}} सुचना पढ्नुभएको छैन ।",
-        "outdatedNotifications_other": "तपाईंले {{count}} सुचना पढ्नुभएको छैन ।",
-        "readMore": "थप पढ्नुहोस्",
-        "seeAllNewsButton": "सबै समाचार हेर्नुहोस् >",
-        "tryAgainButton": "फेरी प्रयास गर्नुहोस्"
+        "toggleLabel": "सुचनाहरु",
+        "unreadToggleLabel_one": "सुचनाहरु, {{count}} नपढिएको",
+        "unreadToggleLabel_other": "सुचनाहरु, {{count}} नपढिएको"
     },
     "profilePINModal": {
         "error": "गलत PIN",
@@ -50,14 +52,17 @@
     "systemStatus": {
         "datasourceDefTitle": "उपकरणको गतिविधि",
         "dateTimeSuffix": "अघि",
-        "heartBeatDefTitle": "सिस्टमको गतिविधि",
-        "initialRealTimeStatusTitle": "अहिलेको वास्तविक समयको अर्थरेन्जर",
-        "initialRealTimeStatusDetails": "गतिविधि",
-        "initialNetworkStatusTitle": "नेटवर्क",
-        "networkOnlineLabel": "अनलाइन",
-        "networkOfflineLabel": "अफलाइन",
-        "serverVersionLabel": "अर्थरेन्जर सर्भर {{version}}",
         "HEALTHY": "स्वस्थ",
+        "heartBeatDefTitle": "सिस्टमको गतिविधि",
+        "initialNetworkStatusTitle": "नेटवर्क",
+        "initialRealTimeStatusDetails": "गतिविधि",
+        "initialRealTimeStatusTitle": "अहिलेको वास्तविक समयको अर्थरेन्जर",
+        "networkOfflineLabel": "अफलाइन",
+        "networkOnlineLabel": "अनलाइन",
+        "popoverLabel": "सिस्टमको अवस्था",
+        "serverVersionLabel": "अर्थरेन्जर सर्भर {{version}}",
+        "toggleLabel": "सिस्टमको अवस्था: {{status}}",
+        "toggleTitle": "सिस्टमको अवस्था",
         "UNHEALTHY": "अस्वस्थ",
         "UNKNOWN": "अज्ञात",
         "WARNING": "चेतावनी"
@@ -65,8 +70,8 @@
     "userMenu": {
         "cookieSettingsItem": "कुकी सेटिङ",
         "logoutItem": "लग आउट",
-        "toggleLabel": "प्रयोगकर्ता सेटिङ खोल्नुहोस्",
-        "toggleTitle": "प्रयोगकर्ता सेटिङ",
-        "userAndProfilesHeader": "प्रयोगकर्ता र प्रोफाइलहरु"
+        "menuLabel": "प्रयोगकर्ता सेटिङ",
+        "toggleLabel": "प्रयोगकर्ता सेटिङ: {{username}}",
+        "userAndProfilesGroupLabel": "प्रयोगकर्ता र प्रोफाइलहरु"
     }
 }
