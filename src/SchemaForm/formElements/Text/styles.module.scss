@@ -1,41 +1,40 @@
-@use 'sass:color';
-@use '../../../common/styles/vars/colors';
+@use '../../../common/styles/colors';
 
 .text {
   .label {
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 0.875rem;
     font-weight: 400;
     margin-bottom: 0.375rem;
 
     &.error {
-      color: colors.$bright-red;
+      color: var(--er-ui-status-error-destructive);
     }
   }
 
   .textInput {
     align-items: center;
-    background: white;
-    border: 1px solid colors.$light-gray-border;
+    background: var(--er-ui-background-primary-background);
+    border: 1px solid var(--er-ui-divider-lines);
     border-radius: 0.25rem;
     display: flex;
     min-height: 2.5rem;
 
     &.error {
-      border-color: colors.$bright-red;
+      border-color: var(--er-ui-status-error-destructive);
 
       ::placeholder {
-        color: color.adjust(colors.$bright-red, $lightness: 33%);
+        color: colors.tint(var(--er-ui-status-error-destructive), 56%);
       }
     }
 
     &.readOnly {
-      background-color: colors.$off-white;
+      background-color: var(--er-ui-background-tertiary-background);
     }
 
     &:focus-within {
-      border: 1px solid colors.$bright-blue;
-      outline: 1px solid colors.$bright-blue;
+      border: 1px solid var(--er-ui-cta-primary);
+      outline: 1px solid var(--er-ui-cta-primary);
     }
 
     .shortTextInput {
@@ -69,25 +68,25 @@
 
     .urlLink {
       align-items: center;
-      color: colors.$light-blue;
+      color: var(--er-ui-cta-primary);
       display: flex;
       outline: none;
       padding: 0.5rem;
 
       &:focus, &:hover {
-        color: colors.$bright-blue;
+        color: var(--bs-link-hover-color);
       }
     }
   }
 
   .description {
-    color: colors.$alt-light-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 0.875rem;
     font-weight: 400;
     margin: 0.125rem 0 0;
 
     &.error {
-      color: colors.$bright-red;
+      color: var(--er-ui-status-error-destructive);
     }
 
     &:empty {

@@ -1,5 +1,4 @@
-@use 'sass:color';
-@use '../../../../../../common/styles/vars/colors';
+@use '../../../../../../common/styles/colors';
 @use '../../../../../../common/styles/inputs';
 
 .menuPopover {
@@ -23,26 +22,26 @@
 
       button {
         align-items: center;
-        background-color: colors.$light-gray-background;
+        background-color: var(--er-ui-background-elevated-component-0);
         border: none;
         border-radius: 0.25rem;
-        color: colors.$off-black;
+        color: var(--er-ui-icons);
         display: flex;
         font-weight: 500;
         padding: 0.375rem;
         padding-right: 0.5rem;
     
         &:focus-visible {
-          outline: 2px solid colors.$bright-blue;
+          outline: 2px solid var(--er-ui-cta-primary);
         }
     
         &:hover {
-          background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+          background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
         }
 
         &.deleteAreaButton {
-          background-color: colors.$high-priority-bg-hover;
-          color: colors.$bright-red;
+          background-color: var(--er-ui-status-bg-error-bg);
+          color: var(--er-ui-status-error-destructive);
         }
 
         svg {
@@ -55,13 +54,13 @@
 }
 
 .geometryMeasurements {
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-text-secondary-text);
   font-size: 0.875rem;
   margin-bottom: 0.25rem;
   padding: 0 0.5rem;
 
   .measureValue {
-    color: black;
+    color: var(--er-ui-text-primary-text);
     font-weight: bold;
   }
 }
@@ -74,10 +73,10 @@
   }
 
   .imageSource {
-    background-color: rgb(0 0 0 / 50%);
+    background-color: colors.with-opacity(var(--er-greyscale-0), 50%);
     border-radius: 0.125rem;
     bottom: 2px;
-    color: white;
+    color: var(--er-ui-text-primary-text-reversed);
     font-size: 0.75rem;
     left: 2px;
     padding: 0 0.25rem;

@@ -9,7 +9,7 @@ const DetailViewLoader = ({ className = '', label, ...otherProps }) => <div
     role="status"
     {...otherProps}
   >
-  <MoonLoader size={LOADER_SIZE} />
+  <MoonLoader color="var(--er-ui-cta-primary)" size={LOADER_SIZE} />
 
   <span className="sr-only">{label}</span>
 </div>;

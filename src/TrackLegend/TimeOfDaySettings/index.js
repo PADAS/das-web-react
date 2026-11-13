@@ -11,54 +11,55 @@ import { ReactComponent as InformationIcon } from '../../common/images/icons/inf
 import TimeZoneSelect from './TimeZoneSelect';
 
 import { TIME_OF_DAY_PERIODS } from '../../constants';
+import { tokenVar } from '../../utils/colors';
 
 import * as styles from './styles.module.scss';
 
 const COLORED_TIME_ITEMS = [
   {
-    color: 'titaniumYellow',
+    colorName: 'titaniumYellow',
     key: 0,
-    text: TIME_OF_DAY_PERIODS[0].rangeString
+    period: TIME_OF_DAY_PERIODS[0],
   },
   {
-    color: 'americanYellow',
+    colorName: 'americanYellow',
     key: 1,
-    text: TIME_OF_DAY_PERIODS[1].rangeString
+    period: TIME_OF_DAY_PERIODS[1],
   },
   {
-    color: 'fandangoPink',
+    colorName: 'fandangoPink',
     key: 2,
-    text: TIME_OF_DAY_PERIODS[2].rangeString
+    period: TIME_OF_DAY_PERIODS[2],
   },
   {
-    color: 'purplePlum',
+    colorName: 'purplePlum',
     key: 3,
-    text: TIME_OF_DAY_PERIODS[3].rangeString
+    period: TIME_OF_DAY_PERIODS[3],
   },
   {
-    color: 'majorelleBlue',
+    colorName: 'majorelleBlue',
     key: 4,
-    text: TIME_OF_DAY_PERIODS[4].rangeString
+    period: TIME_OF_DAY_PERIODS[4],
   },
   {
-    color: 'lapisLazuli',
+    colorName: 'lapisLazuli',
     key: 5,
-    text: TIME_OF_DAY_PERIODS[5].rangeString
+    period: TIME_OF_DAY_PERIODS[5],
   },
   {
-    color: 'spanishGreen',
+    colorName: 'spanishGreen',
     key: 6,
-    text: TIME_OF_DAY_PERIODS[6].rangeString
+    period: TIME_OF_DAY_PERIODS[6],
   },
   {
-    color: 'green',
+    colorName: 'green',
     key: 7,
-    text: TIME_OF_DAY_PERIODS[7].rangeString
+    period: TIME_OF_DAY_PERIODS[7],
   },
   {
-    color: 'titaniumYellow',
+    colorName: 'titaniumYellow',
     key: 8,
-    text: TIME_OF_DAY_PERIODS[0].rangeString
+    period: TIME_OF_DAY_PERIODS[0],
   },
 ];
 
@@ -105,12 +106,13 @@ const TimeOfDaySettings = ({ isExpanded, onCollapseTimeOfDaySettings, onExpandTi
           <ol className={styles.coloredTimesList}>
             {COLORED_TIME_ITEMS.map((coloredTimeItem) => <li className={styles.item} key={coloredTimeItem.key}>
               <span
-                aria-label={t(`coloredTimeSquareLabels.${coloredTimeItem.color}`)}
-                className={`${styles.square} ${styles[coloredTimeItem.color]}`}
+                aria-label={t(`coloredTimeSquareLabels.${coloredTimeItem.colorName}`)}
+                className={styles.square}
                 role="img"
+                style={{ backgroundColor: tokenVar(coloredTimeItem.period.colorToken) }}
               />
 
-              <span>{coloredTimeItem.text}</span>
+              <span>{coloredTimeItem.period.rangeString}</span>
             </li>)}
           </ol>
         </div>

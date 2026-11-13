@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { addMinutes, differenceInMilliseconds } from 'date-fns';
+import clamp from 'lodash/clamp';
 import Popover from 'react-bootstrap/Popover';
 import { useTranslation } from 'react-i18next';
 
@@ -208,7 +209,7 @@ const OptionsPopover = ({
 
   useEffect(() => {
     // Set the focus to the list on mount so keyboard navigation is enabled.
-    listRef.current.focus();
+    listRef.current.focus({ preventScroll: true });
   }, []);
 
   useEffect(() => {
@@ -218,8 +219,16 @@ const OptionsPopover = ({
   }, [indexOfOptionClosestToInputTime]);
 
   useEffect(() => {
-    listRef.current.children[selectedOptionIndex]
-      ?.scrollIntoView?.({ behavior: 'instant', block: 'nearest' });
+    const selectedOption = listRef.current.children[selectedOptionIndex];
+    // Scrolls only the list, since scrollIntoView shifts the sidebar sideways.
+    // Keeps one neighbor of the selected option in sight on each side.
+    if (selectedOption) {
+      listRef.current.scrollTop = clamp(
+        listRef.current.scrollTop,
+        selectedOption.offsetTop + 2 * selectedOption.offsetHeight - listRef.current.clientHeight,
+        selectedOption.offsetTop - selectedOption.offsetHeight
+      );
+    }
   }, [selectedOptionIndex]);
 
   useEffect(() => {
@@ -237,7 +246,7 @@ const OptionsPopover = ({
       id={id}
       ref={ref}
       role="presentation"
-      style={{ ...style, width: target.current?.offsetWidth }}
+      style={{ ...style, minWidth: target.current?.offsetWidth }}
       tabIndex="-1"
       {...otherProps}
     >

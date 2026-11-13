@@ -3,14 +3,15 @@ import mapboxgl from 'mapbox-gl';
 import { useContext, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { COLOR_STEPS, COLOR_TOKENS, shade } from '../../../utils/colors';
 import { hidePopup, showPopup } from '../../../ducks/popup';
 import { injectStylesToElement } from '../../../utils/styles';
 import { LAYER_IDS, SOURCE_IDS } from '../../../constants';
 import { MapContext } from '../../../MapContext';
 
-const BRIGHT_BLUE = '#006cd9';
-// For hover effect.
-const BRIGHT_BLUE_DARK = '#005fc0';
+const CRS_AREA_COLOR = 'var(--er-ui-cta-primary)';
+const CRS_AREA_HOVER_COLOR = shade(CRS_AREA_COLOR, COLOR_STEPS.hoverShade);
+const CRS_AREA_TEXT_COLOR = 'var(--er-ui-text-primary-text-reversed)';
 
 const CRS_BBOX_CONTROL_MARKER_STYLES = {
   CARET: (isControlMenuOpen) =>  ({
@@ -19,13 +20,13 @@ const CRS_BBOX_CONTROL_MARKER_STYLES = {
     height: '0',
     marginLeft: '0.5rem',
     width: '0',
-    ...(isControlMenuOpen ? { borderBottom: '0.25rem solid white' } : { borderTop: '0.25rem solid white' }),
+    ...(isControlMenuOpen ? { borderBottom: `0.25rem solid ${CRS_AREA_TEXT_COLOR}` } : { borderTop: `0.25rem solid ${CRS_AREA_TEXT_COLOR}` }),
   }),
   CONTAINER: {
     alignItems: 'center',
-    backgroundColor: BRIGHT_BLUE,
+    backgroundColor: CRS_AREA_COLOR,
     borderRadius: '0.25rem',
-    color: 'white',
+    color: CRS_AREA_TEXT_COLOR,
     cursor: 'pointer',
     display: 'flex',
     flexDirection: 'row',
@@ -46,10 +47,10 @@ const createCrsBboxControlMakerElement = (crsName, isControlMenuOpen, onClick) =
   injectStylesToElement(containerElement, CRS_BBOX_CONTROL_MARKER_STYLES.CONTAINER);
   // Hover effect.
   containerElement.onmouseenter = () => {
-    containerElement.style.backgroundColor = BRIGHT_BLUE_DARK;
+    containerElement.style.backgroundColor = CRS_AREA_HOVER_COLOR;
   };
   containerElement.onmouseleave = () => {
-    containerElement.style.backgroundColor = BRIGHT_BLUE;
+    containerElement.style.backgroundColor = CRS_AREA_COLOR;
   };
 
   const nameElement = document.createElement('span');
@@ -111,7 +112,7 @@ const useCrsBoundingBoxLayer = () => {
       if (!map.getLayer(LAYER_IDS.COORDINATE_REFERENCE_SYSTEM_BBOX)) {
         map.addLayer({
           id: LAYER_IDS.COORDINATE_REFERENCE_SYSTEM_BBOX,
-          paint: { 'line-color': BRIGHT_BLUE, 'line-width': 4 },
+          paint: { 'line-color': COLOR_TOKENS['ui-cta-primary'], 'line-width': 4 },
           source: SOURCE_IDS.COORDINATE_REFERENCE_SYSTEM_BBOX,
           type: 'line',
         });

@@ -1,11 +1,10 @@
 @use '../../../../common/styles/inputs';
 @use '../../../../common/styles/layout';
-@use '../../../../common/styles/vars/colors';
 
 .globalDetails {
-  background-color: white;
-  border-bottom: 1px solid colors.$very-light-gray-alt;
-  border-top: 1px solid colors.$very-light-gray-alt;
+  background-color: var(--er-ui-background-primary-background);
+  border-bottom: 1px solid var(--er-ui-divider-lines);
+  border-top: 1px solid var(--er-ui-divider-lines);
   padding: 1rem;
 }
 
@@ -21,7 +20,7 @@
   }
 
   svg {
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-icons);
     margin-right: 0.5rem;
     width: 1.5rem;
   }
@@ -54,7 +53,7 @@
     min-width: 0;
 
     .label {
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       font-size: 0.875rem;
       margin: 0;
     }
@@ -63,11 +62,13 @@
   .dateTimeFields {
     display: flex;
     flex: 1;
-    gap: 0.5rem;
+    flex-wrap: wrap;
+    gap: 1rem 0.5rem;
     min-width: 0;
 
-    .timeField {
-      flex: none;
+    .field {
+      flex-basis: 0;
+      min-width: auto;
     }
   }
 
@@ -91,9 +92,9 @@
 }
 
 .form {
-  background-color: white;
-  border-bottom: 1px solid colors.$very-light-gray-alt;
-  border-top: 1px solid colors.$very-light-gray-alt;
+  background-color: var(--er-ui-background-primary-background);
+  border-bottom: 1px solid var(--er-ui-divider-lines);
+  border-top: 1px solid var(--er-ui-divider-lines);
   padding: 1rem;
   margin-top: 0.5rem;
 
@@ -118,7 +119,7 @@
   }
 
   select {
-    border-color: rgb(204 204 204);
+    border-color: var(--er-ui-field-outline);
     border-radius: 0.25rem;
     display: block;
     height: 2.5rem;
@@ -130,7 +131,7 @@
     font-size: 1.125rem;
     font-weight: 500;
     margin: 1.5rem 0 0.5rem;
-    border-bottom: 1px solid colors.$light-gray-border;
+    border-bottom: 1px solid var(--er-ui-divider-lines);
   }
 
   label:not([class="form-check-label"]) {
@@ -165,9 +166,9 @@
 }
 
 .section {
-  background-color: white;
-  border-bottom: 1px solid colors.$very-light-gray-alt;
-  border-top: 1px solid colors.$very-light-gray-alt;
+  background-color: var(--er-ui-background-primary-background);
+  border-bottom: 1px solid var(--er-ui-divider-lines);
+  border-top: 1px solid var(--er-ui-divider-lines);
   margin-top: 0.5rem;
   padding: 1rem;
 
@@ -177,7 +178,7 @@
   }
 
   .schemaErrorMessage {
-    color: colors.$bright-red;
+    color: var(--er-ui-status-error-destructive);
     display: flex;
     flex-direction: column;
     font-size: 0.875rem;

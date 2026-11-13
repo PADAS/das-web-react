@@ -112,6 +112,12 @@ describe('GlobalMenuDrawer', () => {
     <GlobalMenuDrawer />
   </Provider>);
 
+  test('renders with the dark theme tokens to match the dark top bar', () => {
+    renderGlobalMenuDrawer();
+
+    expect(screen.getByRole('dialog')).toHaveAttribute('data-theme', 'dark');
+  });
+
   test('hides the drawer when clicking the cross icon', async () => {
     renderGlobalMenuDrawer();
 

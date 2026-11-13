@@ -1,4 +1,4 @@
-@use '../../common/styles/vars/colors';
+@use '../../common/styles/colors';
 
 .selectionCheckbox {
   align-items: center;
@@ -14,7 +14,7 @@
   width: 2rem;
 
   &:hover {
-    background: rgba(colors.$bright-blue, 0.08);
+    background: colors.with-opacity(var(--er-ui-cta-primary), 8%);
   }
 
   .input {
@@ -24,7 +24,7 @@
     width: 1rem;
 
     &:focus-visible {
-      outline: 2px solid colors.$bright-blue;
+      outline: 2px solid var(--er-ui-cta-primary);
       outline-offset: 2px;
     }
   }

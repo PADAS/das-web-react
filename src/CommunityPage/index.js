@@ -14,7 +14,6 @@ import {
   readCoolOffEntries,
   recordCoolOffSubmission,
 } from '../utils/community-cool-off';
-import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo.svg';
 import {
   durationHumanizer,
   HUMANIZED_DURATION_CONFIGS,
@@ -26,6 +25,7 @@ import { fetchEventTypes } from '../ducks/event-types';
 import { SidebarScrollProvider } from '../SidebarScrollContext';
 import { uuid } from '../utils/string';
 
+import EarthRangerLogo from '../EarthRangerLogo';
 import EventOverview from '../SideBar/EventsManager/EventOverview';
 import SearchBar from '../SearchBar';
 import TypesList from '../AddItemButton/AddItemModal/TypesList';
@@ -282,7 +282,7 @@ const CommunityPage = () => {
   if (isUnauthorized) {
     content = (
       <div className={styles.loadingView}>
-        <EarthRangerLogo className={styles.earthRangerLogo} />
+        <EarthRangerLogo className={styles.earthRangerLogo} type="vertical" />
 
         <span className={styles.loadingError}>{t('invalidCommunityUrl')}</span>
       </div>
@@ -290,7 +290,7 @@ const CommunityPage = () => {
   } else if (isLoading || isRedirectingToOnlyType) {
     content = (
       <div className={styles.loadingView}>
-        <MoonLoader color="#333" size={50} />
+        <MoonLoader color="var(--er-ui-cta-primary)" size={50} />
       </div>
     );
   } else if (selectedType && isInCoolOff) {

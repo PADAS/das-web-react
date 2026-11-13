@@ -38,10 +38,7 @@
       },
       "title": "दिनको समय"
     },
-    "timeOfDaySettingsButtonLabel": {
-      "active": "दिनको समय अनुसार रंग निष्क्रिय गर्नुहोस्",
-      "inactive": "दिनको समय अनुसार रंग सक्रिय गर्नुहोस्"
-    },
+    "timeOfDaySettingsButtonLabel": "दिनको समय अनुसार रंग",
     "trackSettings": {
       "customLengthErrorMessage": "कृपया {{min}} देखि {{max}} को बीचमा ट्र्याक लम्बाइ प्रविष्ट गर्नुहोस्।",
       "customLengthInputLabel": "दिनमा ट्र्याक लम्बाइ",
@@ -50,10 +47,7 @@
       "title": "ट्र्याक सेटिङहरू",
       "trackLengthLegend": "ट्र्याक लम्बाइ"
     },
-    "trackSettingsButtonLabel": {
-      "closed": "ट्र्याक सेटिङहरू खोल्नुहोस्",
-      "open": "ट्र्याक सेटिङहरू बन्द गर्नुहोस्"
-    },
+    "trackSettingsButtonLabel": "ट्र्याक सेटिङहरू",
     "tracksList": {
       "tracksChildItem": {
         "toggleTracksButtonLabel": {
@@ -70,10 +64,7 @@
         }
       }
     },
-    "tracksListButtonLabel": {
-      "closed": "{{itemsName}} को सूची खोल्नुहोस्",
-      "open": "{{itemsName}} को सूची बन्द गर्नुहोस्"
-    }
+    "tracksListButtonLabel": "{{itemsName}} को सूची"
   },
   "trackLength": {
     "length": "{{length}} किलोमिटर",

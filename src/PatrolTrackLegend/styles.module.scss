@@ -1,13 +1,11 @@
-@use '../common/styles/vars/colors';
-
 .itemIcon {
-  fill: colors.$secondary-medium-gray;
+  fill: var(--er-ui-icons);
 }
 
 .itemsIcon {
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-icons);
 }
 
 .subjectIcon {
-  fill: colors.$off-black;
+  fill: var(--er-ui-icons);
 }

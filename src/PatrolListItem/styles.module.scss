@@ -1,11 +1,11 @@
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 @use '../common/styles/buttons';
 @use '../common/styles/layout';
 
 
 .icon {
   align-items: center;
-  color: white;
+  color: var(--er-ui-text-primary-text-reversed);
   display: flex;
   height: 100%;
   justify-content: center;
@@ -51,7 +51,7 @@
 }
 
 .titleDetails {
-  color: colors.$off-black;
+  color: var(--er-ui-text-primary-text);
   font-size: 0.75rem;
 }
 
@@ -72,7 +72,7 @@
 .serialNumber {
   display: none;
   padding-right: 0.5rem;
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-text-secondary-text);
 
   @media (min-width: layout.$md-layout-width-min) {
     display: flex;
@@ -81,6 +81,10 @@
 
 .item {
   cursor: pointer;
+
+  &:hover {
+    background-color: var(--er-ui-background-hover-background);
+  }
 }
 
 .patrolMenu {
@@ -88,12 +92,12 @@
 }
 
 .stateDependantControl {
-  background: colors.$transparent-dark-gray !important;
+  background: colors.with-opacity(var(--er-greyscale-0), 5%) !important;
   border: none;
   display: none;
 
   &:hover{
-    background: colors.$hover-button-background !important;
+    background: colors.with-opacity(var(--er-greyscale-0), 15%) !important;
   }
 
   @media (min-width: layout.$md-layout-width-min) {

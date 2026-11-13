@@ -1,11 +1,10 @@
 @use '../../../../common/styles/buttons';
-@use '../../../../common/styles/vars/colors';
 @use '../../../shared';
 
 .footer {
   align-items: center;
-  background: white;
-  border-top: 1px solid colors.$very-light-gray-alt;
+  background: var(--er-ui-background-primary-background);
+  border-top: 1px solid var(--er-ui-divider-lines);
   display: flex;
   flex-shrink: 0;
   justify-content: space-between;
@@ -26,10 +25,6 @@
       @include buttons.base-button;
 
       min-width: shared.$footer-button-min-width;
-
-      &:hover {
-        color: colors.$secondary-medium-gray;
-      }
 
       &:focus-visible {
         outline-offset: 0;

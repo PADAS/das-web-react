@@ -53,6 +53,14 @@ describe('Menu', () => {
     expect(await screen.findByRole('menu', { name: 'Options menu' })).toHaveAttribute('id', 'options-menu');
   });
 
+  test('does not wrap the menu in a tooltip', async () => {
+    renderMenu();
+
+    await screen.findByRole('menu');
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
   test('shows the menu next to the element it is anchored to, at the placement it is given', async () => {
     const { rerender } = renderMenu({ show: false });
 
@@ -106,6 +114,24 @@ describe('Menu', () => {
     expect(screen.getByRole('menuitem', { name: 'First option' })).toHaveFocus();
   });
 
+  test('moves focus through the options in the order they are shown after they are reordered', async () => {
+    const buildReorderableMenu = (labels) => <Menu aria-label="Options menu" onClose={onClose} onHide={onHide} show>
+      {labels.map((label) => <Menu.Option key={label}>{label}</Menu.Option>)}
+    </Menu>;
+
+    const { rerender } = render(buildReorderableMenu(['First option', 'Second option', 'Third option']));
+
+    await screen.findByRole('menu');
+
+    rerender(buildReorderableMenu(['Third option', 'First option', 'Second option']));
+
+    await userEvent.keyboard('{End}');
+    expect(screen.getByRole('menuitem', { name: 'Second option' })).toHaveFocus();
+
+    await userEvent.keyboard('{Home}');
+    expect(screen.getByRole('menuitem', { name: 'Third option' })).toHaveFocus();
+  });
+
   test('closes when Escape is pressed', async () => {
     renderMenu();
 
@@ -151,6 +177,43 @@ describe('Menu', () => {
     expect(within(earthOption).getByTestId('menu-checkIcon')).toBeInTheDocument();
     expect(parkOption).toHaveAttribute('aria-checked', 'false');
     expect(within(parkOption).queryByTestId('menu-checkIcon')).not.toBeInTheDocument();
+  });
+
+  test('toggles a checkbox option without closing', async () => {
+    const onCheckboxClick = jest.fn();
+
+    render(<Menu aria-label="Columns menu" onClose={onClose} onHide={onHide} show>
+      <Menu.Option aria-checked onClick={onCheckboxClick} role="menuitemcheckbox">Title</Menu.Option>
+    </Menu>);
+
+    const titleOption = await screen.findByRole('menuitemcheckbox', { name: 'Title' });
+
+    await userEvent.click(titleOption);
+
+    expect(within(titleOption).getByTestId('menu-checkIcon')).toBeInTheDocument();
+    expect(onCheckboxClick).toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  test('marks the current option of a command menu with a check mark', async () => {
+    render(<Menu aria-label="Status menu" onClose={onClose} onHide={onHide} show>
+      <Menu.Option aria-current>Active</Menu.Option>
+
+      <Menu.Option>Resolve</Menu.Option>
+    </Menu>);
+
+    const activeOption = await screen.findByRole('menuitem', { name: 'Active' });
+
+    expect(activeOption).toHaveAttribute('aria-current', 'true');
+    expect(within(activeOption).getByTestId('menu-checkIcon')).toBeInTheDocument();
+    expect(within(screen.getByRole('menuitem', { name: 'Resolve' })).queryByTestId('menu-checkIcon'))
+      .not.toBeInTheDocument();
+  });
+
+  test('shows its header above the options, hidden from assistive technology', async () => {
+    renderMenu({ header: 'Playback speed' });
+
+    expect(await screen.findByText('Playback speed')).toHaveAttribute('aria-hidden', 'true');
   });
 
   test('hides when the user clicks outside of it', async () => {

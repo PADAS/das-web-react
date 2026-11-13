@@ -1,5 +1,3 @@
-@use '../common/styles/vars/colors';
-
 .iconButton {
   align-items: center;
   background: none;
@@ -12,11 +10,11 @@
   padding: 0;
 
   &:focus-visible {
-    outline: 2px solid colors.$bright-blue;
+    outline: 2px solid var(--er-ui-cta-primary);
   }
 
   &.warning {
-    color: colors.$bright-red;
+    color: var(--er-ui-status-error-destructive);
   }
 
   svg {

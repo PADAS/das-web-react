@@ -1,11 +1,10 @@
 @use '../common/styles/buttons';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 @mixin legend-panel {
-  backdrop-filter: blur(2px);
-  background: rgb(255 255 255 / 90%);
+  background: var(--er-ui-background-elevated-component);
   border-radius: 0.25rem;
-  box-shadow: 0 4px 4px 0 rgb(0 0 0 / 25%);
+  box-shadow: 0 4px 4px 0 colors.with-opacity(var(--er-greyscale-0), 25%);
   padding: 0.5rem;
 }
 
@@ -17,7 +16,7 @@
   margin-bottom: 0.25rem;
 
   .title {
-    color: colors.$off-black;
+    color: var(--er-ui-text-primary-text);
     font-size: 1rem;
     font-weight: 500;
     margin: 0;
@@ -27,7 +26,7 @@
 
 @mixin legend-item-card {
   align-items: center;
-  background: white;
+  background: var(--er-ui-background-primary-background);
   border-radius: 0.25rem;
   display: flex;
   gap: 0.5rem;
@@ -68,7 +67,6 @@
 @mixin legend-text-button {
   @include buttons.chip-text-button;
 
-  color: colors.$off-black;
   flex-shrink: 0;
   font-weight: 400;
   height: 1.75rem;

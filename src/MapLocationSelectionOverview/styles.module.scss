@@ -1,11 +1,11 @@
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 @use '../common/styles/animations';
 @use '../common/styles/layout';
 
 .mapLocationSelectionOverview {
   @include animations.fade-in;
 
-  background: white;
+  background: var(--er-ui-background-primary-background);
   border-radius: 3px;
   width: 100%;
   position: absolute;
@@ -27,7 +27,7 @@
   align-items: center;
   height: 3rem;
   padding: 0.5rem;
-  box-shadow: 0 0.125rem 0.25rem rgb(0 0 0 / 25%);
+  box-shadow: 0 0.125rem 0.25rem colors.with-opacity(var(--er-greyscale-0), 25%);
   cursor: pointer;
 
   h2 {
@@ -39,7 +39,7 @@
   .actions {
     display: flex;
     align-items: center;
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
 
     svg {
       width: 1rem;
@@ -59,7 +59,7 @@
 }
 
 .separator {
-  border-bottom: 1px solid #DDD;
+  border-bottom: 1px solid var(--er-ui-divider-lines);
   margin: 0.5rem 0 0.5rem -0.5rem;
   width: calc(100% + 1rem);
 }
@@ -109,12 +109,24 @@
 }
 
 .undoButton {
-  color: colors.$secondary-medium-gray;
-  background-color: colors.$light-gray-background;
   margin-right: 0.5rem;
 }
 
 .discardButton {
-  background-color: rgb(208 3 27 / 5%);
-  color: colors.$bright-red;
+  --bs-btn-active-bg: #{colors.deepen(
+    var(--er-ui-status-bg-error-bg),
+    var(--er-ui-status-error-destructive),
+    colors.$tint-active-deepen
+  )};
+  --bs-btn-active-color: var(--er-ui-status-error-destructive);
+  --bs-btn-bg: var(--er-ui-status-bg-error-bg);
+  --bs-btn-color: var(--er-ui-status-error-destructive);
+  --bs-btn-disabled-bg: var(--er-ui-status-bg-error-bg);
+  --bs-btn-disabled-color: var(--er-ui-status-error-destructive);
+  --bs-btn-hover-bg: #{colors.deepen(
+    var(--er-ui-status-bg-error-bg),
+    var(--er-ui-status-error-destructive),
+    colors.$tint-hover-deepen
+  )};
+  --bs-btn-hover-color: var(--er-ui-status-error-destructive);
 }

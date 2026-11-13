@@ -1,7 +1,5 @@
-@use '../../common/styles/vars/colors';
-
 .tabs {
-  border-bottom: 1px solid colors.$light-gray-lines;
+  border-bottom: 1px solid var(--er-ui-divider-lines);
   flex-wrap: nowrap;
   max-width: var(--sidebar-width);
   min-height: fit-content;
@@ -9,7 +7,7 @@
   overflow: auto hidden;
 
   button[role="tab"] {
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 1.125rem;
     font-weight: 500;
     border-top-left-radius: 0.25rem;
@@ -18,16 +16,16 @@
     white-space: nowrap;
 
     &:focus-visible {
-      background-color: colors.$blue-highlight;
+      background-color: var(--er-ui-background-selected-background);
       box-shadow: none;
     }
 
     &:hover {
-      border-bottom: 3px solid colors.$secondary-medium-light-gray;
+      border-bottom: 3px solid var(--er-ui-field-outline);
     }
     
     &[class*="active"] {
-      border-bottom: 3px solid colors.$bright-blue;
+      border-bottom: 3px solid var(--er-ui-cta-primary);
       font-weight: 500;
     }
   }
@@ -50,7 +48,7 @@
   }
 
   h6 {
-    color: colors.$medium-light-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 0.875rem;
   }
 
@@ -71,31 +69,31 @@
   margin-bottom: 1rem;
 
   .title {
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 1.125rem;
     font-weight: 400;
     margin-bottom: 0.5rem;
   }
 
   .sectionWrapper {
-    background: white;
-    border: 1px solid colors.$light-gray-lines;
+    background: var(--er-ui-background-primary-background);
+    border: 1px solid var(--er-ui-divider-lines);
     border-radius: 0.5rem;
     padding: 0.5rem 1rem;
 
     .sectionDescription {
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       margin-bottom: 0.5rem;
     }
 
     .separator {
-      border-top: 1px solid colors.$light-gray-lines;
+      border-top: 1px solid var(--er-ui-divider-lines);
       margin: 0.5rem 0;
       opacity: 1;
     }
 
     .subTitle {
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       font-size: 1rem;
       font-weight: 500;
       margin-bottom: 0.25rem;
@@ -106,19 +104,19 @@
       background: none;
       border: none;
       border-radius: 0.1875rem;
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       display: flex;
       outline: none;
       padding: 0.25rem 0.5rem;
       width: 100%;
 
       &:focus-visible {
-        outline: 2px solid colors.$bright-blue;
-        color: colors.$bright-blue;
+        outline: 2px solid var(--er-ui-cta-primary);
+        color: var(--er-ui-cta-primary);
       }
 
       &:hover {
-        background: colors.$light-gray-background;
+        background: var(--er-ui-background-elevated-component-0);
       }
 
       .text {

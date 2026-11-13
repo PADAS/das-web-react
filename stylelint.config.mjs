@@ -3,7 +3,7 @@ export default {
   overrides: [
     {
       // Global stylesheets target markup from Bootstrap, Mapbox and others.
-      files: ['**/!(_*|*.module).scss'],
+      files: ['**/!(_*|*.module).scss', 'src/common/styles/_*-theme.scss'],
       rules: {
         'selector-class-pattern': null,
         'selector-id-pattern': null,

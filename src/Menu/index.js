@@ -10,6 +10,8 @@ import * as styles from './styles.module.scss';
 
 export const FOCUS_INTENTS = { FIRST_OPTION: 'firstOption', LAST_OPTION: 'lastOption', MENU: 'menu' };
 
+const CHECKABLE_ROLES = new Set(['menuitemcheckbox', 'menuitemradio']);
+
 const POINT_OFFSET = [0, 0];
 
 const MenuContext = createContext(null);
@@ -28,6 +30,9 @@ const focusItemNode = (node) => {
   return !!focusable && document.activeElement === focusable;
 };
 
+const isBeforeInDocument = (node, otherNode) => !!(node.compareDocumentPosition(otherNode)
+  & Node.DOCUMENT_POSITION_FOLLOWING);
+
 // Popper places an overlay against anything that reports a bounding rectangle.
 const getPointAnchor = (point) => ({
   getBoundingClientRect: () => ({
@@ -44,6 +49,7 @@ const getPointAnchor = (point) => ({
 
 const Option = ({
   'aria-checked': ariaChecked,
+  'aria-current': ariaCurrent,
   as: Component = 'button',
   children,
   className = '',
@@ -58,6 +64,7 @@ const Option = ({
   const nodeRef = useRef(null);
 
   const isButton = Component === 'button';
+  const isMarked = CHECKABLE_ROLES.has(role) ? !!ariaChecked : !!ariaCurrent;
 
   const onClickOption = (event) => {
     if (disabled) {
@@ -65,7 +72,10 @@ const Option = ({
     } else {
       onClick?.(event);
 
-      closeMenu(event);
+      // A checkbox toggles in place, so several can change in one visit.
+      if (role !== 'menuitemcheckbox') {
+        closeMenu(event);
+      }
     }
   };
 
@@ -88,6 +98,7 @@ const Option = ({
   return <li className={styles.item} role="none">
     <Component
       aria-checked={ariaChecked}
+      aria-current={ariaCurrent}
       aria-disabled={!isButton && disabled ? true : undefined}
       className={`${styles.itemBtn} ${className}`}
       disabled={isButton ? disabled : undefined}
@@ -98,7 +109,7 @@ const Option = ({
       type={isButton ? 'button' : undefined}
       {...otherProps}
     >
-      {role === 'menuitemradio' && !!ariaChecked && <CheckIcon
+      {isMarked && <CheckIcon
         aria-hidden="true"
         className={styles.checkIcon}
         data-testid="menu-checkIcon"
@@ -121,6 +132,7 @@ const Menu = ({
   children,
   className = '',
   focusIntent = FOCUS_INTENTS.MENU,
+  header = null,
   id,
   onClose,
   onHide,
@@ -134,8 +146,12 @@ const Menu = ({
 
   const isAnchoredToPoint = !!anchor && !(anchor instanceof Element);
 
+  // Options register as they mount, so one that moves keeps its old place in
+  // the registry: the document order is the one the user sees.
   const getEnabledOptions = useCallback(
-    () => optionsRef.current.filter((option) => !option.disabled && option.nodeRef.current),
+    () => optionsRef.current
+      .filter((option) => !option.disabled && option.nodeRef.current)
+      .sort((option, otherOption) => isBeforeInDocument(otherOption.nodeRef.current, option.nodeRef.current) ? 1 : -1),
     []
   );
 
@@ -283,7 +299,9 @@ const Menu = ({
     show={show}
     target={target}
   >
-    <Popover className={`${styles.menuPopover} ${className}`}>
+    <Popover className={`${styles.menuPopover} ${className}`} role="presentation">
+      {!!header && <div aria-hidden="true" className={styles.header}>{header}</div>}
+
       <MenuContext.Provider value={menuContextValue}>
         <ul
           aria-label={ariaLabel}

@@ -1,13 +1,13 @@
 @use '../common/styles/badges';
 @use '../common/styles/buttons';
+@use '../common/styles/colors';
 @use '../common/styles/layout';
-@use '../common/styles/vars/colors';
 
 .primaryNav {
   align-items: center;
-  background: colors.$title-bar-color;
-  box-shadow: 0 0.25rem 0.25rem 0 rgb(0 0 0 / 33%);
-  color: white;
+  background: var(--er-greyscale-3);
+  box-shadow: 0 0.25rem 0.25rem 0 colors.with-opacity(var(--er-greyscale-0), 33%);
+  color: var(--er-ui-text-primary-text-reversed);
   display: flex;
   gap: 0.5rem;
   height: var(--nav-height);
@@ -38,8 +38,8 @@
       margin-left: 1rem;
 
       .logo {
-        max-height: 2rem;
-        max-width: 12.25rem;
+        display: block;
+        width: 12.25rem;
       }
     }
   }
@@ -87,9 +87,8 @@
     }
 
     [class*='dropdown-menu'] {
-      background: colors.$off-white;
       border: none;
-      box-shadow: 3px 3px 0.5rem rgba(colors.$dark-gray, 0.25);
+      box-shadow: 3px 3px 0.5rem colors.with-opacity(var(--er-greyscale-3), 25%);
       max-width: 95vw;
       padding: 0;
     }

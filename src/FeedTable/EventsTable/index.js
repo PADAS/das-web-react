@@ -29,13 +29,13 @@ import {
   eventTypeTitleForEvent,
   getCoordinatesForCollection,
   getCoordinatesForEvent,
-  PRIORITY_COLOR_MAP,
 } from '../../utils/events';
 import { calcEventFilterForRequest } from '../../utils/event-filter';
 import calcEventTypeFields from './utils/calcEventTypeFields';
 import { downloadFileFromUrl } from '../../utils/download';
 import { fetchEventTypeSchema } from '../../ducks/event-schemas';
 import { objectToParamString } from '../../utils/query';
+import { PRIORITY_COLOR_MAP, tokenVar } from '../../utils/colors';
 import { selectCoordinatesRepresentation } from '../../selectors/location';
 import { selectEventCategoryPermissions } from '../../selectors/event-types';
 import { selectEventLinkPermissions } from '../../selectors/event-links';
@@ -121,7 +121,7 @@ const PriorityCell = ({ value, valueFormatted }) => <span className={styles.prio
   <span
     aria-hidden
     className={styles.priorityDot}
-    style={{ backgroundColor: (PRIORITY_COLOR_MAP[value] ?? PRIORITY_COLOR_MAP[0]).base }}
+    style={{ backgroundColor: tokenVar((PRIORITY_COLOR_MAP[value] ?? PRIORITY_COLOR_MAP[0]).baseToken) }}
   />
   {valueFormatted}
 </span>;

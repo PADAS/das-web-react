@@ -1,13 +1,15 @@
 @use 'common/styles/animations';
-@use 'common/styles/vars/colors';
+@use 'common/styles/bootstrap-theme';
+@use 'common/styles/colors';
 @use 'common/styles/vars/fonts';
+@use 'common/styles/vendor-theme';
 
 html, body {
   height: 100%;
 }
 
 body {
-  color: colors.$primary-font-color;
+  color: var(--er-ui-text-primary-text);
   font-family: fonts.$font-family-base;
   margin: 0;
   padding: 0;
@@ -43,10 +45,21 @@ h6 {
   font-size: fonts.$font-size-h6;
 }
 
-.btn-info {
-  background-color: #17a2b8;
-  border-color: #17a2b8;
-  color: #fff;
+:root {
+  accent-color: var(--er-ui-cta-primary);
+}
+
+// Zero specificity, so a component's own focus style wins whatever the CSS order.
+:where(:focus-visible) {
+  outline: var(--er-ui-cta-primary) auto 1px;
+}
+
+::placeholder {
+  color: var(--er-ui-text-disabled);
+}
+
+::selection {
+  background-color: #{colors.with-opacity(var(--er-ui-cta-primary), 25%)};
 }
 
 .modal-content {
@@ -59,12 +72,10 @@ h6 {
 }
 
 .modal-header {
-  background: colors.$popover-header-color;
-  color: white;
+  background: var(--er-greyscale-4);
+  color: var(--er-ui-text-primary-text-reversed);
   align-items: flex-start;
-  border-bottom: 1px solid #dee2e6;
-  border-top-left-radius: 0.3rem;
-  border-top-right-radius: 0.3rem;
+  border-bottom: 1px solid var(--er-ui-divider-lines);
   display: flex;
   justify-content: space-between;
   padding: 1rem;
@@ -77,19 +88,10 @@ h6 {
 
 .modal-footer {
   align-items: center;
-  border-bottom-left-radius: 0.3rem;
-  border-bottom-right-radius: 0.3rem;
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid var(--er-ui-divider-lines);
   display: flex;
   justify-content: flex-end;
   padding: 1rem;
-}
-
-.modal-backdrop {
-  &.show {
-    background: rgb(0 0 0 / 50%);
-    opacity: 1;
-  }
 }
 
 .modal[role="dialog"] {

@@ -18,6 +18,8 @@ import { MapContext } from '../../../MapContext';
 
 import * as styles from '../styles.module.scss';
 
+const ANALYZER_ICON_STYLE = { height: '2rem', stroke: 'var(--er-ui-icons)', width: '2rem' };
+
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
 
 
@@ -47,8 +49,8 @@ const FeatureListItem = memo((props) => {
   };
 
   const iconForCategory = category => {
-    if (category === 'geofence') return <GeofenceIcon stroke='black' style={{ height: '2rem', width: '2rem' }} />;
-    if (category === 'proximity') return <ProximityIcon stroke='black' style={{ height: '2rem', width: '2rem' }} />;
+    if (category === 'geofence') return <GeofenceIcon style={ANALYZER_ICON_STYLE} />;
+    if (category === 'proximity') return <ProximityIcon style={ANALYZER_ICON_STYLE} />;
     return null;
   };
 

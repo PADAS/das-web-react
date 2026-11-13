@@ -1,42 +1,41 @@
-@use 'sass:color';
 @use '../common/styles/inputs';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 .locationPicker {
   align-items: center;
-  background: white;
-  border: 1px solid colors.$light-gray-border;
+  background: var(--er-ui-background-primary-background);
+  border: 1px solid var(--er-ui-divider-lines);
   border-radius: 0.25rem;
   display: flex;
   height: 2.5rem;
 
   &:not(.disabled):has(.setLocationButton:focus, .setLocationButton[aria-expanded="true"]) {
-    border: 1px solid colors.$bright-blue;
-    outline: 1px solid colors.$bright-blue;
+    border: 1px solid var(--er-ui-cta-primary);
+    outline: 1px solid var(--er-ui-cta-primary);
   }
 
   &.error {
-    border-color: colors.$bright-red;
+    border-color: var(--er-ui-status-error-destructive);
 
     .setLocationButton {
       .input {
         &::placeholder {
-          color: color.adjust(colors.$bright-red, $lightness: 33%);
+          color: colors.tint(var(--er-ui-status-error-destructive), 56%);
         }
       }
     }
 
     .textCopyButton {
-      color: colors.$bright-red;
+      color: var(--er-ui-status-error-destructive);
     }
 
     .jumpToLocationButton {
-      color: colors.$bright-red;
+      color: var(--er-ui-status-error-destructive);
     }
   }
 
   &.readOnly {
-    background-color: colors.$off-white;
+    background-color: var(--er-ui-background-tertiary-background);
 
     .setLocationButton {
       cursor: default;
@@ -52,7 +51,7 @@
   }
 
   &.disabled {
-    background-color: colors.$disabled-field-gray;
+    background-color: var(--er-ui-background-tertiary-background);
   }
 
   .setLocationButton {
@@ -68,7 +67,7 @@
     padding: 0 0.5rem;
 
     &:hover:not(:disabled) {
-      background-color: colors.$very-light-blue;
+      background-color: var(--er-ui-background-hover-background);
     }
 
     .input {
@@ -79,7 +78,7 @@
       width: 100%;
 
       &::placeholder {
-        color: colors.$bright-blue;
+        color: var(--er-ui-cta-primary);
       }
 
       &:disabled {
@@ -117,30 +116,30 @@
 
     &:hover:not(:disabled) {
       background-color: transparent;
-      color: colors.$bright-blue;
+      color: var(--er-ui-cta-primary);
     }
   }
 
   .jumpToLocationButton {
     @include inputs.boxed-field-trailing-control;
 
-    background-color: colors.$light-gray-background;
+    background-color: var(--er-ui-background-elevated-component-0);
     border: none;
     border-radius: 0.25rem;
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-icons);
     margin-left: 1px;
     outline: none;
 
     &:disabled {
-      background-color: colors.$disabled-field-gray;
+      background-color: var(--er-ui-background-elevated-component-0);
     }
 
     &:focus-visible:not(:disabled) {
-      outline: 2px solid colors.$bright-blue;
+      outline: 2px solid var(--er-ui-cta-primary);
     }
 
     &:hover:not(:disabled) {
-      background-color: color.adjust(colors.$light-gray-background, $lightness: -5%);
+      background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
     }
   }
 }

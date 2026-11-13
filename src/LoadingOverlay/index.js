@@ -20,7 +20,7 @@ const LoadingOverlay = ({
       style={style}
       {...otherProps}
     >
-    <MoonLoader color="white" size={loaderSize} />
+    <MoonLoader color="var(--er-ui-text-primary-text-reversed)" size={loaderSize} />
 
     {message && <span className={styles.message} id={messageId}>{message}</span>}
 

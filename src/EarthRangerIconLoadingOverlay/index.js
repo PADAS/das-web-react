@@ -1,9 +1,9 @@
-import { ReactComponent as EarthRangerLogo } from '../common/images/earth-ranger-logo.svg';
+import EarthRangerLogo from '../EarthRangerLogo';
 
 import * as styles from './styles.module.scss';
 
 const EarthRangerIconLoadingOverlay = ({ message }) => <div className={styles.wrapper}>
-  <EarthRangerLogo className={styles.logo} />
+  <EarthRangerLogo alt="" className={styles.logo} type="vertical" />
 
   {!!message && <p>{message}</p>}
 </div>;

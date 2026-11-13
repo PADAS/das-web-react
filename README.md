@@ -281,11 +281,46 @@ const MyComponent = ({ isActive }) => <div className={`${styles.container} ${isA
 
 Shared styles live in `src/common/styles/`, and components pull them in with `@use`:
 
-- `vars/`: the color palette, fonts and control sizes.
+- `vars/`: fonts and control sizes.
+- `_colors.scss`: helpers that derive shades from the color tokens, the hover and active steps, and the priority and patrol themes.
+- `_bootstrap-theme.scss`, `_vendor-theme.scss`: the tokens and the font applied to Bootstrap and the other libraries with styles of their own. Only `src/index.scss` uses them.
 - `_layout.scss`: breakpoints, media queries and layout mixins.
 - `_buttons.scss`, `_inputs.scss`, `_popovers.scss` and others: mixins for common elements.
 
-Base element styles, such as fonts and headings, are in `src/index.scss`.
+Base element styles, such as fonts, headings, the focus ring and placeholders, are in `src/index.scss`.
+
+#### Colors
+
+Colors are the ER Legacy design tokens, defined in Ai2's [DESIGN.md](https://github.com/allenai/design/blob/main/er-legacy/DESIGN.md) and published as `@allenai/design-system`. They keep the app's current look until the EarthRanger rebrand, when the app moves to the `earthranger` set. `src/index.js` loads them as CSS custom properties, so styles read them with `var()`:
+
+```scss
+@use '../common/styles/colors';
+
+.saveButton {
+  background-color: var(--er-ui-cta-primary);
+  color: var(--er-ui-text-primary-text-reversed);
+
+  &:hover {
+    background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
+  }
+}
+```
+
+- Prefer the semantic tokens (`--er-ui-*`), named for their role, to the palette primitives (`--er-greyscale-3`).
+- Sass color functions such as `color.adjust` cannot read custom properties. Derive shades with `colors.shade`, `colors.tint` and `colors.with-opacity`, and use the named steps for hover and active states.
+- JavaScript that sets a style writes `var(--er-*)` too. Mapbox and drawn images need hex values instead, from `COLOR_TOKENS` in `src/utils/colors.js`.
+
+#### Font
+
+The app's font is Roboto, as ER Legacy specifies. It is self-hosted through `@fontsource-variable/roboto`, which `src/index.js` loads, so the build bundles its files, the service worker precaches them, and no request leaves the site's domain.
+
+#### Upgrading the design system
+
+The package is not on npm yet, so `package.json` pins it to a release tag of its GitHub repository, which `.yarnrc.yml` allows in `approvedGitRepositories`.
+
+1. Change the tag range in `package.json`, such as `github:allenai/design#semver=^0.5.0`, and run `yarn install`.
+2. Compare `er-legacy/tokens.css` between the two tags and check the app, since one token can restyle every screen.
+3. Run `yarn test src/utils/colors.test.js`, which fails if a token the app uses was renamed or removed.
 
 ### Assets
 
@@ -305,7 +340,7 @@ Append `?url` to import a file's URL instead, such as to load it as a map image.
 
 #### Images and sounds
 
-Other bundled images, such as the logo and sprites, live in `src/common/images/`, and notification sounds in `src/common/sounds/`.
+The EarthRanger logos come from the design system's `er-legacy/assets`, and the build also serves its icon as `/favicon.svg`, which the DAS admin pages link. Other bundled images, such as the sprites, live in `src/common/images/`, and notification sounds in `src/common/sounds/`.
 
 #### Site icons
 

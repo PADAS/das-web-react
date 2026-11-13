@@ -1,0 +1,317 @@
+@use 'buttons';
+@use 'colors';
+@use 'vars/fonts';
+
+// Bootstrap ships compiled with its own palette, so it takes the tokens through
+// its CSS variables. Only src/index.scss uses this partial, which emits rules.
+
+// Bootstrap sizes a button by its padding, so this derives the padding that
+// gives our buttons' height.
+@mixin button-height($height) {
+  --bs-btn-padding-y: calc(
+    (#{$height} - var(--bs-btn-font-size) * var(--bs-btn-line-height)) / 2 - var(--bs-btn-border-width)
+  );
+}
+
+@mixin button-variant(
+  $background,
+  $color,
+  $border: $background,
+  $hover-shade: colors.$hover-shade,
+  $active-shade: colors.$active-shade
+) {
+  --bs-btn-active-bg: #{colors.shade($background, $active-shade)};
+  --bs-btn-active-border-color: #{colors.shade($border, $active-shade)};
+  --bs-btn-active-color: #{$color};
+  --bs-btn-bg: #{$background};
+  --bs-btn-border-color: #{$border};
+  --bs-btn-color: #{$color};
+  --bs-btn-disabled-bg: #{$background};
+  --bs-btn-disabled-border-color: #{$border};
+  --bs-btn-disabled-color: #{$color};
+  --bs-btn-hover-bg: #{colors.shade($background, $hover-shade)};
+  --bs-btn-hover-border-color: #{colors.shade($border, $hover-shade)};
+  --bs-btn-hover-color: #{$color};
+}
+
+@mixin button-tint-variant($background, $color, $accent) {
+  --bs-btn-active-bg: #{colors.deepen($background, $accent, colors.$tint-active-deepen)};
+  --bs-btn-active-border-color: #{colors.deepen($background, $accent, colors.$tint-active-deepen)};
+  --bs-btn-active-color: #{$color};
+  --bs-btn-bg: #{$background};
+  --bs-btn-border-color: #{$background};
+  --bs-btn-color: #{$color};
+  --bs-btn-disabled-bg: #{$background};
+  --bs-btn-disabled-border-color: #{$background};
+  --bs-btn-disabled-color: #{$color};
+  --bs-btn-hover-bg: #{colors.deepen($background, $accent, colors.$tint-hover-deepen)};
+  --bs-btn-hover-border-color: #{colors.deepen($background, $accent, colors.$tint-hover-deepen)};
+  --bs-btn-hover-color: #{$color};
+}
+
+@mixin button-outline-variant($color) {
+  --bs-btn-active-bg: #{colors.deepen(var(--er-ui-background-selected-background), var(--er-ui-cta-primary), colors.$tint-hover-deepen)};
+  --bs-btn-active-border-color: #{$color};
+  --bs-btn-active-color: #{$color};
+  --bs-btn-border-color: #{$color};
+  --bs-btn-color: #{$color};
+  --bs-btn-disabled-border-color: #{$color};
+  --bs-btn-disabled-color: #{$color};
+  --bs-btn-hover-bg: var(--er-ui-background-selected-background);
+  --bs-btn-hover-border-color: #{$color};
+  --bs-btn-hover-color: #{$color};
+}
+
+:root {
+  --bs-body-bg: var(--er-ui-background-primary-background);
+  --bs-body-color: var(--er-ui-text-primary-text);
+  --bs-border-color: var(--er-ui-divider-lines);
+  --bs-border-color-translucent: var(--er-ui-divider-lines);
+  --bs-code-color: var(--er-ui-text-secondary-text);
+  --bs-danger: var(--er-ui-status-error-destructive);
+  --bs-danger-bg-subtle: var(--er-ui-status-bg-error-bg);
+  --bs-danger-border-subtle: #{colors.tint(var(--er-ui-status-error-destructive), 65%)};
+  --bs-danger-text-emphasis: var(--er-ui-status-error-destructive);
+  --bs-dark: var(--er-greyscale-2);
+  --bs-emphasis-color: var(--er-ui-text-primary-text);
+  --bs-focus-ring-color: #{colors.with-opacity(var(--er-ui-cta-primary), 25%)};
+  --bs-font-sans-serif: #{fonts.$font-family-sans-serif};
+  --bs-form-invalid-border-color: var(--er-ui-status-error-destructive);
+  --bs-form-invalid-color: var(--er-ui-status-error-destructive);
+  --bs-form-valid-border-color: var(--er-ui-status-success);
+  --bs-form-valid-color: var(--er-ui-status-success);
+  --bs-heading-color: inherit;
+  --bs-highlight-bg: #{colors.tint(var(--er-ui-status-ready), 75%)};
+  --bs-highlight-color: var(--er-ui-text-primary-text);
+  --bs-info: var(--er-ui-status-running);
+  --bs-info-bg-subtle: var(--er-blue-4);
+  --bs-info-border-subtle: #{colors.tint(var(--er-ui-status-running), 65%)};
+  --bs-info-text-emphasis: var(--er-ui-status-running);
+  --bs-light: var(--er-ui-background-tertiary-background);
+  --bs-link-color: var(--er-ui-cta-primary);
+  --bs-link-hover-color: #{colors.shade(var(--er-ui-cta-primary), colors.$link-hover-shade)};
+  --bs-primary: var(--er-ui-cta-primary);
+  --bs-primary-bg-subtle: var(--er-ui-background-selected-background);
+  --bs-primary-border-subtle: #{colors.tint(var(--er-ui-cta-primary), 65%)};
+  --bs-primary-text-emphasis: var(--er-ui-cta-primary);
+  --bs-secondary: var(--er-ui-cta-secondary);
+  --bs-secondary-bg: var(--er-ui-background-tertiary-background);
+  --bs-secondary-bg-subtle: var(--er-ui-background-tertiary-background);
+  --bs-secondary-border-subtle: var(--er-ui-divider-lines);
+  --bs-secondary-color: var(--er-ui-text-secondary-text);
+  --bs-secondary-text-emphasis: var(--er-ui-text-secondary-text);
+  --bs-success: var(--er-ui-status-success);
+  --bs-success-bg-subtle: var(--er-ui-status-bg-synced-bg);
+  --bs-success-border-subtle: #{colors.tint(var(--er-ui-status-success), 65%)};
+  --bs-success-text-emphasis: var(--er-ui-status-success);
+  --bs-tertiary-bg: var(--er-ui-background-tertiary-background);
+  --bs-tertiary-color: var(--er-ui-text-disabled);
+  --bs-warning: var(--er-ui-status-warning);
+  --bs-warning-bg-subtle: var(--er-ui-status-bg-warning-bg);
+  --bs-warning-border-subtle: #{colors.tint(var(--er-ui-status-warning), 65%)};
+  --bs-warning-text-emphasis: var(--er-amber-2);
+}
+
+a {
+  color: var(--bs-link-color);
+
+  // No added specificity, so a component's own link color holds on hover.
+  &:where(:hover) {
+    color: var(--bs-link-hover-color);
+  }
+}
+
+.alert-link {
+  color: inherit;
+}
+
+.badge {
+  --bs-badge-color: var(--er-ui-text-primary-text-reversed);
+}
+
+.btn {
+  @include button-height(buttons.$chip-height);
+
+  --bs-btn-border-radius: 0.25rem;
+  --bs-btn-focus-box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
+  --bs-btn-font-size: 0.875rem;
+  --bs-btn-font-weight: 500;
+  --bs-btn-padding-x: 0.5rem;
+}
+
+.btn-sm {
+  @include button-height(buttons.$chip-height-small);
+}
+
+.btn-primary {
+  @include button-variant(var(--er-ui-cta-primary), var(--er-ui-text-primary-text-reversed));
+}
+
+.btn-secondary {
+  @include button-tint-variant(var(--er-ui-cta-secondary), var(--er-ui-cta-text), var(--er-ui-cta-primary));
+}
+
+.btn-success {
+  @include button-variant(var(--er-ui-status-success), var(--er-ui-text-primary-text-reversed));
+}
+
+.btn-info {
+  @include button-variant(var(--er-ui-status-running), var(--er-ui-text-primary-text-reversed));
+}
+
+.btn-warning {
+  @include button-variant(var(--er-ui-status-warning), var(--er-ui-text-primary-text-reversed));
+}
+
+.btn-danger {
+  @include button-variant(var(--er-ui-status-error-destructive), var(--er-ui-text-primary-text-reversed));
+}
+
+.btn-light {
+  @include button-variant(
+    $active-shade: colors.$hover-shade,
+    $background: var(--er-ui-background-elevated-component-0),
+    $color: var(--er-ui-icons),
+    $hover-shade: colors.$surface-hover-shade
+  );
+}
+
+.btn-dark {
+  @include button-variant(var(--er-greyscale-2), var(--er-ui-text-primary-text-reversed));
+}
+
+.btn-outline-primary {
+  @include button-outline-variant(var(--er-ui-cta-primary));
+}
+
+.btn-outline-secondary {
+  @include button-outline-variant(var(--er-ui-text-secondary-text));
+}
+
+.btn-outline-danger {
+  @include button-outline-variant(var(--er-ui-status-error-destructive));
+}
+
+.btn-link {
+  --bs-btn-disabled-color: var(--er-ui-text-disabled);
+  --bs-btn-font-weight: 400;
+}
+
+.btn-close {
+  --bs-btn-close-focus-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
+}
+
+.dropdown-menu {
+  --bs-dropdown-bg: var(--er-ui-background-elevated-component);
+  --bs-dropdown-border-color: var(--er-ui-divider-lines);
+  --bs-dropdown-color: var(--er-ui-text-primary-text);
+  --bs-dropdown-divider-bg: var(--er-ui-divider-lines);
+  --bs-dropdown-header-color: var(--er-ui-text-secondary-text);
+  --bs-dropdown-link-active-bg: var(--er-ui-background-selected-background);
+  --bs-dropdown-link-active-color: var(--er-ui-cta-primary);
+  --bs-dropdown-link-color: var(--er-ui-text-primary-text);
+  --bs-dropdown-link-disabled-color: var(--er-ui-text-disabled);
+  --bs-dropdown-link-hover-bg: var(--er-ui-background-hover-background);
+  --bs-dropdown-link-hover-color: var(--er-ui-text-primary-text);
+}
+
+.nav-link:focus-visible {
+  box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
+}
+
+.nav-pills {
+  --bs-nav-pills-link-active-bg: var(--er-ui-cta-primary);
+  --bs-nav-pills-link-active-color: var(--er-ui-text-primary-text-reversed);
+}
+
+.accordion {
+  --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
+}
+
+.pagination {
+  --bs-pagination-active-bg: var(--er-ui-cta-primary);
+  --bs-pagination-active-border-color: var(--er-ui-cta-primary);
+  --bs-pagination-active-color: var(--er-ui-text-primary-text-reversed);
+  --bs-pagination-focus-box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
+}
+
+.modal {
+  --bs-modal-border-width: 0;
+}
+
+.modal-backdrop {
+  --bs-backdrop-bg: var(--er-greyscale-0);
+}
+
+.table {
+  --bs-table-active-bg: #{colors.with-opacity(var(--er-ui-text-primary-text), 10%)};
+  --bs-table-hover-bg: #{colors.with-opacity(var(--er-ui-text-primary-text), 7.5%)};
+  --bs-table-striped-bg: #{colors.with-opacity(var(--er-ui-text-primary-text), 5%)};
+}
+
+.popover {
+  --bs-popover-bg: var(--er-ui-background-elevated-component);
+  --bs-popover-border-color: var(--er-ui-divider-lines);
+}
+
+.tooltip {
+  --bs-tooltip-bg: var(--er-greyscale-0);
+  --bs-tooltip-color: var(--er-ui-text-primary-text-reversed);
+}
+
+.form-control,
+.form-select,
+.form-check-input {
+  &:focus {
+    border-color: #{colors.tint(var(--er-ui-cta-primary), 50%)};
+    box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
+  }
+
+  &.is-invalid:focus,
+  .was-validated &:invalid:focus {
+    box-shadow: 0 0 0 0.25rem #{colors.with-opacity(var(--er-ui-status-error-destructive), 25%)};
+  }
+
+  &.is-valid:focus,
+  .was-validated &:valid:focus {
+    box-shadow: 0 0 0 0.25rem #{colors.with-opacity(var(--er-ui-status-success), 25%)};
+  }
+}
+
+.form-control::placeholder {
+  color: var(--er-ui-text-disabled);
+}
+
+.form-check-input {
+  &:checked,
+  &[type='checkbox']:indeterminate {
+    background-color: var(--er-ui-cta-primary);
+    border-color: var(--er-ui-cta-primary);
+  }
+}
+
+.form-range {
+  &::-webkit-slider-thumb {
+    background-color: var(--er-ui-cta-primary);
+
+    &:active {
+      background-color: #{colors.tint(var(--er-ui-cta-primary), 70%)};
+    }
+  }
+
+  &::-moz-range-thumb {
+    background-color: var(--er-ui-cta-primary);
+
+    &:active {
+      background-color: #{colors.tint(var(--er-ui-cta-primary), 70%)};
+    }
+  }
+
+  &:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 1px var(--er-ui-background-primary-background), 0 0 0 0.25rem var(--bs-focus-ring-color);
+  }
+
+  &:focus::-moz-range-thumb {
+    box-shadow: 0 0 0 1px var(--er-ui-background-primary-background), 0 0 0 0.25rem var(--bs-focus-ring-color);
+  }
+}

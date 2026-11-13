@@ -1,4 +1,4 @@
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 
 .option {
@@ -20,13 +20,13 @@
     cursor: pointer;
 
     div {
-      background-color: rgba(colors.$bright-blue, 0.3);
-      color: white;
+      background-color: colors.with-opacity(var(--er-ui-cta-primary), 30%);
+      color: var(--er-ui-text-primary-text-reversed);
     }
   }
 
   &.hidden {
-    color: colors.$light-font-color;
+    color: var(--er-ui-text-secondary-text);
     font-style: italic;
   }
 
@@ -34,7 +34,7 @@
     pointer-events: none;
 
     * {
-      color: colors.$secondary-medium-gray; 
+      color: var(--er-ui-text-secondary-text); 
       font-size: 0.75rem;
       text-transform: uppercase;
     }
@@ -87,7 +87,7 @@
 
 
 .timeAgo {
-  color: colors.$light-font-color;
+  color: var(--er-ui-text-secondary-text);
   flex-grow: 1;
   font-size: 0.7rem;
   font-style: italic;

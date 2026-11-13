@@ -1,4 +1,6 @@
-$background: rgb(0 0 0 / 65%);
+@use '../common/styles/colors';
+
+$background: colors.with-opacity(var(--er-greyscale-0), 65%);
 
 .popup {
   position: fixed;
@@ -10,13 +12,13 @@ $background: rgb(0 0 0 / 65%);
 
   [class*="mapboxgl-popup-content"] {
     background: $background;
-    color: white;
+    color: var(--er-ui-text-primary-text-reversed);
     max-width: 10rem;
     padding: 0.25rem;
   }
 
   [class*="mapboxgl-popup-tip"] {
     border-left-color: $background;
-    border-top-color: rgb(0 0 0 / 0%);
+    border-top-color: transparent;
   }
 }

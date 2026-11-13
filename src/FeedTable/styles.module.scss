@@ -1,16 +1,14 @@
-@use 'sass:color';
 @use '../common/styles/animations';
 @use '../common/styles/buttons';
-@use '../common/styles/inputs';
-@use '../common/styles/vars/colors';
 
 :export {
-  accentColor: colors.$bright-blue;
-  backgroundColor: white;
-  borderColor: colors.$light-gray-lines;
-  foregroundColor: colors.$primary-font-color;
-  headerTextColor: colors.$secondary-medium-gray;
-  selectedRowBackgroundColor: colors.$blue-highlight;
+  accentColor: var(--er-ui-cta-primary);
+  backgroundColor: var(--er-ui-background-primary-background);
+  borderColor: var(--er-ui-divider-lines);
+  foregroundColor: var(--er-ui-text-primary-text);
+  headerTextColor: var(--er-ui-text-secondary-text);
+  rowHoverColor: var(--er-ui-background-hover-background);
+  selectedRowBackgroundColor: var(--er-ui-background-selected-background);
 }
 
 .feedTable {
@@ -30,27 +28,26 @@
 
   .toolbarButton {
     @include buttons.chip-text-button;
-    @include buttons.chip-open-state;
 
     flex-shrink: 0;
   }
 
   .selection {
     align-items: center;
-    border-right: 1px solid colors.$light-gray-lines;
+    border-right: 1px solid var(--er-ui-divider-lines);
     display: flex;
     gap: 0.5rem;
     padding-right: 0.5rem;
 
     .selectionCount {
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       font-size: 0.875rem;
     }
   }
 
   .statusMessage {
     align-items: center;
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     display: inline-flex;
     font-size: 0.875rem;
     gap: 0.375rem;
@@ -63,53 +60,17 @@
   }
 }
 
-.columnsMenuPopover {
-  @include inputs.box-shadow;
-
-  border: none !important;
-  border-radius: 0.25rem !important;
+.columnsMenu {
   min-width: 12rem;
 
-  [class*='popover-arrow'] {
-    display: none;
-  }
-
-  .columnsMenu {
-    margin: 0;
+  [role="menu"] {
     max-height: 20rem;
     overflow-y: auto;
     padding: 0.25rem 0;
+  }
 
-    .columnsMenuItem {
-      align-items: center;
-      background-color: white;
-      border: none;
-      display: flex;
-      outline: none;
-      padding: 0.5rem 0.5rem 0.5rem 1.75rem;
-      text-align: left;
-      white-space: nowrap;
-      width: 100%;
-
-      &:hover {
-        background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
-      }
-
-      &:focus-visible {
-        background-color: colors.$light-gray-background;
-      }
-
-      &[aria-checked='true'] {
-        padding-left: 0.5rem;
-      }
-
-      .checkIcon {
-        color: colors.$bright-blue;
-        height: 0.75rem;
-        margin-right: 0.5rem;
-        width: 0.75rem;
-      }
-    }
+  [role="menuitemcheckbox"] {
+    white-space: nowrap;
   }
 }
 
@@ -129,6 +90,16 @@
     [class~='ag-cell-wrapper'], [class~='ag-cell-value'] {
       height: 100%;
       min-width: 0;
+    }
+  }
+
+  [class~='ag-column-moving'] {
+    [class~='ag-header-cell'], [class~='ag-cell'] {
+      background-color: var(--er-ui-background-primary-background);
+    }
+
+    [class~='ag-row-selected'] [class~='ag-cell'] {
+      background-color: var(--er-ui-background-selected-background);
     }
   }
 }

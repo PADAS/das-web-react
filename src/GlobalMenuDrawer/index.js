@@ -309,11 +309,12 @@ const GlobalMenuDrawer = () => {
   }, [isDrawerOpen]);
 
   return <div
-      aria-labelledby="global-menu-drawer-heading"
-      aria-modal="true"
-      className={styles.globalMenuDrawer}
-      role="dialog"
-    >
+    aria-labelledby="global-menu-drawer-heading"
+    aria-modal="true"
+    className={styles.globalMenuDrawer}
+    data-theme="dark"
+    role="dialog"
+  >
     <header className={styles.header}>
       <h2 className="sr-only" id="global-menu-drawer-heading">{t('header')}</h2>
 

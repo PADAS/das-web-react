@@ -1,23 +1,22 @@
 @use '../common/styles/buttons';
-@use '../common/styles/vars/colors';
 @use './shared';
 
 .header {
   align-items: flex-start;
-  background-color: white;
-  color: colors.$off-black;
+  background-color: var(--er-ui-background-primary-background);
+  color: var(--er-ui-text-primary-text);
   gap: 1rem;
 
   .titleStack {
     min-width: 0;
 
     .title {
-      color: colors.$off-black;
+      color: var(--er-ui-text-primary-text);
       font-size: 1.125rem;
     }
 
     .eventContext {
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       display: flex;
       font-size: 0.875rem;
       gap: 0.5rem;
@@ -71,7 +70,7 @@
   }
 
   .results {
-    border: 1px solid colors.$light-gray-lines;
+    border: 1px solid var(--er-ui-divider-lines);
     border-radius: 0.5rem;
     min-height: 0;
     overflow-y: auto;
@@ -82,7 +81,7 @@
       text-align: center;
 
       .emptyStateMessage {
-        color: colors.$secondary-medium-gray;
+        color: var(--er-ui-text-secondary-text);
         display: block;
         font-size: 0.875rem;
         margin-top: 0.5rem;

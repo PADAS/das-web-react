@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { MapContext } from '../MapContext';
 import { addMapImage, buildGeoSpanFilter } from '../utils/map';
 import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { COLOR_TOKENS, withOpacity } from '../utils/colors';
 
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
 import RangerStationsImage from '../common/images/icons/ranger-stations.png';
@@ -27,7 +28,7 @@ const DEFAULT_LINE_PAINT_COLOR = [
   ['has', 'color'], ['get', 'color'],
   ['has', 'line_color'], ['get', 'line_color'],
   ['has', 'stroke_color'], ['get', 'stroke_color'],
-  '#ff6600'
+  COLOR_TOKENS['amber-4']
 ];
 
 const DEFAULT_POLYGON_FILL_COLOR = [
@@ -37,7 +38,7 @@ const DEFAULT_POLYGON_FILL_COLOR = [
   ['has', 'fill_color'], ['get', 'fill_color'],
   ['has', 'color'], ['get', 'color'],
   ['has', 'stroke'], ['get', 'stroke'],
-  'rgba(255, 102, 0, 0)'
+  'transparent'
 ];
 
 const LINE_LAYERS_PAINT = {
@@ -166,7 +167,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
             ['has', 'stroke'], ['get', 'stroke'],
             ['has', 'outline_color'], ['get', 'outline_color'],
             ['has', 'border_color'], ['get', 'border_color'],
-            'rgba(255, 102, 0, 0.25)'
+            withOpacity(COLOR_TOKENS['amber-4'], 25)
           ]
         },
         filter: polygonLayerFilter
@@ -192,7 +193,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         },
         paint: {
           ...DEFAULT_SYMBOL_PAINT,
-          'text-halo-color': '#ffffff',
+          'text-halo-color': COLOR_TOKENS['greyscale-white'],
           'text-halo-width': 1,
           'text-halo-blur': 1,
         },
@@ -217,7 +218,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         },
         paint: {
           ...DEFAULT_SYMBOL_PAINT,
-          'text-halo-color': '#ffffff',
+          'text-halo-color': COLOR_TOKENS['greyscale-white'],
           'text-halo-width': 1,
           'text-halo-blur': 1,
         },
@@ -245,7 +246,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         },
         paint: {
           ...DEFAULT_SYMBOL_PAINT,
-          'text-halo-color': '#ffffff',
+          'text-halo-color': COLOR_TOKENS['greyscale-white'],
           'text-halo-width': 1,
           'text-halo-blur': 1,
         },
@@ -306,7 +307,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     if (lineLayer) {
       const highlightLinePaintColor = [
         ...DEFAULT_LINE_PAINT_COLOR.slice(0, 1),
-        ['in', ['get', 'id'], ['literal', mapFeatureHighlightIDs]], 'red',
+        ['in', ['get', 'id'], ['literal', mapFeatureHighlightIDs]], COLOR_TOKENS['red-4'],
         ...DEFAULT_LINE_PAINT_COLOR.slice(1),
       ];
 
@@ -316,7 +317,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     if (polyLayer) {
       const highlightPolygonFillColor = [
         ...DEFAULT_POLYGON_FILL_COLOR.slice(0, 1),
-        ['in', ['get', 'id'], ['literal', mapFeatureHighlightIDs]], 'red',
+        ['in', ['get', 'id'], ['literal', mapFeatureHighlightIDs]], COLOR_TOKENS['red-4'],
         ...DEFAULT_POLYGON_FILL_COLOR.slice(1),
       ];
 

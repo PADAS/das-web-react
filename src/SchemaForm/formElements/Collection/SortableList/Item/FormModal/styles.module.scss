@@ -1,10 +1,9 @@
-@use 'sass:color';
 @use '../../../../../../common/styles/buttons';
-@use '../../../../../../common/styles/vars/colors';
+@use '../../../../../../common/styles/colors';
 @use '../../../../../../common/styles/inputs';
 
 .dimmedBackground {
-  background: rgb(0 0 0 / 50%);
+  background: colors.with-opacity(var(--er-greyscale-0), 50%);
 }
 
 .noBackground {
@@ -17,25 +16,25 @@
 }
 
 .header {
-  background-color: white;
+  background-color: var(--er-ui-background-primary-background);
   flex-direction: column;
 
   .list {
     margin-bottom: 0.25rem;
 
     .breadcrumb {
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       font-size: 0.75rem;
 
       &.current {
-        color: colors.$off-black;
+        color: var(--er-ui-text-primary-text);
         font-weight: 500;
       }
     }
   }
 
   .title {
-    color: colors.$off-black;
+    color: var(--er-ui-text-primary-text);
     font-size: 1.125rem;
   }
 }
@@ -82,9 +81,9 @@
   .deleteButton {
     @include buttons.chip-icon-button;
 
-    background-color: colors.$high-priority-bg-hover;
-    border-color: colors.$high-priority-bg-hover;
-    color: colors.$bright-red;
+    background-color: var(--er-ui-status-bg-error-bg);
+    border-color: var(--er-ui-status-bg-error-bg);
+    color: var(--er-ui-status-error-destructive);
 
     svg {
       height: 1rem;
@@ -92,13 +91,13 @@
     }
 
     &:hover {
-      background-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
-      border-color: color.adjust(colors.$high-priority-bg-hover, $lightness: -5%);
+      background-color: colors.deepen(var(--er-ui-status-bg-error-bg), var(--er-ui-status-error-destructive), colors.$tint-hover-deepen);
+      border-color: colors.deepen(var(--er-ui-status-bg-error-bg), var(--er-ui-status-error-destructive), colors.$tint-hover-deepen);
     }
 
     &:disabled:hover {
-      background-color: colors.$high-priority-bg-hover;
-      border-color: colors.$high-priority-bg-hover;
+      background-color: var(--er-ui-status-bg-error-bg);
+      border-color: var(--er-ui-status-bg-error-bg);
     }
   }
 

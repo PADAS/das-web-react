@@ -1,4 +1,4 @@
-@use '../../common/styles/vars/colors';
+@use '../../common/styles/colors';
 
 .headerCell {
   align-items: center;
@@ -9,7 +9,7 @@
   width: 100%;
 
   .dragHandle {
-    background-color: colors.$secondary-light-gray;
+    background-color: var(--er-ui-icons);
     flex-shrink: 0;
     height: 0.875rem;
     mask: url('../../common/images/icons/grip-dots-vertical.svg') center / contain no-repeat;
@@ -36,8 +36,8 @@
     padding: 0.25rem 0.375rem;
 
     &:hover {
-      background-color: colors.$light-gray-background;
-      color: colors.$off-black;
+      background-color: var(--er-ui-background-elevated-component-0);
+      color: var(--er-ui-text-primary-text);
 
       .unsorted {
         visibility: visible;
@@ -45,8 +45,8 @@
     }
 
     &:focus-visible {
-      color: colors.$bright-blue;
-      outline: 2px solid colors.$bright-blue;
+      color: var(--er-ui-cta-primary);
+      outline: 2px solid var(--er-ui-cta-primary);
 
       .unsorted {
         visibility: visible;
@@ -59,13 +59,13 @@
       width: 0.875rem;
 
       &.unsorted {
-        color: colors.$secondary-light-gray;
+        color: var(--er-ui-icons);
         visibility: hidden;
       }
     }
   }
 
   &:hover .dragHandle {
-    background-color: colors.$secondary-medium-gray;
+    background-color: colors.shade(var(--er-ui-icons), colors.$hover-shade);
   }
 }

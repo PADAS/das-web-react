@@ -2,7 +2,7 @@ import { memo, useContext, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { EVENT_FORM_STATES, TAB_KEYS } from '../../../../constants';
-import { PRIORITY_COLOR_MAP } from '../../../../utils/events';
+import { PRIORITY_COLOR_MAP } from '../../../../utils/colors';
 import { TrackerContext } from '../../../../utils/analytics';
 import useNavigate from '../../../../hooks/useNavigate';
 import useReport from '../../../../hooks/useReport';

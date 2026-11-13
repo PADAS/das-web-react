@@ -7,6 +7,9 @@ import { Provider, useDispatch, useSelector } from 'react-redux';
 import ReactGA4 from 'react-ga4';
 import { useTranslation } from 'react-i18next';
 
+import '@allenai/design-system/er-legacy/tokens.css';
+import '@fontsource-variable/roboto/wght.css';
+import '@fontsource-variable/roboto/wght-italic.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'react-toastify/dist/ReactToastify.css';
 

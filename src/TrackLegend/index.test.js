@@ -60,6 +60,8 @@ describe('TrackLegend', () => {
 
   const renderTrackLegend = (props, overrideStore) => render(buildTrackLegend(props, overrideStore));
 
+  const getControlledPanel = (button) => document.getElementById(button.getAttribute('aria-controls'));
+
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -116,7 +118,7 @@ describe('TrackLegend', () => {
     expect(titleWrapper).toHaveTextContent('Item title');
     expect(within(titleWrapper).queryByRole('button')).not.toBeInTheDocument();
 
-    await userEvent.click(screen.getByLabelText('Open the list of items'));
+    await userEvent.click(screen.getByRole('button', { name: 'List of items' }));
 
     expect(screen.getByText('Child title')).toBeVisible();
   });
@@ -179,19 +181,45 @@ describe('TrackLegend', () => {
       }],
     });
 
-    const tracksListButton = screen.getByLabelText('Open the list of items');
+    const tracksListButton = screen.getByRole('button', { name: 'List of items' });
 
     expect(tracksListButton).toHaveAttribute('aria-expanded', 'false');
 
     await userEvent.click(tracksListButton);
 
     expect(tracksListButton).toHaveAttribute('aria-expanded', 'true');
-    expect(tracksListButton).toHaveAttribute('aria-label', 'Close the list of items');
 
     await userEvent.click(tracksListButton);
 
     expect(tracksListButton).toHaveAttribute('aria-expanded', 'false');
-    expect(tracksListButton).toHaveAttribute('aria-label', 'Open the list of items');
+  });
+
+  test('points the tracks list button at the list only while it is open', async () => {
+    renderTrackLegend({
+      items: [{
+        description: 'Item 1 description',
+        icon: <img alt="Item 1 icon" src="icon-1" />,
+        id: '1',
+        title: 'Item 1 title',
+      }, {
+        description: 'Item 2 description',
+        icon: <img alt="Item 2 icon" src="icon-2" />,
+        id: '2',
+        title: 'Item 2 title',
+      }],
+    });
+
+    const tracksListButton = screen.getByRole('button', { name: 'List of items' });
+
+    expect(tracksListButton).not.toHaveAttribute('aria-controls');
+
+    await userEvent.click(tracksListButton);
+
+    expect(getControlledPanel(tracksListButton)).toHaveTextContent('Item 2 title');
+
+    await userEvent.click(tracksListButton);
+
+    expect(tracksListButton).not.toHaveAttribute('aria-controls');
   });
 
   test('closes the tracks list from the same button that opened it', async () => {
@@ -209,16 +237,14 @@ describe('TrackLegend', () => {
       }],
     });
 
-    const tracksListButton = screen.getByLabelText('Open the list of items');
+    const tracksListButton = screen.getByRole('button', { name: 'List of items' });
     await userEvent.click(tracksListButton);
 
     expect(tracksListButton).toHaveAttribute('aria-expanded', 'true');
-    expect(tracksListButton).toHaveAttribute('aria-label', 'Close the list of items');
 
-    await userEvent.click(screen.getByLabelText('Close the list of items'));
+    await userEvent.click(screen.getByRole('button', { name: 'List of items' }));
 
     expect(tracksListButton).toHaveAttribute('aria-expanded', 'false');
-    expect(tracksListButton).toHaveAttribute('aria-label', 'Open the list of items');
   });
 
   test('clears the tracks of an item from the tracks list', async () => {
@@ -236,7 +262,7 @@ describe('TrackLegend', () => {
       }],
     });
 
-    await userEvent.click(screen.getByLabelText('Open the list of items'));
+    await userEvent.click(screen.getByRole('button', { name: 'List of items' }));
 
     expect(onClearItemTracks).not.toHaveBeenCalled();
 
@@ -257,7 +283,7 @@ describe('TrackLegend', () => {
       showTimeOfDaySettings: false,
     });
 
-    expect(screen.queryByLabelText('Activate the time of day coloring')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Time of day coloring' })).toBeNull();
   });
 
   test('shows the time of day settings button', async () => {
@@ -270,7 +296,7 @@ describe('TrackLegend', () => {
       }],
     });
 
-    expect(screen.getByLabelText('Activate the time of day coloring')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Time of day coloring' })).toBeVisible();
   });
 
   test('activates the time of day coloring when clicking the time of day settings button', async () => {
@@ -283,9 +309,9 @@ describe('TrackLegend', () => {
       }],
     });
 
-    const timeOfDaySettingsButton = screen.getByLabelText('Activate the time of day coloring');
+    const timeOfDaySettingsButton = screen.getByRole('button', { name: 'Time of day coloring' });
 
-    expect(timeOfDaySettingsButton).toHaveAttribute('aria-expanded', 'false');
+    expect(timeOfDaySettingsButton).toHaveAttribute('aria-pressed', 'false');
     expect(timeOfDaySettingsButton).not.toHaveClass('active');
     expect(setIsTimeOfDayColoringActive).not.toHaveBeenCalled();
 
@@ -293,6 +319,36 @@ describe('TrackLegend', () => {
 
     expect(setIsTimeOfDayColoringActive).toHaveBeenCalledTimes(1);
     expect(setIsTimeOfDayColoringActive).toHaveBeenCalledWith(true);
+  });
+
+  test('does not point the time of day button at its settings while the coloring is off', async () => {
+    renderTrackLegend({
+      items: [{
+        description: 'Item description',
+        icon: <img alt="Item icon" src="icon" />,
+        id: 'id',
+        title: 'Item title',
+      }],
+    });
+
+    expect(screen.getByRole('button', { name: 'Time of day coloring' })).not.toHaveAttribute('aria-controls');
+  });
+
+  test('points the time of day button at its settings while the coloring is on', async () => {
+    store.view.trackSettings.isTimeOfDayColoringActive = true;
+    renderTrackLegend({
+      items: [{
+        description: 'Item description',
+        icon: <img alt="Item icon" src="icon" />,
+        id: 'id',
+        title: 'Item title',
+      }],
+    });
+
+    const timeOfDaySettingsButton = screen.getByRole('button', { name: 'Time of day coloring' });
+
+    expect(within(getControlledPanel(timeOfDaySettingsButton)).getByLabelText('Expand the time of day settings'))
+      .toBeVisible();
   });
 
   test('expands and collapses the time of day settings menu when clicking the chevron', async () => {
@@ -332,9 +388,10 @@ describe('TrackLegend', () => {
       }],
     });
 
-    const timeOfDaySettingsButton = screen.getByLabelText('Deactivate the time of day coloring');
+    const timeOfDaySettingsButton = screen.getByRole('button', { name: 'Time of day coloring' });
 
-    expect(timeOfDaySettingsButton).toHaveAttribute('aria-expanded', 'true');
+    expect(timeOfDaySettingsButton).toHaveAttribute('aria-pressed', 'true');
+    expect(timeOfDaySettingsButton).not.toHaveAttribute('aria-expanded');
     expect(timeOfDaySettingsButton).toHaveClass('active');
     expect(setIsTimeOfDayColoringActive).not.toHaveBeenCalled();
 
@@ -355,7 +412,7 @@ describe('TrackLegend', () => {
       showTrackSettings: false,
     });
 
-    expect(screen.queryByLabelText('Open the track settings')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Track settings' })).toBeNull();
   });
 
   test('shows the track settings button', async () => {
@@ -368,7 +425,7 @@ describe('TrackLegend', () => {
       }],
     });
 
-    expect(screen.getByLabelText('Open the track settings')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Track settings' })).toBeVisible();
   });
 
   test('opens and closes the track settings when clicking the gear button', async () => {
@@ -381,22 +438,41 @@ describe('TrackLegend', () => {
       }],
     });
 
-    const trackSettingsButton = screen.getByLabelText('Open the track settings');
+    const trackSettingsButton = screen.getByRole('button', { name: 'Track settings' });
 
     expect(trackSettingsButton).toHaveAttribute('aria-expanded', 'false');
-    expect(trackSettingsButton).not.toHaveClass('active');
 
     await userEvent.click(trackSettingsButton);
 
     expect(trackSettingsButton).toHaveAttribute('aria-expanded', 'true');
-    expect(trackSettingsButton).toHaveAttribute('aria-label', 'Close the track settings');
-    expect(trackSettingsButton).toHaveClass('active');
+    expect(trackSettingsButton).not.toHaveClass('active');
 
     await userEvent.click(trackSettingsButton);
 
     expect(trackSettingsButton).toHaveAttribute('aria-expanded', 'false');
-    expect(trackSettingsButton).toHaveAttribute('aria-label', 'Open the track settings');
-    expect(trackSettingsButton).not.toHaveClass('active');
+  });
+
+  test('points the gear button at the track settings only while they are open', async () => {
+    renderTrackLegend({
+      items: [{
+        description: 'Item description',
+        icon: <img alt="Item icon" src="icon" />,
+        id: 'id',
+        title: 'Item title',
+      }],
+    });
+
+    const trackSettingsButton = screen.getByRole('button', { name: 'Track settings' });
+
+    expect(trackSettingsButton).not.toHaveAttribute('aria-controls');
+
+    await userEvent.click(trackSettingsButton);
+
+    expect(getControlledPanel(trackSettingsButton)).toHaveTextContent('Track Settings');
+
+    await userEvent.click(trackSettingsButton);
+
+    expect(trackSettingsButton).not.toHaveAttribute('aria-controls');
   });
 
   test('clears the tracks when clicking the clear tracks button', async () => {

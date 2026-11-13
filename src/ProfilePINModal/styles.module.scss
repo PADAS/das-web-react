@@ -1,5 +1,3 @@
-@use '../common/styles/vars/colors';
-
 $profile-pin-dimensions: 2.5rem;
 
 .modalBody {
@@ -7,7 +5,7 @@ $profile-pin-dimensions: 2.5rem;
 }
 
 .error {
-  color: colors.$error;
+  color: var(--er-ui-status-error-destructive);
   margin: 1rem 0 0;
 }
 
@@ -25,7 +23,7 @@ $profile-pin-dimensions: 2.5rem;
 
     &:focus,
     &:active {
-      border-color: colors.$highlight-color;
+      border-color: var(--er-ui-cta-primary);
     }
   }
 }

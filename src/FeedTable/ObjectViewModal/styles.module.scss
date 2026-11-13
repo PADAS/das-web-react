@@ -1,5 +1,4 @@
 @use '../../common/styles/buttons';
-@use '../../common/styles/vars/colors';
 
 .breadcrumb {
   display: flex;
@@ -10,7 +9,7 @@
   padding: 0;
 
   li + li::before {
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     content: '/';
     margin-right: 0.35rem;
   }
@@ -19,17 +18,17 @@
 .breadcrumbButton {
   @include buttons.link-button;
 
-  color: colors.$link-color;
+  color: var(--er-ui-cta-primary);
   padding: 0;
 
   &:focus-visible {
-    outline: 2px solid colors.$bright-blue;
+    outline: 2px solid var(--er-ui-cta-primary);
     outline-offset: 2px;
   }
 }
 
 .breadcrumbCurrent {
-  color: colors.$off-black;
+  color: var(--er-ui-text-primary-text);
   font-weight: 600;
 }
 
@@ -38,7 +37,7 @@
 }
 
 .entry {
-  border-bottom: 1px solid colors.$light-gray-lines;
+  border-bottom: 1px solid var(--er-ui-divider-lines);
   display: flex;
   gap: 1rem;
   padding: 0.35rem 0;
@@ -59,13 +58,13 @@
   @include buttons.link-button;
 
   align-items: center;
-  color: colors.$link-color;
+  color: var(--er-ui-cta-primary);
   display: inline-flex;
   gap: 0.25rem;
   padding: 0;
 
   &:focus-visible {
-    outline: 2px solid colors.$bright-blue;
+    outline: 2px solid var(--er-ui-cta-primary);
     outline-offset: 2px;
   }
 

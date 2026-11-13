@@ -1,12 +1,11 @@
 @use '../../../common/styles/inputs';
-@use '../../../common/styles/vars/colors';
 
 $control-height: 1.5rem;
 $label-font-size: 0.875rem;
 
 .monthPicker {
   align-items: center;
-  border-bottom: 1px solid colors.$light-gray;
+  border-bottom: 1px solid var(--er-ui-divider-lines);
   display: flex;
   justify-content: space-around;
   padding: 0.25rem 0.5rem;
@@ -18,7 +17,6 @@ $label-font-size: 0.875rem;
     font-weight: 400;
   
     [class*="react-datepicker__header"] {
-      background: white;
       border: none;
       padding: 0;
     }
@@ -27,33 +25,18 @@ $label-font-size: 0.875rem;
       padding: 0.25rem 1rem;
       width: unset;
 
-      &:hover:not([aria-disabled="true"]) {
-        background-color: colors.$blue-highlight;
-        color: black;
-      }
-
       &[aria-disabled="true"] {
         pointer-events: none;
-      }
-    
-      &[aria-selected="true"] {
-        background-color: colors.$bright-blue;
-        color: white;
-      }
-
-      &[class*="--keyboard-selected"] {
-        background-color: colors.$blue-highlight;
-        color: black;
       }
     }
   }
 
   .chevronButton {
     align-items: center;
-    background-color: white;
+    background-color: var(--er-ui-background-primary-background);
     border: none;
     border-radius: 0.25rem;
-    color: colors.$secondary-medium-light-gray;
+    color: var(--er-ui-icons);
     display: flex;
     flex: 1;
     height: $control-height;
@@ -63,22 +46,22 @@ $label-font-size: 0.875rem;
     padding: 0;
 
     &:disabled {
-      color: colors.$secondary-light-gray;
+      color: var(--er-ui-text-disabled);
       pointer-events: none;
     }
 
     &:focus {
-      outline: 2px solid colors.$bright-blue;
+      outline: 2px solid var(--er-ui-cta-primary);
     }
 
     &:hover:not(:disabled) {
-      background-color: colors.$blue-highlight;
+      background-color: var(--er-ui-background-hover-background);
     }
   }
 
   .header {
     align-items: center;
-    border-bottom: 1px solid colors.$light-gray;
+    border-bottom: 1px solid var(--er-ui-divider-lines);
     display: flex;
     justify-content: space-around;
     padding: 0.25rem 0.5rem;
@@ -95,7 +78,7 @@ $label-font-size: 0.875rem;
 
   .inputButton {
     align-items: center;
-    background-color: white;
+    background-color: var(--er-ui-background-primary-background);
     border: none;
     border-radius: 0.25rem;
     display: flex;
@@ -105,19 +88,19 @@ $label-font-size: 0.875rem;
     padding: 0 0.5rem;
 
     &:focus {
-      outline: 2px solid colors.$bright-blue;
+      outline: 2px solid var(--er-ui-cta-primary);
     }
 
     &:hover {
-      background-color: colors.$blue-highlight;
+      background-color: var(--er-ui-background-hover-background);
 
       .caret {
-        border-top-color: colors.$bright-blue;
+        border-top-color: var(--er-ui-cta-primary);
       }
     }
 
     .caret {
-      @include inputs.dropdown-caret($color: colors.$secondary-medium-gray);
+      @include inputs.dropdown-caret;
 
       margin-left: 0.5rem;
 

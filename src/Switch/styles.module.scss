@@ -1,5 +1,4 @@
-@use 'sass:color';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 .switchField {
   box-sizing: border-box;
@@ -12,18 +11,18 @@
 
   &.checked {
     .base {
-      color: colors.$bright-blue;
+      color: var(--er-ui-cta-primary);
       transform: translateX(1.5rem);
     }
 
     .track {
-      background-color: color.adjust(colors.$light-blue, $lightness: 20%);
+      background-color: colors.tint(var(--er-ui-cta-primary), 55%);
     }
   }
 
   &.disabled {
     .base {
-      color: colors.$very-light-gray;
+      color: var(--er-ui-background-elevated-component-0);
       cursor: default;
 
       &:hover {
@@ -32,7 +31,7 @@
     }
 
     .track {
-      background-color: colors.$disabled-field-gray;
+      background-color: var(--er-ui-background-tertiary-background);
     }
   }
 
@@ -51,7 +50,7 @@
   .base {
     align-items: center;
     border-radius: 50%;
-    color: white;
+    color: var(--er-ui-text-primary-text-reversed);
     cursor: pointer;
     display: inline-flex;
     justify-content: center;
@@ -62,11 +61,11 @@
     transition: left 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
 
     &:has(input:focus-visible) {
-      background: rgba(colors.$bright-blue, 0.16);
+      background: colors.with-opacity(var(--er-ui-cta-primary), 16%);
     }
 
     &:hover {
-      background: rgba(colors.$bright-blue, 0.08);
+      background: colors.with-opacity(var(--er-ui-cta-primary), 8%);
     }
 
     input {
@@ -82,14 +81,14 @@
     .thumb {
       background-color: currentcolor;
       border-radius: 50%;
-      box-shadow: 0 1px 4px rgb(0 0 0 / 30%);
+      box-shadow: 0 1px 4px colors.with-opacity(var(--er-greyscale-0), 30%);
       height: 1.25rem;
       width: 1.25rem;
     }
   }
 
   .track {
-    background-color: colors.$secondary-light-gray;
+    background-color: var(--er-greyscale-8);
     border-radius: 0.5rem;
     height: 100%;
     pointer-events: none;

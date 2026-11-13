@@ -3,6 +3,7 @@ import {
   selectHeatmapSubjectTracksTrimmedToTrackTimeEnvelope,
   selectSubjectTracksTrimmedToTrackTimeEnvelopeWithTimeOfDayPeriod,
 } from './';
+import { COLOR_TOKENS } from '../../utils/colors';
 import { TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 
 jest.mock('../../store', () => ({}));
@@ -285,8 +286,8 @@ describe('Selectors - Tracks', () => {
                 {
                   'type': 'Feature',
                   'properties': {
-                    'startColor': '#ffbd00',
-                    'endColor': '#5b5ee9',
+                    'startColor': COLOR_TOKENS['ui-data-sequential-sequential-2'],
+                    'endColor': COLOR_TOKENS['ui-data-sequential-sequential-5'],
                     'startTime': '2025-02-27T21:42:01+00:00',
                     'endTime': '2025-02-24T06:06:05+00:00'
                   },

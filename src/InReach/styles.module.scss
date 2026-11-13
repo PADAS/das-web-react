@@ -1,8 +1,6 @@
-@use '../common/styles/vars/colors';
-
 .emulator {
   align-items: center;
-  background: white;
+  background: var(--er-ui-background-primary-background);
   bottom: 1rem;
   display: flex;
   flex-flow: column;
@@ -14,8 +12,8 @@
   width: 21rem;
 
   h3 {
-    background: colors.$dark-gray;
-    color: white;
+    background: var(--er-greyscale-3);
+    color: var(--er-ui-text-primary-text-reversed);
     margin-bottom: 1rem;
     padding: 0.5rem 1rem;
     width: 100%;

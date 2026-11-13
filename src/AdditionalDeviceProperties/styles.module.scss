@@ -1,5 +1,4 @@
 @use '../common/styles/buttons';
-@use '../common/styles/vars/colors';
 
 .additionalProperties {
   margin: 0;
@@ -15,7 +14,7 @@
     justify-content: space-between;
 
     &:not(:last-child) {
-      border-bottom: 1px solid colors.$gray-border;
+      border-bottom: 1px solid var(--er-ui-field-outline);
     }
 
     strong {

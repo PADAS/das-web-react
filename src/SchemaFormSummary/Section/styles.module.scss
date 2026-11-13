@@ -1,5 +1,3 @@
-@use '../../common/styles/vars/colors';
-
 .section {
   .sectionLabel {
     font-size: 1.125rem;
@@ -58,7 +56,7 @@
         }
 
         .fieldLabel {
-          color: colors.$secondary-medium-gray;
+          color: var(--er-ui-text-secondary-text);
           font-size: 0.875rem;
           font-weight: normal;
           margin: 0;

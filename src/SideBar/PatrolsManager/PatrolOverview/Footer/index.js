@@ -61,7 +61,7 @@ const Footer = ({
         <span className={styles.saveButtonLabel}>{t('saveButton')}</span>
 
         {isSaving && <span className={styles.saveButtonLoader}>
-          <MoonLoader aria-hidden color="white" size={SAVE_LOADER_SIZE} />
+          <MoonLoader aria-hidden color="var(--er-ui-text-primary-text-reversed)" size={SAVE_LOADER_SIZE} />
         </span>}
       </button>}
     </div>

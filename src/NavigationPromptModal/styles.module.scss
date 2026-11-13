@@ -1,6 +1,4 @@
-@use '../common/styles/vars/colors';
-
-@mixin continue-button($background: colors.$bright-red) {
+@mixin continue-button($background: var(--er-ui-status-error-destructive)) {
   align-items: center;
   border: none;
   background-color: $background;
@@ -16,9 +14,9 @@
   border-top: none;
 
   .cancelButton {
-    background-color: white;
+    background-color: var(--er-ui-background-primary-background);
     border: none;
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     margin-right: 0.5rem;
   }
 
@@ -27,7 +25,7 @@
   }
 
   .positiveContinue {
-    @include continue-button(colors.$primary-button-color);
+    @include continue-button(var(--er-ui-cta-primary));
   }
 
 }

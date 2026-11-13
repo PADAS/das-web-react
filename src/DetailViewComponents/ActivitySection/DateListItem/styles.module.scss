@@ -1,9 +1,9 @@
 @use 'sass:map';
-@use '../../../common/styles/vars/colors';
+@use '../../../common/styles/colors';
 
 @mixin milestone-theme($theme) {
   --item-icon-bg: #{map.get($theme, 'base')};
-  --item-icon-color: white;
+  --item-icon-color: var(--er-ui-text-primary-text-reversed);
 }
 
 .active {

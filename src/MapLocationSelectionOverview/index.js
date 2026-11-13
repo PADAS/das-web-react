@@ -126,7 +126,7 @@ const MapLocationSelectionOverview = ({
                 onClick={onClickUndo}
                 onFocus={(event) => event.target.blur()}
                 type="button"
-                variant="secondary"
+                variant="light"
               >
                 <UndoArrowIcon />
 

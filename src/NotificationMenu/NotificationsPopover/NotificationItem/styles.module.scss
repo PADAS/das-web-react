@@ -1,6 +1,5 @@
 @use '../../../common/styles/badges';
 @use '../../../common/styles/buttons';
-@use '../../../common/styles/vars/colors';
 
 .notificationItem {
   display: flex;
@@ -10,7 +9,7 @@
   padding: 0.75rem 1rem;
 
   + .notificationItem {
-    border-top: 1px solid colors.$light-gray-lines;
+    border-top: 1px solid var(--er-ui-divider-lines);
   }
 
   .header {
@@ -25,7 +24,7 @@
     }
 
     .title {
-      color: colors.$off-black;
+      color: var(--er-ui-text-primary-text);
       font-size: 1rem;
       font-weight: 500;
       line-height: 1.25rem;
@@ -34,24 +33,24 @@
   }
 
   .dateTime {
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 0.75rem;
   }
 
   .message {
-    color: colors.$off-black;
+    color: var(--er-ui-text-primary-text);
     font-size: 0.875rem;
     margin: 0;
     overflow-wrap: anywhere;
   }
 
   .infoLink {
-    color: colors.$bright-blue;
+    color: var(--er-ui-cta-primary);
     font-size: 0.875rem;
 
     &:focus-visible {
       border-radius: 0.125rem;
-      outline: 2px solid colors.$bright-blue;
+      outline: 2px solid var(--er-ui-cta-primary);
     }
   }
 

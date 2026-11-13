@@ -1,3 +1,5 @@
+@use '../../common/styles/colors';
+
 .logo {
   width: 6rem;
 }
@@ -20,8 +22,8 @@
   }
   
   [class*="modal-content"] {
-    background: rgb(255 255 255 / 80%);
-    border: 1px solid #0003;
+    background: var(--er-ui-background-elevated-component);
+    border: 1px solid colors.with-opacity(var(--er-greyscale-0), 20%);
     border-radius: 0.3rem;
   }
   

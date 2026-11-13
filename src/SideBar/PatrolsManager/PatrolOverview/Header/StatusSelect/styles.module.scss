@@ -1,6 +1,5 @@
-@use 'sass:color';
 @use '../../../../../common/styles/inputs';
-@use '../../../../../common/styles/vars/colors';
+@use '../../../../../common/styles/colors';
 
 .statusPillButton {
   border: none;
@@ -20,88 +19,20 @@
     }
   }
 
-  &:hover {
-    background-image: linear-gradient(rgb(0 0 0 / 8%), rgb(0 0 0 / 8%));
+  &:hover, &[aria-expanded="true"] {
+    background-image: linear-gradient(colors.with-opacity(var(--er-greyscale-0), 8%), colors.with-opacity(var(--er-greyscale-0), 8%));
   }
 
   &:focus-visible {
-    outline: 2px solid colors.$bright-blue;
+    outline: 2px solid var(--er-ui-cta-primary);
     outline-offset: 1px;
   }
 }
 
-.menuPopover {
-  @include inputs.box-shadow;
-
-  border: none !important;
-  border-radius: 0.25rem !important;
+.menu {
   min-width: 9rem;
 
-  [class*='popover-arrow'] {
-    display: none;
-  }
-
-  .menu {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-
-    .menuItem {
-      .menuItemOption {
-        align-items: center;
-        background-color: white;
-        border: none;
-        color: colors.$off-black;
-        display: flex;
-        outline: none;
-        padding: 0.5rem 0.75rem;
-        text-align: left;
-        white-space: nowrap;
-        width: 100%;
-
-        &:hover {
-          background-color: color.adjust(colors.$light-gray-background, $lightness: 5%);
-          cursor: pointer;
-        }
-
-        &:focus {
-          background-color: colors.$light-gray-background;
-        }
-
-        &[aria-current="true"] {
-          background-color: colors.$blue-highlight;
-
-          &:hover, &:focus {
-            background-color: color.adjust(colors.$blue-highlight, $lightness: -5%);
-          }
-        }
-
-        &:not([aria-current="true"]) {
-          padding-left: 2rem;
-        }
-
-        .checkIcon {
-          color: colors.$bright-blue;
-          flex-shrink: 0;
-          height: 0.75rem;
-          margin-right: 0.5rem;
-          width: 0.75rem;
-        }
-      }
-
-      &:first-child .menuItemOption {
-        border-top-left-radius: 0.25rem;
-        border-top-right-radius: 0.25rem;
-      }
-
-      &:last-child .menuItemOption {
-        border-bottom-left-radius: 0.25rem;
-        border-bottom-right-radius: 0.25rem;
-      }
-    }
-  }
-
-  @media print {
-    display: none !important;
+  [role="menuitem"] {
+    white-space: nowrap;
   }
 }

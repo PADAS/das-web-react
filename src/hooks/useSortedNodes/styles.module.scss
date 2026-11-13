@@ -1,35 +1,13 @@
-@use '../../common/styles/vars/colors';
+@use '../../common/styles/buttons';
 
 .timeSortButton {
-  background-color: colors.$light-gray;
-  border-color: colors.$light-gray;
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
+  @include buttons.chip-icon-button;
+  @include buttons.chip-active-state;
+
   margin-left: 0.5rem;
 
   svg {
-    margin-bottom: 0.19rem;
-
-    path {
-      fill: colors.$secondary-medium-gray;
-    }
-  }
-
-  &:hover {
-    background-color: colors.$secondary-light-gray;
-    border-color: colors.$secondary-light-gray;
-  }
-
-  &:hover, &[class*="btn-primary"] {
-    svg {
-      path {
-        fill: white;
-      }
-    }
-  }
-
-  &:focus {
-    box-shadow: none;
+    height: 1rem;
+    width: 1rem;
   }
 }
