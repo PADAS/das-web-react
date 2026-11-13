@@ -35,13 +35,11 @@
       }
     }
 
-    &:hover {
+    &:hover, &[aria-expanded='true'] {
       background-color: colors.with-opacity(var(--er-greyscale-white), 20%);
     }
 
     &[aria-expanded='true'] {
-      background-color: colors.with-opacity(var(--er-greyscale-white), 25%);
-
       .arrow {
         transform: rotate(180deg);
       }

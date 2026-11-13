@@ -21,13 +21,13 @@
       line-height: 1rem;
       padding: 0.5rem;
 
-      &:hover {
-        @include inputs.dropdown-options-hover;
-      }
-
       &.selected {
         background-color: var(--er-ui-background-selected-background);
         scroll-margin: 2rem;
+      }
+
+      &:hover {
+        @include inputs.dropdown-options-hover;
       }
 
       .checkMark, .checkMarkPlaceholder {

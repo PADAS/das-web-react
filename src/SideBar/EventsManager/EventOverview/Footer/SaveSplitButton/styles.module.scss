@@ -29,7 +29,7 @@
     }
 
     &[aria-expanded='true'] {
-      background-color: colors.shade(var(--er-ui-cta-primary), colors.$active-shade);
+      background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
     }
   }
 
@@ -39,58 +39,10 @@
   }
 }
 
-.menuPopover {
-  @include inputs.box-shadow;
-
-  border: none !important;
-  border-radius: 0.25rem !important;
+.menu {
   min-width: 10rem;
 
-  [class*='popover-arrow'] {
-    display: none;
-  }
-
-  .menu {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-
-    .menuItem {
-      .menuItemOption {
-        align-items: center;
-        background-color: var(--er-ui-background-primary-background);
-        border: none;
-        color: var(--er-ui-text-primary-text);
-        display: flex;
-        outline: none;
-        padding: 0.5rem 1rem;
-        text-align: left;
-        white-space: nowrap;
-        width: 100%;
-
-        &:hover:not(:focus-visible) {
-          background-color: var(--er-ui-background-tertiary-background);
-          cursor: pointer;
-        }
-
-        &:focus-visible {
-          background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
-        }
-      }
-
-      &:first-child .menuItemOption {
-        border-top-left-radius: 0.25rem;
-        border-top-right-radius: 0.25rem;
-      }
-
-      &:last-child .menuItemOption {
-        border-bottom-left-radius: 0.25rem;
-        border-bottom-right-radius: 0.25rem;
-      }
-    }
-  }
-
-  @media print {
-    display: none !important;
+  [role="menuitem"] {
+    white-space: nowrap;
   }
 }

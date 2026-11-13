@@ -1,5 +1,6 @@
-@use '../../common/styles/layout';
+@use '../../common/styles/buttons';
 @use '../../common/styles/colors';
+@use '../../common/styles/layout';
 
 $card-expansion-transition-time: 300ms;
 
@@ -52,9 +53,7 @@ $card-expansion-transition-time: 300ms;
     }
 
     .expandCollapseButton {
-      background-color: var(--er-ui-background-tertiary-background);
-      border-color: var(--er-ui-background-tertiary-background);
-      color: var(--er-ui-text-secondary-text);
+      @include buttons.chip-text-button;
     }
   }
 }
@@ -97,7 +96,7 @@ $card-expansion-transition-time: 300ms;
       cursor: pointer;
 
       &:hover:not(:has(.actionButton:not(.collapseToggleButton):hover)) {
-        background: var(--item-row-hover-bg, var(--er-ui-background-selected-background));
+        background-color: var(--er-ui-background-hover-background);
       }
     }
 
@@ -223,7 +222,7 @@ $card-expansion-transition-time: 300ms;
       }
 
       &:hover:not(:disabled, .collapseToggleButton) {
-        background: var(--er-ui-background-tertiary-background);
+        background: var(--er-ui-background-elevated-component-0);
       }
 
       svg {
@@ -268,10 +267,10 @@ $card-expansion-transition-time: 300ms;
 
     .mediaPlayButton {
       align-items: center;
-      background-color: var(--er-ui-background-tertiary-background);
+      background-color: var(--er-ui-background-elevated-component-0);
       border: 1px solid var(--er-ui-divider-lines);
       border-radius: 0.25rem;
-      color: var(--er-ui-text-secondary-text);
+      color: var(--er-ui-icons);
       display: flex;
       font-size: 0.875rem;
       gap: 0.5rem;
@@ -280,7 +279,7 @@ $card-expansion-transition-time: 300ms;
       width: 100%;
 
       &:hover {
-        background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
+        background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
       }
 
       &:focus-visible {

@@ -2,11 +2,11 @@
 @use '../common/styles/colors';
 @use '../common/styles/layout';
 
-$separator-color: colors.with-opacity(var(--er-ui-text-primary-text-reversed), 25%);
+$separator-color: colors.with-opacity(var(--er-ui-text-primary-text), 25%);
 
 .globalMenuDrawer {
   background-color: var(--er-greyscale-3);
-  color: var(--er-ui-text-primary-text-reversed);
+  color: var(--er-ui-text-primary-text);
   display: flex;
   flex-direction: column;
   min-height: 100%;
@@ -34,7 +34,7 @@ $separator-color: colors.with-opacity(var(--er-ui-text-primary-text-reversed), 2
     }
 
     .closeButton {
-      @include buttons.top-bar-icon-button;
+      @include buttons.top-bar-icon-button(var(--er-ui-text-primary-text));
 
       .closeButtonIcon {
         height: 1rem;
@@ -63,7 +63,7 @@ $separator-color: colors.with-opacity(var(--er-ui-text-primary-text-reversed), 2
         margin-top: 1rem;
 
         h4 {
-          color: var(--er-ui-text-secondary-text-reversed);
+          color: var(--er-ui-text-secondary-text);
           font-size: .75rem;
           margin-bottom: 0.125rem;
           text-transform: uppercase;
@@ -75,7 +75,7 @@ $separator-color: colors.with-opacity(var(--er-ui-text-primary-text-reversed), 2
         background: none;
         border: none;
         border-radius: 0.25rem;
-        color: var(--er-ui-text-primary-text-reversed);
+        color: var(--er-ui-text-primary-text);
         display: flex;
         padding: 0.125rem;
         text-align: left;
@@ -83,11 +83,11 @@ $separator-color: colors.with-opacity(var(--er-ui-text-primary-text-reversed), 2
         width: fit-content;
 
         &:focus-visible {
-          outline: 2px solid var(--er-blue-7);
+          outline: 2px solid var(--er-ui-cta-primary);
         }
 
         &:hover {
-          color: var(--er-ui-text-secondary-text-reversed);
+          color: var(--er-ui-cta-primary);
         }
 
         svg {
@@ -105,9 +105,9 @@ $separator-color: colors.with-opacity(var(--er-ui-text-primary-text-reversed), 2
         }
 
         .tag {
-          border: 1px solid var(--er-ui-text-secondary-text-reversed);
+          border: 1px solid var(--er-ui-cta-primary);
           border-radius: 0.625rem;
-          color: var(--er-ui-text-secondary-text-reversed);
+          color: var(--er-ui-cta-primary);
           font-size: 0.625rem;
           font-weight: 500;
           line-height: 1;
@@ -120,7 +120,7 @@ $separator-color: colors.with-opacity(var(--er-ui-text-primary-text-reversed), 2
   }
 
   h3 {
-    color: var(--er-ui-text-secondary-text-reversed);
+    color: var(--er-ui-text-secondary-text);
     font-size: .875rem;
     margin-bottom: 0.5rem;
     text-transform: uppercase;
@@ -144,14 +144,13 @@ $separator-color: colors.with-opacity(var(--er-ui-text-primary-text-reversed), 2
 
         a {
           border-radius: 0.125rem;
-          color: var(--er-blue-7);
-          filter: brightness(1.25);
+          color: var(--er-ui-cta-primary);
           font-size: 0.75rem;
           padding: 0;
           text-decoration: underline;
 
           &:hover {
-            color: var(--er-blue-7);
+            color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
           }
         }
       }

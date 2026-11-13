@@ -78,7 +78,8 @@ const Dropdown = ({ details, disabled, id, invalid, onChange, readOnly, value, .
       multiValue: () => styles.multiValue,
       multiValueRemove: () => `${styles.multiValueRemove} ${readOnly ? styles.readOnly : ''}`,
       noOptionsMessage: () => styles.noOptionsMessage,
-      option: readOnly ? undefined : () => styles.cursorPointer,
+      option: (state) => `${readOnly ? '' : styles.cursorPointer} ${state.isSelected ? styles.optionSelected : ''} ${
+        state.isFocused ? styles.optionFocused : ''}`,
       placeholder: () => invalid && styles.error,
     }}
     components={{ IndicatorSeparator, Input, Option }}

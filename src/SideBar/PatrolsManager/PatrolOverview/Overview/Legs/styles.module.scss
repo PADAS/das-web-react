@@ -63,7 +63,7 @@
       }
 
       &:hover:not(:has(button:hover)) {
-        background: var(--er-ui-background-selected-background);
+        background-color: var(--er-ui-background-hover-background);
       }
 
       &:last-child {
@@ -118,7 +118,7 @@
         }
 
         .scheduledIndicator {
-          background: var(--er-ui-background-tertiary-background);
+          background: var(--er-ui-background-elevated-component-0);
           border-radius: 0.625rem;
           color: var(--er-ui-text-secondary-text);
           font-size: 0.75rem;

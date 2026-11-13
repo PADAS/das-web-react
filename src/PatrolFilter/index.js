@@ -114,34 +114,36 @@ const PatrolFilter = ({ className = '', summaryActionsRef }) => {
 
       <div className={styles.buttons}>
         <OverlayTrigger
-          shouldUpdatePosition={true}
-          rootClose
-          trigger='click'
-          placement='bottom'
-          overlay={<FiltersPopover />}
           flip={true}
+          overlay={<FiltersPopover />}
+          placement='bottom'
+          rootClose
+          shouldUpdatePosition={true}
+          trigger='click'
         >
           <button
             className={`${styles.button} ${filtersModified ? styles.active : ''}`}
             data-testid="patrolFilter-filtersButton"
             onClick={() => patrolFilterTracker.track('Filters Icon Clicked')}
+            type="button"
           >
             {t('filtersTitle')}
           </button>
         </OverlayTrigger>
 
         <OverlayTrigger
-          shouldUpdatePosition={true}
-          rootClose
-          trigger='click'
-          placement='auto'
-          overlay={<DateRangePopover />}
           flip={true}
+          overlay={<DateRangePopover />}
+          placement='auto'
+          rootClose
+          shouldUpdatePosition={true}
+          trigger='click'
         >
           <button
             className={`${styles.button} ${dateRangeModified ? styles.active : ''}`}
-            onClick={() => patrolFilterTracker.track('Date Filter Popover Toggled')}
             data-testid="patrolFilter-dateRangeButton"
+            onClick={() => patrolFilterTracker.track('Date Filter Popover Toggled')}
+            type="button"
           >
             {t('datesTitle')}
           </button>

@@ -38,10 +38,7 @@
       },
       "title": "Wakati wa siku"
     },
-    "timeOfDaySettingsButtonLabel": {
-      "active": "Zima rangi kwa wakati wa siku",
-      "inactive": "Amua rangi kwa wakati wa siku"
-    },
+    "timeOfDaySettingsButtonLabel": "Rangi kwa wakati wa siku",
     "trackSettings": {
       "customLengthErrorMessage": "Tafadhali ingiza urefu wa wimbo kati ya {{min}} na {{max}}.",
       "customLengthInputLabel": "Urefu wa wimbo kwa siku",
@@ -50,10 +47,7 @@
       "title": "Mipangilio ya Nyimbo",
       "trackLengthLegend": "Urefu wa Wimbo"
     },
-    "trackSettingsButtonLabel": {
-      "closed": "Fungua mipangilio ya nyimbo",
-      "open": "Funga mipangilio ya nyimbo"
-    },
+    "trackSettingsButtonLabel": "Mipangilio ya nyimbo",
     "tracksList": {
       "tracksChildItem": {
         "toggleTracksButtonLabel": {
@@ -70,10 +64,7 @@
         }
       }
     },
-    "tracksListButtonLabel": {
-      "closed": "Fungua orodha ya {{itemsName}}",
-      "open": "Funga orodha ya {{itemsName}}"
-    }
+    "tracksListButtonLabel": "Orodha ya {{itemsName}}"
   },
   "trackLength": {
     "length": "{{length}} kilomita",

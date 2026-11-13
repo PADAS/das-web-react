@@ -283,7 +283,7 @@ Shared styles live in `src/common/styles/`, and components pull them in with `@u
 
 - `vars/`: fonts and control sizes.
 - `_colors.scss`: helpers that derive shades from the color tokens, the hover and active steps, and the priority and patrol themes.
-- `_bootstrap-theme.scss`, `_vendor-theme.scss`: the tokens applied to Bootstrap and the other libraries with colors of their own. Only `src/index.scss` uses them.
+- `_bootstrap-theme.scss`, `_vendor-theme.scss`: the tokens and the font applied to Bootstrap and the other libraries with styles of their own. Only `src/index.scss` uses them.
 - `_layout.scss`: breakpoints, media queries and layout mixins.
 - `_buttons.scss`, `_inputs.scss`, `_popovers.scss` and others: mixins for common elements.
 
@@ -309,6 +309,10 @@ Colors are the ER Legacy design tokens, defined in Ai2's [DESIGN.md](https://git
 - Prefer the semantic tokens (`--er-ui-*`), named for their role, to the palette primitives (`--er-greyscale-3`).
 - Sass color functions such as `color.adjust` cannot read custom properties. Derive shades with `colors.shade`, `colors.tint` and `colors.with-opacity`, and use the named steps for hover and active states.
 - JavaScript that sets a style writes `var(--er-*)` too. Mapbox and drawn images need hex values instead, from `COLOR_TOKENS` in `src/utils/colors.js`.
+
+#### Font
+
+The app's font is Roboto, as ER Legacy specifies. It is self-hosted through `@fontsource-variable/roboto`, which `src/index.js` loads, so the build bundles its files, the service worker precaches them, and no request leaves the site's domain.
 
 #### Upgrading the design system
 
@@ -336,7 +340,7 @@ Append `?url` to import a file's URL instead, such as to load it as a map image.
 
 #### Images and sounds
 
-Other bundled images, such as the logo and sprites, live in `src/common/images/`, and notification sounds in `src/common/sounds/`.
+The EarthRanger logos come from the design system's `er-legacy/assets`, and the build also serves its icon as `/favicon.svg`, which the DAS admin pages link. Other bundled images, such as the sprites, live in `src/common/images/`, and notification sounds in `src/common/sounds/`.
 
 #### Site icons
 

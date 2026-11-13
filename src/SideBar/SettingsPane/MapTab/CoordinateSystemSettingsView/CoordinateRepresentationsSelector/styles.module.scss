@@ -50,8 +50,8 @@
       }
 
       &:hover {
-        background-color: colors.shade(var(--er-ui-status-bg-error-bg), colors.$surface-hover-shade);
-        border-color: colors.shade(var(--er-ui-status-bg-error-bg), colors.$surface-hover-shade);
+        background-color: colors.deepen(var(--er-ui-status-bg-error-bg), var(--er-ui-status-error-destructive), colors.$tint-hover-deepen);
+        border-color: colors.deepen(var(--er-ui-status-bg-error-bg), var(--er-ui-status-error-destructive), colors.$tint-hover-deepen);
       }
     }
   }

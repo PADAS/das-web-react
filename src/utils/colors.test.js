@@ -20,7 +20,8 @@ const LIGHT_THEME_TOKEN_NAMES = [...readFileSync('node_modules/@allenai/design-s
   .split('}')[0]
   .matchAll(/--er-([a-z0-9-]+):\s*#/g)].map((match) => match[1]);
 
-const TOKEN_REFERENCE_REGEX = /--er-([a-z0-9-]+)|COLOR_TOKENS\['([^']+)'\]|tokenVar\('([^']+)'\)/g;
+const TOKEN_REFERENCE_REGEX =
+  /--er-([a-z0-9-]+)|COLOR_TOKENS\['([^']+)'\]|(?:createPatrolTheme|tokenVar)\('([^']+)'\)|(?:base|color)Token: '([^']+)'/g;
 
 describe('utils - colors', () => {
   describe('COLOR_TOKENS', () => {
@@ -37,7 +38,7 @@ describe('utils - colors', () => {
     test('has every token the source names', () => {
       const tokenNames = SOURCE_FILES
         .flatMap((file) => [...readFileSync(`src/${file}`, 'utf8').matchAll(TOKEN_REFERENCE_REGEX)])
-        .map((match) => match[1] ?? match[2] ?? match[3]);
+        .map((match) => match[1] ?? match[2] ?? match[3] ?? match[4]);
 
       expect(tokenNames.length).toBeGreaterThan(0);
       expect(tokenNames.filter((tokenName) => !COLOR_TOKENS[tokenName])).toEqual([]);
@@ -111,7 +112,7 @@ describe('utils - colors', () => {
 
       expect(theme.borderRadius).toBe(4);
       expect(theme.colors.primary).toBe('var(--er-ui-cta-primary)');
-      expect(theme.colors.primary25).toBe('var(--er-ui-background-selected-background)');
+      expect(theme.colors.primary25).toBe('var(--er-ui-background-hover-background)');
     });
   });
 });

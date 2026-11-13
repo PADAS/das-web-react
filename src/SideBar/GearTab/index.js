@@ -244,7 +244,7 @@ const GearTab = () => {
       {showNoSearchResults && <p className={styles.emptyFilter}>{t('noSearchResults')}</p>}
 
       {!showNoSearchResults && gearItems.length > 0 && <div className={styles.gearListScroll}>
-        {mapLayerFilter.grouped ? <ul className={`${mapLayersStyles.list} ${styles.gearManufacturerList}`}>
+        {mapLayerFilter.grouped ? <ul className={mapLayersStyles.list}>
           {sortedGearGroups.map(({ manufacturerKey, items }) => {
             const stateKey = manufacturerStateKey(manufacturerKey);
             const open = isMfrOpen(manufacturerKey);

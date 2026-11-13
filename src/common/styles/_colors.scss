@@ -9,6 +9,12 @@
   @return color-mix(in srgb, $color, white $amount);
 }
 
+// Light tints such as Selected Background deepen toward their accent, since
+// mixing in black would turn them grey.
+@function deepen($tint, $accent, $amount) {
+  @return color-mix(in srgb, $tint, $accent $amount);
+}
+
 @function with-opacity($color, $opacity) {
   @return color-mix(in srgb, $color $opacity, transparent);
 }
@@ -17,8 +23,11 @@
 // ones JS uses, and its test checks that both agree.
 $active-shade: 20%;
 $hover-shade: 15%;
+$link-hover-shade: 40%;
 $row-tint: 95%;
 $surface-hover-shade: 5%;
+$tint-active-deepen: 20%;
+$tint-hover-deepen: 10%;
 
 // Rows, pills and tiles take a strong base and a quiet background.
 $report-no-priority-theme: (

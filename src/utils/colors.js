@@ -1,4 +1,4 @@
-import tokens from '@allenai/design-system/er-legacy/tokens.json';
+import { color as colorTokenSpecs } from '@allenai/design-system/er-legacy/tokens.json';
 
 const BLACK_CHANNELS = [0, 0, 0];
 const CSS_VARIABLE_REGEX = /^var\(--[a-z0-9-]+\)$/;
@@ -15,30 +15,26 @@ const toTokenName = (specName) => specName.toLowerCase().replace(/[^a-z0-9]+/g, 
 
 // The light values of the tokens tokens.css declares, keyed by their names
 // without the --er- prefix, for Mapbox paint and drawn images.
-export const COLOR_TOKENS = Object.fromEntries(Object.keys(tokens.color).map((specName) => [
+export const COLOR_TOKENS = Object.fromEntries(Object.keys(colorTokenSpecs).map((specName) => [
   toTokenName(specName),
-  (tokens.color[specName].light ?? tokens.color[specName]).$value.hex,
+  (colorTokenSpecs[specName].light ?? colorTokenSpecs[specName]).$value.hex,
 ]));
 
 // Token names, so the map draws them as hex and the styles as var().
 export const PRIORITY_COLOR_MAP = {
   300: {
-    backgroundToken: 'red-6',
     baseToken: 'ui-event-priority-red',
     key: 'red',
   },
   200: {
-    backgroundToken: 'amber-6',
     baseToken: 'ui-event-priority-amber',
     key: 'amber',
   },
   100: {
-    backgroundToken: 'green-6',
     baseToken: 'ui-event-priority-green',
     key: 'green',
   },
   0: {
-    backgroundToken: 'greyscale-11',
     baseToken: 'ui-event-priority-grey',
     key: 'none',
   },
@@ -96,7 +92,7 @@ const REACT_SELECT_COLORS = {
   neutral80: 'var(--er-ui-text-primary-text)',
   neutral90: 'var(--er-ui-text-primary-text)',
   primary: 'var(--er-ui-cta-primary)',
-  primary25: 'var(--er-ui-background-selected-background)',
+  primary25: 'var(--er-ui-background-hover-background)',
   primary50: tint('var(--er-ui-cta-primary)', 80),
   primary75: tint('var(--er-ui-cta-primary)', 25),
 };

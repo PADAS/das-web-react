@@ -109,12 +109,24 @@
 }
 
 .undoButton {
-  color: var(--er-ui-text-secondary-text);
-  background-color: var(--er-ui-background-tertiary-background);
   margin-right: 0.5rem;
 }
 
 .discardButton {
-  background-color: colors.with-opacity(var(--er-ui-status-error-destructive), 5%);
-  color: var(--er-ui-status-error-destructive);
+  --bs-btn-active-bg: #{colors.deepen(
+    var(--er-ui-status-bg-error-bg),
+    var(--er-ui-status-error-destructive),
+    colors.$tint-active-deepen
+  )};
+  --bs-btn-active-color: var(--er-ui-status-error-destructive);
+  --bs-btn-bg: var(--er-ui-status-bg-error-bg);
+  --bs-btn-color: var(--er-ui-status-error-destructive);
+  --bs-btn-disabled-bg: var(--er-ui-status-bg-error-bg);
+  --bs-btn-disabled-color: var(--er-ui-status-error-destructive);
+  --bs-btn-hover-bg: #{colors.deepen(
+    var(--er-ui-status-bg-error-bg),
+    var(--er-ui-status-error-destructive),
+    colors.$tint-hover-deepen
+  )};
+  --bs-btn-hover-color: var(--er-ui-status-error-destructive);
 }

@@ -156,7 +156,6 @@
   display: block;
   width: 100%;
   margin-bottom: 0;
-  cursor: pointer;
 
   li {
     align-items: flex-start;
@@ -183,7 +182,6 @@
     }
 
     [class*="checkmark"] {
-      cursor: pointer;
       left: 1rem;
       position: absolute;
       z-index: 3;
@@ -231,10 +229,8 @@
       padding-top: 1rem;
       position: relative;
 
-      // z-index: 1;
-
       &:hover {
-        text-decoration: underline;
+        background-color: var(--er-ui-background-hover-background);
       }
 
       &::after {

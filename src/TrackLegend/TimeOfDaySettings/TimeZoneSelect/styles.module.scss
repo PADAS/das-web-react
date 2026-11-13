@@ -58,17 +58,13 @@
     padding: 0.25rem 0.5rem;
     padding-left: 1.75rem;
   
-    &.focused {
-      background-color: var(--er-ui-background-tertiary-background);
-    }
-  
     &.selected {
       background-color: var(--er-ui-background-selected-background);
       padding-left: 0.5rem;
     }
-  
-    &:hover {
-      background-color: var(--er-ui-background-tertiary-background);
+
+    &.focused, &:hover {
+      background-color: var(--er-ui-background-hover-background);
     }
   
     .checkLightIcon {

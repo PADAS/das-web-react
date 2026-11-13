@@ -2,8 +2,7 @@
 @use '../common/styles/colors';
 
 @mixin legend-panel {
-  backdrop-filter: blur(2px);
-  background: colors.with-opacity(var(--er-ui-background-primary-background), 90%);
+  background: var(--er-ui-background-elevated-component);
   border-radius: 0.25rem;
   box-shadow: 0 4px 4px 0 colors.with-opacity(var(--er-greyscale-0), 25%);
   padding: 0.5rem;
@@ -68,7 +67,6 @@
 @mixin legend-text-button {
   @include buttons.chip-text-button;
 
-  color: var(--er-ui-text-primary-text);
   flex-shrink: 0;
   font-weight: 400;
   height: 1.75rem;

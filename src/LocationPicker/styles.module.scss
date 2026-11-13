@@ -67,7 +67,7 @@
     padding: 0 0.5rem;
 
     &:hover:not(:disabled) {
-      background-color: var(--er-ui-background-selected-background);
+      background-color: var(--er-ui-background-hover-background);
     }
 
     .input {
@@ -123,15 +123,15 @@
   .jumpToLocationButton {
     @include inputs.boxed-field-trailing-control;
 
-    background-color: var(--er-ui-background-tertiary-background);
+    background-color: var(--er-ui-background-elevated-component-0);
     border: none;
     border-radius: 0.25rem;
-    color: var(--er-ui-text-secondary-text);
+    color: var(--er-ui-icons);
     margin-left: 1px;
     outline: none;
 
     &:disabled {
-      background-color: var(--er-ui-background-tertiary-background);
+      background-color: var(--er-ui-background-elevated-component-0);
     }
 
     &:focus-visible:not(:disabled) {
@@ -139,7 +139,7 @@
     }
 
     &:hover:not(:disabled) {
-      background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
+      background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
     }
   }
 }

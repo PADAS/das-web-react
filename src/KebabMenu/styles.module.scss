@@ -9,8 +9,8 @@
 
   .toggle {
     align-items: center;
-    background-color: var(--kebab-menu-background-color, var(--er-ui-background-tertiary-background));
-    border: 1px solid var(--kebab-menu-background-color, var(--er-ui-background-tertiary-background));
+    background-color: var(--kebab-menu-background-color, var(--er-ui-background-elevated-component-0));
+    border: 1px solid var(--kebab-menu-background-color, var(--er-ui-background-elevated-component-0));
     border-radius: 0.25rem;
     color: var(--kebab-menu-dot-color, var(--er-ui-icons));
     display: flex;
@@ -29,36 +29,14 @@
       width: 0.25rem;
     }
 
-    &:hover:not([aria-disabled="true"]) {
-      background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
-      border-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
+    &:hover:not([aria-disabled="true"]), &[aria-expanded="true"] {
+      background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
+      border-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
     }
 
     &:focus-visible {
       border-color: var(--er-ui-cta-primary);
       outline: 1px solid var(--er-ui-cta-primary);
-    }
-
-    &[aria-expanded="true"] {
-      background-color: var(--er-ui-cta-primary);
-      border-color: var(--er-ui-cta-primary);
-
-      .dots {
-        --kebab-menu-dot-color: var(--er-ui-text-primary-text-reversed);
-      }
-
-      &:hover {
-        background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
-        border-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
-      }
-
-      &:focus-visible {
-        background-color: var(--er-ui-background-primary-background);
-
-        .dots {
-          --kebab-menu-dot-color: var(--er-ui-cta-primary);
-        }
-      }
     }
   }
 }

@@ -22,7 +22,7 @@
   }
   
   [class*="modal-content"] {
-    background: colors.with-opacity(var(--er-ui-background-primary-background), 80%);
+    background: var(--er-ui-background-elevated-component);
     border: 1px solid colors.with-opacity(var(--er-greyscale-0), 20%);
     border-radius: 0.3rem;
   }

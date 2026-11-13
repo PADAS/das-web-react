@@ -5,7 +5,6 @@
 
 @mixin priority-theme($theme) {
   --item-icon-bg: #{map.get($theme, 'base')};
-  --item-row-hover-bg: #{map.get($theme, 'background')};
 }
 
 .red {

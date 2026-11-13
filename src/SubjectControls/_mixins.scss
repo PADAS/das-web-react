@@ -19,7 +19,7 @@
     @include button-background;
 
     background-size: cover;
-    background-color: colors.with-opacity(var(--er-greyscale-7), 15%);
+    background-color: var(--er-ui-background-elevated-component-0);
     border: none;
     border-radius: 0.25rem;
     display: block;
@@ -29,6 +29,11 @@
   
     &:focus {
       outline: none;
+    }
+
+    // No added specificity, so the track toggle's on states hold on hover.
+    &:where(:hover) {
+      background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
     }
   
     &.visible {

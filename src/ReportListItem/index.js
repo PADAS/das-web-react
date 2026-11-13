@@ -19,13 +19,6 @@ import LocationJumpButton from '../LocationJumpButton';
 
 import * as styles from './styles.module.scss';
 
-const HOVER_EFFECTS = {
-  300: styles.highPriority,
-  200: styles.mediumPriority,
-  100: styles.lowPriority,
-  0: styles.noPriority,
-};
-
 const ReportListItem = ({
   className = '',
   Component = 'li',
@@ -43,8 +36,6 @@ const ReportListItem = ({
 
   const { coordinates, displayPriority, displayTitle } = useReport(report);
   const jumpToLocation = useJumpToLocation();
-
-  const priorityColors = PRIORITY_COLOR_MAP[`${displayPriority}`] || PRIORITY_COLOR_MAP['0'];
 
   const dateTime = displayTime || report.updated_at || report.time;
   const iconClickHandler = onIconClick || onTitleClick;
@@ -72,7 +63,7 @@ const ReportListItem = ({
   }, [coordinates, dispatch, jumpToLocation, report]);
 
   return <FeedListItem
-    className={`${HOVER_EFFECTS[displayPriority]} ${className}`}
+    className={`${styles.item} ${className}`}
     Component={Component}
     ControlsComponent={coordinates && !!coordinates.length && showJumpButton ? <LocationJumpButton
       clickAnalytics={[
@@ -99,8 +90,7 @@ const ReportListItem = ({
       {hasPatrols && <span className={styles.patrolIndicator}>p</span>}
     </IconElement>}
     onClick={() => onTitleClick?.(report)}
-    themeBgColor={tokenVar(priorityColors.backgroundToken)}
-    themeColor={tokenVar(priorityColors.baseToken)}
+    themeColor={tokenVar((PRIORITY_COLOR_MAP[displayPriority] ?? PRIORITY_COLOR_MAP[0]).baseToken)}
     title={displayTitle}
     TitleComponent={<>
       <span className={styles.serialNumber}>{report.serial_number}</span>

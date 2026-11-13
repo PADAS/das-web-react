@@ -4,8 +4,6 @@
 @mixin patrol-row-theme($theme) {
   $theme-color: map.get($theme, 'font-color') or map.get($theme, 'base');
 
-  --patrol-row-hover-background: #{colors.tint($theme-color, colors.$row-tint)};
-
   .icon {
     background-color: map.get($theme, 'base');
 
@@ -33,7 +31,7 @@
   padding: 0.25rem 0.5rem 0.25rem 0.25rem;
 
   &:hover:not(:has(button:hover)) {
-    background-color: var(--patrol-row-hover-background);
+    background-color: var(--er-ui-background-hover-background);
   }
 
   .icon {

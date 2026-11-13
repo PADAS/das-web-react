@@ -499,11 +499,15 @@ describe('SideBar - PatrolsManager - Activity - SummaryStats', () => {
       await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
     });
 
-    test('focuses the checked option', () => {
-      expect(screen.getByRole('menuitemradio', { name: 'Leg leads' })).toHaveFocus();
+    test('focuses the menu, and none of its options', () => {
+      expect(screen.getByRole('menu', { name: 'What the distance covers' })).toHaveFocus();
     });
 
     test('moves the focus to the next option with the down arrow key, wrapping around', async () => {
+      await user.keyboard('{ArrowDown}');
+
+      expect(screen.getByRole('menuitemradio', { name: 'Leg leads' })).toHaveFocus();
+
       await user.keyboard('{ArrowDown}');
 
       expect(screen.getByRole('menuitemradio', { name: 'K9 Rex Team lead' })).toHaveFocus();
@@ -563,15 +567,14 @@ describe('SideBar - PatrolsManager - Activity - SummaryStats', () => {
     test('ignores any other key', async () => {
       await user.keyboard('a');
 
-      expect(screen.getByRole('menu', { name: 'What the distance covers' })).toBeInTheDocument();
-      expect(screen.getByRole('menuitemradio', { name: 'Leg leads' })).toHaveFocus();
+      expect(screen.getByRole('menu', { name: 'What the distance covers' })).toHaveFocus();
     });
 
-    test('closes the menu and gives the focus back to its button when clicking outside of it', async () => {
+    test('closes the menu when clicking outside of it', async () => {
       await user.click(document.body);
 
       await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
-      expect(distanceButton).toHaveFocus();
+      expect(distanceButton).toHaveAttribute('aria-expanded', 'false');
     });
 
     test('leaves the focus alone when the track of a tracked subject updates', async () => {

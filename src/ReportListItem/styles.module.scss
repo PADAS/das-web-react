@@ -90,48 +90,14 @@
   font-style: italic;
 }
 
-.noPriority {
-  &:hover {
-    background-color: colors.with-opacity(var(--er-greyscale-11), 75%) !important;
+.item {
+  cursor: pointer;
 
-    div[role='img'] {
-      background-color: colors.with-opacity(var(--er-ui-event-priority-grey), 75%) !important;
-    }
+  &:hover {
+    background-color: var(--er-ui-background-hover-background);
   }
-}
 
-.lowPriority {
-  &:hover {
-    background-color: colors.with-opacity(var(--er-green-6), 75%) !important;
-
-    div[role='img'] {
-      background-color: colors.with-opacity(var(--er-ui-event-priority-green), 75%) !important;
-    }
-  }
-}
-
-.mediumPriority {
-  &:hover {
-    background-color: colors.with-opacity(var(--er-amber-6), 75%) !important;
-
-    div[role='img'] {
-      background-color: colors.with-opacity(var(--er-ui-event-priority-amber), 75%) !important;
-    }
-  }
-}
-
-.highPriority {
-  &:hover {
-    background-color: var(--er-ui-status-bg-error-bg) !important;
-
-    div[role='img'] {
-      background-color: colors.with-opacity(var(--er-ui-event-priority-red), 75%) !important;
-    }
-  }
-}
-
-.noPriority, .lowPriority, .mediumPriority, .highPriority, .dateComponent {
-  &:hover {
+  .dateComponent {
     cursor: pointer;
   }
 }

@@ -27,7 +27,7 @@
     padding: 0;
 
     &:hover {
-      background-color: var(--er-ui-background-tertiary-background);
+      background-color: var(--er-ui-background-elevated-component-0);
       color: var(--er-ui-text-secondary-text);
     }
   }
@@ -96,9 +96,13 @@ $option-icon-gap: 0.5rem;
   gap: 0.5rem;
   overflow-wrap: anywhere;
 
+  &.optionSelected {
+    background-color: var(--er-ui-background-selected-background) !important;
+  }
+
   &.optionFocused,
   &:active {
-    background-color: var(--er-ui-background-selected-background) !important;
+    background-color: var(--er-ui-background-hover-background) !important;
   }
 
   .checkMark, .checkMarkPlaceholder {

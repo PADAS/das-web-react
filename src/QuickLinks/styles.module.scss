@@ -24,7 +24,7 @@
 
     &:hover {
       color: var(--er-ui-cta-primary) !important;
-      background-color: var(--er-ui-background-selected-background) !important;
+      background-color: var(--er-ui-background-hover-background) !important;
       font-weight: bold;
   
       svg {
@@ -70,7 +70,7 @@
 
     &:hover {
       color: var(--er-ui-cta-primary) !important;
-      background-color: var(--er-ui-background-selected-background) !important;
+      background-color: var(--er-ui-background-hover-background) !important;
       font-weight: bold;
   
       svg {

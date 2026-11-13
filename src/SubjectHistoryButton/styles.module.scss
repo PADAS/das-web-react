@@ -1,5 +1,3 @@
-@use '../common/styles/buttons';
-@use '../common/styles/colors';
 @use '../SubjectControls/mixins';
 
 
@@ -20,12 +18,13 @@
   }
 
   &.hasLabel {
-    background-color: colors.with-opacity(var(--er-greyscale-7), 15%);
+    background-color: var(--er-ui-background-elevated-component-0);
     border: 0.06px solid var(--er-ui-field-outline);
-    max-width: 5.75rem;
-    max-height: 1.85rem;
     border-radius: 0.25rem;
+    color: var(--er-ui-icons);
     cursor: pointer;
+    max-height: 1.85rem;
+    max-width: 5.75rem;
     
     [class*="spinner"] {
       position: relative;

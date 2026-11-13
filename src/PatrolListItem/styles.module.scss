@@ -81,6 +81,10 @@
 
 .item {
   cursor: pointer;
+
+  &:hover {
+    background-color: var(--er-ui-background-hover-background);
+  }
 }
 
 .patrolMenu {

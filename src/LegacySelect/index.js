@@ -20,12 +20,13 @@ const LegacySelect = ({ styles: customStyles, components, ref, ...rest }) => {
   const selectStyles = useMemo(() => ({
     ...customStyles,
     option: (styles, state) => {
-      const { isDisabled, isFocused } = state;
+      const { isDisabled, isFocused, isSelected } = state;
+      const restingBackgroundColor = isSelected
+        ? 'var(--er-ui-background-selected-background)'
+        : 'var(--er-ui-background-primary-background)';
       return {
         ...styles,
-        backgroundColor: isFocused
-          ? 'var(--er-ui-background-selected-background)'
-          : 'var(--er-ui-background-primary-background)',
+        backgroundColor: isFocused ? 'var(--er-ui-background-hover-background)' : restingBackgroundColor,
         color: 'inherit',
         display: isDisabled ? 'none' : 'block',
         cursor: isFocused ? 'pointer' : 'inherit',

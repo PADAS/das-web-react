@@ -1,5 +1,4 @@
 @use '../common/styles/inputs';
-@use '../common/styles/colors';
 
 .menuPopover {
   @include inputs.box-shadow;
@@ -12,9 +11,26 @@
     display: none;
   }
 
+  .header {
+    color: var(--er-ui-text-secondary-text);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 0.5rem 0.25rem;
+    text-transform: uppercase;
+  }
+
   .menu {
     margin: 0;
     outline: none;
+
+    &:has([aria-current="true"]) .item .itemBtn {
+      padding-left: 1.75rem;
+
+      &[aria-current="true"] {
+        padding-left: 0.5rem;
+      }
+    }
 
     .divider {
       background-color: var(--er-ui-divider-lines);
@@ -33,27 +49,26 @@
         outline: none;
         padding: 0.5rem 1rem;
         text-align: left;
-        text-transform: capitalize;
         width: 100%;
+
+        &:where([role="menuitemradio"][aria-checked="true"], [aria-current="true"]) {
+          background-color: var(--er-ui-background-selected-background);
+        }
+
+        &:hover:not(:disabled, [aria-disabled="true"]), &:focus-visible, &:has(:focus-visible) {
+          background-color: var(--er-ui-background-hover-background);
+        }
 
         &:hover:not(:disabled, [aria-disabled="true"]) {
           cursor: pointer;
         }
 
-        &:hover:not(:disabled, [aria-disabled="true"], :focus-visible, :has(:focus-visible)) {
-          background-color: var(--er-ui-background-tertiary-background);
-        }
-
-        &:focus-visible, &:has(:focus-visible) {
-          background-color: colors.shade(var(--er-ui-background-tertiary-background), colors.$surface-hover-shade);
-        }
-
-        img, svg {
+        > img, > svg {
           flex-shrink: 0;
           margin-right: 0.5rem;
         }
 
-        svg {
+        > svg {
           color: var(--er-ui-icons);
           height: 1.125rem;
           width: 1.125rem;
@@ -63,29 +78,23 @@
           color: var(--er-ui-text-secondary-text);
           cursor: default;
 
-          svg {
+          > svg {
             color: var(--er-ui-icons);
           }
         }
 
-        &[role="menuitemradio"] {
+        &[role="menuitemcheckbox"], &[role="menuitemradio"] {
           padding-left: 1.75rem;
-          text-transform: none;
 
           &[aria-checked="true"] {
-            background-color: var(--er-ui-background-selected-background);
             padding-left: 0.5rem;
-
-            &:hover, &:focus-visible {
-              background-color: colors.shade(var(--er-ui-background-selected-background), colors.$surface-hover-shade);
-            }
           }
+        }
 
-          .checkIcon {
-            color: var(--er-ui-cta-primary);
-            height: 0.75rem;
-            width: 0.75rem;
-          }
+        .checkIcon {
+          color: var(--er-ui-cta-primary);
+          height: 0.75rem;
+          width: 0.75rem;
         }
       }
 

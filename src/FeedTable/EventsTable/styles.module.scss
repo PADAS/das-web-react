@@ -3,7 +3,6 @@
 @use '../../common/styles/colors';
 
 @mixin row-theme($theme) {
-  --ag-row-hover-color: #{colors.tint(map.get($theme, 'base'), colors.$row-tint)};
   --feed-table-icon-background: #{map.get($theme, 'base')};
 }
 

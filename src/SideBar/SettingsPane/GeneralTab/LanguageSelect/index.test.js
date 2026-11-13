@@ -38,4 +38,12 @@ describe('SideBar - SettingsPane - GeneralTab - LanguageSelect', () => {
     expect(changeLanguage).toHaveBeenCalledTimes(2);
     expect(changeLanguage).toHaveBeenCalledWith('sw');
   });
+
+  test('shows the language in use', () => {
+    useTranslation.mockImplementation(() => ({ i18n: { changeLanguage, language: 'es' }, t: (key) => key }));
+
+    renderLanguageSelect();
+
+    expect(screen.getByText('Español')).toBeInTheDocument();
+  });
 });
