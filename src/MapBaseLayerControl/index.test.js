@@ -3,8 +3,8 @@ import ReactGA4 from 'react-ga4';
 import userEvent from '@testing-library/user-event';
 
 import esriLogoSrc from '../common/images/icons/esri-logo.svg?url';
-import { mockStore } from '../__test-helpers/MockStore';
 import { fireEvent, render, screen } from '../test-utils';
+import { mockStore } from '../__test-helpers/MockStore';
 import { setBaseLayer } from '../ducks/layers';
 
 import MapBaseLayerControl from './';
