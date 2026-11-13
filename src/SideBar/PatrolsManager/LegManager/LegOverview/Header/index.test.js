@@ -230,6 +230,7 @@ describe('SideBar - PatrolsManager - LegManager - LegOverview - Header', () => {
     const action = reduxStore.getActions().find((item) => item.type === UPDATE_PATROL_TRACK_STATE);
 
     expect(action.payload).toEqual({ visible: [patrol.id] });
+    expect(tracker.track).toHaveTrackedAction('Toggle track from leg overview', 'visible');
   });
 
   test('jumps to the last position of the leg', async () => {

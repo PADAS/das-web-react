@@ -258,6 +258,21 @@ $footer-button-min-width: 4.375rem;
   }
 }
 
+// A feed widens across the screen, beside the nav rail, into its table view.
+@mixin table-view-width {
+  transition: width 0.4s ease-in-out;
+
+  &.tableView {
+    @media (min-width: layout.$md-layout-width-min) {
+      width: calc(100vw - var(--vertical-nav-width));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
 @mixin detail-view-width {
   width: 100%;
 

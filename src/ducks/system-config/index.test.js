@@ -85,6 +85,7 @@ describe('Ducks - System config', () => {
         sitename: 'Site name',
         support_managed_users: false,
         showTrackDays: true,
+        userConfigLoaded: true,
       },
       type: SET_SYSTEM_CONFIG,
     });
@@ -209,6 +210,17 @@ describe('Ducks - System config', () => {
     expect(console.warn).toHaveBeenCalledTimes(1);
     expect(console.warn)
       .toHaveBeenCalledWith('Ignoring an invalid Atlas URL from the system status', 'atlas.pamdas.org');
+  });
+
+  test('setSystemConfigFromSystemStatus treats a missing Tableau flag as Tableau off', () => {
+    const dispatch = jest.fn();
+
+    setSystemConfigFromSystemStatus({ site_name: 'Site name' })(dispatch);
+
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({
+      payload: expect.objectContaining({ [SYSTEM_CONFIG_FLAGS.TABLEAU]: false }),
+      type: SET_SYSTEM_CONFIG,
+    }));
   });
 
   test('setSystemConfigFromSystemStatus reports a null Atlas URL on a server that does not send Atlas settings', async () => {
@@ -342,13 +354,34 @@ describe('Ducks - System config', () => {
     expect(setDefaultPatrolDateRange).toHaveBeenCalledTimes(1);
   });
 
+  test('setSystemConfigFromSystemStatus leaves Tableau and Atlas alone without the user config', () => {
+    const dispatch = jest.fn();
+
+    setSystemConfigFromSystemStatus({
+      [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
+      otus_settings: { url: 'https://atlas.pamdas.org' },
+      site_name: 'Site name',
+    }, { includeUserConfig: false })(dispatch);
+
+    const { payload } = dispatch.mock.calls[0][0];
+    expect(payload).not.toHaveProperty(SYSTEM_CONFIG_FLAGS.TABLEAU);
+    expect(payload).not.toHaveProperty('atlasUrl');
+    expect(payload).not.toHaveProperty('userConfigLoaded');
+  });
+
   describe('systemConfigReducer', () => {
     test('returns the initial state', async () => {
       expect(systemConfigReducer(undefined, {})).toEqual(INITIAL_STATE);
     });
 
-    test('clears the Atlas URL when the user signs out', () => {
-      const state = { ...INITIAL_STATE, atlasUrl: 'https://atlas.pamdas.org', sitename: 'Site name' };
+    test('clears Tableau and the Atlas URL when the user signs out', () => {
+      const state = {
+        ...INITIAL_STATE,
+        [SYSTEM_CONFIG_FLAGS.TABLEAU]: true,
+        atlasUrl: 'https://atlas.pamdas.org',
+        sitename: 'Site name',
+        userConfigLoaded: true,
+      };
 
       expect(systemConfigReducer(state, { payload: {}, type: CLEAR_AUTH })).toEqual({
         ...INITIAL_STATE,
@@ -395,6 +428,7 @@ describe('Ducks - System config', () => {
         site_slug: null,
         sitename: 'Site name',
         support_managed_users: false,
+        userConfigLoaded: false,
       };
 
       expect(systemConfigReducer(INITIAL_STATE, action)).toEqual(expectedState);

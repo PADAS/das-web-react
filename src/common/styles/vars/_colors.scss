@@ -36,6 +36,9 @@ $dark-gold: #C6880C;
 
 /* design system tokens */
 
+$error-destructive: #d0031b;
+$ready: #ffb700;
+$success: #53aa71;
 $teal-t20: #cfdcdd;
 $teal-t40: #9fbabc;
 $teal-t100: #105257;
@@ -48,12 +51,12 @@ $ui-text-secondary: $teal-t100;
 
 /* semantic variables */
 
-$healthy: $bright-green;
-$healthy-border: color.adjust($bright-green, $lightness: 15%);
-$error: $bright-red;
-$error-border: color.adjust($bright-red, $lightness: 15%);
-$warning: $mustard-yellow;
-$warning-border: color.adjust($mustard-yellow, $lightness: 15%);
+$healthy: $success;
+$healthy-border: color.adjust($healthy, $lightness: 15%);
+$error: $error-destructive;
+$error-border: color.adjust($error, $lightness: 15%);
+$warning: $ready;
+$warning-border: color.adjust($warning, $lightness: 15%);
 $unknown: $dark-gray;
 $unknown-border: color.adjust($dark-gray, $lightness: 15%);
 $no-priority: $secondary-medium-light-gray;

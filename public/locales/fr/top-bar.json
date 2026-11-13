@@ -13,23 +13,36 @@
     "restrictedOptionLabel": "RESTRICTION"
   },
   "nav": {
+    "hamburgerMenuLabel": "Ouvrir le menu principal",
+    "messageMenu": {
+      "toggleLabel": "Messages",
+      "unreadToggleLabel_one": "Messages, {{count}} non lus",
+      "unreadToggleLabel_other": "Messages, {{count}} non lus"
+    },
     "navHomeMenu": {
-      "myCurrentLocationItem": "Ma Position Actuelle"
+      "homeMenuLabel": "Liens rapides de la carte",
+      "homeMenuToggleLabel": "Liens rapides de la carte : {{mapTitle}}",
+      "myCurrentLocationOptionLabel": "Ma Position Actuelle"
     }
   },
   "notificationMenu": {
-    "errorFetchingHeader": "Impossible de récupérer les anonces récentes",
-    "noNewNotificationsHeader": "Aucune nouvelle notification",
-    "notificationItem": {
-      "confirmButton": "Confirmer",
-      "dismissButton": "Ignorer",
-      "moreInformationLink": "Plus de détails"
+    "notificationsPopover": {
+      "allNewsLink": "Afficher toutes les notifications",
+      "label": "Notifications",
+      "newsFetchErrorMessage": "Impossible de récupérer les anonces récentes",
+      "noNotificationsMessage": "Aucune nouvelle notification",
+      "notificationItem": {
+        "confirmButton": "Confirmer",
+        "dismissButton": "Ignorer",
+        "moreInformationLink": "Plus de détails",
+        "readMoreLink": "En savoir plus",
+        "unreadLabel": "Non lue"
+      },
+      "retryButton": "Réessayez"
     },
-    "outdatedNotifications_one": "Vous avez {{count}} notification non lue",
-    "outdatedNotifications_other": "Vous avez {{count}} notifications non lues",
-    "readMore": "En savoir plus",
-    "seeAllNewsButton": "Afficher toutes les notifications >",
-    "tryAgainButton": "Réessayez"
+    "toggleLabel": "Notifications",
+    "unreadToggleLabel_one": "Notifications, {{count}} non lues",
+    "unreadToggleLabel_other": "Notifications, {{count}} non lues"
   },
   "profilePINModal": {
     "error": "Code PIN Incorrect",
@@ -41,12 +54,15 @@
     "dateTimeSuffix": "depuis",
     "HEALTHY": "Stable",
     "heartBeatDefTitle": "activité du système",
-    "initialRealTimeStatusTitle": "Temps-réel de EarthRanger",
-    "initialRealTimeStatusDetails": "Activité",
     "initialNetworkStatusTitle": "Réseau",
-    "networkOnlineLabel": "En ligne",
+    "initialRealTimeStatusDetails": "Activité",
+    "initialRealTimeStatusTitle": "Temps-réel de EarthRanger",
     "networkOfflineLabel": "Hors ligne",
+    "networkOnlineLabel": "En ligne",
+    "popoverLabel": "État du système",
     "serverVersionLabel": "Serveur de EarthRanger {{version}}",
+    "toggleLabel": "État du système : {{status}}",
+    "toggleTitle": "État du système",
     "UNHEALTHY": "Instable",
     "UNKNOWN": "Inconnu",
     "WARNING": "Alerte"
@@ -54,8 +70,8 @@
   "userMenu": {
     "cookieSettingsItem": "Réglages des Cookies",
     "logoutItem": "Déconnexion",
-    "toggleLabel": "Ouvrir les paramètres de l'utilisateur",
-    "toggleTitle": "Paramètres de l'utilisateur",
-    "userAndProfilesHeader": "Utilisateur et profils"
+    "menuLabel": "Paramètres de l'utilisateur",
+    "toggleLabel": "Paramètres de l'utilisateur : {{username}}",
+    "userAndProfilesGroupLabel": "Utilisateur et profils"
   }
 }

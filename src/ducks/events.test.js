@@ -15,12 +15,18 @@ import {
   COMMUNITY_EVENTS_API_URL,
   createEvent,
   EVENT_API_URL,
+  EVENT_FEED_NAME,
   EVENT_RELATIONSHIPS_API_URL,
   eventFeedReducer,
   EVENTS_API_URL,
+  eventStoreReducer,
+  FEED_FETCH_ERROR,
+  FEED_FETCH_NEXT_PAGE_SUCCESS,
+  FEED_FETCH_SUCCESS,
   fetchEventFeed,
   fetchIncidentLinkTargets,
   fetchMapEvents,
+  fetchNextEventFeedPage,
   fetchRecentEventsIntoRealtimeOverlay,
   INCIDENT_EVENT_API_URL,
   INITIAL_EVENT_FEED_STATE,
@@ -43,6 +49,32 @@ jest.mock('../utils/events', () => ({
   ...jest.requireActual('../utils/events'),
   validateReportAgainstCurrentEventFilter: jest.fn(() => true),
 }));
+
+describe('eventStoreReducer', () => {
+  const details = { species: 'elephant' };
+
+  test('keeps loaded event details when a fetch that skips them answers null', () => {
+    const state = { e1: { event_details: details, id: 'e1', title: 'Old' } };
+
+    const nextState = eventStoreReducer(state, {
+      payload: [{ event_details: null, id: 'e1', title: 'New' }],
+      type: UPDATE_EVENT_STORE,
+    });
+
+    expect(nextState.e1).toEqual({ event_details: details, id: 'e1', title: 'New' });
+  });
+
+  test('takes newer event details', () => {
+    const state = { e1: { event_details: details, id: 'e1' } };
+
+    const nextState = eventStoreReducer(state, {
+      payload: [{ event_details: { species: 'lion' }, id: 'e1' }],
+      type: UPDATE_EVENT_STORE,
+    });
+
+    expect(nextState.e1.event_details).toEqual({ species: 'lion' });
+  });
+});
 
 const server = setupServer();
 
@@ -145,6 +177,55 @@ describe('fetchEventFeed', () => {
 
     expect(store.getActions().find((action) => action.type === UPDATE_EVENT_STORE).payload)
       .toEqual([{ id: 'other-event' }]);
+  });
+});
+
+describe('fetchNextEventFeedPage', () => {
+  const NEXT_PAGE_URL = `${EVENTS_API_URL}?page=2`;
+
+  let store;
+
+  beforeEach(() => {
+    store = mockStore({ data: { eventStore: {} }, view: {} });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  test('leaves the feed error alone when the page fails to load', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(axios, 'get').mockRejectedValueOnce(new Error('Network error'));
+
+    await expect(store.dispatch(fetchNextEventFeedPage(NEXT_PAGE_URL))).rejects.toThrow('Network error');
+
+    expect(store.getActions()).not.toContainEqual(expect.objectContaining({ type: FEED_FETCH_ERROR }));
+  });
+
+  test('does not cancel a feed refresh that is still loading', async () => {
+    const cancelTokens = [];
+    jest.spyOn(axios, 'get').mockImplementation((url, config) => {
+      cancelTokens.push(config.cancelToken);
+      return new Promise(() => {});
+    });
+
+    store.dispatch(fetchEventFeed({}, ''));
+    store.dispatch(fetchNextEventFeedPage(NEXT_PAGE_URL));
+
+    expect(cancelTokens[0].reason).toBeUndefined();
+  });
+
+  test('is cancelled by a feed refresh', async () => {
+    const cancelTokens = [];
+    jest.spyOn(axios, 'get').mockImplementation((url, config) => {
+      cancelTokens.push(config.cancelToken);
+      return new Promise(() => {});
+    });
+
+    store.dispatch(fetchNextEventFeedPage(NEXT_PAGE_URL));
+    store.dispatch(fetchEventFeed({}, ''));
+
+    expect(cancelTokens[0].reason).toBeDefined();
   });
 });
 
@@ -704,6 +785,59 @@ describe('event links', () => {
 });
 
 describe('eventFeedReducer', () => {
+  const NEXT_PAGE_URL = `${EVENTS_API_URL}?page=2`;
+
+  const nextPage = (url, ids) => ({
+    name: EVENT_FEED_NAME,
+    payload: { count: 10, next: null, previous: null, results: ids.map((id) => ({ id })), url },
+    type: FEED_FETCH_NEXT_PAGE_SUCCESS,
+  });
+
+  test('appends the events of the next page it has not listed yet', () => {
+    const state = { ...INITIAL_EVENT_FEED_STATE, next: NEXT_PAGE_URL, results: ['event-1', 'event-2'] };
+
+    const nextState = eventFeedReducer(state, nextPage(NEXT_PAGE_URL, ['event-2', 'event-3']));
+
+    expect(nextState.results).toEqual(['event-1', 'event-2', 'event-3']);
+    expect(nextState.next).toBeNull();
+  });
+
+  test('ignores a page asked for before the feed was refreshed', () => {
+    const state = { ...INITIAL_EVENT_FEED_STATE, next: `${EVENTS_API_URL}?page=2&state=active`, results: ['event-1'] };
+
+    expect(eventFeedReducer(state, nextPage(NEXT_PAGE_URL, ['event-2']))).toBe(state);
+  });
+
+  test('drops an event that joins an incident when the feed leaves those events out', () => {
+    const state = eventFeedReducer(INITIAL_EVENT_FEED_STATE, {
+      name: EVENT_FEED_NAME,
+      payload: { isExcludingContained: true, next: null, results: [{ id: 'event-1' }] },
+      type: FEED_FETCH_SUCCESS,
+    });
+
+    const nextState = eventFeedReducer(state, {
+      payload: { event_data: { id: 'event-1', is_contained_in: [{ related_event: { id: 'incident-1' } }] } },
+      type: SOCKET_EVENT_DATA,
+    });
+
+    expect(nextState.results).toEqual([]);
+  });
+
+  test('keeps an event that joins an incident when the feed lists those events', () => {
+    const state = eventFeedReducer(INITIAL_EVENT_FEED_STATE, {
+      name: EVENT_FEED_NAME,
+      payload: { isExcludingContained: false, next: null, results: [{ id: 'event-1' }] },
+      type: FEED_FETCH_SUCCESS,
+    });
+
+    const nextState = eventFeedReducer(state, {
+      payload: { event_data: { id: 'event-1', is_contained_in: [{ related_event: { id: 'incident-1' } }] } },
+      type: SOCKET_EVENT_DATA,
+    });
+
+    expect(nextState.results).toEqual(['event-1']);
+  });
+
   test('adds an event to the feed once', () => {
     const state = { ...INITIAL_EVENT_FEED_STATE, results: ['other-event-id'] };
 

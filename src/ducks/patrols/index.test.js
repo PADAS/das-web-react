@@ -12,8 +12,10 @@ import {
   createPatrol,
   DELETE_PATROL_BY_ID,
   FETCH_PATROL_TEAM_AND_TRACKING_OPTIONS_SUCCESS,
+  FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS,
   FETCH_PATROLS_FEED_SUCCESS,
   fetchPatrol,
+  fetchNextPatrolsFeedPage,
   fetchPatrolLinkTargets,
   fetchPatrolsFeed,
   fetchPatrolTeamAndTrackingOptions,
@@ -83,7 +85,7 @@ describe('Ducks - Patrols', () => {
       expect(dispatchAndGetActions(socketUpdatePatrol({ patrol_data: patrolA, matches_current_filter: true })))
         .toEqual([
           { type: UPDATE_PATROL_REALTIME, payload: patrolA },
-          { type: ADD_PATROL_TO_FEED, payload: PATROL_A_ID },
+          { type: ADD_PATROL_TO_FEED, payload: { isNewPatrol: false, patrolId: PATROL_A_ID } },
         ]);
     });
 
@@ -101,7 +103,7 @@ describe('Ducks - Patrols', () => {
       expect(dispatchAndGetActions(socketCreatePatrol({ patrol_data: patrolA, matches_current_filter: true })))
         .toEqual([
           { type: CREATE_PATROL_REALTIME, payload: patrolA },
-          { type: ADD_PATROL_TO_FEED, payload: PATROL_A_ID },
+          { type: ADD_PATROL_TO_FEED, payload: { isNewPatrol: true, patrolId: PATROL_A_ID } },
         ]);
     });
 
@@ -194,7 +196,7 @@ describe('Ducks - Patrols', () => {
 
       expect(store.getActions()).toEqual([
         { type: UPDATE_PATROL_STORE, payload: feedResponse },
-        { payload: [PATROL_A_ID, PATROL_B_ID], type: FETCH_PATROLS_FEED_SUCCESS },
+        { payload: { count: 2, next: null, results: [PATROL_A_ID, PATROL_B_ID] }, type: FETCH_PATROLS_FEED_SUCCESS },
       ]);
     });
 
@@ -633,24 +635,104 @@ describe('Ducks - Patrols', () => {
     });
   });
 
+  describe('fetchNextPatrolsFeedPage', () => {
+    test('fills the store before appending the page to the feed', async () => {
+      const nextPageUrl = `${PATROLS_API_URL}?page=2`;
+      const pageResponse = { count: 3, next: null, previous: PATROLS_API_URL, results: [patrolB] };
+      server.use(http.get(PATROLS_API_URL, () => HttpResponse.json({ data: pageResponse })));
+
+      const store = mockStore({ data: {}, view: {} });
+      await store.dispatch(fetchNextPatrolsFeedPage(nextPageUrl));
+
+      expect(store.getActions()).toEqual([
+        { type: UPDATE_PATROL_STORE, payload: pageResponse },
+        { payload: { count: 3, next: null, results: [PATROL_B_ID] }, type: FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS },
+      ]);
+    });
+
+    test('drops a page still loading when the feed is fetched again for a new filter', async () => {
+      const nextPageUrl = `${PATROLS_API_URL}?page=2`;
+      server.use(http.get(PATROLS_API_URL, async ({ request }) => {
+        if (new URL(request.url).searchParams.get('page') === '2') {
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+
+        return HttpResponse.json({ data: { count: 1, next: null, previous: null, results: [patrolB] } });
+      }));
+
+      const store = mockStore({ data: {}, view: {} });
+      const pendingPage = store.dispatch(fetchNextPatrolsFeedPage(nextPageUrl)).then(() => 'loaded', () => 'dropped');
+      await store.dispatch(fetchPatrolsFeed()).request;
+
+      expect(await pendingPage).toBe('dropped');
+      expect(store.getActions().map((action) => action.type)).not.toContain(FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS);
+    });
+  });
+
   describe('patrolsFeedReducer', () => {
-    const loadedFeed = [PATROL_A_ID, PATROL_B_ID];
+    const loadedFeed = { count: 2, next: null, results: [PATROL_A_ID, PATROL_B_ID] };
+
+    test('appends the next page and takes its count and next link', () => {
+      const firstPage = { count: 3, next: 'page-2', results: [PATROL_A_ID] };
+
+      expect(patrolsFeedReducer(firstPage, {
+        payload: { count: 3, next: null, results: [PATROL_B_ID] },
+        type: FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS,
+      })).toEqual({ count: 3, next: null, results: [PATROL_A_ID, PATROL_B_ID] });
+    });
+
+    test('lists a patrol once when a page repeats one already in the feed', () => {
+      const firstPage = { count: 3, next: 'page-2', results: [PATROL_A_ID] };
+
+      expect(patrolsFeedReducer(firstPage, {
+        payload: { count: 3, next: null, results: [PATROL_A_ID, PATROL_B_ID] },
+        type: FETCH_PATROLS_FEED_NEXT_PAGE_SUCCESS,
+      }).results).toEqual([PATROL_A_ID, PATROL_B_ID]);
+    });
 
     test('takes the patrol out of the feed when it stops matching the filter', () => {
       expect(patrolsFeedReducer(loadedFeed, { type: REMOVE_PATROL_FROM_FEED, payload: PATROL_A_ID }))
-        .toEqual([PATROL_B_ID]);
+        .toEqual({ count: 1, next: null, results: [PATROL_B_ID] });
     });
 
     test('takes the patrol out of the feed when it is deleted', () => {
       expect(patrolsFeedReducer(loadedFeed, { type: DELETE_PATROL_BY_ID, payload: PATROL_A_ID }))
-        .toEqual([PATROL_B_ID]);
+        .toEqual({ count: 1, next: null, results: [PATROL_B_ID] });
     });
 
     test('adds a patrol that matches the filter to the top of the feed, only once', () => {
-      const state = patrolsFeedReducer([PATROL_B_ID], { type: ADD_PATROL_TO_FEED, payload: PATROL_A_ID });
+      const addPatrolA = { type: ADD_PATROL_TO_FEED, payload: { isNewPatrol: true, patrolId: PATROL_A_ID } };
+      const state = patrolsFeedReducer({ count: 1, next: null, results: [PATROL_B_ID] }, addPatrolA);
 
-      expect(state).toEqual([PATROL_A_ID, PATROL_B_ID]);
-      expect(patrolsFeedReducer(state, { type: ADD_PATROL_TO_FEED, payload: PATROL_A_ID })).toBe(state);
+      expect(state).toEqual(loadedFeed);
+      expect(patrolsFeedReducer(state, addPatrolA)).toBe(state);
+    });
+
+    test('counts an updated patrol that starts matching once every page is loaded', () => {
+      const state = patrolsFeedReducer(
+        { count: 1, next: null, results: [PATROL_B_ID] },
+        { type: ADD_PATROL_TO_FEED, payload: { isNewPatrol: false, patrolId: PATROL_A_ID } }
+      );
+
+      expect(state.count).toBe(2);
+    });
+
+    test('does not count an updated patrol again while pages are left, as it may be on one', () => {
+      const state = patrolsFeedReducer(
+        { count: 500, next: 'page-2', results: [PATROL_B_ID] },
+        { type: ADD_PATROL_TO_FEED, payload: { isNewPatrol: false, patrolId: PATROL_A_ID } }
+      );
+
+      expect(state).toEqual({ count: 500, next: 'page-2', results: [PATROL_A_ID, PATROL_B_ID] });
+    });
+
+    test('counts a new patrol while pages are left', () => {
+      const state = patrolsFeedReducer(
+        { count: 500, next: 'page-2', results: [PATROL_B_ID] },
+        { type: ADD_PATROL_TO_FEED, payload: { isNewPatrol: true, patrolId: PATROL_A_ID } }
+      );
+
+      expect(state.count).toBe(501);
     });
 
     test('holds on to the feed it has when a patrol it never listed leaves or is deleted', () => {
@@ -661,9 +743,10 @@ describe('Ducks - Patrols', () => {
     });
 
     test('empties the feed on a global reset', () => {
-      expect(patrolsFeedReducer(loadedFeed, resetGlobalState())).toEqual([]);
+      expect(patrolsFeedReducer(loadedFeed, resetGlobalState())).toEqual({ count: null, next: null, results: [] });
     });
   });
+
 
   describe('patrolTeamAndTrackingOptionsReducer', () => {
     const loadedOptions = {

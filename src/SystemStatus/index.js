@@ -1,16 +1,16 @@
-import { useCallback, useMemo, useState } from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
+import { useCallback, useId, useState } from 'react';
+import Overlay from 'react-bootstrap/Overlay';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownSmallIcon } from '../common/images/icons/arrow-down-small.svg';
-import { ReactComponent as ArrowUpSmallIcon } from '../common/images/icons/arrow-up-small.svg';
 
 import { calcPrimaryStatusIndicator } from '../utils/system-status';
 import { MAIN_TOOLBAR_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { STATUSES, TOP_BAR_POPOVER_POPPER_CONFIG } from '../constants';
 
 import Badge from '../Badge';
-import TimeAgo from '../TimeAgo';
+import StatusPopover from './StatusPopover';
 
 import * as styles from './styles.module.scss';
 
@@ -21,87 +21,56 @@ const SystemStatus = () => {
 
   const systemStatus = useSelector((state) => state.data.systemStatus);
 
-  const [isOpen, setOpenState] = useState(false);
+  const popoverId = useId();
 
-  const renderedStatusList = useMemo(() => Object.entries(systemStatus).map(([_key, value], index) => {
-    if (Array.isArray(value)) {
-      return value.map((item) => <Dropdown.Item className={styles.listItem} key={item.provider_key}>
-        <div className={styles.summary}>
-          <Badge className={styles.badge} status={item.status} />
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [systemStatusElement, setSystemStatusElement] = useState(null);
+  const [toggleButton, setToggleButton] = useState(null);
 
-          <span className={styles.itemTitle}>{item.title}</span>
-        </div>
+  const statusSummary = calcPrimaryStatusIndicator(systemStatus) ?? STATUSES.UNHEALTHY_STATUS;
 
-        <div className={styles.details}>
-          <span>
-            {item.heartbeat.title ?? t('heartBeatDefTitle')}
-            {!!item.heartbeat.timestamp && ':'}
+  const hidePopover = useCallback(() => {
+    setIsPopoverOpen(false);
 
-            {!!item.heartbeat.timestamp && <span className={styles.timestamp}>
-              <TimeAgo date={item.heartbeat.timestamp} suffix={t('dateTimeSuffix')} />
-            </span>}
-          </span>
-
-          <span>
-            {item.datasource.title ?? t('datasourceDefTitle')}
-            {!!item.datasource.timestamp && ':'}
-
-            {!!item.datasource.timestamp && <span className={styles.timestamp}>
-              <TimeAgo date={item.datasource.timestamp} suffix={t('dateTimeSuffix')} />
-            </span>}
-          </span>
-        </div>
-      </Dropdown.Item>);
-    }
-
-    const details = value.details ?? t(value.detailsKey);
-
-    return <Dropdown.Item className={styles.listItem} key={index}>
-      <div className={styles.summary}>
-        <Badge className={styles.badge} status={value.status} />
-
-        <span className={styles.itemTitle}>
-          { value.title ?? t(value.titleKey, { version: value.version }) }
-        </span>
-      </div>
-
-      <div className={styles.details}>
-        <span>
-          {details.replace(/^(https?|ftp):\/\//, '')}{!!value.timestamp && ':'}
-
-          {!!value.timestamp && <span className={styles.timestamp}>
-            <TimeAgo date={value.timestamp} suffix={t('dateTimeSuffix')} />
-          </span>}
-        </span>
-      </div>
-    </Dropdown.Item>;
-  }), [systemStatus, t]);
-
-  const statusSummary = useMemo(() => calcPrimaryStatusIndicator(systemStatus), [systemStatus]);
-
-  const onDropdownToggle = useCallback((isOpen) => {
-    setOpenState(isOpen);
-
-    mainToolbarTracker.track(`${isOpen ? 'Open':'Close'} Status Summary Display`);
+    mainToolbarTracker.track('Close Status Summary Display');
   }, []);
 
-  return (
-    <Dropdown align="end" onToggle={onDropdownToggle}>
-      <Dropdown.Toggle id="system-status">
-        <div className={`${styles.indicator} ${isOpen ? 'open' : ''}`} data-testid="systemStatus-indicator">
-          <Badge status={statusSummary} />
+  const onToggleClick = () => {
+    setIsPopoverOpen(!isPopoverOpen);
 
-          <span data-testid="systemStatus-statusLabel">{t(statusSummary || 'UNHEALTHY' )}</span>
+    mainToolbarTracker.track(`${isPopoverOpen ? 'Close' : 'Open'} Status Summary Display`);
+  };
 
-          {isOpen
-            ? <ArrowUpSmallIcon data-testid="arrow-up-small-icon" />
-            : <ArrowDownSmallIcon data-testid="arrow-down-small-icon" />}
-        </div>
-      </Dropdown.Toggle>
+  // The popover hangs from a wrapper as tall as the other top bar buttons, so it
+  // lines up with their popups rather than sitting under the shorter pill.
+  return <div className={styles.systemStatus} ref={setSystemStatusElement}>
+    <button
+      aria-controls={isPopoverOpen ? popoverId : undefined}
+      aria-expanded={isPopoverOpen}
+      aria-haspopup="dialog"
+      aria-label={t('toggleLabel', { status: t(statusSummary) })}
+      className={styles.toggle}
+      onClick={onToggleClick}
+      ref={setToggleButton}
+      title={t('toggleTitle')}
+      type="button"
+    >
+      <Badge aria-hidden="true" className={styles.toggleBadge} status={statusSummary} />
 
-      <Dropdown.Menu className={styles.menu}>{renderedStatusList}</Dropdown.Menu>
-    </Dropdown>
-  );
+      <span className={styles.statusLabel}>{t(statusSummary)}</span>
+
+      <ArrowDownSmallIcon aria-hidden="true" className={styles.arrow} />
+    </button>
+
+    <Overlay
+      placement="bottom-end"
+      popperConfig={TOP_BAR_POPOVER_POPPER_CONFIG}
+      show={isPopoverOpen}
+      target={systemStatusElement}
+    >
+      <StatusPopover id={popoverId} onClose={hidePopover} trigger={toggleButton} />
+    </Overlay>
+  </div>;
 };
 
 export default SystemStatus;

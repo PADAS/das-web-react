@@ -14,31 +14,35 @@
   },
   "nav": {
     "hamburgerMenuLabel": "Fungua Menyu Kuu",
-    "hamburgerMenuTitle": "Menyu",
     "messageMenu": {
-      "messageMenuToggleLabel": "Fungua Ujumbe",
-      "messageMenuToggleTitle": "Ujumbe"
+      "toggleLabel": "Ujumbe",
+      "unreadToggleLabel_one": "Ujumbe, {{count}} haijasomwa",
+      "unreadToggleLabel_other": "Ujumbe, {{count}} haijasomwa"
     },
     "navHomeMenu": {
-      "homeMenuToggleTitle": "Vifungo vya Haraka vya Ramani",
-      "myCurrentLocationItem": "Mahali Yangu ya Sasa"
+      "homeMenuLabel": "Vifungo vya Haraka vya Ramani",
+      "homeMenuToggleLabel": "Vifungo vya Haraka vya Ramani: {{mapTitle}}",
+      "myCurrentLocationOptionLabel": "Mahali Yangu ya Sasa"
     }
   },
   "notificationMenu": {
-    "errorFetchingHeader": "Hitilafu katika kupata taarifa za hivi karibuni.",
-    "noNewNotificationsHeader": "Hakuna taarifa mpya kwa sasa.",
-    "notificationItem": {
-      "confirmButton": "Thibitisha",
-      "dismissButton": "Ghairi",
-      "moreInformationLink": "Maelezo zaidi"
+    "notificationsPopover": {
+      "allNewsLink": "Ona habari zote",
+      "label": "Taarifa",
+      "newsFetchErrorMessage": "Hitilafu katika kupata taarifa za hivi karibuni.",
+      "noNotificationsMessage": "Hakuna taarifa mpya kwa sasa.",
+      "notificationItem": {
+        "confirmButton": "Thibitisha",
+        "dismissButton": "Ghairi",
+        "moreInformationLink": "Maelezo zaidi",
+        "readMoreLink": "Soma zaidi",
+        "unreadLabel": "Haijasomwa"
+      },
+      "retryButton": "Jaribu tena"
     },
-    "outdatedNotifications_one": "Una taarifa {{count}} isiyosomwa.",
-    "outdatedNotifications_other": "Una taarifa {{count}} zisizosomwa.",
-    "readMore": "Soma zaidi",
-    "seeAllNewsButton": "Ona habari zote >",
-    "toggleLabel": "Fungua Taarifa za EarthRanger",
-    "toggleTitle": "Taarifa za EarthRanger",
-    "tryAgainButton": "Jaribu tena"
+    "toggleLabel": "Taarifa",
+    "unreadToggleLabel_one": "Taarifa, {{count}} zisizosomwa",
+    "unreadToggleLabel_other": "Taarifa, {{count}} zisizosomwa"
   },
   "profilePINModal": {
     "error": "PIN isiyo sahihi",
@@ -50,12 +54,15 @@
     "dateTimeSuffix": "iliyopita",
     "HEALTHY": "Salama",
     "heartBeatDefTitle": "shughuli za mfumo",
-    "initialRealTimeStatusTitle": "Hali Halisi ya EarthRanger",
-    "initialRealTimeStatusDetails": "Shughuli",
     "initialNetworkStatusTitle": "Mtandao",
-    "networkOnlineLabel": "mtandaoni",
+    "initialRealTimeStatusDetails": "Shughuli",
+    "initialRealTimeStatusTitle": "Hali Halisi ya EarthRanger",
     "networkOfflineLabel": "haipo mtandaoni",
+    "networkOnlineLabel": "mtandaoni",
+    "popoverLabel": "Hali ya mfumo",
     "serverVersionLabel": "Seva ya EarthRanger {{version}}",
+    "toggleLabel": "Hali ya mfumo: {{status}}",
+    "toggleTitle": "Hali ya mfumo",
     "UNHEALTHY": "Isio Salama",
     "UNKNOWN": "Haijulikani",
     "WARNING": "Onyo"
@@ -63,8 +70,8 @@
   "userMenu": {
     "cookieSettingsItem": "Mipangilio ya Kidakuzi",
     "logoutItem": "Toka",
-    "toggleLabel": "Fungua Mipangilio ya Mtumiaji",
-    "toggleTitle": "Mipangilio ya Mtumiaji",
-    "userAndProfilesHeader": "Mtumiaji na Profaili"
+    "menuLabel": "Mipangilio ya Mtumiaji",
+    "toggleLabel": "Mipangilio ya Mtumiaji: {{username}}",
+    "userAndProfilesGroupLabel": "Mtumiaji na Profaili"
   }
 }

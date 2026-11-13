@@ -62,6 +62,68 @@
     "hideDetailsButton": "Ocultar Detalles",
     "showDetailsButton": "Mostrar Detalles"
   },
+  "feedTable": {
+    "clearSelectionButtonLabel": "Limpiar",
+    "clientSortFinishedMessage": "Ordenado por {{column}}: todas las filas cargadas",
+    "clientSortLoadingMessage": "Ordenando por {{column}}: {{loaded}} de {{total}} cargados",
+    "clientSortPausedMessage": "Ordenación en pausa: {{loaded}} de {{total}} cargados",
+    "clientSortRetryButtonLabel": "Reintentar",
+    "clientSortStartedMessage": "Cargando todas las filas para ordenar por {{column}}",
+    "columnsButtonLabel": "Columnas",
+    "columnsMenuLabel": "Columnas visibles",
+    "eventsTable": {
+      "bulkUpdateErrorMessage_one": "No se pudo actualizar {{count}} evento",
+      "bulkUpdateErrorMessage_other": "No se pudieron actualizar {{count}} eventos",
+      "bulkUpdateSuccessMessage_one": "{{count}} evento actualizado",
+      "bulkUpdateSuccessMessage_other": "{{count}} eventos actualizados",
+      "createdAtColumnTitle": "Creado",
+      "eventTimeColumnTitle": "Hora del evento",
+      "eventTypeColumnTitle": "Tipo",
+      "locationColumnTitle": "Ubicación",
+      "priorityColumnTitle": "Prioridad",
+      "reopenButtonLabel": "Reabrir",
+      "reportedByColumnTitle": "Reportado por",
+      "resolveButtonLabel": "Resolver",
+      "selectedCountMessage_one": "{{count}} seleccionado",
+      "selectedCountMessage_other": "{{count}} seleccionados",
+      "serialColumnTitle": "N.º de serie",
+      "stateColumnTitle": "Estado",
+      "titleColumnTitle": "Título",
+      "updatedAtColumnTitle": "Actualizado"
+    },
+    "exportButtonLabel": "Exportar todos los campos (CSV)",
+    "exportErrorMessage": "No se pudo exportar el CSV",
+    "grid": {
+      "noRowsMessage": "No hay nada que mostrar"
+    },
+    "headerCell": {
+      "allRowsCheckboxLabel": "Seleccionar todas las filas"
+    },
+    "moveColumnHintMessage": "Presione Alt y la flecha izquierda o derecha en el encabezado de una columna para moverla.",
+    "objectViewModal": {
+      "breadcrumbLabel": "Ruta",
+      "itemCountMessage_one": "{{count}} elemento",
+      "itemCountMessage_other": "{{count}} elementos",
+      "openButtonLabel": "Ver"
+    },
+    "patrolsTable": {
+      "leaderColumnTitle": "Líder",
+      "legsColumnTitle": "Tramos",
+      "loadedPatrolsMessage_one": "Mostrando {{loaded}} de {{count}} patrulla",
+      "loadedPatrolsMessage_other": "Mostrando {{loaded}} de {{count}} patrullas",
+      "patrolEndColumnTitle": "Fin",
+      "patrolStartColumnTitle": "Inicio",
+      "patrolTypeColumnTitle": "Tipo de patrulla",
+      "serialColumnTitle": "N.º de serie",
+      "stateColumnTitle": "Estado",
+      "titleColumnTitle": "Título"
+    },
+    "selectedCountMessage_one": "{{count}} seleccionado",
+    "selectedCountMessage_other": "{{count}} seleccionados",
+    "titleCell": {
+      "rowCheckboxLabel": "Seleccionar {{title}}"
+    }
+  },
   "geoLocationWatcher": {
     "shareLocationToastMessage": "Comparte tu ubicación para ver datos con permisos geográficos.",
     "shareLocationToastTitle": "Aprende cómo"
@@ -242,6 +304,8 @@
       "closeButtonLabel": "Cerrar barra lateral"
     },
     "eventsLink": "Eventos",
+    "eventsLinkWithUpdatesLabel_one": "Eventos, {{count}} nuevo o actualizado",
+    "eventsLinkWithUpdatesLabel_other": "Eventos, {{count}} nuevos o actualizados",
     "gearLink": "Aparejos",
     "gearTab": {
       "loadErrorFallback": "Error en la solicitud",
@@ -276,9 +340,11 @@
           "legend": "Recargar la página",
           "mapLayersCheckboxLabel": "Capas de mapa",
           "mapPositionAndZoomLevelCheckboxLabel": "Posición del mapa y nivel de zoom",
-          "patrolFiltersCheckboxLabel": "Filtros de patrullas"
+          "patrolFiltersCheckboxLabel": "Filtros de patrullas",
+          "tableViewCheckboxLabel": "Vista de tabla"
         },
         "experimentalFeaturesFieldSet": {
+          "FEED_TABLE": "Vista de tabla para eventos y patrullas",
           "legend": "Funcionalidades experimentales"
         },
         "languageSelect": {
@@ -372,6 +438,8 @@
       },
       "mapTabTitle": "Mapa"
     },
+    "showListButtonLabel": "Mostrar como lista",
+    "showTableButtonLabel": "Mostrar como tabla",
     "titleInput": {
       "editButtonLabel": "Editar título"
     }
