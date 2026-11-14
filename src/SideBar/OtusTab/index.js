@@ -5,10 +5,12 @@ import { useTranslation } from 'react-i18next';
 
 import { BREAKPOINTS, DAS_HOST, SIDEBAR_WIDTH_PIXELS, VERTICAL_NAV_RAIL_WIDTH_PIXELS } from '../../constants';
 import { calcMaxOtusTabWidth, clampOtusTabWidth } from '../../utils/otus';
+import { HOST_TOOL_SPECS, HOST_TOOLS_VERSION } from '../../hostActions';
 import { selectOtusTabWidth } from '../../selectors/otus';
 import { updateUserPreferences } from '../../ducks/user-preferences';
 import { useMatchMedia } from '../../hooks';
 import useNavigate from '../../hooks/useNavigate';
+import useRunHostAction from '../../hostActions/useRunHostAction';
 
 import LoadingOverlay from '../../LoadingOverlay';
 
@@ -23,6 +25,8 @@ export const OTUS_MESSAGE_TYPES = {
   COMMAND: 'otus:command',
   CONNECT: 'otus:connect',
   READY: 'otus:ready',
+  TOOL_CALL: 'otus:tool-call',
+  TOOL_RESULT: 'otus:tool-result',
   THREADS: 'otus:threads',
 };
 // Longer than the 8 seconds Otus itself waits for the token.
@@ -41,6 +45,7 @@ const OtusTab = ({ isActive, url }) => {
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
   const navigate = useNavigate();
+  const runHostAction = useRunHostAction();
 
   const otusTabWidth = useSelector(selectOtusTabWidth);
   const token = useSelector((state) => state.data.token?.access_token);
@@ -89,7 +94,13 @@ const OtusTab = ({ isActive, url }) => {
 
   const postConnect = useCallback(() => {
     iframeRef.current?.contentWindow?.postMessage(
-      { site_url: DAS_HOST, token, type: OTUS_MESSAGE_TYPES.CONNECT },
+      {
+        site_url: DAS_HOST,
+        token,
+        tools: HOST_TOOL_SPECS,
+        tools_version: HOST_TOOLS_VERSION,
+        type: OTUS_MESSAGE_TYPES.CONNECT,
+      },
       otusOrigin
     );
   }, [otusOrigin, token]);
@@ -164,6 +175,26 @@ const OtusTab = ({ isActive, url }) => {
 
     return () => window.removeEventListener('message', onMessage);
   }, [frameKey, otusOrigin, postConnect, token]);
+
+  useEffect(() => {
+    const onMessage = async (event) => {
+      if (event.origin === otusOrigin
+        && event.source === iframeRef.current?.contentWindow
+        && event.data?.type === OTUS_MESSAGE_TYPES.TOOL_CALL) {
+        const { source } = event;
+        const { id, name, arguments: args } = event.data;
+
+        source.postMessage(
+          { id, ...await runHostAction(name, args), type: OTUS_MESSAGE_TYPES.TOOL_RESULT },
+          otusOrigin
+        );
+      }
+    };
+
+    window.addEventListener('message', onMessage);
+
+    return () => window.removeEventListener('message', onMessage);
+  }, [otusOrigin, runHostAction]);
 
   useEffect(() => {
     if (isWaitingForReady) {

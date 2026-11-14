@@ -34,7 +34,7 @@ import SoundNotificationsPlayer from '../SoundNotificationsPlayer';
 import EventsManager from './EventsManager';
 import GearTab from './GearTab';
 import MapLayersTab from './MapLayersTab';
-import OtusTab from './OtusTab';
+import AtlasActionsPlayground from './AtlasActionsPlayground';
 import PatrolsFeed from './PatrolsFeed';
 import PatrolsManager from './PatrolsManager';
 import SettingsPane from './SettingsPane';
@@ -85,7 +85,8 @@ const SideBar = () => {
   const isEventDetailViewActive = eventsEnabled
     && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), location.pathname);
 
-  const shouldShowOtusTab = !!otusUrl;
+  // Prototype: the actions playground stands in for Atlas on every site.
+  const shouldShowOtusTab = true;
 
   const isOtusTabActive = shouldShowOtusTab && currentTab === TAB_KEYS.OTUS;
 
@@ -131,8 +132,7 @@ const SideBar = () => {
   const shouldHideDefaultHeader = (patrolSchemasEnabled
     && canReadPatrols
     && !!matchPath(detailViewPattern(TAB_KEYS.PATROLS), displayedPathname))
-    || (eventsEnabled && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), displayedPathname))
-    || (shouldShowOtusTab && displayedTab === TAB_KEYS.OTUS);
+    || (eventsEnabled && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), displayedPathname));
 
   const onBackButtonClick = () => {
     if (location.key === 'default' || location.state?.comesFromLogin || location.state?.comesFromLngLatRedirection) {
@@ -306,7 +306,9 @@ const SideBar = () => {
                 />}
             </div>}
 
-            <h3 id="side-bar-tab-header">{t(`${displayedTab}Link`)}</h3>
+            <h3 id="side-bar-tab-header">
+              {t(displayedTab === TAB_KEYS.OTUS ? 'otusLink' : `${displayedTab}Link`)}
+            </h3>
           </div>
 
           <div className={styles.headerActions}>
@@ -335,8 +337,8 @@ const SideBar = () => {
         </div>}
 
         <div className={`${styles.tabBody} ${shouldHideDefaultHeader ? styles.noHeader : ''}`}>
-          {/* Outside the routes so a tab switch keeps the frame mounted. */}
-          {shouldShowOtusTab && <OtusTab isActive={displayedTab === TAB_KEYS.OTUS} url={otusUrl} />}
+          {/* Outside the routes so a run survives the trip to the view it switched to. */}
+          {shouldShowOtusTab && <AtlasActionsPlayground isActive={displayedTab === TAB_KEYS.OTUS} />}
 
           <Routes location={tabLocation ?? location}>
             {/* Gets rid of warning */}

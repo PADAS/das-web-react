@@ -125,7 +125,6 @@ const GlobalMenuDrawer = () => {
   const hasGear = useSelector((state) => state.data.gear.hasGear);
   const isDrawerOpen = useSelector((state) => state.view.drawer.isOpen);
   const kmlExportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT]);
-  const otusUrl = useSelector((state) => state.view.systemConfig.otusUrl);
   const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
   const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
   const serverVersion = useSelector((state) => state.data.systemStatus.server.version);
@@ -217,9 +216,10 @@ const GlobalMenuDrawer = () => {
     ...(analyzersEnabled || spatialFeaturesEnabled || subjectsEnabled || eventsEnabled
       ? [{ Icon: LayersIcon, sidebarTab: TAB_KEYS.LAYERS, title: t('navigationButton.mapLayers') }]
       : []),
-    ...(otusUrl ? [{ Icon: OtusIcon, sidebarTab: TAB_KEYS.OTUS, title: t('navigationButton.otus') }] : []),
+    // Prototype: the actions playground stands in for Atlas on every site.
+    { Icon: OtusIcon, sidebarTab: TAB_KEYS.OTUS, title: t('navigationButton.otus') },
     { Icon: GearIcon, sidebarTab: TAB_KEYS.SETTINGS, title: t('navigationButton.settings') },
-  ], [analyzersEnabled, canReadPatrols, eventsEnabled, hasGear, otusUrl, spatialFeaturesEnabled, subjectsEnabled, t]);
+  ], [analyzersEnabled, canReadPatrols, eventsEnabled, hasGear, spatialFeaturesEnabled, subjectsEnabled, t]);
 
   const openTableauReport = async () => {
     tableauAnalysisTracker.track('Click Analysis (via Tableau) menu item');

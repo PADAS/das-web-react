@@ -156,11 +156,11 @@ describe('GlobalMenuDrawer', () => {
     expect(within(screen.getByRole('navigation')).getByRole('link', { name: 'Atlas' })).toBeVisible();
   });
 
-  test('does not show the Otus link in small screens when there is no Otus URL', async () => {
+  test('shows the Otus link in small screens even when there is no Otus URL', async () => {
     useMatchMedia.mockImplementation(() => false);
     renderGlobalMenuDrawer();
 
-    expect(screen.queryByRole('link', { name: 'Atlas' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Atlas' })).toBeInTheDocument();
   });
 
   test('does not show the Events link if events are not enabled', async () => {

@@ -76,3 +76,28 @@
     display: none;
   }
 }
+
+.atlasDraft {
+  background-color: colors.$light-gray-background;
+  border-left: 3px solid colors.$bright-blue;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+
+  p {
+    margin: 0;
+  }
+
+  ul {
+    margin: 0.25rem 0;
+  }
+}
+
+.atlasDraftBanner {
+  font-weight: 500;
+}
+
+.atlasDraftButtons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}

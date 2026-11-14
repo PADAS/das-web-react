@@ -1,4 +1,8 @@
 {
+  "atlasDraft": {
+    "badge": "Filled by Atlas",
+    "keep": "Keep"
+  },
   "errors": {
     "alphanumericPattern": "Only letters and numbers are allowed.",
     "collectionItems": "Some items of this collection have errors in their inner forms.",

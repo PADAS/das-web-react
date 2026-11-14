@@ -1,5 +1,7 @@
 import { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import Button from 'react-bootstrap/Button';
 import debounce from 'lodash/debounce';
+import isEqual from 'react-fast-compare';
 import pick from 'lodash/pick';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
@@ -11,9 +13,11 @@ import { ReactComponent as LinkIcon } from '../../../../common/images/icons/link
 import { ReactComponent as PencilWritingIcon } from '../../../../common/images/icons/pencil-writing.svg';
 
 import * as activitySectionStyles from '../../../../DetailViewComponents/ActivitySection/styles.module.scss';
+import { AtlasDraftContext } from '../../../../SchemaForm/AtlasDraftContext';
 import { addEventToIncident, createEvent, fetchEvent, setEventState } from '../../../../ducks/events';
 import { areCardsEquals as areNotesEqual } from '../../../../DetailViewComponents/utils';
 import { calcTitleAndSubtitle } from '../../../../utils/titles';
+import { DRAFTED_BY_ATLAS } from '../../../../hostActions/draftNewEventTool';
 import { convertFileListToArray, filterDuplicateUploadFilenames } from '../../../../utils/file';
 import {
   createNewIncidentCollection,
@@ -211,6 +215,36 @@ const ReportDetailView = ({
       : null,
     [eventSchema, eventType?.version]
   );
+
+  // Atlas's values ride in the navigation, outside the form, so the person
+  // cannot drop the record that Atlas drafted the event.
+  const atlasDraft = isNewReport && reportData?.draftedBy === DRAFTED_BY_ATLAS ? reportData : null;
+  const currentUser = useSelector((state) => state.data.user);
+  const [keptAtlasFieldIds, setKeptAtlasFieldIds] = useState([]);
+  const [isAtlasReviewPromptOpen, setIsAtlasReviewPromptOpen] = useState(false);
+
+  const atlasFieldReview = useMemo(() => {
+    if (!atlasDraft) return null;
+
+    const filledIds = Object.keys(atlasDraft.eventDetails);
+    const changedIds = filledIds.filter(
+      (fieldId) => !isEqual(reportForm.event_details?.[fieldId], atlasDraft.eventDetails[fieldId])
+    );
+    const unchangedIds = filledIds.filter((fieldId) => !changedIds.includes(fieldId));
+
+    return {
+      changedIds,
+      pendingIds: unchangedIds.filter((fieldId) => !keptAtlasFieldIds.includes(fieldId)),
+      unchangedIds,
+    };
+  }, [atlasDraft, keptAtlasFieldIds, reportForm.event_details]);
+
+  const atlasDraftContextValue = useMemo(() => atlasFieldReview && {
+    onKeepField: (fieldId) => setKeptAtlasFieldIds((fieldIds) => [...fieldIds, fieldId]),
+    pendingFieldIds: atlasFieldReview.pendingIds,
+  }, [atlasFieldReview]);
+
+  const getFieldLabel = useCallback((fieldId) => formElements?.[fieldId]?.details.label || fieldId, [formElements]);
 
   const {
     onCancelAddedReport,
@@ -415,6 +449,19 @@ const ReportDetailView = ({
       (accumulator, noteToAdd) => noteToAdd.text ? [...accumulator, { text: noteToAdd.text.trim(), tmpId: undefined }] : accumulator,
       []
     );
+    if (atlasFieldReview) {
+      const noneLabel = t('reportDetailView.atlasDraft.noneLabel');
+      const userName = `${currentUser?.first_name ?? ''} ${currentUser?.last_name ?? ''}`.trim() || currentUser?.username;
+      newNotes.push({
+        text: t('reportDetailView.atlasDraft.note', {
+          changed: atlasFieldReview.changedIds.map(getFieldLabel).join(', ') || noneLabel,
+          kept: atlasFieldReview.unchangedIds.map(getFieldLabel).join(', ') || noneLabel,
+          user: userName,
+        }),
+        tmpId: undefined,
+      });
+    }
+
     const newAttachments = attachmentsToAdd.map((attachmentToAdd) => attachmentToAdd.file);
     const saveActions = generateSaveActionsForReportLikeObject(reportToSubmit, 'report', newNotes, newAttachments, communityInputValue);
     return executeSaveActions(saveActions)
@@ -437,10 +484,13 @@ const ReportDetailView = ({
       .catch(onSaveError)
       .finally(() => setIsSaving(false));
   }, [
+    atlasFieldReview,
     attachmentsToAdd,
     communityInputValue,
+    currentUser,
     dispatch,
     formElements,
+    getFieldLabel,
     isAddedReport,
     isCommunity,
     isNewReport,
@@ -453,6 +503,7 @@ const ReportDetailView = ({
     reportForm,
     reportTracker,
     reportWithStoreFields.contains,
+    t,
   ]);
 
   // Once saved, a new event opens at its own path, linked or not.
@@ -537,10 +588,19 @@ const ReportDetailView = ({
     setSaveError([...formattedErrors]);
   }, [eventSchema?.schema?.properties]);
 
-  const onFormSubmit = useCallback(
-    () => onSaveReport(isCommunity ? null : `/${TAB_KEYS.EVENTS}`),
-    [isCommunity, onSaveReport]
-  );
+  const onFormSubmit = useCallback(() => {
+    if (atlasFieldReview?.pendingIds.length) {
+      setIsAtlasReviewPromptOpen(true);
+      return;
+    }
+
+    return onSaveReport(isCommunity ? null : `/${TAB_KEYS.EVENTS}`);
+  }, [atlasFieldReview, isCommunity, onSaveReport]);
+
+  const onSaveWithUncheckedAtlasFields = useCallback(() => {
+    setIsAtlasReviewPromptOpen(false);
+    onSaveReport(isCommunity ? null : `/${TAB_KEYS.EVENTS}`);
+  }, [isCommunity, onSaveReport]);
 
   const onFormDataChange = useCallback((formData) => {
     setReportForm((reportForm) => ({
@@ -746,6 +806,11 @@ const ReportDetailView = ({
   }, [isNewReport, reportTracker]);
 
   const onNavigationContinue = useCallback(async (shouldSave = false) => {
+    if (shouldSave && atlasFieldReview?.pendingIds.length) {
+      setIsAtlasReviewPromptOpen(true);
+      return false;
+    }
+
     if (shouldSave && !isPatrolAddedReport) {
       onClickSaveButton();
       return !formValidator.validateFormData(reportForm, eventSchema?.schema)?.errors?.length;
@@ -764,6 +829,7 @@ const ReportDetailView = ({
 
     return true;
   }, [
+    atlasFieldReview,
     eventSchema?.schema,
     isPatrolAddedReport,
     onClickSaveButton,
@@ -879,6 +945,23 @@ const ReportDetailView = ({
       savedState={originalReport.state}
     />
 
+    {atlasDraft && <div className={styles.atlasDraft} role="note">
+      <p className={styles.atlasDraftBanner}>{t('reportDetailView.atlasDraft.banner')}</p>
+
+      {isAtlasReviewPromptOpen && <div role="alert">
+        <p>{t('reportDetailView.atlasDraft.reviewPrompt')}</p>
+        <ul>{atlasFieldReview.pendingIds.map((fieldId) => <li key={fieldId}>{getFieldLabel(fieldId)}</li>)}</ul>
+        <div className={styles.atlasDraftButtons}>
+          <Button onClick={() => setIsAtlasReviewPromptOpen(false)} size="sm" type="button" variant="secondary">
+            {t('reportDetailView.atlasDraft.reviewButton')}
+          </Button>
+          <Button onClick={onSaveWithUncheckedAtlasFields} size="sm" type="button" variant="primary">
+            {t('reportDetailView.atlasDraft.saveAnywayButton')}
+          </Button>
+        </div>
+      </div>}
+    </div>}
+
     {saveError && <ErrorMessages
       errorData={saveError}
       onClose={onClearErrors}
@@ -924,7 +1007,7 @@ const ReportDetailView = ({
         <div className={styles.content}>
           <QuickLinks.SectionsWrapper>
             <QuickLinks.Section anchorTitle={t('reportDetailView.quickLinks.detailsAnchor')}>
-              <DetailsSection
+              <AtlasDraftContext.Provider value={atlasDraftContextValue}><DetailsSection
                 communityInputValue={communityInputValue}
                 eventSchema={eventSchema}
                 hidePriority={hidePriority}
@@ -945,7 +1028,7 @@ const ReportDetailView = ({
                 reportForm={reportForm}
                 submitFormButtonRef={submitFormButtonRef}
                 formValidator={formValidator}
-              />
+              /></AtlasDraftContext.Provider>
             </QuickLinks.Section>
 
             {shouldRenderActivitySection && <div className={styles.sectionSeparation} />}

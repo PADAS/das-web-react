@@ -4,6 +4,7 @@ import { merge } from 'lodash-es';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { AtlasDraftedField } from './AtlasDraftContext';
 import { clearUserContent } from '../ducks/user-content';
 import evaluateSectionConditions from '../utils/form-schemas/evaluateSectionConditions';
 import { FORM_ELEMENT_TYPES, ROOT_CANVAS_ID } from '../utils/form-schemas/constants';
@@ -174,7 +175,7 @@ const SchemaForm = ({
   };
 
   // This method is designed to render form elements inside sections and collections.
-  const renderFormElement = (id, value, onChange, error, focusLocationMarker, breadcrumbs = []) => {
+  const renderFormElementContent = (id, value, onChange, error, focusLocationMarker, breadcrumbs = []) => {
     switch (formElements[id].type) {
     case FORM_ELEMENT_TYPES.ATTACHMENT:
       return <Attachment
@@ -249,6 +250,10 @@ const SchemaForm = ({
     }
     }
   };
+
+  const renderFormElement = (id, ...args) => <AtlasDraftedField fieldId={id} key={id}>
+    {renderFormElementContent(id, ...args)}
+  </AtlasDraftedField>;
 
   useEffect(() => {
     // Calculate the initial form data (default input values).
