@@ -5,6 +5,8 @@ import Overlay from 'react-bootstrap/Overlay';
 import { Trans, useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { ReactComponent as ArrowDownSmallIcon } from '../common/images/icons/arrow-down-small.svg';
+
 import { calcFriendlyDurationString } from '../utils/datetime';
 import { DEFAULT_EVENT_SORT, POPOVER_POPPER_CONFIG } from '../constants';
 import { INITIAL_FILTER_STATE, updateEventFilter } from '../ducks/event-filter';
@@ -138,6 +140,8 @@ const EventFilter = ({ children, className = '', isSortable = false, summaryActi
           type="button"
         >
           {t('filtersTitle')}
+
+          <ArrowDownSmallIcon aria-hidden="true" />
         </button>
 
         <button
@@ -151,6 +155,8 @@ const EventFilter = ({ children, className = '', isSortable = false, summaryActi
           type="button"
         >
           {t('datesTitle')}
+
+          <ArrowDownSmallIcon aria-hidden="true" />
         </button>
 
         {children}

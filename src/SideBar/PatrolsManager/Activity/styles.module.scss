@@ -44,7 +44,7 @@
       }
 
       .collapseExpandAllButton {
-        @include buttons.chip-text-button;
+        @include buttons.chip-outline-button;
       }
     }
   }

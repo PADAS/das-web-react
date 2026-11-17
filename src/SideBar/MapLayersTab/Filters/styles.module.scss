@@ -11,6 +11,7 @@
   }
 
   .searchBar {
+    min-width: 0;
     width: 60%;
     
     @media (min-width: layout.$md-layout-width-min) {

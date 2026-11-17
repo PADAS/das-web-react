@@ -53,7 +53,7 @@ $card-expansion-transition-time: 300ms;
     }
 
     .expandCollapseButton {
-      @include buttons.chip-text-button;
+      @include buttons.chip-outline-button;
     }
   }
 }

@@ -15,7 +15,25 @@
 
   .button {
     &.normal {
-      @include mixins.button-background('tracks_off');
+      background-color: var(--er-ui-cta-secondary);
+      background-image: none;
+      position: relative;
+
+      &:not(.visible, .pinned)::before {
+        background-color: var(--er-ui-cta-text);
+        content: '';
+        inset: 0;
+        mask: url('../common/images/icons/tracks_off.svg') center / cover no-repeat;
+        position: absolute;
+      }
+
+      &:where(:hover) {
+        background-color: colors.deepen(
+          var(--er-ui-cta-secondary),
+          var(--er-ui-cta-text),
+          colors.$tint-hover-deepen
+        );
+      }
     }
 
     &.transparent {

@@ -64,6 +64,10 @@
         flex-shrink: 0;
         gap: 0.5rem;
 
+        .chevronButton {
+          @include buttons.icon-button;
+        }
+
         .settingsButton {
           @include buttons.chip-icon-button;
           @include buttons.chip-active-state;

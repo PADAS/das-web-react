@@ -11,6 +11,7 @@
     padding: 0.75rem;
 
     .searchBar {
+      min-width: 0;
       width: 60%;
 
       @media (min-width: layout.$md-layout-width-min) {
@@ -26,8 +27,8 @@
       width: 100%;
 
       .triggerButton {
-        @include buttons.chip-text-button;
-        @include buttons.chip-active-state;
+        @include buttons.chip-outline-button;
+        @include buttons.chip-outline-active-state;
 
         flex-shrink: 0;
       }

@@ -5,6 +5,8 @@ import Overlay from 'react-bootstrap/Overlay';
 import { Trans, useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { ReactComponent as ArrowDownSmallIcon } from '../../../../common/images/icons/arrow-down-small.svg';
+
 import { calcFriendlyDurationString } from '../../../../utils/datetime';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../../../../ducks/patrol-filter';
 import { isFilterModified } from '../../../../utils/patrol-filter';
@@ -134,6 +136,8 @@ const Filters = ({ resultCount, summaryActionsRef }) => {
           type="button"
         >
           {t('filtersTitle')}
+
+          <ArrowDownSmallIcon aria-hidden="true" />
         </button>
 
         <button
@@ -147,6 +151,8 @@ const Filters = ({ resultCount, summaryActionsRef }) => {
           type="button"
         >
           {t('datesTitle')}
+
+          <ArrowDownSmallIcon aria-hidden="true" />
         </button>
       </div>
     </div>
