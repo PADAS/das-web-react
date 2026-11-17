@@ -10,7 +10,7 @@ import useNavigate from '../../hooks/useNavigate';
 
 import * as styles from './styles.module.scss';
 
-const EcoscopeTab = () => {
+const EcoscopeTab = ({ isActive }) => {
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.ecoscopeTab' });
 
   const navigate = useNavigate();
@@ -18,14 +18,19 @@ const EcoscopeTab = () => {
   const accessToken = useSelector((state) => state.data.token?.access_token);
 
   const accessTokenRef = useRef(accessToken);
+  const controllerRef = useRef(null);
   const formRef = useRef(null);
   const launchCodeRef = useRef(null);
 
   const frameName = useId();
 
   const [attempt, setAttempt] = useState(0);
+  const [hasBeenActivated, setHasBeenActivated] = useState(isActive);
+  const [hasConnectionEnded, setHasConnectionEnded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [launch, setLaunch] = useState(null);
+
+  if (isActive && !hasBeenActivated && !hasConnectionEnded) setHasBeenActivated(true);
 
   const onFrameLoad = () => {
     if (launchCodeRef.current && formRef.current) {
@@ -44,7 +49,14 @@ const EcoscopeTab = () => {
   };
 
   useEffect(() => {
+    accessTokenRef.current = accessToken;
+  }, [accessToken]);
+
+  useEffect(() => {
+    if (!hasBeenActivated || hasConnectionEnded) return;
+
     const controller = new AbortController();
+    controllerRef.current = controller;
     requestEcoscopeLaunch(accessTokenRef.current, AbortSignal.any([controller.signal, AbortSignal.timeout(20000)]))
       .then((response) => {
         if (!controller.signal.aborted) {
@@ -60,16 +72,21 @@ const EcoscopeTab = () => {
       controller.abort();
       launchCodeRef.current = null;
     };
-  }, [attempt]);
+  }, [attempt, hasBeenActivated, hasConnectionEnded]);
 
   useEffect(() => {
     const onLogout = () => {
+      controllerRef.current?.abort();
       launchCodeRef.current = null;
+      setHasConnectionEnded(true);
       setLaunch(null);
-      navigate('/', { replace: true });
+      if (isActive) navigate('/', { replace: true });
     };
     const onStorage = (event) => {
-      if (event.key === ECOSCOPE_CONNECTION_KEY && !event.newValue) onLogout();
+      if (event.key === null
+        || (event.key === ECOSCOPE_CONNECTION_KEY && event.oldValue && event.newValue !== event.oldValue)) {
+        onLogout();
+      }
     };
     window.addEventListener(ECOSCOPE_LOGOUT_EVENT, onLogout);
     window.addEventListener('storage', onStorage);
@@ -77,9 +94,16 @@ const EcoscopeTab = () => {
       window.removeEventListener(ECOSCOPE_LOGOUT_EVENT, onLogout);
       window.removeEventListener('storage', onStorage);
     };
-  }, [navigate]);
+  }, [isActive, navigate]);
 
-  return <section aria-label={t('workspaceLabel')} className={styles.ecoscopeTab}>
+  if (!hasBeenActivated || hasConnectionEnded) return null;
+
+  return <section
+    aria-label={t('workspaceLabel')}
+    className={styles.ecoscopeTab}
+    hidden={!isActive}
+    inert={!isActive}
+  >
     <header className={styles.header}>
       <div className={styles.brand}>
         <EcoscopeLogoIcon aria-hidden="true" />

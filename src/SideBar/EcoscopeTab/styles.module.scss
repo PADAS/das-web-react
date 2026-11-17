@@ -9,6 +9,10 @@
   height: 100%;
   min-height: 0;
 
+  &[hidden] {
+    display: none;
+  }
+
   .header {
     align-items: center;
     border-bottom: 1px solid colors.$ui-divider-lines;

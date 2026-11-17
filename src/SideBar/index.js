@@ -60,6 +60,7 @@ const SideBar = () => {
   const patrolSchemasEnabled = usePreviewFeature(PREVIEW_FEATURES.PATROL_SCHEMAS);
 
   const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
+  const ecoscopeUserId = useSelector((state) => state.data.user?.id);
   const eventsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EVENTS]);
   const hasGear = useSelector((state) => state.data.gear.hasGear);
   const isGearEndpointUnavailable = useSelector((state) => state.data.gear.gearEndpointUnavailable);
@@ -349,6 +350,11 @@ const SideBar = () => {
 
         <div className={`${styles.tabBody} ${shouldHideDefaultHeader ? styles.noHeader : ''}`}>
           {/* Outside the routes so a tab switch keeps the frame mounted. */}
+          {ECOSCOPE_ENABLED && ecoscopeUserId && <EcoscopeTab
+            isActive={isSideBarOpen && displayedTab === TAB_KEYS.ANALYSIS}
+            key={ecoscopeUserId}
+          />}
+
           {shouldShowOtusTab && <OtusTab isActive={displayedTab === TAB_KEYS.OTUS} url={otusUrl} />}
 
           <Routes location={tabLocation ?? location}>
@@ -381,7 +387,7 @@ const SideBar = () => {
 
             {shouldShowOtusTab && <Route path={TAB_KEYS.OTUS} element={null} />}
 
-            {ECOSCOPE_ENABLED && <Route element={<EcoscopeTab />} path={TAB_KEYS.ANALYSIS} />}
+            {ECOSCOPE_ENABLED && <Route element={null} path={TAB_KEYS.ANALYSIS} />}
 
             <Route path={TAB_KEYS.SETTINGS} element={<SettingsPane />} />
           </Routes>

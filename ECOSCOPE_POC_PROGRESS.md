@@ -52,3 +52,21 @@
 
 1. L’utilisateur autorise un commit local unique de tous les changements ERWeb du POC, sans push. Diff complet et quatre fichiers non suivis relus. Aucun secret, fichier .env, build, dépendance ou artefact généré inclus.
 2. Derniers lint/stylelint/build déjà réussis ; aucun changement source depuis cette validation. Hooks Git normaux conservés.
+
+## Conservation de la navigation Ecoscope entre onglets ERWeb
+
+1. Diagnostic : `EcoscopeTab` était l’élément de la Route Analyse ; tout départ démontait son iframe. Il est désormais monté hors Routes, avec une identité stable liée à l’utilisateur ER principal, et ne démarre qu’à la première ouverture Analyse.
+2. Les changements d’onglet modifient uniquement `hidden` et `inert` (avec `display:none` explicite). L’état launch, l’URL src et la clé de l’iframe ne dépendent pas de l’onglet : même document conservé pour sa navigation/travail interne.
+3. Un renouvellement du bearer actualise seulement la référence pour un futur lancement/réessai ; il ne relance pas l’iframe. Le reducer utilisateur conserve son id pendant chargement et changement de profil ; aucun remount transitoire provoqué par ces opérations.
+4. Déconnexion/changement de connexion : annulation immédiate du lancement en cours, effacement du code et de l’iframe, état terminé empêchant la réactivation via tabLocation mémorisée. Écoute des changements de connexion inter-onglets et remise à zéro sur changement réel d’utilisateur. Aucun nouveau polling ni changement du protocole d’authentification.
+5. Vérifications : ESLint et Stylelint ciblés, `git diff --check`, relecture de chaque hunk : réussis. Suite existante SideBar : 72 tests réussis, avec `--watchman=false` après refus d’accès local Watchman. Aucun nouveau test/fichier de test modifié. Build complet Node26.13.1/Yarn4 : réussi, service worker inclus.
+6. HMR prêt pour vérification manuelle par coordinateur : navigation interne Ecoscope, départ Événements/Calques/Réglages puis retour avec même DOM/frame ; déconnexion ER avec Analyse masquée, puis reconnexion sans ancien état. Vite9000 conservé ; aucun commit/push pour cette demande.
+
+## Validation IAB de la persistance — résultats du coordinateur
+
+1. Réussi : Sources de données → Événements → Analyse conserve la même iframe (name/src) et la page interne.
+2. Réussi : Mes workflows avec recherche « QA » → Calques puis Réglages → retours Analyse conserve la recherche et le même name/src. Masquée : une iframe, invisible, section hidden=true.
+3. Réussi : nouvel onglet ER sur /events ne monte aucune iframe avant première ouverture Analyse.
+4. Réussi : déconnexion ER alors qu’Analyse est masquée mène à /login, sans iframe. Après reconnexion : aucune iframe avant Analyse, puis nouvelle iframe et nouvelle transaction, recherche vide et réouverture sans mot de passe Ecoscope (liaison conservée).
+5. Contrôles existants : 1 suite SideBar, 72 tests réussis ; ESLint/Stylelint ciblés et build complet réussis. `--watchman=false` remplace uniquement Watchman par le crawler standard Jest : aucune sélection additionnelle, aucun skip, aucune modification de seuil ou configuration des tests.
+6. Commit complémentaire local autorisé après cette validation ; commit initial conservé sans amendement, aucun push/PR.
