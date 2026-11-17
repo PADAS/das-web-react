@@ -12,7 +12,12 @@ export const REACT_APP_GA4_TRACKING_ID = import.meta.env.REACT_APP_GA4_TRACKING_
 export const REACT_APP_BASE_MAP_STYLES = import.meta.env.REACT_APP_BASE_MAP_STYLES;
 export const REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS = import.meta.env.REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS;
 export const REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS = import.meta.env.REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS;
+export const REACT_APP_ECOSCOPE_API_URL = import.meta.env.REACT_APP_ECOSCOPE_API_URL;
+export const REACT_APP_ECOSCOPE_SITE_ID = import.meta.env.REACT_APP_ECOSCOPE_SITE_ID;
+export const REACT_APP_ECOSCOPE_URL = import.meta.env.REACT_APP_ECOSCOPE_URL;
 export const REACT_APP_OTUS_URL = import.meta.env.REACT_APP_OTUS_URL;
+
+export const ECOSCOPE_ENABLED = !!(REACT_APP_ECOSCOPE_URL && REACT_APP_ECOSCOPE_API_URL && REACT_APP_ECOSCOPE_SITE_ID);
 
 export const DAS_HOST = import.meta.env.REACT_APP_DAS_HOST
   || `${window.location.protocol}//${window.location.host}`;
@@ -69,6 +74,7 @@ export const PATROL_API_STATES = {
 export const PATROL_TYPE_QUERY_PARAMETER = 'patrol-type';
 
 export const TAB_KEYS = {
+  ANALYSIS: 'analysis',
   EVENTS: 'events',
   GEAR: 'gear',
   LAYERS: 'layers',

@@ -1,0 +1,60 @@
+@use '../../common/styles/buttons';
+@use '../../common/styles/vars/colors';
+
+.ecoscopeTab {
+  background: colors.$white;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+
+  .header {
+    align-items: center;
+    border-bottom: 1px solid colors.$ui-divider-lines;
+    display: flex;
+    flex-shrink: 0;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+  }
+
+  .brand {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+
+    svg {
+      height: 2.5rem;
+      width: 2.5rem;
+    }
+
+    h2 {
+      font-size: 1.125rem;
+      margin: 0;
+    }
+
+    span {
+      color: colors.$ui-text-secondary;
+      font-size: 0.875rem;
+    }
+  }
+
+  .status {
+    margin: auto;
+    padding: 2rem;
+    text-align: center;
+
+    .retryButton {
+      @include buttons.chip-text-button;
+
+      margin: 0 auto;
+    }
+  }
+
+  .frame {
+    border: 0;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+  }
+}

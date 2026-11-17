@@ -287,11 +287,22 @@
     "addEventButtonTitle": "Unda Tukio",
     "addPatrolButtonLabel": "Unda Doria",
     "addPatrolButtonTitle": "Unda Doria",
+    "analysisLink": "Uchambuzi",
     "backButtonLabel": "Nenda Nyuma",
     "backButtonTitle": "Nyuma",
     "closeButtonLabel": "Funga upau wa pembeni",
     "detailViewHeader": {
       "closeButtonLabel": "Funga upau wa pembeni"
+    },
+    "ecoscopeTab": {
+      "analysisTitle": "Uchambuzi",
+      "frameTitle": "Uchambuzi wa Ecoscope",
+      "launchErrorMessage": "Imeshindwa kufungua Ecoscope. Tafadhali jaribu tena.",
+      "loadingMessage": "Inafungua Ecoscope…",
+      "providerLabel": "kwa Ecoscope",
+      "retryButtonLabel": "Jaribu tena",
+      "returnButtonLabel": "Rudi EarthRanger",
+      "workspaceLabel": "Eneo la kazi la Ecoscope"
     },
     "eventsLink": "Matukio",
     "eventsLinkWithUpdatesLabel_one": "Matukio, {{count}} jipya au lililosasishwa",

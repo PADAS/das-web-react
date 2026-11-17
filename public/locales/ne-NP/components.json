@@ -282,11 +282,22 @@
     "addEventButtonTitle": "घटना सिर्जना गर्नुहोस्",
     "addPatrolButtonLabel": "गस्ती सिर्जना गर्नुहोस्",
     "addPatrolButtonTitle": "गस्ती सिर्जना गर्नुहोस्",
+    "analysisLink": "विश्लेषण",
     "backButtonLabel": "पछाडी फर्कनुहोस्",
     "backButtonTitle": "फर्कनुहोस्",
     "closeButtonLabel": "साइडबार बन्द गर्नुहोस्",
     "detailViewHeader": {
       "closeButtonLabel": "साइडबार बन्द गर्नुहोस्"
+    },
+    "ecoscopeTab": {
+      "analysisTitle": "विश्लेषण",
+      "frameTitle": "Ecoscope विश्लेषण",
+      "launchErrorMessage": "Ecoscope खोल्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।",
+      "loadingMessage": "Ecoscope खोलिँदै छ…",
+      "providerLabel": "Ecoscope मार्फत",
+      "retryButtonLabel": "फेरि प्रयास गर्नुहोस्",
+      "returnButtonLabel": "EarthRanger मा फर्कनुहोस्",
+      "workspaceLabel": "Ecoscope कार्यक्षेत्र"
     },
     "eventsLink": "घटनाहरु",
     "eventsLinkWithUpdatesLabel_one": "घटनाहरु, {{count}} नयाँ वा अद्यावधिक",

@@ -13,6 +13,7 @@
     "restrictedOptionLabel": "RESTRINGIDO"
   },
   "nav": {
+    "ecoscopeLogoutErrorMessage": "No se pudo cerrar la sesión porque no se pudieron cerrar las sesiones de Ecoscope. Sigue conectado. Inténtelo de nuevo.",
     "hamburgerMenuLabel": "Abrir menú principal",
     "messageMenu": {
       "toggleLabel": "Mensajes",

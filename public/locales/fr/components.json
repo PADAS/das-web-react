@@ -282,11 +282,22 @@
     "addEventButtonTitle": "Ajouter un Événement",
     "addPatrolButtonLabel": "Ajouter une Patrouille",
     "addPatrolButtonTitle": "Ajouter une Patrouille",
+    "analysisLink": "Analyse",
     "backButtonLabel": "Revenir en arrière",
     "backButtonTitle": "Retour",
     "closeButtonLabel": "Fermer la barre latérale",
     "detailViewHeader": {
       "closeButtonLabel": "Fermer la barre latérale"
+    },
+    "ecoscopeTab": {
+      "analysisTitle": "Analyse",
+      "frameTitle": "Analyse Ecoscope",
+      "launchErrorMessage": "Impossible d’ouvrir Ecoscope. Veuillez réessayer.",
+      "loadingMessage": "Ouverture d’Ecoscope…",
+      "providerLabel": "avec Ecoscope",
+      "retryButtonLabel": "Réessayer",
+      "returnButtonLabel": "Retour à EarthRanger",
+      "workspaceLabel": "Espace Ecoscope"
     },
     "eventsLink": "Événements",
     "eventsLinkWithUpdatesLabel_one": "Événements, {{count}} nouveau ou mis à jour",

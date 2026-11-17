@@ -53,6 +53,7 @@
     "mobileGooglePlayLink": "Google Play (Android)",
     "mobileHeader": "EarthRanger Mobile",
     "navigationButton": {
+      "analysis": "Análise",
       "gear": "Equipamento",
       "mapLayers": "Camadas",
       "otus": "Atlas",

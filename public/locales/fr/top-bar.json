@@ -13,6 +13,7 @@
     "restrictedOptionLabel": "RESTRICTION"
   },
   "nav": {
+    "ecoscopeLogoutErrorMessage": "La déconnexion a échoué car les sessions Ecoscope n’ont pas pu être fermées. Vous êtes toujours connecté. Veuillez réessayer.",
     "hamburgerMenuLabel": "Ouvrir le menu principal",
     "messageMenu": {
       "toggleLabel": "Messages",

@@ -7,6 +7,7 @@ import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-le
 import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
+import { ReactComponent as EcoscopeLogoIcon } from '../common/images/icons/ecoscope-logo.svg';
 import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
@@ -17,7 +18,7 @@ import { ReactComponent as TableIcon } from '../common/images/icons/table.svg';
 
 import { detailViewPattern, getCurrentIdFromURL, getCurrentTabFromURL, tabPath } from '../utils/navigation';
 import { FEED_CATEGORY } from '../utils/analytics';
-import { PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
+import { ECOSCOPE_ENABLED, PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 import { SocketContext } from '../withSocketConnection';
 import useNavigate from '../hooks/useNavigate';
 import { usePatrolsPermissions } from '../hooks/usePermissions';
@@ -27,6 +28,7 @@ import useReportsFeed from './useReportsFeed';
 
 import AddItemButton from '../AddItemButton';
 import Badge from '../Badge';
+import EcoscopeTab from './EcoscopeTab';
 import Link from '../Link';
 import PatrolDetailView from '../PatrolDetailView';
 import SoundNotificationsPlayer from '../SoundNotificationsPlayer';
@@ -96,6 +98,7 @@ const SideBar = () => {
 
   const enabledTabKeys = useMemo(() => ({
     ...TAB_KEYS,
+    ANALYSIS: ECOSCOPE_ENABLED ? TAB_KEYS.ANALYSIS : undefined,
     EVENTS: eventsEnabled ? TAB_KEYS.EVENTS : undefined,
     GEAR: hasGear ? TAB_KEYS.GEAR : undefined,
     LAYERS: shouldShowLayersTab ? TAB_KEYS.LAYERS : undefined,
@@ -132,7 +135,8 @@ const SideBar = () => {
     && canReadPatrols
     && !!matchPath(detailViewPattern(TAB_KEYS.PATROLS), displayedPathname))
     || (eventsEnabled && !!matchPath(detailViewPattern(TAB_KEYS.EVENTS), displayedPathname))
-    || (shouldShowOtusTab && displayedTab === TAB_KEYS.OTUS);
+    || (shouldShowOtusTab && displayedTab === TAB_KEYS.OTUS)
+    || displayedTab === TAB_KEYS.ANALYSIS;
 
   const onBackButtonClick = () => {
     if (location.key === 'default' || location.state?.comesFromLogin || location.state?.comesFromLngLatRedirection) {
@@ -259,6 +263,15 @@ const SideBar = () => {
         <span>{t('otusLink')}</span>
       </Link>}
 
+      {ECOSCOPE_ENABLED && <Link
+        className={`${styles.navItem} ${currentTab === TAB_KEYS.ANALYSIS ? styles.active : ''}`}
+        to={tabPath(TAB_KEYS.ANALYSIS)}
+      >
+        <EcoscopeLogoIcon aria-hidden="true" />
+
+        <span>{t('analysisLink')}</span>
+      </Link>}
+
       <Link
         className={`${styles.navItem} ${currentTab === TAB_KEYS.SETTINGS ? styles.active : ''}`}
         to={tabPath(TAB_KEYS.SETTINGS)}
@@ -269,7 +282,7 @@ const SideBar = () => {
       </Link>
     </div>
 
-    <div className={`${styles.tabsContainer} ${isSideBarOpen ? 'open' : ''} ${isFeedDisplayed && isTableView ? styles.tableView : ''}`}>
+    <div className={`${styles.tabsContainer} ${isSideBarOpen ? 'open' : ''} ${isFeedDisplayed && isTableView ? styles.tableView : ''} ${displayedTab === TAB_KEYS.ANALYSIS ? styles.analysisView : ''}`}>
       <div
         className={`${styles.tab} ${isSideBarOpen ? 'open' : ''}`}
         data-testid="sideBar-tab"
@@ -367,6 +380,8 @@ const SideBar = () => {
             {shouldShowLayersTab && <Route path={TAB_KEYS.LAYERS} element={<MapLayersTab />} />}
 
             {shouldShowOtusTab && <Route path={TAB_KEYS.OTUS} element={null} />}
+
+            {ECOSCOPE_ENABLED && <Route element={<EcoscopeTab />} path={TAB_KEYS.ANALYSIS} />}
 
             <Route path={TAB_KEYS.SETTINGS} element={<SettingsPane />} />
           </Routes>

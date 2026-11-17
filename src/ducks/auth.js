@@ -1,6 +1,7 @@
 import axios, { CancelToken } from 'axios';
 
 import { DAS_HOST, REACT_APP_DAS_AUTH_TOKEN_URL } from '../constants';
+import { clearEcoscopeConnection } from '../utils/ecoscope';
 import { clearUserProfile } from './user';
 import { resetGlobalState } from '../reducers/global-resettable';
 import { deleteAuthTokenCookie, deleteTemporaryAccessTokenCookie, getAuthTokenFromCookies } from '../utils/auth';
@@ -30,6 +31,7 @@ export const postAuth = (userData) => (dispatch) => {
 };
 
 export const applyAccessToken = accessToken => (dispatch) => {
+  if (!getAuthTokenFromCookies()) clearEcoscopeConnection(false);
   document.cookie = `token=${accessToken};path=/`;
   dispatch({
     type: POST_AUTH_SUCCESS,
@@ -37,11 +39,15 @@ export const applyAccessToken = accessToken => (dispatch) => {
   });
 };
 
-const postAuthSuccess = response => applyAccessToken(response.data.access_token);
+const postAuthSuccess = response => (dispatch) => {
+  clearEcoscopeConnection(false);
+  dispatch(applyAccessToken(response.data.access_token));
+};
 
 export const clearAuth = () => (dispatch) => {
 
   return new Promise((resolve) => {
+    clearEcoscopeConnection();
     deleteAuthTokenCookie();
     deleteTemporaryAccessTokenCookie();
     setTimeout(() => {

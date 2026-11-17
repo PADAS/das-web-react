@@ -276,3 +276,13 @@
     }
   }
 }
+
+.tabsContainer.analysisView {
+  min-width: 100vw;
+  width: 100vw;
+
+  @media (min-width: layout.$md-layout-width-min) {
+    min-width: calc(100vw - var(--vertical-nav-width));
+    width: calc(100vw - var(--vertical-nav-width));
+  }
+}

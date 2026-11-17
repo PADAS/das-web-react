@@ -13,6 +13,7 @@
     "restrictedOptionLabel": "RESTRICTED"
   },
   "nav": {
+    "ecoscopeLogoutErrorMessage": "Sign out could not complete because Ecoscope sessions could not be closed. You are still signed in. Please try again.",
     "hamburgerMenuLabel": "Open main menu",
     "messageMenu": {
       "toggleLabel": "Messages",

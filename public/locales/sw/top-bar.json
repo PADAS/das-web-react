@@ -13,6 +13,7 @@
     "restrictedOptionLabel": "ILIZUIWA"
   },
   "nav": {
+    "ecoscopeLogoutErrorMessage": "Imeshindwa kutoka kwa sababu vipindi vya Ecoscope havikuweza kufungwa. Bado umeingia. Tafadhali jaribu tena.",
     "hamburgerMenuLabel": "Fungua Menyu Kuu",
     "messageMenu": {
       "toggleLabel": "Ujumbe",

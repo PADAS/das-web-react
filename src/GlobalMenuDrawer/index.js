@@ -33,7 +33,7 @@ import {
   trackEvent,
   trackEventFactory,
 } from '../utils/analytics';
-import { BREAKPOINTS, CLIENT_BUILD_VERSION, DAS_HOST, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
+import { BREAKPOINTS, CLIENT_BUILD_VERSION, DAS_HOST, ECOSCOPE_ENABLED, SYSTEM_CONFIG_FLAGS, TAB_KEYS } from '../constants';
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
@@ -218,6 +218,9 @@ const GlobalMenuDrawer = () => {
       ? [{ Icon: LayersIcon, sidebarTab: TAB_KEYS.LAYERS, title: t('navigationButton.mapLayers') }]
       : []),
     ...(otusUrl ? [{ Icon: OtusIcon, sidebarTab: TAB_KEYS.OTUS, title: t('navigationButton.otus') }] : []),
+    ...(ECOSCOPE_ENABLED
+      ? [{ Icon: EcoscopeLogoIcon, sidebarTab: TAB_KEYS.ANALYSIS, title: t('navigationButton.analysis') }]
+      : []),
     { Icon: GearIcon, sidebarTab: TAB_KEYS.SETTINGS, title: t('navigationButton.settings') },
   ], [analyzersEnabled, canReadPatrols, eventsEnabled, hasGear, otusUrl, spatialFeaturesEnabled, subjectsEnabled, t]);
 

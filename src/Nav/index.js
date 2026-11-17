@@ -1,4 +1,4 @@
-import { lazy, memo, useEffect } from 'react';
+import { lazy, memo, useEffect, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
@@ -14,7 +14,9 @@ import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserPr
 import getWindowLocation from '../utils/getWindowLocation';
 import { GLOBAL_MENU_DRAWER_ID } from '../Drawer';
 import { MAIN_TOOLBAR_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { revokeEcoscopeConnection } from '../utils/ecoscope';
 import { setHomeMap } from '../ducks/maps';
+import { showToast } from '../utils/toast';
 import { showDrawer } from '../ducks/drawer';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import { useMatchMedia } from '../hooks';
@@ -61,6 +63,7 @@ const Nav = () => {
   const jumpToLocation = useJumpToLocation();
   const navigate = useNavigate();
 
+  const accessToken = useSelector((state) => state.data.token?.access_token);
   const homeMap = useSelector((state) => state.view.homeMap);
   const isGlobalMenuOpen = useSelector(
     (state) => state.view.drawer.isOpen && state.view.drawer.drawerId === GLOBAL_MENU_DRAWER_ID
@@ -70,6 +73,8 @@ const Nav = () => {
   const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
   const user = useSelector((state) => state.data.user);
   const userProfiles = useSelector((state) => state.data.userProfiles);
+
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const changeProfile = (profile) => {
     const isMainUser = profile.username === user.username;
@@ -87,6 +92,16 @@ const Nav = () => {
   };
 
   const logOut = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    try {
+      await revokeEcoscopeConnection(accessToken);
+    } catch (_) {
+      showToast({ message: t('ecoscopeLogoutErrorMessage') });
+      setIsLoggingOut(false);
+      return;
+    }
+
     try {
       await dispatch(clearAuth());
 

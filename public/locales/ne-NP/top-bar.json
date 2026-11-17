@@ -13,6 +13,7 @@
         "restrictedOptionLabel": "प्रतिबन्धित"
     },
     "nav": {
+        "ecoscopeLogoutErrorMessage": "Ecoscope सत्रहरू बन्द गर्न नसकिएकाले लग आउट हुन सकेन। तपाईं अझै लग इन हुनुहुन्छ। कृपया फेरि प्रयास गर्नुहोस्।",
         "hamburgerMenuLabel": "मुख्य मेनु खोल्नुहोस्",
         "messageMenu": {
             "toggleLabel": "सन्देशहरु",
