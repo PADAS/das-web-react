@@ -16,14 +16,29 @@ const SASS_COLOR_VARIABLES = Object.fromEntries(
 
 const SOURCE_FILES = readdirSync('src', { recursive: true }).filter((file) => /\.(js|scss)$/.test(file));
 
-const LIGHT_THEME_TOKEN_NAMES = [...readFileSync('node_modules/@allenai/design-system/er-legacy/tokens.css', 'utf8')
-  .split('}')[0]
-  .matchAll(/--er-([a-z0-9-]+):\s*#/g)].map((match) => match[1]);
+const TOKENS_BY_THEME = Object.fromEntries(
+  [...readFileSync('node_modules/@allenai/design-system/er-legacy/tokens.css', 'utf8')
+    .matchAll(/\[data-theme="(\w+)"\] \{([^}]*)\}/g)]
+    .map((match) => [
+      match[1],
+      Object.fromEntries([...match[2].matchAll(/--er-([a-z0-9-]+):\s*([^;]+);/g)].map((token) => [token[1], token[2]])),
+    ])
+);
+
+const LIGHT_THEME_TOKEN_NAMES = Object.keys(TOKENS_BY_THEME.light)
+  .filter((tokenName) => TOKENS_BY_THEME.light[tokenName].startsWith('#'));
 
 const TOKEN_REFERENCE_REGEX =
   /--er-([a-z0-9-]+)|COLOR_TOKENS\['([^']+)'\]|(?:createPatrolTheme|tokenVar)\('([^']+)'\)|(?:base|color)Token: '([^']+)'/g;
 
 describe('utils - colors', () => {
+  describe('tokens.css', () => {
+    test('matches the token values of the pinned design system release in both themes', () => {
+      expect(Object.keys(TOKENS_BY_THEME)).toEqual(['light', 'dark']);
+      expect(TOKENS_BY_THEME).toMatchSnapshot();
+    });
+  });
+
   describe('COLOR_TOKENS', () => {
     test('keys the light values of tokens.css by their names without the --er- prefix', () => {
       expect(COLOR_TOKENS['ui-cta-primary']).toBe('#0056c7');

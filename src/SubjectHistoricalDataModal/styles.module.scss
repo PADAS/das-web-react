@@ -18,8 +18,8 @@
     
     thead {
       font-size: 1rem;
-      background-color: var(--er-greyscale-7);
-      color: var(--er-ui-text-secondary-text-reversed);
+      background-color: var(--er-ui-background-elevated-component-0);
+      color: var(--er-ui-text-secondary-text);
       
       th {
         font-weight: 400;
@@ -36,12 +36,6 @@
 
   .propertyValue {
     font-weight: 500;
-  }
-
-  ul {
-    margin-top: 1.5rem;
-    font-size: 0.75rem;
-    color: var(--er-ui-text-secondary-text-reversed);
   }
 }
 

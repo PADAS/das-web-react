@@ -291,7 +291,7 @@ Base element styles, such as fonts, headings, the focus ring and placeholders, a
 
 #### Colors
 
-Colors are the ER Legacy design tokens, defined in Ai2's [DESIGN.md](https://github.com/allenai/design/blob/main/er-legacy/DESIGN.md) and published as `@allenai/design-system`. They keep the app's current look until the EarthRanger rebrand, when the app moves to the `earthranger` set. `src/index.js` loads them as CSS custom properties, so styles read them with `var()`:
+Colors are the ER Legacy design tokens, defined in Ai2's [DESIGN.md](https://github.com/allenai/design/blob/v0.7.0/er-legacy/DESIGN.md) and published as `@allenai/design-system`. They keep the app's current look until the EarthRanger rebrand, when the app moves to the `earthranger` set. `src/index.js` loads them as CSS custom properties, so styles read them with `var()`:
 
 ```scss
 @use '../common/styles/colors';
@@ -312,15 +312,15 @@ Colors are the ER Legacy design tokens, defined in Ai2's [DESIGN.md](https://git
 
 #### Font
 
-The app's font is Roboto, as ER Legacy specifies. It is self-hosted through `@fontsource-variable/roboto`, which `src/index.js` loads, so the build bundles its files, the service worker precaches them, and no request leaves the site's domain.
+The app's font is Roboto, as ER Legacy specifies. It is self-hosted through `@fontsource-variable/roboto`, which `src/index.js` loads, so the build bundles its files and no request leaves the site's domain. The service worker precaches only the latin files, which cover the UI languages, and caches any other script's files the first time a page needs them.
 
 #### Upgrading the design system
 
-The package is not on npm yet, so `package.json` pins it to a release tag of its GitHub repository, which `.yarnrc.yml` allows in `approvedGitRepositories`.
+The package is not on npm yet, so `package.json` pins it to one release tag of its GitHub repository, which `.yarnrc.yml` allows in `approvedGitRepositories`. Keep it an exact version, not a range, so no install can change the tokens unnoticed.
 
-1. Change the tag range in `package.json`, such as `github:allenai/design#semver=^0.5.0`, and run `yarn install`.
-2. Compare `er-legacy/tokens.css` between the two tags and check the app, since one token can restyle every screen.
-3. Run `yarn test src/utils/colors.test.js`, which fails if a token the app uses was renamed or removed.
+1. Change the version in `package.json`, such as `github:allenai/design#semver=0.7.0`, run `yarn install`, and point the DESIGN.md link above at the new tag.
+2. Run `yarn test src/utils/colors.test.js`. It fails if a token the app uses was renamed or removed, and its snapshot lists every token value that changed, in both themes.
+3. Check the app wherever a value changed, since one token can restyle every screen. Then update the snapshot with `yarn test src/utils/colors.test.js -u` and commit it with the upgrade, so reviewers see the changed values.
 
 ### Assets
 
