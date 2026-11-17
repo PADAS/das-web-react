@@ -1,5 +1,6 @@
-@use '../common/styles/inputs';
+@use '../common/styles/buttons';
 @use '../common/styles/colors';
+@use '../common/styles/inputs';
 
 .locationPicker {
   align-items: center;
@@ -131,7 +132,7 @@
     outline: none;
 
     &:disabled {
-      background-color: var(--er-ui-background-elevated-component-0);
+      @include buttons.disabled-button;
     }
 
     &:focus-visible:not(:disabled) {

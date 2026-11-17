@@ -37,12 +37,8 @@
 
         &[aria-disabled='true'] {
           cursor: default;
-          opacity: 0.5;
 
-          &:hover {
-            background-color: var(--er-ui-background-elevated-component-0);
-            border-color: var(--er-ui-background-elevated-component-0);
-          }
+          @include buttons.disabled-button;
         }
 
         svg {

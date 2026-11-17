@@ -26,9 +26,6 @@
   --bs-btn-bg: #{$background};
   --bs-btn-border-color: #{$border};
   --bs-btn-color: #{$color};
-  --bs-btn-disabled-bg: #{$background};
-  --bs-btn-disabled-border-color: #{$border};
-  --bs-btn-disabled-color: #{$color};
   --bs-btn-hover-bg: #{colors.shade($background, $hover-shade)};
   --bs-btn-hover-border-color: #{colors.shade($border, $hover-shade)};
   --bs-btn-hover-color: #{$color};
@@ -41,9 +38,6 @@
   --bs-btn-bg: #{$background};
   --bs-btn-border-color: #{$background};
   --bs-btn-color: #{$color};
-  --bs-btn-disabled-bg: #{$background};
-  --bs-btn-disabled-border-color: #{$background};
-  --bs-btn-disabled-color: #{$color};
   --bs-btn-hover-bg: #{colors.deepen($background, $accent, colors.$tint-hover-deepen)};
   --bs-btn-hover-border-color: #{colors.deepen($background, $accent, colors.$tint-hover-deepen)};
   --bs-btn-hover-color: #{$color};
@@ -55,8 +49,6 @@
   --bs-btn-active-color: #{$color};
   --bs-btn-border-color: #{$color};
   --bs-btn-color: #{$color};
-  --bs-btn-disabled-border-color: #{$color};
-  --bs-btn-disabled-color: #{$color};
   --bs-btn-hover-bg: var(--er-ui-background-selected-background);
   --bs-btn-hover-border-color: #{$color};
   --bs-btn-hover-color: #{$color};
@@ -133,6 +125,10 @@ a {
   @include button-height(buttons.$chip-height);
 
   --bs-btn-border-radius: 0.25rem;
+  --bs-btn-disabled-bg: var(--er-ui-background-disabled);
+  --bs-btn-disabled-border-color: var(--er-ui-background-disabled);
+  --bs-btn-disabled-color: var(--er-ui-text-disabled);
+  --bs-btn-disabled-opacity: 1;
   --bs-btn-focus-box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
   --bs-btn-font-size: 0.875rem;
   --bs-btn-font-weight: 500;
@@ -193,6 +189,8 @@ a {
 }
 
 .btn-link {
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: transparent;
   --bs-btn-disabled-color: var(--er-ui-text-disabled);
   --bs-btn-font-weight: 400;
 }

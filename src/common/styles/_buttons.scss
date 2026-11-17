@@ -6,6 +6,17 @@ $square-button-border-radius: .25rem;
 $chip-height: 2.25rem;
 $chip-height-small: 1.75rem;
 
+// A border in the fill's color keeps the button's size without an outline.
+@mixin disabled-button {
+  &,
+  &:active,
+  &:hover {
+    background-color: var(--er-ui-background-disabled);
+    border-color: var(--er-ui-background-disabled);
+    color: var(--er-ui-text-disabled);
+  }
+}
+
 @mixin unstyled-button {
   background: none;
   border: none;
@@ -46,6 +57,12 @@ $chip-height-small: 1.75rem;
 
   &:hover {
     background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
+  }
+
+  &:disabled {
+    cursor: default;
+
+    @include disabled-button;
   }
 }
 
@@ -142,6 +159,16 @@ $chip-height-small: 1.75rem;
     width: 1.75rem;
     fill: var(--er-ui-icons);
   }
+
+  &:disabled {
+    cursor: default;
+
+    @include disabled-button;
+
+    svg {
+      fill: currentcolor;
+    }
+  }
 }
 
 @mixin inline-icon-button {
@@ -231,12 +258,8 @@ $chip-height-small: 1.75rem;
 
   &:disabled {
     cursor: default;
-    opacity: 0.5;
 
-    &:hover {
-      background-color: var(--er-ui-background-elevated-component-0);
-      border-color: var(--er-ui-background-elevated-component-0);
-    }
+    @include disabled-button;
   }
 }
 
@@ -284,6 +307,10 @@ $chip-height-small: 1.75rem;
       color: var(--er-ui-cta-primary);
       outline: 1px solid var(--er-ui-cta-primary);
     }
+
+    &:disabled {
+      @include disabled-button;
+    }
   }
 }
 
@@ -303,7 +330,6 @@ $chip-height-small: 1.75rem;
     opacity: 0.5;
   }
 
-  &:disabled:hover,
   &[aria-disabled='true']:hover {
     background-color: var(--er-ui-status-bg-error-bg);
     border-color: var(--er-ui-status-bg-error-bg);
@@ -385,7 +411,8 @@ $chip-height-small: 1.75rem;
 
   &:disabled {
     cursor: default;
-    opacity: 0.5;
+
+    @include disabled-button;
   }
 }
 

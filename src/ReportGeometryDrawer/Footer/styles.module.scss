@@ -1,3 +1,5 @@
+@use '../../common/styles/buttons';
+
 .footer {
   z-index: 12;
   position: absolute;
@@ -22,7 +24,8 @@
 
 .saveButton {
   &.disabled {
-    opacity: 0.6;
     cursor: not-allowed;
+
+    @include buttons.disabled-button;
   }
 }

@@ -1,3 +1,4 @@
+@use '../common/styles/buttons';
 @use '../common/styles/colors';
 
 @keyframes fadein {
@@ -99,10 +100,6 @@
         }
       }
 
-      &:disabled {
-        opacity: 0.75;
-      }
-
       &:has(+ .secondaryButton) {
         margin-bottom: 0.75rem;
       }
@@ -124,6 +121,10 @@
         &:hover:not(:disabled, :focus-visible) {
           background-color: var(--er-ui-background-selected-background);
         }
+      }
+
+      &:disabled {
+        @include buttons.disabled-button;
       }
     }
   }

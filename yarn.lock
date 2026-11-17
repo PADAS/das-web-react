@@ -12,12 +12,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@allenai/design-system@github:allenai/design#semver=^0.6.0":
-  version: 0.6.0
-  resolution: "@allenai/design-system@https://github.com/allenai/design.git#commit=c2362620a350a8ce6eee281bbb78791d521360e6"
+"@allenai/design-system@github:allenai/design#semver=0.7.0":
+  version: 0.7.0
+  resolution: "@allenai/design-system@https://github.com/allenai/design.git#commit=1d51fb1751bdc0ed8da3d239b5c53e0855761f25"
   dependencies:
     yaml: "npm:^2.7.1"
-  checksum: 10c0/db3a3f75dabce4d16acb82a438194ef2c9a3e1f57e4edf7129d46d52c4220b1f0d20a9bf491277fe8540dfd69e5c0368c6fc1d6278ad5fc913375f0eaa4db1d8
+  checksum: 10c0/d173ef286782ba9f5edc9316e2d36fb05fca64911bac002a5a445f023a5a4b71dc6d35c0c100e09570412211a80f78c2621e76880977ca53544c37cb38598f82
   languageName: node
   linkType: hard
 
@@ -7962,7 +7962,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "das-web-react@workspace:."
   dependencies:
-    "@allenai/design-system": "github:allenai/design#semver=^0.6.0"
+    "@allenai/design-system": "github:allenai/design#semver=0.7.0"
     "@auth0/auth0-react": "npm:^2.30.0"
     "@babel/core": "npm:^8.1.0"
     "@babel/preset-env": "npm:^8.0.7"

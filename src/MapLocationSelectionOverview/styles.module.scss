@@ -121,8 +121,6 @@
   --bs-btn-active-color: var(--er-ui-status-error-destructive);
   --bs-btn-bg: var(--er-ui-status-bg-error-bg);
   --bs-btn-color: var(--er-ui-status-error-destructive);
-  --bs-btn-disabled-bg: var(--er-ui-status-bg-error-bg);
-  --bs-btn-disabled-color: var(--er-ui-status-error-destructive);
   --bs-btn-hover-bg: #{colors.deepen(
     var(--er-ui-status-bg-error-bg),
     var(--er-ui-status-error-destructive),
