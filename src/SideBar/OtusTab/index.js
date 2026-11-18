@@ -1,5 +1,4 @@
 import { memo, useCallback, useEffect, useId, useRef, useState } from 'react';
-import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
@@ -84,6 +83,8 @@ const OtusTab = ({ isActive, url }) => {
   const otusOrigin = embedUrl.origin;
   // A late connection still clears the error, as the frame stays mounted behind it.
   const shouldShowConnectionError = isWaitingForConnection && failedFrameKey === frameKey;
+  const shouldShowLoadError = shouldShowConnectionError && !isSessionExpiring;
+  const shouldShowLogInPrompt = shouldShowConnectionError && isSessionExpiring;
 
   const postCommand = useCallback((command) => {
     iframeRef.current?.contentWindow?.postMessage({ command, type: OTUS_MESSAGE_TYPES.COMMAND }, otusOrigin);
@@ -96,8 +97,8 @@ const OtusTab = ({ isActive, url }) => {
     setFrameReloadCount((reloadCount) => reloadCount + 1);
   };
 
-  // Without a token, the app's guard sends the user to sign in and back here.
-  const onClickSignInButton = () => dispatch(clearAuth());
+  // Without a token, the app's guard sends the user to log in and back here.
+  const onClickLogInButton = () => dispatch(clearAuth());
 
   const onClose = useCallback(() => navigate('/'), [navigate]);
 
@@ -169,10 +170,13 @@ const OtusTab = ({ isActive, url }) => {
           );
 
           setConnectedFrameKey(frameKey);
+          setSessionExpiringFrameKey(null);
         } else {
           setConnectedFrameKey(null);
           setFailedFrameKey(frameKey);
-          setSessionExpiringFrameKey(isSessionExpiringError ? frameKey : null);
+
+          // Only an Atlas token clears the prompt, as retrying cannot renew the session.
+          if (isSessionExpiringError) setSessionExpiringFrameKey(frameKey);
         }
       }
     };
@@ -225,31 +229,21 @@ const OtusTab = ({ isActive, url }) => {
       ref={frameWrapperRef}
       tabIndex={-1}
       >
-      {shouldShowConnectionError && (isSessionExpiring
-        ? <div className={styles.connectionError} role="alert">
-          <p>{t('sessionExpiringMessage')}</p>
+      {shouldShowLoadError && <div className={styles.connectionError} role="alert">
+        <p>{t('loadErrorMessage')}</p>
 
-          <Button
-            onClick={onClickSignInButton}
-            size="sm"
-            type="button"
-            variant="primary"
-            >
-            {t('signInButtonLabel')}
-          </Button>
-        </div>
-        : <div className={styles.connectionError} role="alert">
-          <p>{t('loadErrorMessage')}</p>
+        <button className={styles.connectionErrorButton} onClick={onClickRetryButton} type="button">
+          {t('retryButtonLabel')}
+        </button>
+      </div>}
 
-          <Button
-            onClick={onClickRetryButton}
-            size="sm"
-            type="button"
-            variant="outline-secondary"
-            >
-            {t('retryButtonLabel')}
-          </Button>
-        </div>)}
+      {shouldShowLogInPrompt && <div className={styles.connectionError} role="alert">
+        <p>{t('sessionExpiringMessage')}</p>
+
+        <button className={styles.connectionErrorButton} onClick={onClickLogInButton} type="button">
+          {t('logInButtonLabel')}
+        </button>
+      </div>}
 
       {isLoading && <LoadingOverlay message={t('loadingMessage')} role="status" />}
 
