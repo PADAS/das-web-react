@@ -6,15 +6,9 @@ $square-button-border-radius: .25rem;
 $chip-height: 2.25rem;
 $chip-height-small: 1.75rem;
 
-// A border in the fill's color keeps the button's size without an outline.
+// Disabled buttons keep their resting colors, so hover states must skip them.
 @mixin disabled-button {
-  &,
-  &:active,
-  &:hover {
-    background-color: var(--er-ui-background-disabled);
-    border-color: var(--er-ui-background-disabled);
-    color: var(--er-ui-text-disabled);
-  }
+  opacity: 0.5;
 }
 
 @mixin unstyled-button {
@@ -55,7 +49,7 @@ $chip-height-small: 1.75rem;
   position: relative;
   width: $square-button-dimension;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
   }
 
@@ -164,10 +158,6 @@ $chip-height-small: 1.75rem;
     cursor: default;
 
     @include disabled-button;
-
-    svg {
-      fill: currentcolor;
-    }
   }
 }
 
@@ -246,7 +236,7 @@ $chip-height-small: 1.75rem;
   display: flex;
   height: $chip-height;
 
-  &:hover, &[aria-expanded='true'] {
+  &:hover:not(:disabled, [aria-disabled='true']), &[aria-expanded='true'] {
     background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
     border-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
   }
@@ -296,7 +286,7 @@ $chip-height-small: 1.75rem;
     border-color: var(--er-ui-cta-primary);
     color: var(--er-ui-text-primary-text-reversed);
 
-    &:hover, &[aria-expanded='true'] {
+    &:hover:not(:disabled), &[aria-expanded='true'] {
       background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
       border-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
     }
