@@ -51,12 +51,12 @@ const OtusTab = ({ isActive, url }) => {
   const panelId = useId();
   const titleId = useId();
 
+  const [connectedFrameKey, setConnectedFrameKey] = useState(null);
+  const [failedFrameKey, setFailedFrameKey] = useState(null);
   const [frameReloadCount, setFrameReloadCount] = useState(0);
   const [hasBeenActivated, setHasBeenActivated] = useState(isActive);
   const [loadedFrameKey, setLoadedFrameKey] = useState(null);
-  const [readyFrameKey, setReadyFrameKey] = useState(null);
   const [recentOpenFrameKey, setRecentOpenFrameKey] = useState(null);
-  const [timedOutFrameKey, setTimedOutFrameKey] = useState(null);
   const [widthWhileResizing, setWidthWhileResizing] = useState(null);
 
   // The frame boots a per-user sandbox, so it waits for the first visit.
@@ -73,14 +73,14 @@ const OtusTab = ({ isActive, url }) => {
   embedUrl.searchParams.set('titlebar', '0');
 
   const frameKey = `${frameReloadCount}-${embedUrl.href}`;
-  // A late ready message still clears the error, as the frame stays mounted behind it.
-  const hasTimedOut = timedOutFrameKey === frameKey && readyFrameKey !== frameKey;
   const isLoading = loadedFrameKey !== frameKey;
   // A reloaded frame starts with Recent closed, so only its own message counts.
   const isRecentOpen = recentOpenFrameKey === frameKey;
-  // A frame Otus refuses still fires load, so only its ready message proves it.
-  const isWaitingForReady = !isLoading && readyFrameKey !== frameKey;
+  // A frame Otus refuses still fires load, so only a connection proves it.
+  const isWaitingForConnection = !isLoading && connectedFrameKey !== frameKey;
   const otusOrigin = embedUrl.origin;
+  // A late connection still clears the error, as the frame stays mounted behind it.
+  const shouldShowLoadError = isWaitingForConnection && failedFrameKey === frameKey;
 
   const postCommand = useCallback((command) => {
     iframeRef.current?.contentWindow?.postMessage({ command, type: OTUS_MESSAGE_TYPES.COMMAND }, otusOrigin);
@@ -139,11 +139,12 @@ const OtusTab = ({ isActive, url }) => {
       const atlasTokenRequest = dispatch(fetchAtlasToken());
       latestAtlasTokenRequest = atlasTokenRequest;
 
-      try {
-        const atlasToken = await atlasTokenRequest;
+      // The duck already logs a failed request.
+      const atlasToken = await atlasTokenRequest.catch(() => null);
 
-        // A newer ready message, a reload or an unmount makes this token stale.
-        if (atlasTokenRequest === latestAtlasTokenRequest) {
+      // A newer ready message, a reload or an unmount makes this result stale.
+      if (atlasTokenRequest === latestAtlasTokenRequest) {
+        if (atlasToken?.token) {
           iframeRef.current?.contentWindow?.postMessage(
             {
               expires_at: atlasToken.expiresAt,
@@ -153,19 +154,18 @@ const OtusTab = ({ isActive, url }) => {
             },
             otusOrigin
           );
+
+          setConnectedFrameKey(frameKey);
+        } else {
+          setConnectedFrameKey(null);
+          setFailedFrameKey(frameKey);
         }
-      } catch {
-        // The duck logs the failure, and the next ready message asks again.
       }
     };
 
     const onMessage = (event) => {
       if (event.origin === otusOrigin && event.source === iframeRef.current?.contentWindow) {
-        if (event.data?.type === OTUS_MESSAGE_TYPES.READY) {
-          setReadyFrameKey(frameKey);
-
-          connect();
-        }
+        if (event.data?.type === OTUS_MESSAGE_TYPES.READY) connect();
 
         if (event.data?.type === OTUS_MESSAGE_TYPES.THREADS) {
           setRecentOpenFrameKey(event.data.open === true ? frameKey : null);
@@ -184,12 +184,12 @@ const OtusTab = ({ isActive, url }) => {
   }, [dispatch, frameKey, otusOrigin]);
 
   useEffect(() => {
-    if (isWaitingForReady) {
-      const timeoutId = setTimeout(() => setTimedOutFrameKey(frameKey), OTUS_READY_TIMEOUT_MS);
+    if (isWaitingForConnection) {
+      const timeoutId = setTimeout(() => setFailedFrameKey(frameKey), OTUS_READY_TIMEOUT_MS);
 
       return () => clearTimeout(timeoutId);
     }
-  }, [frameKey, isWaitingForReady]);
+  }, [frameKey, isWaitingForConnection]);
 
   return <section
     aria-labelledby={titleId}
@@ -211,7 +211,7 @@ const OtusTab = ({ isActive, url }) => {
       ref={frameWrapperRef}
       tabIndex={-1}
       >
-      {hasTimedOut && <div className={styles.loadError} role="alert">
+      {shouldShowLoadError && <div className={styles.loadError} role="alert">
         <p>{t('loadErrorMessage')}</p>
 
         <Button
@@ -229,7 +229,7 @@ const OtusTab = ({ isActive, url }) => {
       <iframe
         allow="clipboard-write"
         className={styles.frame}
-        hidden={hasTimedOut}
+        hidden={shouldShowLoadError}
         key={frameKey}
         onLoad={() => setLoadedFrameKey(frameKey)}
         ref={iframeRef}
