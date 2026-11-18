@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { Provider } from 'react-redux';
-import { fireEvent, render, waitFor } from '../test-utils';
-import { mockStore } from '../__test-helpers/MockStore';
+
+import { act, fireEvent, render, screen, waitFor } from '../test-utils';
 import { DAS_HOST } from '../constants';
+import { mockStore } from '../__test-helpers/MockStore';
+
 import SvgIcon, { InlineSvg, svgCache } from './';
 
 const mockAxiosResponse = (contentType, body) => ({
@@ -49,10 +51,8 @@ describe('SvgIcon', () => {
         expect(container.querySelector('svg')).toBeInTheDocument();
       });
 
-      const wrapper = container.querySelector('span');
-      // The wrapper drives the color: text color + fill:currentColor, so the (fill-stripped) paths inherit it.
+      const wrapper = container.querySelector('span[aria-hidden="true"]');
       expect(wrapper).toHaveStyle({ color: 'rgb(4, 5, 6)', fill: 'currentColor' });
-      // The hardcoded fill is stripped so nothing overrides the inherited color.
       expect(container.querySelector('path')).not.toHaveAttribute('fill');
     });
 
@@ -247,6 +247,69 @@ describe('SvgIcon', () => {
       });
       expect(axiosSpy.mock.calls[0][0]).toBe(`${DAS_HOST}/static/sprite-src/fire.svg`);
       expect(axiosSpy.mock.calls[1][0]).toBe(`${DAS_HOST}/static/sprite-src/fire_rep.svg`);
+    });
+  });
+
+  describe('browser page translation', () => {
+    const translateTextNodes = (element) => {
+      [...element.childNodes]
+        .filter((node) => node.nodeType === Node.TEXT_NODE)
+        .forEach((node) => {
+          const font = document.createElement('font');
+          font.textContent = `translated ${node.textContent}`;
+          node.replaceWith(font);
+        });
+    };
+
+    test('mounts the icon after the fetch resolves when the sibling text node was translated', async () => {
+      const fetch = Promise.withResolvers();
+      axiosSpy.mockReturnValue(fetch.promise);
+
+      const { container } = renderWithStore(<span data-testid="svgIcon-parent">
+        <SvgIcon type="events" iconId="fire_rep" />
+        {'text'}
+      </span>);
+      translateTextNodes(screen.getByTestId('svgIcon-parent'));
+
+      await act(async () => {
+        fetch.resolve(mockAxiosResponse('image/svg+xml', '<svg><path d="M0 0"/></svg>'));
+      });
+
+      await waitFor(() => {
+        expect(container.querySelector('svg')).toBeInTheDocument();
+      });
+    });
+
+    test('mounts the new icon when the iconId changes after the sibling text node was translated', async () => {
+      const firstFetch = Promise.withResolvers();
+      const secondFetch = Promise.withResolvers();
+      axiosSpy.mockImplementation((url) => (url.includes('first_rep') ? firstFetch.promise : secondFetch.promise));
+
+      const buildIconBesideText = (iconId) => <Provider store={store}>
+        <span data-testid="svgIcon-parent">
+          <SvgIcon type="events" iconId={iconId} />
+          {'text'}
+        </span>
+      </Provider>;
+
+      const { container, rerender } = render(buildIconBesideText('first_rep'));
+      await act(async () => {
+        firstFetch.resolve(mockAxiosResponse('image/svg+xml', '<svg><path d="first"/></svg>'));
+      });
+      await waitFor(() => {
+        expect(container.querySelector('path')).toHaveAttribute('d', 'first');
+      });
+
+      translateTextNodes(screen.getByTestId('svgIcon-parent'));
+      rerender(buildIconBesideText('second_rep'));
+
+      await act(async () => {
+        secondFetch.resolve(mockAxiosResponse('image/svg+xml', '<svg><path d="second"/></svg>'));
+      });
+
+      await waitFor(() => {
+        expect(container.querySelector('path')).toHaveAttribute('d', 'second');
+      });
     });
   });
 

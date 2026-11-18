@@ -1,7 +1,14 @@
 import React from 'react';
+import { http, HttpResponse } from 'msw/http';
+import { Provider } from 'react-redux';
+import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
-import { render, screen, within } from '../../test-utils';
+import { act, render, screen, waitFor, within } from '../../test-utils';
+import { DAS_HOST } from '../../constants';
+import { mockStore } from '../../__test-helpers/MockStore';
+
+import SvgIcon, { svgCache } from '../../SvgIcon';
 
 import SelectableItem from './';
 
@@ -219,5 +226,57 @@ describe('SelectListGroup - SelectableItem', () => {
 
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(onClick).toHaveBeenCalledWith('buffalo_african', false);
+  });
+
+  describe('with an event type icon', () => {
+    const server = setupServer();
+
+    let iconResponse;
+
+    beforeAll(() => {
+      server.listen();
+    });
+
+    beforeEach(() => {
+      svgCache.clear();
+      iconResponse = Promise.withResolvers();
+      server.use(http.get(`${DAS_HOST}/static/sprite-src/fire_rep.svg`, () => iconResponse.promise));
+    });
+
+    afterEach(() => {
+      server.resetHandlers();
+    });
+
+    afterAll(() => {
+      server.close();
+    });
+
+    test('shows the icon and the translated label when translation replaced the label first', async () => {
+      const { container } = render(<Provider store={mockStore({ data: { community: null } })}>
+        <SelectableItem
+          icon={<SvgIcon color="black" iconId="fire_rep" type="events" />}
+          id="fire"
+          isChecked={false}
+          label="Fire"
+          onClick={onClick}
+          value="fire"
+        />
+      </Provider>);
+      const labelTextNode = screen.getByText('Fire').firstChild;
+      const fontElement = document.createElement('font');
+      fontElement.textContent = 'Fuego';
+      labelTextNode.replaceWith(fontElement);
+
+      await act(async () => {
+        iconResponse.resolve(new HttpResponse('<svg><path d="M0 0"/></svg>', {
+          headers: { 'Content-Type': 'image/svg+xml' },
+        }));
+      });
+
+      await waitFor(() => {
+        expect(container.querySelector('svg')).toBeInTheDocument();
+      });
+      expect(screen.getByRole('checkbox', { name: 'Fuego' })).toBeVisible();
+    });
   });
 });

@@ -1,14 +1,17 @@
+import ReactGA4 from 'react-ga4';
 import userEvent from '@testing-library/user-event';
 
+import { APP_ERROR_CATEGORY } from '../utils/analytics';
 import getWindowLocation from '../utils/getWindowLocation';
 import { render, screen } from '../test-utils';
 
 import RootErrorBoundary from './';
 
+jest.mock('react-ga4', () => ({ event: jest.fn() }));
 jest.mock('../utils/getWindowLocation', () => jest.fn());
 
-const CrashingChild = () => {
-  throw new Error('Unable to preload CSS for /assets/App-C0L_uhBQ.css');
+const CrashingChild = ({ error = new Error('Unable to preload CSS for /assets/App-C0L_uhBQ.css') }) => {
+  throw error;
 };
 
 describe('RootErrorBoundary', () => {
@@ -57,5 +60,31 @@ describe('RootErrorBoundary', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Reload' }));
 
     expect(reload).toHaveBeenCalledTimes(1);
+  });
+
+  test('tracks one app error event labeled with the error name and not its message', () => {
+    renderRootErrorBoundary(<CrashingChild error={Object.assign(new Error('secret'), { name: 'NotFoundError' })} />);
+
+    expect(ReactGA4.event).toHaveBeenCalledTimes(1);
+    expect(ReactGA4.event).toHaveBeenCalledWith({
+      action: 'See the app error screen',
+      category: APP_ERROR_CATEGORY,
+      label: 'NotFoundError',
+    });
+  });
+
+  test('does not track a second app error event when the user clicks the reload button', async () => {
+    renderRootErrorBoundary(<CrashingChild />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reload' }));
+
+    expect(ReactGA4.event).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows the reload button when a child throws null', () => {
+    renderRootErrorBoundary(<CrashingChild error={null} />);
+
+    expect(screen.getByRole('button', { name: 'Reload' })).toHaveFocus();
+    expect(ReactGA4.event).toHaveBeenCalledWith(expect.objectContaining({ label: null }));
   });
 });

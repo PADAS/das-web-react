@@ -2,9 +2,12 @@ import { useId } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
 
+import { APP_ERROR_CATEGORY, trackEventFactory } from '../utils/analytics';
 import getWindowLocation from '../utils/getWindowLocation';
 
 import * as styles from './styles.module.scss';
+
+const appErrorTracker = trackEventFactory(APP_ERROR_CATEGORY);
 
 export const RootErrorFallback = () => {
   const { t } = useTranslation('components', { keyPrefix: 'rootErrorBoundary' });
@@ -37,7 +40,10 @@ export const RootErrorFallback = () => {
   </main>;
 };
 
-const RootErrorBoundary = ({ children }) => <ErrorBoundary FallbackComponent={RootErrorFallback}>
+// The label is the error name only, because messages can carry user data.
+const onError = (error) => appErrorTracker.track('See the app error screen', error?.name);
+
+const RootErrorBoundary = ({ children }) => <ErrorBoundary FallbackComponent={RootErrorFallback} onError={onError}>
   {children}
 </ErrorBoundary>;
 
