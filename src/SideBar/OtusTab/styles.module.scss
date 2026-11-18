@@ -1,3 +1,4 @@
+@use '../../common/styles/buttons';
 @use '../../common/styles/layout';
 @use '../../common/styles/vars/colors';
 
@@ -16,7 +17,7 @@
       width: 100%;
     }
 
-    .loadError {
+    .connectionError {
       align-items: center;
       color: colors.$ui-text-primary;
       display: flex;
@@ -25,6 +26,10 @@
       justify-content: center;
       padding: 1rem;
       text-align: center;
+
+      .connectionErrorButton {
+        @include buttons.primary-action-button;
+      }
     }
   }
 

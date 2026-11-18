@@ -1,11 +1,11 @@
 import { memo, useCallback, useEffect, useId, useRef, useState } from 'react';
-import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import { ATLAS_TOKEN_SESSION_EXPIRING_ERROR_CODE, fetchAtlasToken } from '../../ducks/atlas-token';
 import { BREAKPOINTS, DAS_HOST, SIDEBAR_WIDTH_PIXELS, VERTICAL_NAV_RAIL_WIDTH_PIXELS } from '../../constants';
 import { calcMaxOtusTabWidth, clampOtusTabWidth } from '../../utils/otus';
-import { fetchAtlasToken } from '../../ducks/atlas-token';
+import { clearAuth } from '../../ducks/auth';
 import { selectOtusTabWidth } from '../../selectors/otus';
 import { updateUserPreferences } from '../../ducks/user-preferences';
 import { useMatchMedia } from '../../hooks';
@@ -57,6 +57,7 @@ const OtusTab = ({ isActive, url }) => {
   const [hasBeenActivated, setHasBeenActivated] = useState(isActive);
   const [loadedFrameKey, setLoadedFrameKey] = useState(null);
   const [recentOpenFrameKey, setRecentOpenFrameKey] = useState(null);
+  const [sessionExpiringFrameKey, setSessionExpiringFrameKey] = useState(null);
   const [widthWhileResizing, setWidthWhileResizing] = useState(null);
 
   // The frame boots a per-user sandbox, so it waits for the first visit.
@@ -76,11 +77,14 @@ const OtusTab = ({ isActive, url }) => {
   const isLoading = loadedFrameKey !== frameKey;
   // A reloaded frame starts with Recent closed, so only its own message counts.
   const isRecentOpen = recentOpenFrameKey === frameKey;
+  const isSessionExpiring = sessionExpiringFrameKey === frameKey;
   // A frame Otus refuses still fires load, so only a connection proves it.
   const isWaitingForConnection = !isLoading && connectedFrameKey !== frameKey;
   const otusOrigin = embedUrl.origin;
   // A late connection still clears the error, as the frame stays mounted behind it.
-  const shouldShowLoadError = isWaitingForConnection && failedFrameKey === frameKey;
+  const shouldShowConnectionError = isWaitingForConnection && failedFrameKey === frameKey;
+  const shouldShowLoadError = shouldShowConnectionError && !isSessionExpiring;
+  const shouldShowLogInPrompt = shouldShowConnectionError && isSessionExpiring;
 
   const postCommand = useCallback((command) => {
     iframeRef.current?.contentWindow?.postMessage({ command, type: OTUS_MESSAGE_TYPES.COMMAND }, otusOrigin);
@@ -92,6 +96,9 @@ const OtusTab = ({ isActive, url }) => {
 
     setFrameReloadCount((reloadCount) => reloadCount + 1);
   };
+
+  // Without a token, the app's guard sends the user to log in and back here.
+  const onClickLogInButton = () => dispatch(clearAuth());
 
   const onClose = useCallback(() => navigate('/'), [navigate]);
 
@@ -139,8 +146,15 @@ const OtusTab = ({ isActive, url }) => {
       const atlasTokenRequest = dispatch(fetchAtlasToken());
       latestAtlasTokenRequest = atlasTokenRequest;
 
-      // The duck already logs a failed request.
-      const atlasToken = await atlasTokenRequest.catch(() => null);
+      let atlasToken = null;
+      let isSessionExpiringError = false;
+
+      try {
+        atlasToken = await atlasTokenRequest;
+      } catch (error) {
+        // The duck already logs a failed request.
+        isSessionExpiringError = error.response?.data?.code === ATLAS_TOKEN_SESSION_EXPIRING_ERROR_CODE;
+      }
 
       // A newer ready message, a reload or an unmount makes this result stale.
       if (atlasTokenRequest === latestAtlasTokenRequest) {
@@ -156,9 +170,13 @@ const OtusTab = ({ isActive, url }) => {
           );
 
           setConnectedFrameKey(frameKey);
+          setSessionExpiringFrameKey(null);
         } else {
           setConnectedFrameKey(null);
           setFailedFrameKey(frameKey);
+
+          // Only an Atlas token clears the prompt, as retrying cannot renew the session.
+          if (isSessionExpiringError) setSessionExpiringFrameKey(frameKey);
         }
       }
     };
@@ -211,17 +229,20 @@ const OtusTab = ({ isActive, url }) => {
       ref={frameWrapperRef}
       tabIndex={-1}
       >
-      {shouldShowLoadError && <div className={styles.loadError} role="alert">
+      {shouldShowLoadError && <div className={styles.connectionError} role="alert">
         <p>{t('loadErrorMessage')}</p>
 
-        <Button
-          onClick={onClickRetryButton}
-          size="sm"
-          type="button"
-          variant="outline-secondary"
-          >
+        <button className={styles.connectionErrorButton} onClick={onClickRetryButton} type="button">
           {t('retryButtonLabel')}
-        </Button>
+        </button>
+      </div>}
+
+      {shouldShowLogInPrompt && <div className={styles.connectionError} role="alert">
+        <p>{t('sessionExpiringMessage')}</p>
+
+        <button className={styles.connectionErrorButton} onClick={onClickLogInButton} type="button">
+          {t('logInButtonLabel')}
+        </button>
       </div>}
 
       {isLoading && <LoadingOverlay message={t('loadingMessage')} role="status" />}
@@ -229,7 +250,7 @@ const OtusTab = ({ isActive, url }) => {
       <iframe
         allow="clipboard-write"
         className={styles.frame}
-        hidden={shouldShowLoadError}
+        hidden={shouldShowConnectionError}
         key={frameKey}
         onLoad={() => setLoadedFrameKey(frameKey)}
         ref={iframeRef}

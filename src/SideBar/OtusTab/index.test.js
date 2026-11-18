@@ -8,6 +8,7 @@ import {
   VERTICAL_NAV_RAIL_WIDTH_PIXELS,
 } from '../../constants';
 import { act, fireEvent, render, screen } from '../../test-utils';
+import { clearAuth } from '../../ducks/auth';
 import { fetchAtlasToken } from '../../ducks/atlas-token';
 import { mockStore } from '../../__test-helpers/MockStore';
 import { updateUserPreferences } from '../../ducks/user-preferences';
@@ -21,6 +22,11 @@ jest.mock('../../ducks/atlas-token', () => ({
   fetchAtlasToken: jest.fn(),
 }));
 
+jest.mock('../../ducks/auth', () => ({
+  ...jest.requireActual('../../ducks/auth'),
+  clearAuth: jest.fn(),
+}));
+
 jest.mock('../../hooks', () => ({
   ...jest.requireActual('../../hooks'),
   useMatchMedia: jest.fn(),
@@ -30,11 +36,21 @@ jest.mock('../../hooks/useNavigate', () => jest.fn());
 
 const ATLAS_TOKEN = { expiresAt: '2026-11-18T20:00:00Z', expiresIn: 28800, token: 'the-atlas-token' };
 const OTUS_URL = 'https://otus.example.com';
+const RATE_LIMITED_ERROR = Object.assign(new Error('Request failed with status code 429'), {
+  response: { data: { code: 'rate_limited' }, status: 429 },
+});
+const SESSION_EXPIRING_ERROR = Object.assign(new Error('Request failed with status code 401'), {
+  response: { data: { code: 'session_expiring' }, status: 401 },
+});
+const UNAUTHORIZED_ERROR = Object.assign(new Error('Request failed with status code 401'), {
+  response: { data: { detail: 'Invalid token.' }, status: 401 },
+});
 const MAX_WIDTH = 1440 - VERTICAL_NAV_RAIL_WIDTH_PIXELS - MIN_VISIBLE_MAP_WIDTH_PIXELS;
 
 describe('SideBar - OtusTab', () => {
   let navigate, reduxStore, store, user;
   beforeEach(() => {
+    clearAuth.mockImplementation(() => () => {});
     fetchAtlasToken.mockImplementation(() => () => Promise.resolve(ATLAS_TOKEN));
     navigate = jest.fn();
     useNavigate.mockImplementation(() => navigate);
@@ -82,8 +98,8 @@ describe('SideBar - OtusTab', () => {
     return atlasTokenRequest;
   };
 
-  const rejectAtlasTokenRequests = () => fetchAtlasToken.mockImplementation(
-    () => () => Promise.reject(new Error('Request failed'))
+  const rejectAtlasTokenRequests = (error = new Error('Request failed')) => fetchAtlasToken.mockImplementation(
+    () => () => Promise.reject(error)
   );
 
   const dispatchReadyMessage = (overrides = {}) => act(async () => window.dispatchEvent(new MessageEvent('message', {
@@ -106,6 +122,7 @@ describe('SideBar - OtusTab', () => {
   ];
 
   const LOAD_ERROR_MESSAGE = 'Atlas couldn\'t load on this site. Try again, or contact support if this keeps happening.';
+  const SESSION_EXPIRING_MESSAGE = 'Your session ends soon. Log in again to use Atlas.';
 
   const movePointerTo = (clientX) => user.pointer({ coords: { clientX }, target: getResizeHandle() });
 
@@ -391,6 +408,102 @@ describe('SideBar - OtusTab', () => {
     expect(fetchAtlasToken).toHaveBeenCalledTimes(2);
     expect(postMessage.mock.calls).toEqual([connectMessage()]);
     expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  test('asks the user to log in again without logging them out when the session ends soon', async () => {
+    rejectAtlasTokenRequests(SESSION_EXPIRING_ERROR);
+    renderOtusTab();
+    fireEvent.load(getFrame());
+    const postMessage = mockFramePostMessage();
+
+    await dispatchReadyMessage();
+
+    expect(screen.getByRole('alert')).toHaveTextContent(SESSION_EXPIRING_MESSAGE);
+    expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull();
+    expect(getFrame()).not.toBeVisible();
+    expect(postMessage).not.toHaveBeenCalled();
+    expect(clearAuth).not.toHaveBeenCalled();
+  });
+
+  test('logs the user out so they can log in again when the log in again button is clicked', async () => {
+    rejectAtlasTokenRequests(SESSION_EXPIRING_ERROR);
+    renderOtusTab();
+    fireEvent.load(getFrame());
+    await dispatchReadyMessage();
+
+    await user.click(screen.getByRole('button', { name: 'Log in again' }));
+
+    expect(clearAuth).toHaveBeenCalledTimes(1);
+  });
+
+  test('shows the load error instead of the log-in prompt when the Atlas token request is rate limited', async () => {
+    rejectAtlasTokenRequests(RATE_LIMITED_ERROR);
+    renderOtusTab();
+    fireEvent.load(getFrame());
+    const postMessage = mockFramePostMessage();
+
+    await dispatchReadyMessage();
+
+    expect(screen.getByRole('alert')).toHaveTextContent(LOAD_ERROR_MESSAGE);
+    expect(screen.queryByRole('button', { name: 'Log in again' })).toBeNull();
+    expect(postMessage).not.toHaveBeenCalled();
+  });
+
+  test('shows the load error instead of the log-in prompt when the Atlas token request is unauthorized', async () => {
+    rejectAtlasTokenRequests(UNAUTHORIZED_ERROR);
+    renderOtusTab();
+    fireEvent.load(getFrame());
+
+    await dispatchReadyMessage();
+
+    expect(screen.getByRole('alert')).toHaveTextContent(LOAD_ERROR_MESSAGE);
+    expect(screen.queryByRole('button', { name: 'Log in again' })).toBeNull();
+  });
+
+  test('keeps the log-in prompt when a later Atlas token request fails otherwise', async () => {
+    fetchAtlasToken
+      .mockImplementationOnce(() => () => Promise.reject(SESSION_EXPIRING_ERROR))
+      .mockImplementationOnce(() => () => Promise.reject(new Error('Request failed')));
+    renderOtusTab();
+    fireEvent.load(getFrame());
+    await dispatchReadyMessage();
+
+    await dispatchReadyMessage();
+
+    expect(screen.getByRole('alert')).toHaveTextContent(SESSION_EXPIRING_MESSAGE);
+    expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull();
+  });
+
+  test('shows the load error for a later failure once an Atlas token cleared the log-in prompt', async () => {
+    fetchAtlasToken
+      .mockImplementationOnce(() => () => Promise.reject(SESSION_EXPIRING_ERROR))
+      .mockImplementationOnce(() => () => Promise.resolve(ATLAS_TOKEN))
+      .mockImplementationOnce(() => () => Promise.reject(new Error('Request failed')));
+    renderOtusTab();
+    fireEvent.load(getFrame());
+    mockFramePostMessage();
+    await dispatchReadyMessage();
+    await dispatchReadyMessage();
+
+    await dispatchReadyMessage();
+
+    expect(screen.getByRole('alert')).toHaveTextContent(LOAD_ERROR_MESSAGE);
+  });
+
+  test('clears the log-in prompt when a later Atlas token request connects the frame', async () => {
+    fetchAtlasToken.mockImplementationOnce(() => () => Promise.reject(SESSION_EXPIRING_ERROR));
+    renderOtusTab();
+    fireEvent.load(getFrame());
+    const postMessage = mockFramePostMessage();
+    await dispatchReadyMessage();
+
+    expect(screen.getByRole('alert')).toHaveTextContent(SESSION_EXPIRING_MESSAGE);
+
+    await dispatchReadyMessage();
+
+    expect(postMessage.mock.calls).toEqual([connectMessage()]);
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(getFrame()).toBeVisible();
   });
 
   test('does not post to the frame again when the user token is renewed', async () => {
