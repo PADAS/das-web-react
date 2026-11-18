@@ -324,9 +324,9 @@ Either way the client gets an access token, Auth0's used as is, kept in a cookie
 
 ### Atlas
 
-**Atlas** is EarthRanger's field-intelligence agent: a chat where users ask operational questions about their site, such as which collars went quiet or how a patrol covered its area, and get answers drawn from the site's live data, sometimes with a map, chart, table or file. It is a separate web app with its own repository and deployment; the client only embeds it, as it does the alerts page.
+**Atlas** is EarthRanger's field-intelligence agent, shown to users as **Atlas**: a chat where users ask operational questions about their site, such as which collars went quiet or how a patrol covered its area, and get answers drawn from the site's live data, sometimes with a map, chart, table or file. It is a separate web app with its own repository and deployment; the client only embeds it, as it does the alerts page.
 
-**Connection.** Each cluster runs one Atlas, and the server sends its URL in the system status's `otus_settings.url` only to superusers, and only where the `otus` preview feature is on; the client clears it on sign-out, and `REACT_APP_OTUS_URL` overrides it for local development. The client frames that URL in embedded mode and, once Atlas says it is ready, hands it the site URL and the user's access token over `postMessage`, again whenever the token is renewed. Atlas then reads the site as the signed-in user, never as an active profile, and never writes to it. Atlas accepts being framed only by origins it allows, so an embed that stays blank is usually Atlas's configuration, not this client's.
+**Connection.** Each cluster runs one Atlas, and the server sends its URL in the system status's `otus_settings.url` only to superusers, and only where the `otus` preview feature is on; the client clears it on sign-out, and `REACT_APP_OTUS_URL` overrides it for local development. The client frames that URL in embedded mode and, each time Atlas says it is ready, asks the server for an **Atlas token**: read-only, short-lived, never outliving the user's own token, and with no refresh token. It hands Atlas that token, its expiry and the site URL over `postMessage`, so the user's own token never reaches Atlas. A failed request shows the tab's load error, whose Try again reloads the frame. Atlas then reads the site as the signed-in user, never as an active profile, and never writes to it. Atlas accepts being framed only by origins it allows, so an embed that stays blank is usually Atlas's configuration, not this client's.
 
 **Conversations** belong to Atlas, per user and site, so they survive a reload. Since Atlas starts a sandbox per user, the frame loads on the tab's first visit, then stays alive while the user switches tabs.
 
@@ -335,6 +335,7 @@ Either way the client gets an access token, Auth0's used as is, kept in a cookie
 
 **Key files**
 - `SideBar/AtlasTab/`: the frame, the handshake, the resizing, and the header.
+- `ducks/atlas-token/`: requesting the Atlas token.
 - `ducks/system-config/`: the Atlas URL.
 - `selectors/atlas/`, `utils/atlas.js`: the panel width and its bounds.
 

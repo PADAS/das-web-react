@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { BREAKPOINTS, DAS_HOST, SIDEBAR_WIDTH_PIXELS, VERTICAL_NAV_RAIL_WIDTH_PIXELS } from '../../constants';
 import { calcMaxAtlasTabWidth, clampAtlasTabWidth } from '../../utils/atlas';
+import { fetchAtlasToken } from '../../ducks/atlas-token';
 import { selectAtlasTabWidth } from '../../selectors/atlas';
 import { updateUserPreferences } from '../../ducks/user-preferences';
 import { useMatchMedia } from '../../hooks';
@@ -44,21 +45,19 @@ const AtlasTab = ({ isActive, url }) => {
   const navigate = useNavigate();
 
   const atlasTabWidth = useSelector(selectAtlasTabWidth);
-  const token = useSelector((state) => state.data.token?.access_token);
 
   const frameWrapperRef = useRef(null);
-  const hasConnectedRef = useRef(false);
   const iframeRef = useRef(null);
 
   const panelId = useId();
   const titleId = useId();
 
+  const [connectedFrameKey, setConnectedFrameKey] = useState(null);
+  const [failedFrameKey, setFailedFrameKey] = useState(null);
   const [frameReloadCount, setFrameReloadCount] = useState(0);
   const [hasBeenActivated, setHasBeenActivated] = useState(isActive);
   const [loadedFrameKey, setLoadedFrameKey] = useState(null);
-  const [readyFrameKey, setReadyFrameKey] = useState(null);
   const [recentOpenFrameKey, setRecentOpenFrameKey] = useState(null);
-  const [timedOutFrameKey, setTimedOutFrameKey] = useState(null);
   const [widthWhileResizing, setWidthWhileResizing] = useState(null);
 
   // The frame boots a per-user sandbox, so it waits for the first visit.
@@ -75,25 +74,18 @@ const AtlasTab = ({ isActive, url }) => {
   embedUrl.searchParams.set('titlebar', '0');
 
   const frameKey = `${frameReloadCount}-${embedUrl.href}`;
-  // A late ready message still clears the error, as the frame stays mounted behind it.
-  const hasTimedOut = timedOutFrameKey === frameKey && readyFrameKey !== frameKey;
   const isLoading = loadedFrameKey !== frameKey;
   // A reloaded frame starts with Recent closed, so only its own message counts.
   const isRecentOpen = recentOpenFrameKey === frameKey;
-  // A frame Atlas refuses still fires load, so only its ready message proves it.
-  const isWaitingForReady = !isLoading && readyFrameKey !== frameKey;
+  // A frame Atlas refuses still fires load, so only a connection proves it.
+  const isWaitingForConnection = !isLoading && connectedFrameKey !== frameKey;
   const atlasOrigin = embedUrl.origin;
+  // A late connection still clears the error, as the frame stays mounted behind it.
+  const shouldShowLoadError = isWaitingForConnection && failedFrameKey === frameKey;
 
   const postCommand = useCallback((command) => {
     iframeRef.current?.contentWindow?.postMessage({ command, type: ATLAS_MESSAGE_TYPES.COMMAND }, atlasOrigin);
   }, [atlasOrigin]);
-
-  const postConnect = useCallback(() => {
-    iframeRef.current?.contentWindow?.postMessage(
-      { site_url: DAS_HOST, token, type: ATLAS_MESSAGE_TYPES.CONNECT },
-      atlasOrigin
-    );
-  }, [atlasOrigin, token]);
 
   // The retry button unmounts, so focus moves to the wrapper that outlives it.
   const onClickRetryButton = () => {
@@ -142,17 +134,39 @@ const AtlasTab = ({ isActive, url }) => {
   const onToggleRecent = useCallback(() => postCommand(ATLAS_COMMANDS.TOGGLE_THREADS), [postCommand]);
 
   useEffect(() => {
+    let latestAtlasTokenRequest = null;
+
+    const connect = async () => {
+      const atlasTokenRequest = dispatch(fetchAtlasToken());
+      latestAtlasTokenRequest = atlasTokenRequest;
+
+      // The duck already logs a failed request.
+      const atlasToken = await atlasTokenRequest.catch(() => null);
+
+      // A newer ready message, a reload or an unmount makes this result stale.
+      if (atlasTokenRequest === latestAtlasTokenRequest) {
+        if (atlasToken?.token) {
+          iframeRef.current?.contentWindow?.postMessage(
+            {
+              expires_at: atlasToken.expiresAt,
+              site_url: DAS_HOST,
+              token: atlasToken.token,
+              type: ATLAS_MESSAGE_TYPES.CONNECT,
+            },
+            atlasOrigin
+          );
+
+          setConnectedFrameKey(frameKey);
+        } else {
+          setConnectedFrameKey(null);
+          setFailedFrameKey(frameKey);
+        }
+      }
+    };
+
     const onMessage = (event) => {
       if (event.origin === atlasOrigin && event.source === iframeRef.current?.contentWindow) {
-        if (event.data?.type === ATLAS_MESSAGE_TYPES.READY) {
-          setReadyFrameKey(frameKey);
-
-          if (token) {
-            hasConnectedRef.current = true;
-
-            postConnect();
-          }
-        }
+        if (event.data?.type === ATLAS_MESSAGE_TYPES.READY) connect();
 
         if (event.data?.type === ATLAS_MESSAGE_TYPES.THREADS) {
           setRecentOpenFrameKey(event.data.open === true ? frameKey : null);
@@ -163,21 +177,20 @@ const AtlasTab = ({ isActive, url }) => {
     // Atlas repeats its ready message after each reload, so we keep listening.
     window.addEventListener('message', onMessage);
 
-    return () => window.removeEventListener('message', onMessage);
-  }, [atlasOrigin, frameKey, postConnect, token]);
+    return () => {
+      latestAtlasTokenRequest = null;
+
+      window.removeEventListener('message', onMessage);
+    };
+  }, [atlasOrigin, dispatch, frameKey]);
 
   useEffect(() => {
-    if (isWaitingForReady) {
-      const timeoutId = setTimeout(() => setTimedOutFrameKey(frameKey), ATLAS_READY_TIMEOUT_MS);
+    if (isWaitingForConnection) {
+      const timeoutId = setTimeout(() => setFailedFrameKey(frameKey), ATLAS_READY_TIMEOUT_MS);
 
       return () => clearTimeout(timeoutId);
     }
-  }, [frameKey, isWaitingForReady]);
-
-  // Atlas keeps the token it was last given, so a renewed one is sent again.
-  useEffect(() => {
-    if (hasConnectedRef.current && token) postConnect();
-  }, [postConnect, token]);
+  }, [frameKey, isWaitingForConnection]);
 
   return <section
     aria-labelledby={titleId}
@@ -199,7 +212,7 @@ const AtlasTab = ({ isActive, url }) => {
       ref={frameWrapperRef}
       tabIndex={-1}
       >
-      {hasTimedOut && <div className={styles.loadError} role="alert">
+      {shouldShowLoadError && <div className={styles.loadError} role="alert">
         <p>{t('loadErrorMessage')}</p>
 
         <Button
@@ -217,7 +230,7 @@ const AtlasTab = ({ isActive, url }) => {
       <iframe
         allow="clipboard-write"
         className={styles.frame}
-        hidden={hasTimedOut}
+        hidden={shouldShowLoadError}
         key={frameKey}
         onLoad={() => setLoadedFrameKey(frameKey)}
         ref={iframeRef}

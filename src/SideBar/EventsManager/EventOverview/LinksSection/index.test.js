@@ -52,8 +52,9 @@ describe('SideBar - EventsManager - EventOverview - LinksSection', () => {
         tracks: {},
         user: {
           permissions: {
+            [PERMISSION_KEYS.EVENT_RELATED_SEGMENTS]: [PERMISSIONS.DELETE],
             [PERMISSION_KEYS.EVENT_RELATIONSHIPS]: [PERMISSIONS.DELETE],
-            [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
+            [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE],
           },
         },
       },
@@ -92,7 +93,10 @@ describe('SideBar - EventsManager - EventOverview - LinksSection', () => {
   });
 
   test('does not offer to remove the event from its incident without the delete permission', () => {
-    state.data.user.permissions = { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] };
+    state.data.user.permissions = {
+      [PERMISSION_KEYS.EVENT_RELATED_SEGMENTS]: [PERMISSIONS.DELETE],
+      [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE],
+    };
 
     renderLinksSection();
 

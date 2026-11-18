@@ -37,7 +37,12 @@ describe('SideBar - EventsManager - EventOverview - Header - ReportMenu', () => 
       data: {
         eventCategories: {},
         eventTypes,
-        user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] } },
+        user: {
+          permissions: {
+            [PERMISSION_KEYS.EVENT_RELATED_SEGMENTS]: [PERMISSIONS.DELETE],
+            [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE],
+          },
+        },
       },
       view: { systemConfig: { [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true } },
     };
@@ -152,7 +157,7 @@ describe('SideBar - EventsManager - EventOverview - Header - ReportMenu', () => 
     expect(screen.queryByRole('menuitem', { name: 'Add to Incident' })).not.toBeInTheDocument();
   });
 
-  test('does not offer to link an event whose category the user cannot edit', async () => {
+  test('offers to add an event whose category the user cannot edit to a patrol, but not to an incident', async () => {
     state.data.eventTypes = eventTypes.map((eventType) => eventType.value === report.event_type
       ? { ...eventType, category: { ...eventType.category, permissions: ['read'] } }
       : eventType);
@@ -162,7 +167,7 @@ describe('SideBar - EventsManager - EventOverview - Header - ReportMenu', () => 
     await openMenu();
 
     expect(screen.queryByRole('menuitem', { name: 'Add to Incident' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: 'Add to Patrol' })).not.toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Add to Patrol' })).toBeInTheDocument();
   });
 
   test('opens the modal to add the event to an incident or a patrol', async () => {

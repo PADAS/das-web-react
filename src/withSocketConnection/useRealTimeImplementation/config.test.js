@@ -1,4 +1,7 @@
 import { socketDeleteSubject, socketNewSubject } from '../../ducks/subjects';
+import { socketUpdatePatrol } from '../../ducks/patrols';
+import { socketUpdatePatrolEventLinks } from '../../ducks/events';
+
 import { events as SOCKET_DISPATCHES } from './config';
 
 describe('SOCKET_DISPATCHES config', () => {
@@ -27,6 +30,15 @@ describe('SOCKET_DISPATCHES config', () => {
 
     test('includes a health-status updater as the second handler', () => {
       expect(typeof SOCKET_DISPATCHES.delete_subject[1]).toBe('function');
+    });
+  });
+
+  describe('update_patrol entry', () => {
+    test('updates the patrol and the patrol links of the stored events', () => {
+      expect(SOCKET_DISPATCHES.update_patrol).toEqual(expect.arrayContaining([
+        socketUpdatePatrol,
+        socketUpdatePatrolEventLinks,
+      ]));
     });
   });
 });

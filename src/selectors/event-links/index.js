@@ -16,14 +16,19 @@ const selectUserPermissions = (state) => (state.data.selectedUserProfile?.id
   ? state.data.selectedUserProfile
   : state.data.user)?.permissions;
 
-// Every link change but leaving an incident edits the event, so it takes the
-// right to update its category; the server checks patrol links with it too.
+const hasUserPermission = (userPermissions, permissionKey, permission) => (
+  userPermissions?.[permissionKey] ?? EMPTY_PERMISSIONS
+).includes(permission);
+
+// Joining an incident edits the event, so it takes the right to update its
+// category. A patrol link edits the patrol alone, which the server reads first.
 export const selectEventLinkPermissions = createSelector(
   [
     selectEventCategoryPermissions,
     selectIncidentCategoryPermissions,
     selectIsPatrolManagementEnabled,
     selectUserPermissions,
+    (_, event) => !!event,
     (_, event) => !!event?.is_collection,
     (_, event) => getEventIncidentId(event),
     (_, event) => getEventPatrolId(event),
@@ -33,21 +38,25 @@ export const selectEventLinkPermissions = createSelector(
     incidentCategoryPermissions,
     isPatrolManagementEnabled,
     userPermissions,
+    hasEvent,
     isCollection,
     incidentId,
     patrolId
   ) => {
-    const canChangePatrolLinks = isPatrolManagementEnabled
-      && (userPermissions?.[PERMISSION_KEYS.PATROLS] ?? EMPTY_PERMISSIONS).includes(PERMISSIONS.READ)
-      && eventCategoryPermissions.hasUpdatePermission;
+    const canChangePatrolLinks = hasEvent
+      && isPatrolManagementEnabled
+      && hasUserPermission(userPermissions, PERMISSION_KEYS.PATROLS, PERMISSIONS.READ)
+      && hasUserPermission(userPermissions, PERMISSION_KEYS.PATROLS, PERMISSIONS.UPDATE);
 
     return {
       canAddToIncident: !isCollection && !incidentId && eventCategoryPermissions.hasUpdatePermission,
       canAddToPatrol: canChangePatrolLinks && !patrolId,
       canCreateIncident: incidentCategoryPermissions.hasCreatePermission,
       canRemoveFromIncident: !!incidentId
-        && (userPermissions?.[PERMISSION_KEYS.EVENT_RELATIONSHIPS] ?? EMPTY_PERMISSIONS).includes(PERMISSIONS.DELETE),
-      canRemoveFromPatrol: canChangePatrolLinks && !!patrolId,
+        && hasUserPermission(userPermissions, PERMISSION_KEYS.EVENT_RELATIONSHIPS, PERMISSIONS.DELETE),
+      canRemoveFromPatrol: canChangePatrolLinks
+        && !!patrolId
+        && hasUserPermission(userPermissions, PERMISSION_KEYS.EVENT_RELATED_SEGMENTS, PERMISSIONS.DELETE),
     };
   }
 );

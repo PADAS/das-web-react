@@ -144,7 +144,7 @@ describe('FeedTable - EventsTable', () => {
           { category: { value: 'security' }, is_collection: true, value: 'incident_collection', version: 1 },
         ],
         feedEvents: { results: [report] },
-        user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] } },
+        user: { permissions: { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE] } },
       },
       view: {
         coordinateReferenceSystems: { storedSystems: [] },
@@ -664,6 +664,14 @@ describe('FeedTable - EventsTable', () => {
     expect(screen.queryByRole('button', { name: 'Reopen' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Add to Patrol' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Add to Incident' })).toBeNull();
+  });
+
+  test('does not offer to add events to a patrol without the patrol change permission', () => {
+    state.data.user.permissions = { [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ] };
+    renderEventsTable();
+    selectEvents([report]);
+
+    expect(screen.queryByRole('button', { name: 'Add to Patrol' })).toBeNull();
   });
 
   test('offers a new incident only to a user who may create one', async () => {

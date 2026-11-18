@@ -432,8 +432,9 @@ describe('ActivitySection - ContainedReportListItem', () => {
       store.data.eventStore[report.id] = linkedReport;
       store.data.user = {
         permissions: {
+          [PERMISSION_KEYS.EVENT_RELATED_SEGMENTS]: [PERMISSIONS.DELETE],
           [PERMISSION_KEYS.EVENT_RELATIONSHIPS]: [PERMISSIONS.DELETE],
-          [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ],
+          [PERMISSION_KEYS.PATROLS]: [PERMISSIONS.READ, PERMISSIONS.UPDATE],
         },
       };
       store.view.systemConfig = { [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: true };

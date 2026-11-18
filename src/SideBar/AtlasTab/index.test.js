@@ -7,13 +7,19 @@ import {
   SIDEBAR_WIDTH_PIXELS,
   VERTICAL_NAV_RAIL_WIDTH_PIXELS,
 } from '../../constants';
-import { mockStore } from '../../__test-helpers/MockStore';
 import { act, fireEvent, render, screen } from '../../test-utils';
+import { fetchAtlasToken } from '../../ducks/atlas-token';
+import { mockStore } from '../../__test-helpers/MockStore';
 import { updateUserPreferences } from '../../ducks/user-preferences';
 import { useMatchMedia } from '../../hooks';
 import useNavigate from '../../hooks/useNavigate';
 
 import AtlasTab, { ATLAS_READY_TIMEOUT_MS } from './';
+
+jest.mock('../../ducks/atlas-token', () => ({
+  ...jest.requireActual('../../ducks/atlas-token'),
+  fetchAtlasToken: jest.fn(),
+}));
 
 jest.mock('../../hooks', () => ({
   ...jest.requireActual('../../hooks'),
@@ -22,12 +28,14 @@ jest.mock('../../hooks', () => ({
 
 jest.mock('../../hooks/useNavigate', () => jest.fn());
 
+const ATLAS_TOKEN = { expiresAt: '2026-11-18T20:00:00Z', expiresIn: 28800, token: 'the-atlas-token' };
 const ATLAS_URL = 'https://atlas.example.com';
 const MAX_WIDTH = 1440 - VERTICAL_NAV_RAIL_WIDTH_PIXELS - MIN_VISIBLE_MAP_WIDTH_PIXELS;
 
 describe('SideBar - AtlasTab', () => {
   let navigate, reduxStore, store, user;
   beforeEach(() => {
+    fetchAtlasToken.mockImplementation(() => () => Promise.resolve(ATLAS_TOKEN));
     navigate = jest.fn();
     useNavigate.mockImplementation(() => navigate);
     useMatchMedia.mockImplementation(() => true);
@@ -36,7 +44,7 @@ describe('SideBar - AtlasTab', () => {
     user = userEvent.setup();
 
     store = {
-      data: { token: { access_token: 'the-token' } },
+      data: { token: { access_token: 'the-user-token' } },
       view: { userPreferences: {} },
     };
   });
@@ -64,7 +72,21 @@ describe('SideBar - AtlasTab', () => {
     return postMessage;
   };
 
-  const dispatchReadyMessage = (overrides = {}) => act(() => window.dispatchEvent(new MessageEvent('message', {
+  const deferAtlasToken = () => {
+    const atlasTokenRequest = {};
+    fetchAtlasToken.mockImplementationOnce(() => () => new Promise((resolve, reject) => {
+      atlasTokenRequest.reject = () => act(async () => reject(new Error('Request failed')));
+      atlasTokenRequest.resolve = (atlasToken) => act(async () => resolve(atlasToken));
+    }));
+
+    return atlasTokenRequest;
+  };
+
+  const rejectAtlasTokenRequests = () => fetchAtlasToken.mockImplementation(
+    () => () => Promise.reject(new Error('Request failed'))
+  );
+
+  const dispatchReadyMessage = (overrides = {}) => act(async () => window.dispatchEvent(new MessageEvent('message', {
     data: { type: 'otus:ready' },
     origin: ATLAS_URL,
     source: getFrame().contentWindow,
@@ -77,6 +99,11 @@ describe('SideBar - AtlasTab', () => {
     source: getFrame().contentWindow,
     ...overrides,
   })));
+
+  const connectMessage = (atlasToken = ATLAS_TOKEN) => [
+    { expires_at: atlasToken.expiresAt, site_url: DAS_HOST, token: atlasToken.token, type: 'otus:connect' },
+    ATLAS_URL,
+  ];
 
   const LOAD_ERROR_MESSAGE = 'Atlas couldn\'t load on this site. Try again, or contact support if this keeps happening.';
 
@@ -232,88 +259,219 @@ describe('SideBar - AtlasTab', () => {
     expect(screen.getByRole('button', { name: 'Recent' })).toHaveAttribute('aria-pressed', 'false');
   });
 
-  test('posts the site and token to the frame when it announces it is ready', () => {
+  test('requests an Atlas token when the frame announces it is ready', async () => {
+    renderAtlasTab();
+    mockFramePostMessage();
+
+    await dispatchReadyMessage();
+
+    expect(fetchAtlasToken).toHaveBeenCalledTimes(1);
+  });
+
+  test('posts the site, the Atlas token and its expiry to the frame once the token arrives', async () => {
     renderAtlasTab();
     const postMessage = mockFramePostMessage();
 
-    dispatchReadyMessage();
+    await dispatchReadyMessage();
 
     expect(postMessage).toHaveBeenCalledTimes(1);
-    expect(postMessage).toHaveBeenCalledWith(
-      { site_url: DAS_HOST, token: 'the-token', type: 'otus:connect' },
-      ATLAS_URL
-    );
+    expect(postMessage).toHaveBeenCalledWith(...connectMessage());
   });
 
-  test('posts the site and token again when the frame announces it is ready a second time', () => {
+  test('does not post to the frame while the Atlas token request runs', async () => {
+    deferAtlasToken();
     renderAtlasTab();
     const postMessage = mockFramePostMessage();
 
-    dispatchReadyMessage();
-    dispatchReadyMessage();
+    await dispatchReadyMessage();
 
-    expect(postMessage).toHaveBeenCalledTimes(2);
+    expect(fetchAtlasToken).toHaveBeenCalledTimes(1);
+    expect(postMessage).not.toHaveBeenCalled();
   });
 
-  test('posts the renewed token to the frame once it has connected', () => {
+  test('requests and posts a new Atlas token, never the user token, each time the frame is ready', async () => {
+    const otherAtlasToken = { ...ATLAS_TOKEN, expiresAt: '2026-11-18T21:00:00Z', token: 'the-other-atlas-token' };
+    fetchAtlasToken
+      .mockImplementationOnce(() => () => Promise.resolve(ATLAS_TOKEN))
+      .mockImplementationOnce(() => () => Promise.resolve(otherAtlasToken));
+    renderAtlasTab();
+    const postMessage = mockFramePostMessage();
+
+    await dispatchReadyMessage();
+    await dispatchReadyMessage();
+
+    expect(fetchAtlasToken).toHaveBeenCalledTimes(2);
+    expect(postMessage.mock.calls).toEqual([connectMessage(), connectMessage(otherAtlasToken)]);
+  });
+
+  test('does not post to the frame when the Atlas token request fails', async () => {
+    rejectAtlasTokenRequests();
+    renderAtlasTab();
+    const postMessage = mockFramePostMessage();
+
+    await dispatchReadyMessage();
+
+    expect(postMessage).not.toHaveBeenCalled();
+  });
+
+  test('requests a new Atlas token when the frame is ready again after a failed request', async () => {
+    fetchAtlasToken.mockImplementationOnce(() => () => Promise.reject(new Error('Request failed')));
+    renderAtlasTab();
+    const postMessage = mockFramePostMessage();
+
+    await dispatchReadyMessage();
+    await dispatchReadyMessage();
+
+    expect(fetchAtlasToken).toHaveBeenCalledTimes(2);
+    expect(postMessage.mock.calls).toEqual([connectMessage()]);
+  });
+
+  test('shows the load error in place of the frame when the Atlas token request fails', async () => {
+    rejectAtlasTokenRequests();
+    renderAtlasTab();
+    fireEvent.load(getFrame());
+
+    await dispatchReadyMessage();
+
+    expect(screen.getByRole('alert')).toHaveTextContent(LOAD_ERROR_MESSAGE);
+    expect(getFrame()).not.toBeVisible();
+  });
+
+  test('shows the load error instead of posting when the Atlas token response has no token', async () => {
+    fetchAtlasToken.mockImplementation(() => () => Promise.resolve({ ...ATLAS_TOKEN, token: undefined }));
+    renderAtlasTab();
+    fireEvent.load(getFrame());
+    const postMessage = mockFramePostMessage();
+
+    await dispatchReadyMessage();
+
+    expect(postMessage).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toBeVisible();
+  });
+
+  test('shows the load error when a new Atlas token request fails after the frame connected', async () => {
+    fetchAtlasToken
+      .mockImplementationOnce(() => () => Promise.resolve(ATLAS_TOKEN))
+      .mockImplementationOnce(() => () => Promise.reject(new Error('Request failed')));
+    renderAtlasTab();
+    fireEvent.load(getFrame());
+    mockFramePostMessage();
+    await dispatchReadyMessage();
+
+    await dispatchReadyMessage();
+
+    expect(screen.getByRole('alert')).toBeVisible();
+    expect(getFrame()).not.toBeVisible();
+  });
+
+  test('waits for the frame to load before showing the load error for a failed Atlas token request', async () => {
+    rejectAtlasTokenRequests();
+    renderAtlasTab();
+
+    await dispatchReadyMessage();
+
+    expect(screen.queryByRole('alert')).toBeNull();
+
+    fireEvent.load(getFrame());
+
+    expect(screen.getByRole('alert')).toBeVisible();
+  });
+
+  test('requests and posts a new Atlas token when the user tries again after a failed request', async () => {
+    fetchAtlasToken.mockImplementationOnce(() => () => Promise.reject(new Error('Request failed')));
+    renderAtlasTab();
+    fireEvent.load(getFrame());
+    await dispatchReadyMessage();
+
+    await user.click(screen.getByRole('button', { name: 'Try again' }));
+    fireEvent.load(getFrame());
+    const postMessage = mockFramePostMessage();
+    await dispatchReadyMessage();
+
+    expect(fetchAtlasToken).toHaveBeenCalledTimes(2);
+    expect(postMessage.mock.calls).toEqual([connectMessage()]);
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  test('does not post to the frame again when the user token is renewed', async () => {
     const { rerender } = renderAtlasTab();
     const postMessage = mockFramePostMessage();
-    dispatchReadyMessage();
+    await dispatchReadyMessage();
 
-    reduxStore = mockStore({ ...store, data: { token: { access_token: 'the-renewed-token' } } });
+    reduxStore = mockStore({ ...store, data: { token: { access_token: 'the-renewed-user-token' } } });
     rerender(atlasTabTree());
 
-    expect(postMessage).toHaveBeenCalledTimes(2);
-    expect(postMessage).toHaveBeenLastCalledWith(
-      { site_url: DAS_HOST, token: 'the-renewed-token', type: 'otus:connect' },
-      ATLAS_URL
-    );
+    expect(fetchAtlasToken).toHaveBeenCalledTimes(1);
+    expect(postMessage).toHaveBeenCalledTimes(1);
   });
 
-  test('does not post a renewed token to a frame that has not announced it is ready', () => {
+  test('ignores an Atlas token that arrives after a newer ready message', async () => {
+    const firstAtlasTokenRequest = deferAtlasToken();
+    renderAtlasTab();
+    const postMessage = mockFramePostMessage();
+    await dispatchReadyMessage();
+    await dispatchReadyMessage();
+
+    await firstAtlasTokenRequest.resolve({ ...ATLAS_TOKEN, token: 'the-stale-atlas-token' });
+
+    expect(postMessage.mock.calls).toEqual([connectMessage()]);
+  });
+
+  test('ignores a failed Atlas token request that settles after a newer ready message', async () => {
+    const firstAtlasTokenRequest = deferAtlasToken();
+    deferAtlasToken();
+    renderAtlasTab();
+    fireEvent.load(getFrame());
+    await dispatchReadyMessage();
+    await dispatchReadyMessage();
+
+    await firstAtlasTokenRequest.reject();
+
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(getFrame()).toBeVisible();
+  });
+
+  test('ignores an Atlas token that arrives after the frame reloads', async () => {
+    const atlasTokenRequest = deferAtlasToken();
     const { rerender } = renderAtlasTab();
     const postMessage = mockFramePostMessage();
+    await dispatchReadyMessage();
 
-    reduxStore = mockStore({ ...store, data: { token: { access_token: 'the-renewed-token' } } });
-    rerender(atlasTabTree());
+    rerender(atlasTabTree({ url: 'https://atlas.example.com/other' }));
+    const reloadedFramePostMessage = mockFramePostMessage();
+    await atlasTokenRequest.resolve(ATLAS_TOKEN);
 
     expect(postMessage).not.toHaveBeenCalled();
+    expect(reloadedFramePostMessage).not.toHaveBeenCalled();
   });
 
-  test('ignores a ready message from another origin', () => {
+  test('ignores a ready message from another origin', async () => {
     renderAtlasTab();
     const postMessage = mockFramePostMessage();
 
-    dispatchReadyMessage({ origin: 'https://impostor.example.com' });
+    await dispatchReadyMessage({ origin: 'https://impostor.example.com' });
 
+    expect(fetchAtlasToken).not.toHaveBeenCalled();
     expect(postMessage).not.toHaveBeenCalled();
   });
 
-  test('ignores a ready message from a window other than the frame', () => {
+  test('ignores a ready message from a window other than the frame', async () => {
     renderAtlasTab();
     const postMessage = mockFramePostMessage();
 
-    dispatchReadyMessage({ source: window });
+    await dispatchReadyMessage({ source: window });
 
+    expect(fetchAtlasToken).not.toHaveBeenCalled();
     expect(postMessage).not.toHaveBeenCalled();
   });
 
-  test('ignores messages of other types', () => {
+  test('ignores messages of other types', async () => {
     renderAtlasTab();
     const postMessage = mockFramePostMessage();
 
-    dispatchReadyMessage({ data: { type: 'otus:something-else' } });
+    await dispatchReadyMessage({ data: { type: 'otus:something-else' } });
 
-    expect(postMessage).not.toHaveBeenCalled();
-  });
-
-  test('does not post to the frame when there is no token', () => {
-    store.data.token = {};
-    renderAtlasTab();
-    const postMessage = mockFramePostMessage();
-
-    dispatchReadyMessage();
-
+    expect(fetchAtlasToken).not.toHaveBeenCalled();
     expect(postMessage).not.toHaveBeenCalled();
   });
 
@@ -329,6 +487,7 @@ describe('SideBar - AtlasTab', () => {
       source: frameWindow,
     }));
 
+    expect(fetchAtlasToken).not.toHaveBeenCalled();
     expect(postMessage).not.toHaveBeenCalled();
   });
 
@@ -355,23 +514,23 @@ describe('SideBar - AtlasTab', () => {
       expect(getFrame()).not.toBeVisible();
     });
 
-    test('clears the load error when the frame announces it is ready late', () => {
+    test('clears the load error when the frame announces it is ready late', async () => {
       renderAtlasTab();
       fireEvent.load(getFrame());
       advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
       mockFramePostMessage();
 
-      dispatchReadyMessage();
+      await dispatchReadyMessage();
 
       expect(screen.queryByRole('alert')).toBeNull();
       expect(getFrame()).toBeVisible();
     });
 
-    test('does not show the load error when the frame announces it is ready before it loads', () => {
+    test('does not show the load error when the frame announces it is ready before it loads', async () => {
       renderAtlasTab();
       mockFramePostMessage();
 
-      dispatchReadyMessage();
+      await dispatchReadyMessage();
       fireEvent.load(getFrame());
       advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
@@ -396,43 +555,32 @@ describe('SideBar - AtlasTab', () => {
       expect(screen.queryByRole('alert')).toBeNull();
     });
 
-    test('does not show the load error when the frame announces it is ready in time', () => {
+    test('does not show the load error when the frame announces it is ready in time', async () => {
       renderAtlasTab();
       fireEvent.load(getFrame());
       mockFramePostMessage();
 
-      dispatchReadyMessage();
+      await dispatchReadyMessage();
       advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
       expect(screen.queryByRole('alert')).toBeNull();
     });
 
-    test('does not show the load error when a ready frame has no token to receive', () => {
-      store.data.token = {};
+    test('shows the load error when the ready message comes from another origin', async () => {
       renderAtlasTab();
       fireEvent.load(getFrame());
 
-      dispatchReadyMessage();
-      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
-
-      expect(screen.queryByRole('alert')).toBeNull();
-    });
-
-    test('shows the load error when the ready message comes from another origin', () => {
-      renderAtlasTab();
-      fireEvent.load(getFrame());
-
-      dispatchReadyMessage({ origin: 'https://impostor.example.com' });
+      await dispatchReadyMessage({ origin: 'https://impostor.example.com' });
       advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
       expect(screen.getByRole('alert')).toBeVisible();
     });
 
-    test('shows the load error when the ready message comes from a window other than the frame', () => {
+    test('shows the load error when the ready message comes from a window other than the frame', async () => {
       renderAtlasTab();
       fireEvent.load(getFrame());
 
-      dispatchReadyMessage({ source: window });
+      await dispatchReadyMessage({ source: window });
       advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
       expect(screen.getByRole('alert')).toBeVisible();
@@ -508,7 +656,7 @@ describe('SideBar - AtlasTab', () => {
       fireEvent.load(getFrame());
       mockFramePostMessage();
 
-      dispatchReadyMessage();
+      await dispatchReadyMessage();
       advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
       expect(screen.queryByRole('alert')).toBeNull();
