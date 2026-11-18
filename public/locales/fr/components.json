@@ -326,7 +326,9 @@
       "loadErrorMessage": "Atlas n’a pas pu se charger sur ce site. Réessayez ou contactez l’équipe de Soutien si le problème persiste.",
       "loadingMessage": "Chargement d’Atlas…",
       "resizeHandleLabel": "Redimensionner le panneau Atlas",
-      "retryButtonLabel": "Réessayer"
+      "retryButtonLabel": "Réessayer",
+      "sessionExpiringMessage": "Votre session expire bientôt. Reconnectez-vous pour utiliser Atlas.",
+      "signInButtonLabel": "Se reconnecter"
     },
     "patrolsLink": "Patrouilles",
     "settingsLink": "Réglages",

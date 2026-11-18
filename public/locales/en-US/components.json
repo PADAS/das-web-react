@@ -331,7 +331,9 @@
       "loadErrorMessage": "Atlas couldn't load on this site. Try again, or contact support if this keeps happening.",
       "loadingMessage": "Loading Atlas…",
       "resizeHandleLabel": "Resize Atlas panel",
-      "retryButtonLabel": "Try again"
+      "retryButtonLabel": "Try again",
+      "sessionExpiringMessage": "Your session ends soon. Sign in again to use Atlas.",
+      "signInButtonLabel": "Sign in again"
     },
     "patrolsLink": "Patrols",
     "settingsLink": "Settings",

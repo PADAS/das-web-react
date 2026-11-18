@@ -331,7 +331,9 @@
       "loadErrorMessage": "Atlas haikuweza kupakia kwenye tovuti hii. Jaribu tena, au wasiliana na Msaada tatizo likiendelea.",
       "loadingMessage": "Atlas inapakia…",
       "resizeHandleLabel": "Badilisha ukubwa wa kidirisha cha Atlas",
-      "retryButtonLabel": "Jaribu tena"
+      "retryButtonLabel": "Jaribu tena",
+      "sessionExpiringMessage": "Kipindi chako kinaisha hivi karibuni. Ingia tena ili kutumia Atlas.",
+      "signInButtonLabel": "Ingia tena"
     },
     "patrolsLink": "Doria",
     "settingsLink": "Mipangilio",
