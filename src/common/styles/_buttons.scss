@@ -11,15 +11,9 @@ $secondary-hover-fill: colors.deepen(
   colors.$tint-hover-deepen
 );
 
-// A border in the fill's color keeps the button's size without an outline.
+// Disabled buttons keep their resting colors, so hover states must skip them.
 @mixin disabled-button {
-  &,
-  &:active,
-  &:hover {
-    background-color: var(--er-ui-background-disabled);
-    border-color: var(--er-ui-background-disabled);
-    color: var(--er-ui-text-disabled);
-  }
+  opacity: 0.5;
 }
 
 @mixin unstyled-button {
@@ -60,7 +54,7 @@ $secondary-hover-fill: colors.deepen(
   position: relative;
   width: $square-button-dimension;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: $secondary-hover-fill;
   }
 
@@ -169,10 +163,6 @@ $secondary-hover-fill: colors.deepen(
     cursor: default;
 
     @include disabled-button;
-
-    svg {
-      fill: currentcolor;
-    }
   }
 }
 
@@ -251,7 +241,7 @@ $secondary-hover-fill: colors.deepen(
   display: flex;
   height: $chip-height;
 
-  &:hover, &[aria-expanded='true'] {
+  &:hover:not(:disabled, [aria-disabled='true']), &[aria-expanded='true'] {
     background-color: $secondary-hover-fill;
     border-color: $secondary-hover-fill;
   }
@@ -313,7 +303,7 @@ $secondary-hover-fill: colors.deepen(
     fill: currentcolor;
   }
 
-  &:hover, &[aria-expanded='true'] {
+  &:hover:not(:disabled, [aria-disabled='true']), &[aria-expanded='true'] {
     background-color: var(--er-ui-background-selected-background);
   }
 
@@ -358,7 +348,7 @@ $secondary-hover-fill: colors.deepen(
     border-color: var(--er-ui-cta-primary);
     color: var(--er-ui-text-primary-text-reversed);
 
-    &:hover, &[aria-expanded='true'] {
+    &:hover:not(:disabled), &[aria-expanded='true'] {
       background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
       border-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
     }

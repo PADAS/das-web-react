@@ -21,17 +21,14 @@
   }
 
   &.disabled {
+    opacity: 0.5;
+
     .base {
-      color: var(--er-ui-background-elevated-component-0);
       cursor: default;
 
       &:hover {
         background: none;
       }
-    }
-
-    .track {
-      background-color: var(--er-ui-background-disabled);
     }
   }
 

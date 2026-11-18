@@ -125,10 +125,10 @@ a {
   @include button-height(buttons.$chip-height);
 
   --bs-btn-border-radius: 0.25rem;
-  --bs-btn-disabled-bg: var(--er-ui-background-disabled);
-  --bs-btn-disabled-border-color: var(--er-ui-background-disabled);
-  --bs-btn-disabled-color: var(--er-ui-text-disabled);
-  --bs-btn-disabled-opacity: 1;
+  --bs-btn-disabled-bg: var(--bs-btn-bg);
+  --bs-btn-disabled-border-color: var(--bs-btn-border-color);
+  --bs-btn-disabled-color: var(--bs-btn-color);
+  --bs-btn-disabled-opacity: 0.5;
   --bs-btn-focus-box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
   --bs-btn-font-size: 0.875rem;
   --bs-btn-font-weight: 500;
@@ -189,9 +189,6 @@ a {
 }
 
 .btn-link {
-  --bs-btn-disabled-bg: transparent;
-  --bs-btn-disabled-border-color: transparent;
-  --bs-btn-disabled-color: var(--er-ui-text-disabled);
   --bs-btn-font-weight: 400;
 }
 
