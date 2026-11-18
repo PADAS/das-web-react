@@ -7,12 +7,14 @@
   padding: 0.75rem;
 
   @media (min-width: layout.$md-layout-width-min) {
-    flex-direction: row;
+    flex-flow: row wrap;
+    row-gap: 0.5rem;
   }
 
   .searchBar {
+    min-width: 8rem;
     width: 60%;
-    
+
     @media (min-width: layout.$md-layout-width-min) {
       width: 40%;
     }

@@ -1,5 +1,3 @@
-@use '../common/styles/colors';
-
 .kebabMenu {
   display: inline-flex;
 
@@ -9,8 +7,8 @@
 
   .toggle {
     align-items: center;
-    background-color: var(--kebab-menu-background-color, var(--er-ui-background-elevated-component-0));
-    border: 1px solid var(--kebab-menu-background-color, var(--er-ui-background-elevated-component-0));
+    background-color: var(--kebab-menu-background-color, transparent);
+    border: 1px solid transparent;
     border-radius: 0.25rem;
     color: var(--kebab-menu-dot-color, var(--er-ui-icons));
     display: flex;
@@ -30,8 +28,8 @@
     }
 
     &:hover:not([aria-disabled="true"]), &[aria-expanded="true"] {
-      background-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
-      border-color: colors.shade(var(--er-ui-background-elevated-component-0), colors.$surface-hover-shade);
+      background-color: var(--er-ui-background-elevated-component-0);
+      border-color: var(--er-ui-background-elevated-component-0);
     }
 
     &:focus-visible {

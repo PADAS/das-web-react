@@ -162,7 +162,7 @@ const TrackLegend = ({
             aria-controls={isTracksListExpanded ? tracksListId : undefined}
             aria-expanded={isTracksListExpanded}
             aria-label={t('tracksListButtonLabel', { itemsName })}
-            className={styles.settingsButton}
+            className={styles.tracksListButton}
             onClick={() => isTracksListExpanded ? onCollapseMenu() : onExpandMenu(MENUS.TRACKS_LIST)}
             title={t('tracksListButtonLabel', { itemsName })}
             type="button"

@@ -257,8 +257,8 @@
 
   // Blue while the table is shown, as other controls are off their default.
   .tableViewButton {
-    @include buttons.icon-button;
-    @include buttons.chip-active-state;
+    @include buttons.chip-outline-icon-button;
+    @include buttons.chip-outline-active-state;
 
     .tableViewButtonIcon {
       height: 1rem;

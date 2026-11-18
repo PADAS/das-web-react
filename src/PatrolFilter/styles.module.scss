@@ -23,8 +23,8 @@
     min-width: 0;
 
     .button {
-      @include buttons.chip-text-button;
-      @include buttons.chip-active-state;
+      @include buttons.chip-outline-button;
+      @include buttons.chip-outline-active-state;
 
       flex-shrink: 0;
     }
