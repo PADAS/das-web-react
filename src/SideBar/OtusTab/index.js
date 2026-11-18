@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { BREAKPOINTS, DAS_HOST, SIDEBAR_WIDTH_PIXELS, VERTICAL_NAV_RAIL_WIDTH_PIXELS } from '../../constants';
 import { calcMaxOtusTabWidth, clampOtusTabWidth } from '../../utils/otus';
+import { fetchAtlasToken } from '../../ducks/atlas-token';
 import { selectOtusTabWidth } from '../../selectors/otus';
 import { updateUserPreferences } from '../../ducks/user-preferences';
 import { useMatchMedia } from '../../hooks';
@@ -43,10 +44,8 @@ const OtusTab = ({ isActive, url }) => {
   const navigate = useNavigate();
 
   const otusTabWidth = useSelector(selectOtusTabWidth);
-  const token = useSelector((state) => state.data.token?.access_token);
 
   const frameWrapperRef = useRef(null);
-  const hasConnectedRef = useRef(false);
   const iframeRef = useRef(null);
 
   const panelId = useId();
@@ -86,13 +85,6 @@ const OtusTab = ({ isActive, url }) => {
   const postCommand = useCallback((command) => {
     iframeRef.current?.contentWindow?.postMessage({ command, type: OTUS_MESSAGE_TYPES.COMMAND }, otusOrigin);
   }, [otusOrigin]);
-
-  const postConnect = useCallback(() => {
-    iframeRef.current?.contentWindow?.postMessage(
-      { site_url: DAS_HOST, token, type: OTUS_MESSAGE_TYPES.CONNECT },
-      otusOrigin
-    );
-  }, [otusOrigin, token]);
 
   // The retry button unmounts, so focus moves to the wrapper that outlives it.
   const onClickRetryButton = () => {
@@ -141,16 +133,38 @@ const OtusTab = ({ isActive, url }) => {
   const onToggleRecent = useCallback(() => postCommand(OTUS_COMMANDS.TOGGLE_THREADS), [postCommand]);
 
   useEffect(() => {
+    let latestAtlasTokenRequest = null;
+
+    const connect = async () => {
+      const atlasTokenRequest = dispatch(fetchAtlasToken());
+      latestAtlasTokenRequest = atlasTokenRequest;
+
+      try {
+        const atlasToken = await atlasTokenRequest;
+
+        // A newer ready message, a reload or an unmount makes this token stale.
+        if (atlasTokenRequest === latestAtlasTokenRequest) {
+          iframeRef.current?.contentWindow?.postMessage(
+            {
+              expires_at: atlasToken.expiresAt,
+              site_url: DAS_HOST,
+              token: atlasToken.token,
+              type: OTUS_MESSAGE_TYPES.CONNECT,
+            },
+            otusOrigin
+          );
+        }
+      } catch {
+        // The duck logs the failure, and the next ready message asks again.
+      }
+    };
+
     const onMessage = (event) => {
       if (event.origin === otusOrigin && event.source === iframeRef.current?.contentWindow) {
         if (event.data?.type === OTUS_MESSAGE_TYPES.READY) {
           setReadyFrameKey(frameKey);
 
-          if (token) {
-            hasConnectedRef.current = true;
-
-            postConnect();
-          }
+          connect();
         }
 
         if (event.data?.type === OTUS_MESSAGE_TYPES.THREADS) {
@@ -162,8 +176,12 @@ const OtusTab = ({ isActive, url }) => {
     // Otus repeats its ready message after each reload, so we keep listening.
     window.addEventListener('message', onMessage);
 
-    return () => window.removeEventListener('message', onMessage);
-  }, [frameKey, otusOrigin, postConnect, token]);
+    return () => {
+      latestAtlasTokenRequest = null;
+
+      window.removeEventListener('message', onMessage);
+    };
+  }, [dispatch, frameKey, otusOrigin]);
 
   useEffect(() => {
     if (isWaitingForReady) {
@@ -172,11 +190,6 @@ const OtusTab = ({ isActive, url }) => {
       return () => clearTimeout(timeoutId);
     }
   }, [frameKey, isWaitingForReady]);
-
-  // Otus keeps the token it was last given, so a renewed one is sent again.
-  useEffect(() => {
-    if (hasConnectedRef.current && token) postConnect();
-  }, [postConnect, token]);
 
   return <section
     aria-labelledby={titleId}
