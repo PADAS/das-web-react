@@ -141,7 +141,7 @@ const EventFilter = ({ children, className = '', isSortable = false, summaryActi
         >
           {t('filtersTitle')}
 
-          <ArrowDownSmallIcon aria-hidden="true" />
+          <ArrowDownSmallIcon aria-hidden="true" className={styles.arrow} />
         </button>
 
         <button
@@ -156,7 +156,7 @@ const EventFilter = ({ children, className = '', isSortable = false, summaryActi
         >
           {t('datesTitle')}
 
-          <ArrowDownSmallIcon aria-hidden="true" />
+          <ArrowDownSmallIcon aria-hidden="true" className={styles.arrow} />
         </button>
 
         {children}

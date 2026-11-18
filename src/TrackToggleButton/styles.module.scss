@@ -28,11 +28,7 @@
       }
 
       &:where(:hover) {
-        background-color: colors.deepen(
-          var(--er-ui-cta-secondary),
-          var(--er-ui-cta-text),
-          colors.$tint-hover-deepen
-        );
+        background-color: buttons.$secondary-hover-fill;
       }
     }
 

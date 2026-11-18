@@ -1,4 +1,4 @@
-@use '../../shared';
+@use '../../../../common/styles/buttons';
 
 .history {
   background: var(--er-ui-background-primary-background);
@@ -23,13 +23,7 @@
       }
 
       .sortDirectionButton {
-        @include shared.chip-icon-button;
-        @include shared.chip-active-state;
-
-        svg {
-          height: 1rem;
-          width: 1rem;
-        }
+        @include buttons.sort-direction-button;
       }
     }
   }

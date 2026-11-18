@@ -137,7 +137,7 @@ const Filters = ({ resultCount, summaryActionsRef }) => {
         >
           {t('filtersTitle')}
 
-          <ArrowDownSmallIcon aria-hidden="true" />
+          <ArrowDownSmallIcon aria-hidden="true" className={styles.arrow} />
         </button>
 
         <button
@@ -152,7 +152,7 @@ const Filters = ({ resultCount, summaryActionsRef }) => {
         >
           {t('datesTitle')}
 
-          <ArrowDownSmallIcon aria-hidden="true" />
+          <ArrowDownSmallIcon aria-hidden="true" className={styles.arrow} />
         </button>
       </div>
     </div>

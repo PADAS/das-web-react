@@ -27,8 +27,9 @@
     outline: none;
     width: buttons.$square-button-dimension;
   
-    &:focus {
-      outline: none;
+    &:focus-visible {
+      outline: 2px solid var(--er-ui-cta-primary);
+      outline-offset: 2px;
     }
 
     // No added specificity, so the track toggle's on states hold on hover.

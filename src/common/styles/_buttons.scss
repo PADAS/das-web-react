@@ -5,6 +5,11 @@ $square-button-dimension: 2.25rem;
 $square-button-border-radius: .25rem;
 $chip-height: 2.25rem;
 $chip-height-small: 1.75rem;
+$secondary-hover-fill: colors.deepen(
+  var(--er-ui-cta-secondary),
+  var(--er-ui-cta-text),
+  colors.$tint-hover-deepen
+);
 
 // A border in the fill's color keeps the button's size without an outline.
 @mixin disabled-button {
@@ -46,12 +51,6 @@ $chip-height-small: 1.75rem;
 }
 
 @mixin jump-button {
-  $hover-fill: colors.deepen(
-    var(--er-ui-cta-secondary),
-    var(--er-ui-cta-text),
-    colors.$tint-hover-deepen
-  );
-
   background: var(--er-ui-cta-secondary);
   border: none;
   border-radius: $square-button-border-radius;
@@ -62,7 +61,7 @@ $chip-height-small: 1.75rem;
   width: $square-button-dimension;
 
   &:hover {
-    background-color: $hover-fill;
+    background-color: $secondary-hover-fill;
   }
 
   &:disabled {
@@ -244,12 +243,6 @@ $chip-height-small: 1.75rem;
 }
 
 @mixin -filled-button {
-  $hover-fill: colors.deepen(
-    var(--er-ui-cta-secondary),
-    var(--er-ui-cta-text),
-    colors.$tint-hover-deepen
-  );
-
   align-items: center;
   background-color: var(--er-ui-cta-secondary);
   border: 1px solid var(--er-ui-cta-secondary);
@@ -259,8 +252,8 @@ $chip-height-small: 1.75rem;
   height: $chip-height;
 
   &:hover, &[aria-expanded='true'] {
-    background-color: $hover-fill;
-    border-color: $hover-fill;
+    background-color: $secondary-hover-fill;
+    border-color: $secondary-hover-fill;
   }
 
   &:focus-visible {
@@ -316,12 +309,12 @@ $chip-height-small: 1.75rem;
   padding: 0 0.5rem;
 
   // The shared caret ships with a fixed grey, so it takes the label's color.
-  svg path {
+  .arrow path {
     fill: currentcolor;
   }
 
   &:hover, &[aria-expanded='true'] {
-    background-color: var(--er-ui-background-elevated-component-0);
+    background-color: var(--er-ui-background-selected-background);
   }
 
   &:focus-visible {
@@ -339,6 +332,10 @@ $chip-height-small: 1.75rem;
   &.active {
     border-color: var(--er-ui-cta-primary);
     color: var(--er-ui-cta-primary);
+
+    &:disabled {
+      @include disabled-button;
+    }
   }
 }
 
@@ -489,12 +486,13 @@ $chip-height-small: 1.75rem;
   text-decoration: none;
 
   &:hover:not(:disabled, :focus-visible) {
-    background-color: colors.deepen(var(--er-ui-cta-secondary), var(--er-ui-cta-text), colors.$tint-hover-deepen);
+    background-color: $secondary-hover-fill;
     color: var(--er-ui-cta-text);
   }
 
   &:focus-visible {
     background-color: var(--er-ui-cta-secondary);
+    color: var(--er-ui-cta-text);
   }
 }
 

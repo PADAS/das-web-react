@@ -4,9 +4,13 @@
   @include buttons.chip-outline-button;
   @include buttons.chip-outline-active-state;
 
-  flex-shrink: 0;
+  // A form field's name can outrun the feed, so the label clips only once
+  // the button has a line to itself.
+  min-width: 0;
 
   .sortingButtonLabel {
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
 }
