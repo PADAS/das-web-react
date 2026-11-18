@@ -1,4 +1,5 @@
 @use '../common/styles/buttons';
+@use '../common/styles/colors';
 @use '../common/styles/layout';
 
 .systemStatus {
@@ -9,7 +10,7 @@
   .toggle {
     @include buttons.top-bar-button;
 
-    background-color: rgb(white, 0.1);
+    background-color: colors.with-opacity(var(--er-greyscale-white), 10%);
     border-radius: 1rem;
     font-size: 0.875rem;
     height: 1.875rem;
@@ -34,13 +35,11 @@
       }
     }
 
-    &:hover {
-      background-color: rgb(white, 0.2);
+    &:hover, &[aria-expanded='true'] {
+      background-color: colors.with-opacity(var(--er-greyscale-white), 20%);
     }
 
     &[aria-expanded='true'] {
-      background-color: rgb(white, 0.25);
-
       .arrow {
         transform: rotate(180deg);
       }

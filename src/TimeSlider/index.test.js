@@ -294,15 +294,19 @@ describe('TimeSlider', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Open playback speed options' }));
 
-    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 1x' })).toHaveFocus();
+    expect(await screen.findByRole('menu', { name: 'Playback speed options' })).toHaveFocus();
 
     await userEvent.keyboard('{ArrowDown}');
 
-    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 1.25x' })).toHaveFocus();
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 0.5x' })).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowDown}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 0.75x' })).toHaveFocus();
 
     await userEvent.keyboard('{ArrowUp}');
 
-    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 1x' })).toHaveFocus();
+    expect(screen.getByRole('menuitemradio', { name: 'Set playback speed to 0.5x' })).toHaveFocus();
 
     await userEvent.keyboard('{Home}');
 

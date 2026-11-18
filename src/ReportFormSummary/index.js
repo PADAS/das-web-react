@@ -13,7 +13,7 @@ import V1SchemaFormSummary from './V1SchemaFormSummary';
 
 import * as styles from './styles.module.scss';
 
-const LOADER_COLOR = '#006cd9'; // Bright blue
+const LOADER_COLOR = 'var(--er-ui-cta-primary)';
 const LOADER_SIZE = 30;
 
 const EventFormSummary = ({ report }) => {

@@ -38,10 +38,7 @@
       },
       "title": "Time of Day"
     },
-    "timeOfDaySettingsButtonLabel": {
-      "active": "Deactivate the time of day coloring",
-      "inactive": "Activate the time of day coloring"
-    },
+    "timeOfDaySettingsButtonLabel": "Time of day coloring",
     "trackSettings": {
       "customLengthErrorMessage": "Please enter a track length between {{min}} and {{max}}.",
       "customLengthInputLabel": "Track length in days",
@@ -50,10 +47,7 @@
       "title": "Track Settings",
       "trackLengthLegend": "Track Length"
     },
-    "trackSettingsButtonLabel": {
-      "closed": "Open the track settings",
-      "open": "Close the track settings"
-    },
+    "trackSettingsButtonLabel": "Track settings",
     "tracksList": {
       "tracksChildItem": {
         "toggleTracksButtonLabel": {
@@ -70,10 +64,7 @@
         }
       }
     },
-    "tracksListButtonLabel": {
-      "closed": "Open the list of {{itemsName}}",
-      "open": "Close the list of {{itemsName}}"
-    }
+    "tracksListButtonLabel": "List of {{itemsName}}"
   },
   "trackLength": {
     "length": "{{length}} kilometers",

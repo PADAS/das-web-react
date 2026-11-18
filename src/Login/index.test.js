@@ -75,10 +75,7 @@ describe('Login', () => {
   test('renders the EarthRanger logo', () => {
     renderLogin();
 
-    const logo = screen.getByRole('img', { name: 'EarthRanger' });
-    expect(logo).toBeVisible();
-    expect(logo).toHaveAttribute('role', 'img');
-    expect(logo).toHaveAttribute('aria-label', 'EarthRanger');
+    expect(screen.getByRole('img', { name: 'EarthRanger Logo' })).toBeVisible();
   });
 
   test('exposes the page title as a level-one heading for assistive technologies', () => {

@@ -1,10 +1,9 @@
 @use '../common/styles/buttons';
-@use '../common/styles/vars/colors';
 
 .searchBar {
   align-items: center;
-  background: white;
-  border: 1px solid colors.$light-gray-border;
+  background: var(--er-ui-background-primary-background);
+  border: 1px solid var(--er-ui-divider-lines);
   border-radius: 0.25rem;
   display: flex;
   height: buttons.$chip-height;
@@ -15,8 +14,8 @@
   }
 
   &:focus-within {
-    border-color: colors.$bright-blue;
-    outline: 1px solid colors.$bright-blue;
+    border-color: var(--er-ui-cta-primary);
+    outline: 1px solid var(--er-ui-cta-primary);
 
     .clearButton {
       visibility: visible;
@@ -25,7 +24,7 @@
 
   .searchIconContainer {
     align-items: center;
-    color: colors.$secondary-medium-light-gray;
+    color: var(--er-ui-icons);
     display: flex;
     flex: 0 0 1.375rem;
     justify-content: center;
@@ -50,10 +49,6 @@
     flex: 1 1 auto;
     min-width: 0;
     outline: none;
-
-    &::placeholder {
-      color: colors.$secondary-medium-gray;
-    }
 
     &::-webkit-search-decoration,
     &::-webkit-search-cancel-button,

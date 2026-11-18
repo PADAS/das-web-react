@@ -1,8 +1,8 @@
 @use '../common/styles/inputs';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 .control {
-  border-color: colors.$light-gray-border !important;
+  border-color: var(--er-ui-divider-lines) !important;
   font-weight: normal;
   min-height: 2.5rem !important;
 
@@ -11,8 +11,8 @@
   }
 
   &.controlFocused {
-    border-color: colors.$bright-blue !important;
-    box-shadow: 0 0 0 1px colors.$bright-blue !important;
+    border-color: var(--er-ui-cta-primary) !important;
+    box-shadow: 0 0 0 1px var(--er-ui-cta-primary) !important;
   }
 }
 
@@ -22,13 +22,13 @@
 
     align-items: center;
     border-radius: 0.25rem;
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     justify-content: center;
     padding: 0;
 
     &:hover {
-      background-color: colors.$semi-light-gray;
-      color: colors.$secondary-medium-gray;
+      background-color: var(--er-ui-background-elevated-component-0);
+      color: var(--er-ui-text-secondary-text);
     }
   }
 }
@@ -48,7 +48,7 @@ $option-icon-gap: 0.5rem;
 
   .optionIcon {
     align-items: center;
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-icons);
     display: flex;
     flex-shrink: 0;
     height: $option-icon-size;
@@ -72,16 +72,16 @@ $option-icon-gap: 0.5rem;
 }
 
 .multiValue {
-  background: colors.$semi-light-gray !important;
+  background: var(--er-ui-background-tertiary-background) !important;
   border-radius: 1rem !important;
   font-weight: normal;
   padding: 0 0.0625rem;
 }
 
 .multiValueRemove {
-  background: rgb(0 0 0 / 10%);
+  background: colors.with-opacity(var(--er-greyscale-0), 10%);
   border-radius: 50% !important;
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-text-secondary-text);
   height: 1.2rem;
   margin-right: 0.2rem;
   margin-top: 0.2rem;
@@ -96,9 +96,13 @@ $option-icon-gap: 0.5rem;
   gap: 0.5rem;
   overflow-wrap: anywhere;
 
+  &.optionSelected {
+    background-color: var(--er-ui-background-selected-background) !important;
+  }
+
   &.optionFocused,
   &:active {
-    background-color: colors.$blue-highlight !important;
+    background-color: var(--er-ui-background-hover-background) !important;
   }
 
   .checkMark, .checkMarkPlaceholder {

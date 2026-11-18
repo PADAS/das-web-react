@@ -1,11 +1,10 @@
 @use 'sass:map';
 @use '../../../common/styles/buttons';
 @use '../../../common/styles/layout';
-@use '../../../common/styles/vars/colors';
+@use '../../../common/styles/colors';
 
 @mixin priority-theme($theme) {
   --item-icon-bg: #{map.get($theme, 'base')};
-  --item-row-hover-bg: #{map.get($theme, 'background')};
 }
 
 .red {
@@ -37,7 +36,7 @@
   }
 
   .serialNumber {
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     flex-shrink: 0;
     font-size: 0.875rem;
     font-variant-numeric: tabular-nums;
@@ -51,7 +50,7 @@
   gap: 0.5rem;
 
   .stateLabel {
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
 
     @media (max-width: layout.$sm-layout-width-max) {
       order: 1;
@@ -61,7 +60,7 @@
 
 .footer {
   align-items: center;
-  border-top: 1px solid colors.$light-gray-lines;
+  border-top: 1px solid var(--er-ui-divider-lines);
   display: flex;
   height: 3rem;
   justify-content: flex-end;

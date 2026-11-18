@@ -1,5 +1,4 @@
 @use '../common/styles/buttons';
-@use '../common/styles/vars/colors';
 
 @mixin aria-disabled-action-button {
   &[aria-disabled="true"] {
@@ -7,15 +6,15 @@
     opacity: 0.5;
 
     &:hover {
-      background-color: colors.$very-light-blue;
+      background-color: var(--er-ui-background-selected-background);
     }
   }
 }
 
 @mixin link-target-option {
   align-items: center;
-  background-color: white;
-  border-bottom: 1px solid colors.$light-gray-lines;
+  background-color: var(--er-ui-background-primary-background);
+  border-bottom: 1px solid var(--er-ui-divider-lines);
   display: grid;
   gap: 0 0.75rem;
   grid-template:
@@ -32,7 +31,7 @@
     align-items: center;
     align-self: center;
     border-radius: 0.25rem;
-    color: white;
+    color: var(--er-ui-text-primary-text-reversed);
     display: flex;
     grid-area: icon;
     height: 3rem;
@@ -48,7 +47,7 @@
 
   .serialNumber {
     align-self: center;
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 1rem;
     grid-area: serial;
     grid-row: 1 / -1;
@@ -56,7 +55,7 @@
 
   .title {
     align-self: end;
-    color: colors.$off-black;
+    color: var(--er-ui-text-primary-text);
     font-size: 1rem;
     font-weight: 500;
     grid-area: title;
@@ -68,7 +67,7 @@
 
   .details {
     align-self: start;
-    color: colors.$secondary-medium-gray;
+    color: var(--er-ui-text-secondary-text);
     font-size: 0.75rem;
     grid-area: details;
     margin: 0;
@@ -92,7 +91,7 @@
     }
 
     .statusDate {
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       font-size: 0.75rem;
       font-style: italic;
       white-space: nowrap;

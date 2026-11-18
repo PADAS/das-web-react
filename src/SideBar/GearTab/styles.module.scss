@@ -1,3 +1,5 @@
+@use '../../common/styles/colors';
+
 .gearTab {
   display: flex;
   flex-direction: column;
@@ -24,12 +26,6 @@
   }
 }
 
-/* Outer list: manufacturer accordion rows (matches Map Layers grouped list layout). */
-.gearManufacturerList {
-  cursor: default;
-}
-
-/* Align filter row padding with the rest of the gear tab body (lists, hints). */
 .filterBar {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -62,8 +58,8 @@
 }
 
 .errorBanner {
-  background: var(--bs-danger-bg-subtle, #f8d7da);
-  border: 1px solid var(--bs-danger-border-subtle, #f1aeb5);
+  background: var(--er-ui-status-bg-error-bg);
+  border: 1px solid colors.tint(var(--er-ui-status-error-destructive), 65%);
   border-radius: 0.25rem;
   font-size: 0.875rem;
   margin-bottom: 0.75rem;
@@ -114,7 +110,6 @@
   }
 }
 
-/* Match Map Layers → Subjects row timestamp alignment. */
 .gearDateTime {
   margin-right: 0.5rem;
   text-align: right;

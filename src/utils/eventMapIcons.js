@@ -2,8 +2,8 @@ import { useSyncExternalStore } from 'react';
 import axios from 'axios';
 
 import { calcGenericFallbackImageUrl, calcSpriteSvgUrl, calcUrlForImage, imgElFromSrc } from './img';
-import { calcIconColorByPriority } from './event-types';
 import { calcSvgImageIconId, EVENT_ICON_ID_PREFIX } from './mapImages';
+import { COLOR_TOKENS, PRIORITY_COLOR_MAP } from './colors';
 import { MAP_ICON_SIZE, MAP_ICON_SCALE } from '../constants';
 
 const REP_SUFFIX = '_rep';
@@ -101,7 +101,7 @@ const renderGenericColorFallbackImage = (event) =>
 // Recolors an event icon's SVG markup for the event's priority and rasterizes
 // it into an <img> element via a data URI.
 const renderColoredIconImage = (svgMarkup, event) => {
-  const color = calcIconColorByPriority(event.priority);
+  const color = COLOR_TOKENS[(PRIORITY_COLOR_MAP[event.priority] ?? PRIORITY_COLOR_MAP[0]).baseToken];
 
   const svgEl = new DOMParser().parseFromString(svgMarkup, 'image/svg+xml').documentElement;
 

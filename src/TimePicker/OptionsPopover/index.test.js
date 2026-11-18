@@ -41,16 +41,36 @@ describe('TimePicker - OptionsPopover', () => {
     expect(screen.getByRole('listbox')).toHaveFocus();
   });
 
+  test('focuses the list without scrolling its ancestors', async () => {
+    const focusSpy = jest.spyOn(HTMLElement.prototype, 'focus');
+
+    renderOptionsPopover();
+
+    expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+  });
+
+  test('scrolls the list to show the selected option and its neighbors', async () => {
+    jest.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(192);
+    jest.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(32);
+    jest.spyOn(HTMLElement.prototype, 'offsetTop', 'get')
+      .mockImplementation(function () { return [...this.parentElement.children].indexOf(this) * 32; });
+    const scrollTopSetter = jest.spyOn(Element.prototype, 'scrollTop', 'set');
+
+    renderOptionsPopover({ value: '10:00' });
+
+    expect(scrollTopSetter).toHaveBeenLastCalledWith(512);
+  });
+
   test('keeps the popover itself out of the tab order', async () => {
     renderOptionsPopover();
 
     expect(screen.getByRole('presentation')).toHaveAttribute('tabindex', '-1');
   });
 
-  test('matches the width of the target element', async () => {
+  test('is at least as wide as the target element', async () => {
     renderOptionsPopover({ target: { current: { offsetWidth: 48 } } });
 
-    expect(screen.getByRole('presentation')).toHaveStyle({ width: '48px' });
+    expect(screen.getByRole('presentation')).toHaveStyle({ minWidth: '48px' });
   });
 
   test('navigates the options with the arrows', async () => {

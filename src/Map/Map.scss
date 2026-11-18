@@ -1,6 +1,6 @@
 @use '../common/styles/buttons';
 @use '../common/styles/layout';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 @mixin button-opacity {
   opacity: 0.75;
@@ -57,11 +57,11 @@
   }
 
   [type="button"][class*="controlButton"] {
-    background: rgb(white, 0.8);
+    background: colors.with-opacity(var(--er-ui-background-primary-background), 80%);
 
     &:hover,
     &:active {
-      background: white;
+      background: var(--er-ui-background-primary-background);
     }
   }
 }
@@ -71,7 +71,7 @@
   display: flex;
   flex-direction: column;
   position: absolute;
-  right: 3.5rem;
+  right: 3.75rem;
   top: 0.5rem;
   z-index: 7;
 }
@@ -98,7 +98,6 @@
   justify-content: flex-start;
   max-width: 12rem;
   margin-bottom: 0.5rem;
-  margin-right: 2.5rem;
 }
 
 .rotation-control {
@@ -111,7 +110,7 @@
 }
 
 .general-add-button {
-  color: colors.$bright-blue;
+  color: var(--er-ui-cta-primary);
   height: 2.5rem !important;
   width: 2.5rem !important;
 }

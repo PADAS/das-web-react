@@ -1,5 +1,3 @@
-@use '../../../../common/styles/vars/colors';
-
 .sectionHeader {
   align-items: flex-start;
   display: flex;
@@ -17,7 +15,7 @@
     }
 
     svg {
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-icons);
       margin-right: 0.5rem;
       width: 1.5rem;
     }

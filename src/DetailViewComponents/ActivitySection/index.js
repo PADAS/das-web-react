@@ -1,4 +1,3 @@
-import Button from 'react-bootstrap/Button';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as BulletListIcon } from '../../common/images/icons/bullet-list.svg';
@@ -66,15 +65,14 @@ const ActivitySection = ({
 
         {sortButton}
 
-        <Button
+        <button
           className={styles.expandCollapseButton}
           data-testid="detailView-activitySection-expandCollapseButton"
           onClick={onToggleExpandAll}
           type="button"
-          variant="secondary"
         >
           {t(areAllItemsExpanded ? 'collapseAllButton' : 'expandAllButton')}
-        </Button>
+        </button>
       </div>}
     </div>}
 

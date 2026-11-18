@@ -1,5 +1,4 @@
 @use '../../../../../../common/styles/inputs';
-@use '../../../../../../common/styles/vars/colors';
 @use '../../../../shared';
 
 .toggleButton {
@@ -13,8 +12,8 @@
   padding: 0;
   text-align: left;
 
-  &:hover {
-    color: black;
+  &:hover, &[aria-expanded="true"] {
+    color: var(--er-ui-text-primary-text);
 
     .toggleButtonIcon path {
       fill: currentcolor;
@@ -22,7 +21,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid colors.$bright-blue;
+    outline: 2px solid var(--er-ui-cta-primary);
   }
 
   .toggleButtonIcon {
@@ -82,7 +81,7 @@
       }
 
       .teamLeadIcon {
-        color: colors.$secondary-medium-gray;
+        color: var(--er-ui-icons);
         flex-shrink: 0;
         height: 0.875rem;
         width: 0.875rem;

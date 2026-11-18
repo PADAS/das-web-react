@@ -455,7 +455,9 @@ describe('FeedTable', () => {
     await renderFeedTable();
     await userEvent.click(screen.getByRole('button', { name: 'Columns' }));
 
-    expect(screen.getByRole('menu', { name: 'Columns shown' })).toBeVisible();
+    expect(await screen.findByRole('menu', { name: 'Columns shown' })).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowDown}');
     expect(screen.getByRole('menuitemcheckbox', { name: 'A' })).toHaveFocus();
 
     await userEvent.keyboard('{ArrowDown}');
@@ -476,6 +478,14 @@ describe('FeedTable', () => {
     expect(screen.getByRole('menuitemcheckbox', { name: 'A' })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByRole('menuitemcheckbox', { name: 'B' })).toHaveAttribute('aria-checked', 'false');
     expect(stored('feedTable.v2.hiddenColumns.test')).toEqual({ b: true });
+  });
+
+  test('keeps the Columns menu open while the user toggles columns', async () => {
+    await renderFeedTable();
+    await userEvent.click(screen.getByRole('button', { name: 'Columns' }));
+    await userEvent.click(screen.getByRole('menuitemcheckbox', { name: 'B' }));
+
+    expect(screen.getByRole('menu', { name: 'Columns shown' })).toBeVisible();
   });
 
   test('moves focus to the checkbox for every row when the selection is cleared', async () => {
