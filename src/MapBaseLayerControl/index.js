@@ -4,28 +4,35 @@ import Overlay from 'react-bootstrap/Overlay';
 import Popover from 'react-bootstrap/Popover';
 import { useTranslation } from 'react-i18next';
 
-import { setBaseLayer } from '../ducks/layers';
-import { trackEventFactory, MAP_INTERACTION_CATEGORY, BASE_LAYER_CATEGORY } from '../utils/analytics';
-
-import {
-  VALID_LAYER_SOURCE_TYPES,
-  TILE_LAYER_SOURCE_TYPES,
-  MAPBOX_STYLE_LAYER_SOURCE_TYPES,
-  GOOGLE_LAYER_SOURCE_TYPES,
-} from '../constants';
-import mapboxLogoSrc from '../common/images/icons/mapbox-logo.png';
-import genericGlobeLogoSrc from '../common/images/icons/generic-globe-logo.png';
-import googleMapsLogoSrc from '../common/images/icons/google-maps-logo.png';
-
 import { ReactComponent as BaseMapIcon } from '../common/images/icons/base-map.svg';
+
+import { BASE_LAYER_CATEGORY, MAP_INTERACTION_CATEGORY, trackEventFactory } from '../utils/analytics';
+import esriLogoSrc from '../common/images/icons/esri-logo.svg?url';
+import genericGlobeLogoSrc from '../common/images/icons/generic-globe-logo.png';
+import {
+  GOOGLE_LAYER_SOURCE_TYPES,
+  MAPBOX_STYLE_LAYER_SOURCE_TYPES,
+  TILE_LAYER_SOURCE_TYPES,
+  VALID_LAYER_SOURCE_TYPES,
+} from '../constants';
+import googleMapsLogoSrc from '../common/images/icons/google-maps-logo.png';
+import mapboxLogoSrc from '../common/images/icons/mapbox-logo.png';
+import { setBaseLayer } from '../ducks/layers';
 
 import * as styles from './styles.module.scss';
 
-const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
-const baseLayerTracker = trackEventFactory(BASE_LAYER_CATEGORY);
+const ESRI_PATTERN = /(?<![a-z])esri(?![a-z])/i;
 
-const renderLayerLogoSrc = ({ attributes: { type, icon_url } }) => {
-  if (icon_url) return icon_url;
+const baseLayerTracker = trackEventFactory(BASE_LAYER_CATEGORY);
+const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
+
+const isEsriLayer = (layer) =>
+  ESRI_PATTERN.test(layer.name ?? '') || ESRI_PATTERN.test(layer.attributes.icon_url ?? '');
+
+const getDefaultLogoSrc = (layer) => {
+  const type = layer.attributes.type;
+
+  if (isEsriLayer(layer)) return esriLogoSrc;
   if (type.toLowerCase().includes('mapbox')) return mapboxLogoSrc;
   if (TILE_LAYER_SOURCE_TYPES.includes(type)) return genericGlobeLogoSrc;
   if (MAPBOX_STYLE_LAYER_SOURCE_TYPES.includes(type)) return mapboxLogoSrc;
@@ -36,6 +43,8 @@ const BaseLayerControl = (props) => {
   const { baseLayers, currentBaseLayer, setBaseLayer } = props;
   const { t } = useTranslation('map-controls', { keyPrefix: 'baseLayer' });
   const [popoverOpen, setPopoverOpenState] = useState(false);
+  // A stored icon url can point to a host that no longer exists.
+  const [failedLogoLayerIds, setFailedLogoLayerIds] = useState(new Set());
   const wrapperRef = useRef(null);
   const buttonRef = useRef(null);
 
@@ -48,6 +57,8 @@ const BaseLayerControl = (props) => {
     setBaseLayer(layer);
     baseLayerTracker.track(`Select '${layer.name}' Base Layer`);
   };
+
+  const onLogoError = (layerId) => setFailedLogoLayerIds((ids) => ids.has(layerId) ? ids : new Set(ids).add(layerId));
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -88,11 +99,15 @@ const BaseLayerControl = (props) => {
       <Popover className={styles.popup} title={t('popoverTitle')}>
         <ul className={styles.layerList}>
           {baseLayers.map(layer => {
-            const logoSrc = renderLayerLogoSrc(layer);
+            const defaultLogoSrc = getDefaultLogoSrc(layer);
 
             return <li key={`${layer.id}`}>
               <button type='button' onClick={() => onItemClick(layer)} className={layer.id === currentBaseLayer?.id ? styles.active : ''}>
-                <img src={logoSrc} alt={t('logoAlt', { logoName: layer.name })} />
+                <img
+                  alt={t('logoAlt', { logoName: layer.name ?? t(layer.nameKey) })}
+                  onError={() => onLogoError(layer.id)}
+                  src={failedLogoLayerIds.has(layer.id) ? defaultLogoSrc : layer.attributes.icon_url || defaultLogoSrc}
+                />
                 {layer.name ?? t(layer.nameKey)}
               </button>
             </li>;

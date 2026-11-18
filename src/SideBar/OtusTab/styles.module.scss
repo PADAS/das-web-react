@@ -1,3 +1,4 @@
+@use '../../common/styles/buttons';
 @use '../../common/styles/layout';
 
 .otusTab {
@@ -15,7 +16,7 @@
       width: 100%;
     }
 
-    .loadError {
+    .connectionError {
       align-items: center;
       color: var(--er-ui-text-primary-text);
       display: flex;
@@ -24,6 +25,10 @@
       justify-content: center;
       padding: 1rem;
       text-align: center;
+
+      .connectionErrorButton {
+        @include buttons.primary-action-button;
+      }
     }
   }
 
