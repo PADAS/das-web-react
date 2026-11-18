@@ -40,7 +40,7 @@ on:
         type: string
         default: 'earthranger-78ca55ca'
       bastion_host:
-        description: 'Bastion host IP address (used for ssh-keyscan)'
+        description: 'Bastion public IP, used only by the direct-SSH fallback when IAP fails (DASOPS-1960)'
         required: false
         type: string
         default: '34.105.19.155'
@@ -113,23 +113,57 @@ jobs:
 
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          ssh-keyscan -H "${{ inputs.bastion_host }}" >> ~/.ssh/known_hosts
 
-          for i in {1..3}; do
-            echo "Tunnel attempt $i..."
+          open_tunnel() {
             gcloud compute ssh "${{ inputs.bastion_instance }}" \
               --project="$BASTION_PROJECT" \
               --zone="${{ inputs.bastion_zone }}" \
-              --ssh-flag="-4 -L8888:localhost:8888 -N -f" && break || echo "Attempt $i failed, retrying in 10s..."
+              "$@" \
+              --ssh-flag="-4 -L8888:localhost:8888 -N -f"
+          }
+          tunnel_up() {
+            for _ in {1..5}; do
+              ss -ltn | grep -q ':8888' && return 0
+              sleep 2
+            done
+            return 1
+          }
+
+          # DASOPS-1960: SSH goes through IAP TCP forwarding. The direct path over the
+          # bastion's public IP is a temporary fallback until tcp/22 from 0.0.0.0/0 is
+          # removed; a deploy that uses it raises a warning so it can be investigated.
+          MODE=""
+          for i in {1..3}; do
+            echo "Tunnel attempt $i (IAP)..."
+            if open_tunnel --tunnel-through-iap && tunnel_up; then
+              MODE="iap"
+              break
+            fi
+            echo "IAP attempt $i failed, retrying in 10s..."
             sleep 10
           done
 
-          sleep 10
-          if ! ss -ltn | grep -q ':8888'; then
+          if [ -z "$MODE" ]; then
+            echo "::warning title=Legacy deploy SSH fell back to public IP::IAP tunnel to ${{ inputs.bastion_instance }} failed 3 times; using the direct path (DASOPS-1960). This path stops working once tcp/22 from 0.0.0.0/0 is removed."
+            ssh-keyscan -H "${{ inputs.bastion_host }}" >> ~/.ssh/known_hosts || true
+            for i in {1..3}; do
+              echo "Tunnel attempt $i (direct)..."
+              # ConnectTimeout: once tcp/22 from 0.0.0.0/0 is gone this path must fail
+              # fast instead of waiting out the SYN timeout and the step timeout.
+              if open_tunnel --ssh-flag="-o ConnectTimeout=15" && tunnel_up; then
+                MODE="direct"
+                break
+              fi
+              echo "Direct attempt $i failed, retrying in 10s..."
+              sleep 10
+            done
+          fi
+
+          if [ -z "$MODE" ]; then
             echo "❌ SSH tunnel setup failed"
             exit 1
           fi
-          echo "✅ Tunnel established successfully"
+          echo "✅ Tunnel established successfully (mode: $MODE)"
 
       - name: Configure kubectl
         timeout-minutes: 5
