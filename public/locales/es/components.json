@@ -294,8 +294,10 @@
       "iframeTitle": "Chat de Atlas",
       "loadErrorMessage": "Atlas no pudo cargarse en este sitio. Vuelva a intentarlo o contacte con soporte si el problema continúa.",
       "loadingMessage": "Cargando Atlas…",
+      "logInButtonLabel": "Volver a iniciar sesión",
       "resizeHandleLabel": "Redimensionar el panel de Atlas",
-      "retryButtonLabel": "Reintentar"
+      "retryButtonLabel": "Reintentar",
+      "sessionExpiringMessage": "Su sesión terminará pronto. Vuelva a iniciar sesión para usar Atlas."
     },
     "backButtonLabel": "Volver atrás",
     "backButtonTitle": "Atrás",

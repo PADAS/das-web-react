@@ -294,8 +294,10 @@
       "iframeTitle": "Atlas सँग च्याट",
       "loadErrorMessage": "यो साइटमा Atlas लोड हुन सकेन। फेरि प्रयास गर्नुहोस्, वा यस्तो भइरहेमा सहायताका लागि सम्पर्क गर्नुहोस्।",
       "loadingMessage": "Atlas लोड हुँदैछ…",
+      "logInButtonLabel": "फेरि लग इन गर्नुहोस्",
       "resizeHandleLabel": "Atlas प्यानलको आकार बदल्नुहोस्",
-      "retryButtonLabel": "फेरि प्रयास गर्नुहोस्"
+      "retryButtonLabel": "फेरि प्रयास गर्नुहोस्",
+      "sessionExpiringMessage": "तपाईंको सत्र छिट्टै समाप्त हुँदैछ। Atlas प्रयोग गर्न फेरि लग इन गर्नुहोस्।"
     },
     "backButtonLabel": "पछाडी फर्कनुहोस्",
     "backButtonTitle": "फर्कनुहोस्",

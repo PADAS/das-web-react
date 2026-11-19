@@ -3,6 +3,8 @@ import axios from 'axios';
 import { CURRENT_USER_API_URL } from '../user';
 
 export const ATLAS_TOKEN_API_URL = `${CURRENT_USER_API_URL}/atlas-token/`;
+// Sent with a 401 when the user's own token has too little time left to share.
+export const ATLAS_TOKEN_SESSION_EXPIRING_ERROR_CODE = 'session_expiring';
 
 // Action creators
 export const fetchAtlasToken = () => async () => {
