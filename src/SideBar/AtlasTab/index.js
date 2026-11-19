@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 
 import { ATLAS_TOKEN_SESSION_EXPIRING_ERROR_CODE, fetchAtlasToken } from '../../ducks/atlas-token';
 import { BREAKPOINTS, DAS_HOST, SIDEBAR_WIDTH_PIXELS, VERTICAL_NAV_RAIL_WIDTH_PIXELS } from '../../constants';
-import { calcMaxOtusTabWidth, clampOtusTabWidth } from '../../utils/otus';
+import { calcMaxAtlasTabWidth, clampAtlasTabWidth } from '../../utils/atlas';
 import { clearAuth } from '../../ducks/auth';
-import { selectOtusTabWidth } from '../../selectors/otus';
+import { selectAtlasTabWidth } from '../../selectors/atlas';
 import { updateUserPreferences } from '../../ducks/user-preferences';
 import { useMatchMedia } from '../../hooks';
 import useNavigate from '../../hooks/useNavigate';
@@ -19,31 +19,32 @@ import * as styles from './styles.module.scss';
 
 const KEYBOARD_RESIZE_STEP_PIXELS = 16;
 
-export const OTUS_COMMANDS = { NEW_THREAD: 'new-thread', TOGGLE_THREADS: 'toggle-threads' };
-export const OTUS_MESSAGE_TYPES = {
+export const ATLAS_COMMANDS = { NEW_THREAD: 'new-thread', TOGGLE_THREADS: 'toggle-threads' };
+// The Atlas app still uses its former name in these message types.
+export const ATLAS_MESSAGE_TYPES = {
   COMMAND: 'otus:command',
   CONNECT: 'otus:connect',
   READY: 'otus:ready',
   THREADS: 'otus:threads',
 };
-// Longer than the 8 seconds Otus itself waits for the token.
-export const OTUS_READY_TIMEOUT_MS = 10_000;
+// Longer than the 8 seconds Atlas itself waits for the token.
+export const ATLAS_READY_TIMEOUT_MS = 10_000;
 
 const WIDTH_BY_RESIZE_KEY = {
   ArrowLeft: (width) => width - KEYBOARD_RESIZE_STEP_PIXELS,
   ArrowRight: (width) => width + KEYBOARD_RESIZE_STEP_PIXELS,
-  End: calcMaxOtusTabWidth,
+  End: calcMaxAtlasTabWidth,
   Home: () => SIDEBAR_WIDTH_PIXELS,
 };
 
-const OtusTab = ({ isActive, url }) => {
+const AtlasTab = ({ isActive, url }) => {
   const dispatch = useDispatch();
-  const { t } = useTranslation('components', { keyPrefix: 'sideBar.otusTab' });
+  const { t } = useTranslation('components', { keyPrefix: 'sideBar.atlasTab' });
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
   const navigate = useNavigate();
 
-  const otusTabWidth = useSelector(selectOtusTabWidth);
+  const atlasTabWidth = useSelector(selectAtlasTabWidth);
 
   const frameWrapperRef = useRef(null);
   const iframeRef = useRef(null);
@@ -67,7 +68,7 @@ const OtusTab = ({ isActive, url }) => {
   if (!isMediumLayoutOrLarger && widthWhileResizing !== null) setWidthWhileResizing(null);
 
   const isResizing = widthWhileResizing !== null;
-  const width = widthWhileResizing ?? otusTabWidth;
+  const width = widthWhileResizing ?? atlasTabWidth;
 
   const embedUrl = new URL(url);
   embedUrl.searchParams.set('embed', '1');
@@ -78,17 +79,17 @@ const OtusTab = ({ isActive, url }) => {
   // A reloaded frame starts with Recent closed, so only its own message counts.
   const isRecentOpen = recentOpenFrameKey === frameKey;
   const isSessionExpiring = sessionExpiringFrameKey === frameKey;
-  // A frame Otus refuses still fires load, so only a connection proves it.
+  // A frame Atlas refuses still fires load, so only a connection proves it.
   const isWaitingForConnection = !isLoading && connectedFrameKey !== frameKey;
-  const otusOrigin = embedUrl.origin;
+  const atlasOrigin = embedUrl.origin;
   // A late connection still clears the error, as the frame stays mounted behind it.
   const shouldShowConnectionError = isWaitingForConnection && failedFrameKey === frameKey;
   const shouldShowLoadError = shouldShowConnectionError && !isSessionExpiring;
   const shouldShowLogInPrompt = shouldShowConnectionError && isSessionExpiring;
 
   const postCommand = useCallback((command) => {
-    iframeRef.current?.contentWindow?.postMessage({ command, type: OTUS_MESSAGE_TYPES.COMMAND }, otusOrigin);
-  }, [otusOrigin]);
+    iframeRef.current?.contentWindow?.postMessage({ command, type: ATLAS_MESSAGE_TYPES.COMMAND }, atlasOrigin);
+  }, [atlasOrigin]);
 
   // The retry button unmounts, so focus moves to the wrapper that outlives it.
   const onClickRetryButton = () => {
@@ -108,11 +109,11 @@ const OtusTab = ({ isActive, url }) => {
     if (calcWidth) {
       event.preventDefault();
 
-      dispatch(updateUserPreferences({ otusTabWidth: clampOtusTabWidth(calcWidth(width)) }));
+      dispatch(updateUserPreferences({ atlasTabWidth: clampAtlasTabWidth(calcWidth(width)) }));
     }
   };
 
-  const onNewConversation = useCallback(() => postCommand(OTUS_COMMANDS.NEW_THREAD), [postCommand]);
+  const onNewConversation = useCallback(() => postCommand(ATLAS_COMMANDS.NEW_THREAD), [postCommand]);
 
   // The cross-origin frame swallows the drag as soon as the pointer reaches it,
   // so the handle captures the pointer and the frame stops taking events.
@@ -123,13 +124,13 @@ const OtusTab = ({ isActive, url }) => {
   };
 
   const onPointerMoveResizeHandle = (event) => {
-    if (isResizing) setWidthWhileResizing(clampOtusTabWidth(event.clientX - VERTICAL_NAV_RAIL_WIDTH_PIXELS));
+    if (isResizing) setWidthWhileResizing(clampAtlasTabWidth(event.clientX - VERTICAL_NAV_RAIL_WIDTH_PIXELS));
   };
 
   // The width is only stored once the drag ends, since it is persisted.
   const onPointerUpResizeHandle = () => {
     if (isResizing) {
-      dispatch(updateUserPreferences({ otusTabWidth: widthWhileResizing }));
+      dispatch(updateUserPreferences({ atlasTabWidth: widthWhileResizing }));
 
       setWidthWhileResizing(null);
     }
@@ -137,7 +138,7 @@ const OtusTab = ({ isActive, url }) => {
 
   const onRevertResize = () => setWidthWhileResizing(null);
 
-  const onToggleRecent = useCallback(() => postCommand(OTUS_COMMANDS.TOGGLE_THREADS), [postCommand]);
+  const onToggleRecent = useCallback(() => postCommand(ATLAS_COMMANDS.TOGGLE_THREADS), [postCommand]);
 
   useEffect(() => {
     let latestAtlasTokenRequest = null;
@@ -164,9 +165,9 @@ const OtusTab = ({ isActive, url }) => {
               expires_at: atlasToken.expiresAt,
               site_url: DAS_HOST,
               token: atlasToken.token,
-              type: OTUS_MESSAGE_TYPES.CONNECT,
+              type: ATLAS_MESSAGE_TYPES.CONNECT,
             },
-            otusOrigin
+            atlasOrigin
           );
 
           setConnectedFrameKey(frameKey);
@@ -182,16 +183,16 @@ const OtusTab = ({ isActive, url }) => {
     };
 
     const onMessage = (event) => {
-      if (event.origin === otusOrigin && event.source === iframeRef.current?.contentWindow) {
-        if (event.data?.type === OTUS_MESSAGE_TYPES.READY) connect();
+      if (event.origin === atlasOrigin && event.source === iframeRef.current?.contentWindow) {
+        if (event.data?.type === ATLAS_MESSAGE_TYPES.READY) connect();
 
-        if (event.data?.type === OTUS_MESSAGE_TYPES.THREADS) {
+        if (event.data?.type === ATLAS_MESSAGE_TYPES.THREADS) {
           setRecentOpenFrameKey(event.data.open === true ? frameKey : null);
         }
       }
     };
 
-    // Otus repeats its ready message after each reload, so we keep listening.
+    // Atlas repeats its ready message after each reload, so we keep listening.
     window.addEventListener('message', onMessage);
 
     return () => {
@@ -199,11 +200,11 @@ const OtusTab = ({ isActive, url }) => {
 
       window.removeEventListener('message', onMessage);
     };
-  }, [dispatch, frameKey, otusOrigin]);
+  }, [atlasOrigin, dispatch, frameKey]);
 
   useEffect(() => {
     if (isWaitingForConnection) {
-      const timeoutId = setTimeout(() => setFailedFrameKey(frameKey), OTUS_READY_TIMEOUT_MS);
+      const timeoutId = setTimeout(() => setFailedFrameKey(frameKey), ATLAS_READY_TIMEOUT_MS);
 
       return () => clearTimeout(timeoutId);
     }
@@ -211,7 +212,7 @@ const OtusTab = ({ isActive, url }) => {
 
   return <section
     aria-labelledby={titleId}
-    className={`${styles.otusTab} ${isActive ? styles.active : ''} ${isResizing ? styles.resizing : ''}`}
+    className={`${styles.atlasTab} ${isActive ? styles.active : ''} ${isResizing ? styles.resizing : ''}`}
     id={panelId}
     style={isMediumLayoutOrLarger ? { width } : undefined}
     >
@@ -225,7 +226,7 @@ const OtusTab = ({ isActive, url }) => {
 
     {hasBeenActivated && <div
       className={styles.frameWrapper}
-      data-testid="otusTab-frameWrapper"
+      data-testid="atlasTab-frameWrapper"
       ref={frameWrapperRef}
       tabIndex={-1}
       >
@@ -264,7 +265,7 @@ const OtusTab = ({ isActive, url }) => {
       aria-controls={panelId}
       aria-label={t('resizeHandleLabel')}
       aria-orientation="vertical"
-      aria-valuemax={calcMaxOtusTabWidth()}
+      aria-valuemax={calcMaxAtlasTabWidth()}
       aria-valuemin={SIDEBAR_WIDTH_PIXELS}
       aria-valuenow={width}
       className={styles.resizeHandle}
@@ -280,4 +281,4 @@ const OtusTab = ({ isActive, url }) => {
   </section>;
 };
 
-export default memo(OtusTab);
+export default memo(AtlasTab);

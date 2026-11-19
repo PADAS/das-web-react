@@ -15,7 +15,7 @@ import { updateUserPreferences } from '../../ducks/user-preferences';
 import { useMatchMedia } from '../../hooks';
 import useNavigate from '../../hooks/useNavigate';
 
-import OtusTab, { OTUS_READY_TIMEOUT_MS } from './';
+import AtlasTab, { ATLAS_READY_TIMEOUT_MS } from './';
 
 jest.mock('../../ducks/atlas-token', () => ({
   ...jest.requireActual('../../ducks/atlas-token'),
@@ -35,7 +35,7 @@ jest.mock('../../hooks', () => ({
 jest.mock('../../hooks/useNavigate', () => jest.fn());
 
 const ATLAS_TOKEN = { expiresAt: '2026-11-18T20:00:00Z', expiresIn: 28800, token: 'the-atlas-token' };
-const OTUS_URL = 'https://otus.example.com';
+const ATLAS_URL = 'https://atlas.example.com';
 const RATE_LIMITED_ERROR = Object.assign(new Error('Request failed with status code 429'), {
   response: { data: { code: 'rate_limited' }, status: 429 },
 });
@@ -47,7 +47,7 @@ const UNAUTHORIZED_ERROR = Object.assign(new Error('Request failed with status c
 });
 const MAX_WIDTH = 1440 - VERTICAL_NAV_RAIL_WIDTH_PIXELS - MIN_VISIBLE_MAP_WIDTH_PIXELS;
 
-describe('SideBar - OtusTab', () => {
+describe('SideBar - AtlasTab', () => {
   let navigate, reduxStore, store, user;
   beforeEach(() => {
     clearAuth.mockImplementation(() => () => {});
@@ -65,14 +65,14 @@ describe('SideBar - OtusTab', () => {
     };
   });
 
-  const otusTabTree = (props = {}) => <Provider store={reduxStore}>
-    <OtusTab isActive url={OTUS_URL} {...props} />
+  const atlasTabTree = (props = {}) => <Provider store={reduxStore}>
+    <AtlasTab isActive url={ATLAS_URL} {...props} />
   </Provider>;
 
-  const renderOtusTab = (props = {}) => {
+  const renderAtlasTab = (props = {}) => {
     reduxStore = mockStore(store);
 
-    return render(otusTabTree(props));
+    return render(atlasTabTree(props));
   };
 
   const getFrame = () => screen.getByTitle('Atlas chat');
@@ -104,21 +104,21 @@ describe('SideBar - OtusTab', () => {
 
   const dispatchReadyMessage = (overrides = {}) => act(async () => window.dispatchEvent(new MessageEvent('message', {
     data: { type: 'otus:ready' },
-    origin: OTUS_URL,
+    origin: ATLAS_URL,
     source: getFrame().contentWindow,
     ...overrides,
   })));
 
   const dispatchThreadsMessage = (data, overrides = {}) => act(() => window.dispatchEvent(new MessageEvent('message', {
     data: { type: 'otus:threads', ...data },
-    origin: OTUS_URL,
+    origin: ATLAS_URL,
     source: getFrame().contentWindow,
     ...overrides,
   })));
 
   const connectMessage = (atlasToken = ATLAS_TOKEN) => [
     { expires_at: atlasToken.expiresAt, site_url: DAS_HOST, token: atlasToken.token, type: 'otus:connect' },
-    OTUS_URL,
+    ATLAS_URL,
   ];
 
   const LOAD_ERROR_MESSAGE = 'Atlas couldn\'t load on this site. Try again, or contact support if this keeps happening.';
@@ -131,13 +131,13 @@ describe('SideBar - OtusTab', () => {
   const releaseResizeHandle = () => user.pointer({ keys: '[/MouseLeft]', target: getResizeHandle() });
 
   test('loads the frame with the embed and titlebar query parameters', () => {
-    renderOtusTab();
+    renderAtlasTab();
 
-    expect(getFrame()).toHaveAttribute('src', 'https://otus.example.com/?embed=1&titlebar=0');
+    expect(getFrame()).toHaveAttribute('src', 'https://atlas.example.com/?embed=1&titlebar=0');
   });
 
   test('sandboxes the frame without letting it navigate the top window', () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     expect(getFrame()).toHaveAttribute(
       'sandbox',
@@ -146,50 +146,50 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('keeps a query string the configured url already carries', () => {
-    renderOtusTab({ url: 'https://otus.example.com/chat?theme=dark' });
+    renderAtlasTab({ url: 'https://atlas.example.com/chat?theme=dark' });
 
-    expect(getFrame()).toHaveAttribute('src', 'https://otus.example.com/chat?theme=dark&embed=1&titlebar=0');
+    expect(getFrame()).toHaveAttribute('src', 'https://atlas.example.com/chat?theme=dark&embed=1&titlebar=0');
   });
 
   test('does not load the frame until the tab is first activated', () => {
-    renderOtusTab({ isActive: false });
+    renderAtlasTab({ isActive: false });
 
     expect(screen.queryByTitle('Atlas chat')).toBeNull();
   });
 
   test('loads the frame when the tab becomes active', () => {
-    const { rerender } = renderOtusTab({ isActive: false });
+    const { rerender } = renderAtlasTab({ isActive: false });
 
-    rerender(otusTabTree({ isActive: true }));
+    rerender(atlasTabTree({ isActive: true }));
 
     expect(getFrame()).toBeInTheDocument();
   });
 
   test('keeps the frame mounted after the tab is deactivated again', () => {
-    const { rerender } = renderOtusTab();
+    const { rerender } = renderAtlasTab();
     const frame = getFrame();
 
-    rerender(otusTabTree({ isActive: false }));
+    rerender(atlasTabTree({ isActive: false }));
 
     expect(getFrame()).toBe(frame);
   });
 
   test('marks the wrapper as active when the tab is the current one', () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     expect(getPanel()).toHaveClass('active');
   });
 
   test('does not mark the wrapper as active when the tab is not the current one', () => {
-    const { rerender } = renderOtusTab();
+    const { rerender } = renderAtlasTab();
 
-    rerender(otusTabTree({ isActive: false }));
+    rerender(atlasTabTree({ isActive: false }));
 
     expect(getPanel()).not.toHaveClass('active');
   });
 
   test('shows a loading message until the frame has loaded', () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     expect(screen.getByRole('status')).toHaveTextContent('Loading Atlas…');
 
@@ -199,23 +199,23 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('shows the loading message again when the url changes', () => {
-    const { rerender } = renderOtusTab();
+    const { rerender } = renderAtlasTab();
     fireEvent.load(getFrame());
 
-    rerender(otusTabTree({ url: 'https://otus.example.com/other' }));
+    rerender(atlasTabTree({ url: 'https://atlas.example.com/other' }));
 
     expect(screen.getByRole('status')).toBeVisible();
   });
 
   test('shows the header before the frame has been loaded', () => {
-    renderOtusTab({ isActive: false });
+    renderAtlasTab({ isActive: false });
 
     expect(screen.getByRole('heading', { name: 'Atlas' })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Close Atlas' })).toBeVisible();
   });
 
   test('closes the sidebar when the header close button is clicked', async () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     await userEvent.click(screen.getByRole('button', { name: 'Close Atlas' }));
 
@@ -224,27 +224,27 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('posts the new thread command to the frame when the new conversation button is clicked', async () => {
-    renderOtusTab();
+    renderAtlasTab();
     const postMessage = mockFramePostMessage();
 
     await userEvent.click(screen.getByRole('button', { name: 'New conversation' }));
 
     expect(postMessage).toHaveBeenCalledTimes(1);
-    expect(postMessage).toHaveBeenCalledWith({ command: 'new-thread', type: 'otus:command' }, OTUS_URL);
+    expect(postMessage).toHaveBeenCalledWith({ command: 'new-thread', type: 'otus:command' }, ATLAS_URL);
   });
 
   test('posts the toggle threads command to the frame when the recent button is clicked', async () => {
-    renderOtusTab();
+    renderAtlasTab();
     const postMessage = mockFramePostMessage();
 
     await userEvent.click(screen.getByRole('button', { name: 'Recent' }));
 
     expect(postMessage).toHaveBeenCalledTimes(1);
-    expect(postMessage).toHaveBeenCalledWith({ command: 'toggle-threads', type: 'otus:command' }, OTUS_URL);
+    expect(postMessage).toHaveBeenCalledWith({ command: 'toggle-threads', type: 'otus:command' }, ATLAS_URL);
   });
 
   test('shows the recent button as pressed once the frame reports the recent conversations are open', () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     dispatchThreadsMessage({ open: true });
 
@@ -252,7 +252,7 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('shows the recent button as not pressed once the frame reports the recent conversations are closed', () => {
-    renderOtusTab();
+    renderAtlasTab();
     dispatchThreadsMessage({ open: true });
 
     dispatchThreadsMessage({ open: false });
@@ -261,7 +261,7 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('ignores a recent conversations message that does not come from the frame origin', () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     dispatchThreadsMessage({ open: true }, { origin: 'https://evil.example.com' });
 
@@ -269,7 +269,7 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('ignores a recent conversations message that does not come from the frame window', () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     dispatchThreadsMessage({ open: true }, { source: window });
 
@@ -277,7 +277,7 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('requests an Atlas token when the frame announces it is ready', async () => {
-    renderOtusTab();
+    renderAtlasTab();
     mockFramePostMessage();
 
     await dispatchReadyMessage();
@@ -286,7 +286,7 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('posts the site, the Atlas token and its expiry to the frame once the token arrives', async () => {
-    renderOtusTab();
+    renderAtlasTab();
     const postMessage = mockFramePostMessage();
 
     await dispatchReadyMessage();
@@ -297,7 +297,7 @@ describe('SideBar - OtusTab', () => {
 
   test('does not post to the frame while the Atlas token request runs', async () => {
     deferAtlasToken();
-    renderOtusTab();
+    renderAtlasTab();
     const postMessage = mockFramePostMessage();
 
     await dispatchReadyMessage();
@@ -311,7 +311,7 @@ describe('SideBar - OtusTab', () => {
     fetchAtlasToken
       .mockImplementationOnce(() => () => Promise.resolve(ATLAS_TOKEN))
       .mockImplementationOnce(() => () => Promise.resolve(otherAtlasToken));
-    renderOtusTab();
+    renderAtlasTab();
     const postMessage = mockFramePostMessage();
 
     await dispatchReadyMessage();
@@ -323,7 +323,7 @@ describe('SideBar - OtusTab', () => {
 
   test('does not post to the frame when the Atlas token request fails', async () => {
     rejectAtlasTokenRequests();
-    renderOtusTab();
+    renderAtlasTab();
     const postMessage = mockFramePostMessage();
 
     await dispatchReadyMessage();
@@ -333,7 +333,7 @@ describe('SideBar - OtusTab', () => {
 
   test('requests a new Atlas token when the frame is ready again after a failed request', async () => {
     fetchAtlasToken.mockImplementationOnce(() => () => Promise.reject(new Error('Request failed')));
-    renderOtusTab();
+    renderAtlasTab();
     const postMessage = mockFramePostMessage();
 
     await dispatchReadyMessage();
@@ -345,7 +345,7 @@ describe('SideBar - OtusTab', () => {
 
   test('shows the load error in place of the frame when the Atlas token request fails', async () => {
     rejectAtlasTokenRequests();
-    renderOtusTab();
+    renderAtlasTab();
     fireEvent.load(getFrame());
 
     await dispatchReadyMessage();
@@ -356,7 +356,7 @@ describe('SideBar - OtusTab', () => {
 
   test('shows the load error instead of posting when the Atlas token response has no token', async () => {
     fetchAtlasToken.mockImplementation(() => () => Promise.resolve({ ...ATLAS_TOKEN, token: undefined }));
-    renderOtusTab();
+    renderAtlasTab();
     fireEvent.load(getFrame());
     const postMessage = mockFramePostMessage();
 
@@ -370,7 +370,7 @@ describe('SideBar - OtusTab', () => {
     fetchAtlasToken
       .mockImplementationOnce(() => () => Promise.resolve(ATLAS_TOKEN))
       .mockImplementationOnce(() => () => Promise.reject(new Error('Request failed')));
-    renderOtusTab();
+    renderAtlasTab();
     fireEvent.load(getFrame());
     mockFramePostMessage();
     await dispatchReadyMessage();
@@ -383,7 +383,7 @@ describe('SideBar - OtusTab', () => {
 
   test('waits for the frame to load before showing the load error for a failed Atlas token request', async () => {
     rejectAtlasTokenRequests();
-    renderOtusTab();
+    renderAtlasTab();
 
     await dispatchReadyMessage();
 
@@ -396,7 +396,7 @@ describe('SideBar - OtusTab', () => {
 
   test('requests and posts a new Atlas token when the user tries again after a failed request', async () => {
     fetchAtlasToken.mockImplementationOnce(() => () => Promise.reject(new Error('Request failed')));
-    renderOtusTab();
+    renderAtlasTab();
     fireEvent.load(getFrame());
     await dispatchReadyMessage();
 
@@ -412,7 +412,7 @@ describe('SideBar - OtusTab', () => {
 
   test('asks the user to log in again without logging them out when the session ends soon', async () => {
     rejectAtlasTokenRequests(SESSION_EXPIRING_ERROR);
-    renderOtusTab();
+    renderAtlasTab();
     fireEvent.load(getFrame());
     const postMessage = mockFramePostMessage();
 
@@ -427,7 +427,7 @@ describe('SideBar - OtusTab', () => {
 
   test('logs the user out so they can log in again when the log in again button is clicked', async () => {
     rejectAtlasTokenRequests(SESSION_EXPIRING_ERROR);
-    renderOtusTab();
+    renderAtlasTab();
     fireEvent.load(getFrame());
     await dispatchReadyMessage();
 
@@ -438,7 +438,7 @@ describe('SideBar - OtusTab', () => {
 
   test('shows the load error instead of the log-in prompt when the Atlas token request is rate limited', async () => {
     rejectAtlasTokenRequests(RATE_LIMITED_ERROR);
-    renderOtusTab();
+    renderAtlasTab();
     fireEvent.load(getFrame());
     const postMessage = mockFramePostMessage();
 
@@ -451,7 +451,7 @@ describe('SideBar - OtusTab', () => {
 
   test('shows the load error instead of the log-in prompt when the Atlas token request is unauthorized', async () => {
     rejectAtlasTokenRequests(UNAUTHORIZED_ERROR);
-    renderOtusTab();
+    renderAtlasTab();
     fireEvent.load(getFrame());
 
     await dispatchReadyMessage();
@@ -464,7 +464,7 @@ describe('SideBar - OtusTab', () => {
     fetchAtlasToken
       .mockImplementationOnce(() => () => Promise.reject(SESSION_EXPIRING_ERROR))
       .mockImplementationOnce(() => () => Promise.reject(new Error('Request failed')));
-    renderOtusTab();
+    renderAtlasTab();
     fireEvent.load(getFrame());
     await dispatchReadyMessage();
 
@@ -479,7 +479,7 @@ describe('SideBar - OtusTab', () => {
       .mockImplementationOnce(() => () => Promise.reject(SESSION_EXPIRING_ERROR))
       .mockImplementationOnce(() => () => Promise.resolve(ATLAS_TOKEN))
       .mockImplementationOnce(() => () => Promise.reject(new Error('Request failed')));
-    renderOtusTab();
+    renderAtlasTab();
     fireEvent.load(getFrame());
     mockFramePostMessage();
     await dispatchReadyMessage();
@@ -492,7 +492,7 @@ describe('SideBar - OtusTab', () => {
 
   test('clears the log-in prompt when a later Atlas token request connects the frame', async () => {
     fetchAtlasToken.mockImplementationOnce(() => () => Promise.reject(SESSION_EXPIRING_ERROR));
-    renderOtusTab();
+    renderAtlasTab();
     fireEvent.load(getFrame());
     const postMessage = mockFramePostMessage();
     await dispatchReadyMessage();
@@ -507,12 +507,12 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('does not post to the frame again when the user token is renewed', async () => {
-    const { rerender } = renderOtusTab();
+    const { rerender } = renderAtlasTab();
     const postMessage = mockFramePostMessage();
     await dispatchReadyMessage();
 
     reduxStore = mockStore({ ...store, data: { token: { access_token: 'the-renewed-user-token' } } });
-    rerender(otusTabTree());
+    rerender(atlasTabTree());
 
     expect(fetchAtlasToken).toHaveBeenCalledTimes(1);
     expect(postMessage).toHaveBeenCalledTimes(1);
@@ -520,7 +520,7 @@ describe('SideBar - OtusTab', () => {
 
   test('ignores an Atlas token that arrives after a newer ready message', async () => {
     const firstAtlasTokenRequest = deferAtlasToken();
-    renderOtusTab();
+    renderAtlasTab();
     const postMessage = mockFramePostMessage();
     await dispatchReadyMessage();
     await dispatchReadyMessage();
@@ -533,7 +533,7 @@ describe('SideBar - OtusTab', () => {
   test('ignores a failed Atlas token request that settles after a newer ready message', async () => {
     const firstAtlasTokenRequest = deferAtlasToken();
     deferAtlasToken();
-    renderOtusTab();
+    renderAtlasTab();
     fireEvent.load(getFrame());
     await dispatchReadyMessage();
     await dispatchReadyMessage();
@@ -546,11 +546,11 @@ describe('SideBar - OtusTab', () => {
 
   test('ignores an Atlas token that arrives after the frame reloads', async () => {
     const atlasTokenRequest = deferAtlasToken();
-    const { rerender } = renderOtusTab();
+    const { rerender } = renderAtlasTab();
     const postMessage = mockFramePostMessage();
     await dispatchReadyMessage();
 
-    rerender(otusTabTree({ url: 'https://otus.example.com/other' }));
+    rerender(atlasTabTree({ url: 'https://atlas.example.com/other' }));
     const reloadedFramePostMessage = mockFramePostMessage();
     await atlasTokenRequest.resolve(ATLAS_TOKEN);
 
@@ -559,7 +559,7 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('ignores a ready message from another origin', async () => {
-    renderOtusTab();
+    renderAtlasTab();
     const postMessage = mockFramePostMessage();
 
     await dispatchReadyMessage({ origin: 'https://impostor.example.com' });
@@ -569,7 +569,7 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('ignores a ready message from a window other than the frame', async () => {
-    renderOtusTab();
+    renderAtlasTab();
     const postMessage = mockFramePostMessage();
 
     await dispatchReadyMessage({ source: window });
@@ -579,7 +579,7 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('ignores messages of other types', async () => {
-    renderOtusTab();
+    renderAtlasTab();
     const postMessage = mockFramePostMessage();
 
     await dispatchReadyMessage({ data: { type: 'otus:something-else' } });
@@ -589,14 +589,14 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('stops listening once unmounted', () => {
-    const { unmount } = renderOtusTab();
+    const { unmount } = renderAtlasTab();
     const postMessage = mockFramePostMessage();
     const frameWindow = getFrame().contentWindow;
 
     unmount();
     window.dispatchEvent(new MessageEvent('message', {
       data: { type: 'otus:ready' },
-      origin: OTUS_URL,
+      origin: ATLAS_URL,
       source: frameWindow,
     }));
 
@@ -617,10 +617,10 @@ describe('SideBar - OtusTab', () => {
     const advanceTimersBy = (milliseconds) => act(() => jest.advanceTimersByTime(milliseconds));
 
     test('shows the load error in place of the frame once the wait runs out', () => {
-      renderOtusTab();
+      renderAtlasTab();
       fireEvent.load(getFrame());
 
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
       expect(screen.getByRole('alert')).toHaveTextContent(LOAD_ERROR_MESSAGE);
       expect(screen.getByRole('button', { name: 'Try again' })).toBeVisible();
@@ -628,9 +628,9 @@ describe('SideBar - OtusTab', () => {
     });
 
     test('clears the load error when the frame announces it is ready late', async () => {
-      renderOtusTab();
+      renderAtlasTab();
       fireEvent.load(getFrame());
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
       mockFramePostMessage();
 
       await dispatchReadyMessage();
@@ -640,82 +640,82 @@ describe('SideBar - OtusTab', () => {
     });
 
     test('does not show the load error when the frame announces it is ready before it loads', async () => {
-      renderOtusTab();
+      renderAtlasTab();
       mockFramePostMessage();
 
       await dispatchReadyMessage();
       fireEvent.load(getFrame());
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
       expect(screen.queryByRole('alert')).toBeNull();
     });
 
     test('does not show the load error before the wait runs out', () => {
-      renderOtusTab();
+      renderAtlasTab();
       fireEvent.load(getFrame());
 
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS - 1);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS - 1);
 
       expect(screen.queryByRole('alert')).toBeNull();
       expect(getFrame()).toBeInTheDocument();
     });
 
     test('does not start the wait until the frame has loaded', () => {
-      renderOtusTab();
+      renderAtlasTab();
 
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
       expect(screen.queryByRole('alert')).toBeNull();
     });
 
     test('does not show the load error when the frame announces it is ready in time', async () => {
-      renderOtusTab();
+      renderAtlasTab();
       fireEvent.load(getFrame());
       mockFramePostMessage();
 
       await dispatchReadyMessage();
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
       expect(screen.queryByRole('alert')).toBeNull();
     });
 
     test('shows the load error when the ready message comes from another origin', async () => {
-      renderOtusTab();
+      renderAtlasTab();
       fireEvent.load(getFrame());
 
       await dispatchReadyMessage({ origin: 'https://impostor.example.com' });
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
       expect(screen.getByRole('alert')).toBeVisible();
     });
 
     test('shows the load error when the ready message comes from a window other than the frame', async () => {
-      renderOtusTab();
+      renderAtlasTab();
       fireEvent.load(getFrame());
 
       await dispatchReadyMessage({ source: window });
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
       expect(screen.getByRole('alert')).toBeVisible();
     });
 
     test('reloads the frame when the user clicks try again', async () => {
-      renderOtusTab();
+      renderAtlasTab();
       fireEvent.load(getFrame());
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
       await user.click(screen.getByRole('button', { name: 'Try again' }));
 
       expect(screen.queryByRole('alert')).toBeNull();
-      expect(getFrame()).toHaveAttribute('src', 'https://otus.example.com/?embed=1&titlebar=0');
+      expect(getFrame()).toHaveAttribute('src', 'https://atlas.example.com/?embed=1&titlebar=0');
       expect(screen.getByRole('status')).toHaveTextContent('Loading Atlas…');
     });
 
     test('shows the recent button as not pressed once the user reloads the frame', async () => {
-      renderOtusTab();
+      renderAtlasTab();
       fireEvent.load(getFrame());
       dispatchThreadsMessage({ open: true });
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
       await user.click(screen.getByRole('button', { name: 'Try again' }));
 
@@ -723,22 +723,22 @@ describe('SideBar - OtusTab', () => {
     });
 
     test('moves focus to the frame wrapper when the user clicks try again', async () => {
-      renderOtusTab();
+      renderAtlasTab();
       fireEvent.load(getFrame());
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
       await user.click(screen.getByRole('button', { name: 'Try again' }));
 
-      expect(screen.getByTestId('otusTab-frameWrapper')).toHaveFocus();
+      expect(screen.getByTestId('atlasTab-frameWrapper')).toHaveFocus();
     });
 
     test('lets the user tab to try again when the reloaded frame times out too', async () => {
-      renderOtusTab();
+      renderAtlasTab();
       fireEvent.load(getFrame());
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
       await user.click(screen.getByRole('button', { name: 'Try again' }));
       fireEvent.load(getFrame());
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
       await user.tab();
 
@@ -746,13 +746,13 @@ describe('SideBar - OtusTab', () => {
     });
 
     test('waits again for the reloaded frame to announce it is ready', async () => {
-      renderOtusTab();
+      renderAtlasTab();
       fireEvent.load(getFrame());
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
       await user.click(screen.getByRole('button', { name: 'Try again' }));
       fireEvent.load(getFrame());
 
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS - 1);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS - 1);
 
       expect(screen.queryByRole('alert')).toBeNull();
 
@@ -762,22 +762,22 @@ describe('SideBar - OtusTab', () => {
     });
 
     test('keeps the reloaded frame once it announces it is ready', async () => {
-      renderOtusTab();
+      renderAtlasTab();
       fireEvent.load(getFrame());
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
       await user.click(screen.getByRole('button', { name: 'Try again' }));
       fireEvent.load(getFrame());
       mockFramePostMessage();
 
       await dispatchReadyMessage();
-      advanceTimersBy(OTUS_READY_TIMEOUT_MS);
+      advanceTimersBy(ATLAS_READY_TIMEOUT_MS);
 
       expect(screen.queryByRole('alert')).toBeNull();
       expect(getFrame()).toBeInTheDocument();
     });
 
     test('stops waiting once unmounted', () => {
-      const { unmount } = renderOtusTab();
+      const { unmount } = renderAtlasTab();
       fireEvent.load(getFrame());
 
       unmount();
@@ -787,27 +787,27 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('applies the stored width to the panel', () => {
-    store.view.userPreferences.otusTabWidth = 700;
-    renderOtusTab();
+    store.view.userPreferences.atlasTabWidth = 700;
+    renderAtlasTab();
 
     expect(getPanel()).toHaveStyle({ width: '700px' });
   });
 
   test('applies the default width to the panel when there is no stored width', () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     expect(getPanel()).toHaveStyle({ width: '736px' });
   });
 
   test('clamps a stored width that no longer fits the viewport', () => {
-    store.view.userPreferences.otusTabWidth = 5000;
-    renderOtusTab();
+    store.view.userPreferences.atlasTabWidth = 5000;
+    renderAtlasTab();
 
     expect(getPanel()).toHaveStyle({ width: `${MAX_WIDTH}px` });
   });
 
   test('shows the width bounds of the panel in the resize handle', () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     expect(getResizeHandle()).toHaveAttribute('aria-valuemin', `${SIDEBAR_WIDTH_PIXELS}`);
     expect(getResizeHandle()).toHaveAttribute('aria-valuenow', '736');
@@ -815,60 +815,60 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('shows the stored width as the current value of the resize handle', () => {
-    store.view.userPreferences.otusTabWidth = 700;
-    renderOtusTab();
+    store.view.userPreferences.atlasTabWidth = 700;
+    renderAtlasTab();
 
     expect(getResizeHandle()).toHaveAttribute('aria-valuenow', '700');
   });
 
   test('widens the panel when the user presses the right arrow key on the resize handle', async () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     getResizeHandle().focus();
     await userEvent.keyboard('{ArrowRight}');
 
-    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ otusTabWidth: 752 })]);
+    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ atlasTabWidth: 752 })]);
   });
 
   test('narrows the panel when the user presses the left arrow key on the resize handle', async () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     getResizeHandle().focus();
     await userEvent.keyboard('{ArrowLeft}');
 
-    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ otusTabWidth: 720 })]);
+    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ atlasTabWidth: 720 })]);
   });
 
   test('narrows the panel no further than its minimum width', async () => {
-    store.view.userPreferences.otusTabWidth = SIDEBAR_WIDTH_PIXELS + 8;
-    renderOtusTab();
+    store.view.userPreferences.atlasTabWidth = SIDEBAR_WIDTH_PIXELS + 8;
+    renderAtlasTab();
 
     getResizeHandle().focus();
     await userEvent.keyboard('{ArrowLeft}');
 
-    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ otusTabWidth: SIDEBAR_WIDTH_PIXELS })]);
+    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ atlasTabWidth: SIDEBAR_WIDTH_PIXELS })]);
   });
 
   test('narrows the panel to its minimum width when the user presses the home key on the resize handle', async () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     getResizeHandle().focus();
     await userEvent.keyboard('{Home}');
 
-    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ otusTabWidth: SIDEBAR_WIDTH_PIXELS })]);
+    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ atlasTabWidth: SIDEBAR_WIDTH_PIXELS })]);
   });
 
   test('widens the panel to its maximum width when the user presses the end key on the resize handle', async () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     getResizeHandle().focus();
     await userEvent.keyboard('{End}');
 
-    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ otusTabWidth: MAX_WIDTH })]);
+    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ atlasTabWidth: MAX_WIDTH })]);
   });
 
   test('ignores other keys pressed on the resize handle', async () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     getResizeHandle().focus();
     await userEvent.keyboard('{ArrowUp}');
@@ -877,17 +877,17 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('persists the width when the user drags the resize handle', async () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     await pressResizeHandle();
     await movePointerTo(870);
     await releaseResizeHandle();
 
-    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ otusTabWidth: 800 })]);
+    expect(reduxStore.getActions()).toEqual([updateUserPreferences({ atlasTabWidth: 800 })]);
   });
 
   test('shows the width being dragged before the pointer is released', async () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     await pressResizeHandle();
     await movePointerTo(870);
@@ -897,7 +897,7 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('ignores pointer moves that do not follow a pointer down', async () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     await movePointerTo(870);
 
@@ -906,7 +906,7 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('drops an interrupted drag without persisting it', async () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     await pressResizeHandle();
     await movePointerTo(870);
@@ -917,7 +917,7 @@ describe('SideBar - OtusTab', () => {
   });
 
   test('drops an in-progress drag when the layout falls below medium', async () => {
-    renderOtusTab();
+    renderAtlasTab();
 
     await pressResizeHandle();
     await movePointerTo(870);
@@ -929,15 +929,15 @@ describe('SideBar - OtusTab', () => {
 
   test('does not show the resize handle on a small screen', () => {
     useMatchMedia.mockImplementation(() => false);
-    renderOtusTab();
+    renderAtlasTab();
 
     expect(screen.queryByRole('separator')).toBeNull();
   });
 
   test('does not apply the stored width on a small screen', () => {
     useMatchMedia.mockImplementation(() => false);
-    store.view.userPreferences.otusTabWidth = 700;
-    renderOtusTab();
+    store.view.userPreferences.atlasTabWidth = 700;
+    renderAtlasTab();
 
     expect(getPanel()).not.toHaveAttribute('style');
   });

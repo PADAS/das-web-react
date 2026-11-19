@@ -48,7 +48,7 @@ const socketHealthStatusResolver = () => {
 export const updateSocketHealthStatus = socketHealthStatusResolver();
 
 // An anonymous request sends no login token. Its response can still carry a
-// Django admin session's settings, so it never sets Tableau or Otus.
+// Django admin session's settings, so it never sets Tableau or Atlas.
 export const fetchSystemStatus = ({ anonymous = false } = {}) => async (dispatch, getState) => {
   const tokenAtRequest = getState?.().data?.token?.access_token;
   const headers = anonymous ? { Authorization: false } : undefined;
@@ -60,7 +60,7 @@ export const fetchSystemStatus = ({ anonymous = false } = {}) => async (dispatch
     console.warn('Failed to fetch the system status', error?.response?.status, error?.message);
     dispatch(fetchSystemStatusError(error));
     if (!anonymous) {
-      // Stop waiting for Tableau and Otus, so a hidden tab's URL redirects.
+      // Stop waiting for Tableau and Atlas, so a hidden tab's URL redirects.
       dispatch({ type: SET_SYSTEM_CONFIG, payload: { userConfigLoaded: true } });
     }
     throw error;

@@ -148,15 +148,15 @@ describe('GlobalMenuDrawer', () => {
     expect(screen.queryByRole('link', { name: 'Patrols' })).toBeNull();
   });
 
-  test('shows the Otus link in small screens when an Otus URL is configured', async () => {
+  test('shows the Atlas link in small screens when an Atlas URL is configured', async () => {
     useMatchMedia.mockImplementation(() => false);
-    store.view.systemConfig.otusUrl = 'https://otus.example.com';
+    store.view.systemConfig.atlasUrl = 'https://atlas.example.com';
     renderGlobalMenuDrawer();
 
     expect(within(screen.getByRole('navigation')).getByRole('link', { name: 'Atlas' })).toBeVisible();
   });
 
-  test('does not show the Otus link in small screens when there is no Otus URL', async () => {
+  test('does not show the Atlas link in small screens when there is no Atlas URL', async () => {
     useMatchMedia.mockImplementation(() => false);
     renderGlobalMenuDrawer();
 

@@ -8,7 +8,7 @@ import { ReactComponent as PlusCircleIcon } from '../../../common/images/icons/p
 import * as styles from './styles.module.scss';
 
 const Header = ({ isRecentOpen = false, onClose, onNewConversation, onToggleRecent, titleId }) => {
-  const { t } = useTranslation('components', { keyPrefix: 'sideBar.otusTab.header' });
+  const { t } = useTranslation('components', { keyPrefix: 'sideBar.atlasTab.header' });
 
   return <header className={styles.header}>
     <button

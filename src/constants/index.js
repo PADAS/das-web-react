@@ -69,11 +69,10 @@ export const PATROL_API_STATES = {
 export const PATROL_TYPE_QUERY_PARAMETER = 'patrol-type';
 
 export const TAB_KEYS = {
+  ATLAS: 'atlas',
   EVENTS: 'events',
   GEAR: 'gear',
   LAYERS: 'layers',
-  // The URL uses the tab's new name, Atlas; the code still calls it Otus.
-  OTUS: 'atlas',
   PATROLS: 'patrols',
   SETTINGS: 'settings',
 };

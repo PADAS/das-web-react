@@ -29,13 +29,20 @@ export const setPlaySoundForRadioStateChangeToRed = (playSoundForRadioStateChang
 });
 
 // Reducer
+export const userPreferencesMigrations = {
+  // Keeps otusTabWidth, which a rolled-back build still reads.
+  0: (state) => (typeof state?.otusTabWidth === 'number' && (state.atlasTabWidth ?? null) === null
+    ? { ...state, atlasTabWidth: state.otusTabWidth }
+    : state),
+};
+
 export const INITIAL_STATE = {
+  atlasTabWidth: null,
   autoEndPatrols: false,
   autoStartPatrols: false,
   enable3D: true,
   gpsFormat: Object.values(GPS_FORMATS)[0],
   hideModals: false,
-  otusTabWidth: null,
   playSoundForNewEvents: false,
   playSoundForNewInReachMessages: false,
   playSoundForRadioStateChangeToRed: false,

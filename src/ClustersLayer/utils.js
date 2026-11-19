@@ -7,7 +7,7 @@ import { calcSidebarPaddingLeft } from '../utils/map';
 import { calcSvgImageIconId } from '../utils/mapImages';
 import { ensureEventIcon, getEventIcon } from '../utils/eventMapIcons';
 import getWindowLocation from '../utils/getWindowLocation';
-import { selectOtusTabWidth } from '../selectors/otus';
+import { selectAtlasTabWidth } from '../selectors/atlas';
 import store from '../store';
 import { subjectIsStatic } from '../utils/subjects';
 import { injectStylesToElement } from '../utils/styles';
@@ -161,8 +161,8 @@ export const createClusterHTMLMarker = (
 export const calcClusterZoomPadding = () => {
   const isMediumLayoutOrLarger = BREAKPOINTS.screenIsMediumLayoutOrLarger.matches;
   const left = calcSidebarPaddingLeft({
+    atlasTabWidth: selectAtlasTabWidth(store.getState()),
     isMediumLayoutOrLarger,
-    otusTabWidth: selectOtusTabWidth(store.getState()),
     pathname: getWindowLocation().pathname,
   }) ?? 0;
 
