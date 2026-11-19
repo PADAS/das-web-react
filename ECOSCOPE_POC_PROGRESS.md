@@ -2,7 +2,7 @@
 
 ## Périmètre
 
-1. Worktree `/Users/ray/workspace/frontend/das-web-react/.worktrees/ecoscope-poc`, branche `codex/erweb-ecoscope-poc`, remote PADAS/das-web-react. Un commit local POC autorisé par l’utilisateur ; aucun push ni PR.
+1. Worktree `/Users/ray/workspace/frontend/das-web-react__worktrees/ecoscope-poc`, branche `codex/erweb-ecoscope-poc`, remote PADAS/das-web-react. Un commit local POC autorisé par l’utilisateur ; aucun push ni PR.
 2. Exigences et contrat : `/Users/ray/.codex/visualizations/2026/11/16/01a1e222-b590-73a0-b04c-7a21420eabe0/poc-coordination.md`.
 3. Pas de nouveau test automatisé. Validation manuelle par le coordinateur ; contrôles lint/compilation.
 4. Changement confirmé par coordinateur : API FastAPI dans preview dev, ERWeb/Ecoscope Web locaux.
@@ -70,3 +70,9 @@
 4. Réussi : déconnexion ER alors qu’Analyse est masquée mène à /login, sans iframe. Après reconnexion : aucune iframe avant Analyse, puis nouvelle iframe et nouvelle transaction, recherche vide et réouverture sans mot de passe Ecoscope (liaison conservée).
 5. Contrôles existants : 1 suite SideBar, 72 tests réussis ; ESLint/Stylelint ciblés et build complet réussis. `--watchman=false` remplace uniquement Watchman par le crawler standard Jest : aucune sélection additionnelle, aucun skip, aucune modification de seuil ou configuration des tests.
 6. Commit complémentaire local autorisé après cette validation ; commit initial conservé sans amendement, aucun push/PR.
+
+## Suppression du bandeau Analyse — 18 novembre 2026
+
+1. Retrait du bandeau « Analyse / avec Ecoscope », de son import SVG inutilisé et des seuls styles header/brand. La section conserve son libellé accessible ; l’iframe flex occupe l’espace disponible. États de chargement/erreur, authentification, persistance et navigation globale ER inchangés.
+2. Relecture humaine du diff uniquement. Sur instruction explicite utilisateur : aucun test, lint, Stylelint, build, typecheck ni hook exécuté. Commit local avec hooks désactivés pour cette opération ; aucun push/PR par ce worker.
+3. Worktree déplacé par le coordinateur dans le répertoire sibling `das-web-react__worktrees`. Environnement et secrets existants réutilisés sans modification. Vite relancé et prêt sur 127.0.0.1:9000, PID 30277 / session 44450 ; validation navigateur réservée au coordinateur.

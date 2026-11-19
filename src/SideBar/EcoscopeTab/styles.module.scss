@@ -13,36 +13,6 @@
     display: none;
   }
 
-  .header {
-    align-items: center;
-    border-bottom: 1px solid colors.$ui-divider-lines;
-    display: flex;
-    flex-shrink: 0;
-    justify-content: space-between;
-    padding: 1rem 1.5rem;
-  }
-
-  .brand {
-    align-items: center;
-    display: flex;
-    gap: 0.75rem;
-
-    svg {
-      height: 2.5rem;
-      width: 2.5rem;
-    }
-
-    h2 {
-      font-size: 1.125rem;
-      margin: 0;
-    }
-
-    span {
-      color: colors.$ui-text-secondary;
-      font-size: 0.875rem;
-    }
-  }
-
   .status {
     margin: auto;
     padding: 2rem;

@@ -2,8 +2,6 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { ReactComponent as EcoscopeLogoIcon } from '../../common/images/icons/ecoscope-logo.svg';
-
 import { ECOSCOPE_CONNECTION_KEY, ECOSCOPE_LOGOUT_EVENT, requestEcoscopeLaunch } from '../../utils/ecoscope';
 import { REACT_APP_ECOSCOPE_URL } from '../../constants';
 import useNavigate from '../../hooks/useNavigate';
@@ -104,14 +102,6 @@ const EcoscopeTab = ({ isActive }) => {
     hidden={!isActive}
     inert={!isActive}
   >
-    <header className={styles.header}>
-      <div className={styles.brand}>
-        <EcoscopeLogoIcon aria-hidden="true" />
-
-        <div><h2>{t('analysisTitle')}</h2><span>{t('providerLabel')}</span></div>
-      </div>
-    </header>
-
     {!launch && !hasError && <p className={styles.status} role="status">{t('loadingMessage')}</p>}
 
     {hasError && <div className={styles.status}>
