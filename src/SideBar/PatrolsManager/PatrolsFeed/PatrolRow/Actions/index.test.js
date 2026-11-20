@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import userEvent from '@testing-library/user-event';
 
 import { activePatrol } from '../../../../../__test-helpers/fixtures/patrols';
+import { GA4_MAX_ACTION_LENGTH } from '../../../../../__test-helpers/analytics';
 import { createMapMock } from '../../../../../__test-helpers/mocks';
 import { downloadJsonAsFile } from '../../../../../utils/download';
 import { MapContext } from '../../../../../MapContext';
@@ -15,7 +16,7 @@ import { TRACK_LENGTH_ORIGINS } from '../../../../../ducks/tracks';
 import { TrackerContext } from '../../../../../utils/analytics';
 import { updatePatrol, UPDATE_PATROL_TRACK_STATE } from '../../../../../ducks/patrols';
 
-import Actions from './';
+import Actions, { TRACKED_ACTION_BY_TRANSITION } from './';
 
 jest.mock('../../../../../utils/download', () => ({ downloadJsonAsFile: jest.fn() }));
 
@@ -23,6 +24,19 @@ jest.mock('../../../../../ducks/patrols', () => ({
   ...jest.requireActual('../../../../../ducks/patrols'),
   updatePatrol: jest.fn(),
 }));
+
+const pausedPatrol = {
+  ...activePatrol,
+  patrol_segments: [
+    ...activePatrol.patrol_segments,
+    {
+      id: '4cb12d6b-78c8-4a0f-9cb7-2a5d1a8cbb6d',
+      is_pause: true,
+      leader: null,
+      time_range: { end_time: null, start_time: '2022-01-20T13:42:39.502000-08:00' },
+    },
+  ],
+};
 
 describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow - Actions', () => {
   const map = createMapMock();
@@ -181,7 +195,21 @@ describe('SideBar - PatrolsManager - PatrolsFeed - PatrolRow - Actions', () => {
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Cancel' }));
 
     expect(updatePatrol).toHaveBeenCalledWith(expect.objectContaining({ id: activePatrol.id, state: 'cancelled' }));
-    await waitFor(() => expect(track).toHaveTrackedAction('Select a status from the patrols feed', 'cancelled'));
+    await waitFor(() => expect(track).toHaveBeenCalledWith('Cancel a patrol from the patrols feed'));
+  });
+
+  test('tracks resuming a paused patrol apart from the moves that also land it active', async () => {
+    renderActions({ patrol: pausedPatrol, patrolState: PATROL_UI_STATES.PAUSED });
+
+    await openKebabMenu();
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Resume' }));
+
+    await waitFor(() => expect(track).toHaveBeenCalledWith('Resume a patrol from the patrols feed'));
+  });
+
+  test('names every move it tracks within the length GA4 keeps an event name at', () => {
+    Object.values(TRACKED_ACTION_BY_TRANSITION)
+      .forEach((action) => expect(action.length).toBeLessThanOrEqual(GA4_MAX_ACTION_LENGTH));
   });
 
   test('holds the menu shut while the move it was given is still saving', async () => {

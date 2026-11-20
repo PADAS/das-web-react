@@ -1,12 +1,13 @@
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
+import { GA4_MAX_ACTION_LENGTH } from '../../../../../__test-helpers/analytics';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
 import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS } from '../../../../../constants';
 import { render, screen } from '../../../../../test-utils';
 import { TrackerContext } from '../../../../../utils/analytics';
 
-import StatusSelect from './';
+import StatusSelect, { TRACKED_ACTION_BY_TRANSITION } from './';
 
 const { ACTIVE, CANCELLED, DONE, INVALID, PAUSED } = PATROL_UI_STATES;
 
@@ -293,13 +294,36 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
     expect(onSelect).toHaveBeenCalledWith(ACTIVE);
   });
 
-  test('tracks the picked status', async () => {
+  test('tracks the move the picked status makes', async () => {
     renderStatusSelect();
 
     await openMenu();
     await userEvent.click(await screen.findByRole('menuitem', { name: 'End' }));
 
-    expect(track).toHaveTrackedAction('Select a status from patrol overview', 'done');
+    expect(track).toHaveBeenCalledWith('End a patrol from patrol overview');
+  });
+
+  test('tracks resuming a paused patrol apart from the moves that also land it active', async () => {
+    renderStatusSelect({ patrol: pausedPatrol, patrolState: PAUSED, state: PAUSED });
+
+    await openMenu();
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Resume' }));
+
+    expect(track).toHaveBeenCalledWith('Resume a patrol from patrol overview');
+  });
+
+  test('tracks nothing when the status the patrol already has is picked back', async () => {
+    renderStatusSelect({ isDirty: true, state: DONE });
+
+    await openMenu();
+    await userEvent.click(await screen.findByRole('menuitem', { name: 'Active' }));
+
+    expect(track).not.toHaveBeenCalled();
+  });
+
+  test('names every move it tracks within the length GA4 keeps an event name at', () => {
+    Object.values(TRACKED_ACTION_BY_TRANSITION)
+      .forEach((action) => expect(action.length).toBeLessThanOrEqual(GA4_MAX_ACTION_LENGTH));
   });
 
   test('italicizes the status while it is unsaved', () => {
