@@ -36,6 +36,17 @@ const COPY_LINK_TOAST_AUTOCLOSE = 2000;
 
 const EMPTY_STATUS_TRANSITIONS = [];
 
+// GA4 counts events by name, so every move a patrol can be put through is named
+// in its own right rather than labelling one event the moves share.
+export const TRACKED_ACTION_BY_TRANSITION = {
+  cancel: 'Cancel a patrol from the patrols feed',
+  end: 'End a patrol from the patrols feed',
+  pause: 'Pause a patrol from the patrols feed',
+  restore: 'Restore a patrol from the patrols feed',
+  resume: 'Resume a patrol from the patrols feed',
+  start: 'Start a patrol from the patrols feed',
+};
+
 // A row settles before it asks for anything, so the tracks of a feed that is
 // still being scrolled or filtered are never fetched.
 const TRACK_FETCH_DEBOUNCE_DELAY = 150;
@@ -125,13 +136,13 @@ const Actions = ({ className = '', contextMenuRef, patrol, patrolState }) => {
     tracker.track('Click "jump to location" from the patrols feed');
   };
 
-  const onSelectStatus = async (pickedState) => {
+  const onSelectStatus = async (statusTransition) => {
     setIsUpdatingStatus(true);
 
     try {
-      await dispatch(updatePatrol({ ...buildPatrolStatusUpdate(patrol, pickedState), id: patrol.id }));
+      await dispatch(updatePatrol({ ...buildPatrolStatusUpdate(patrol, statusTransition.state), id: patrol.id }));
 
-      tracker.track('Select a status from the patrols feed', pickedState.key);
+      tracker.track(TRACKED_ACTION_BY_TRANSITION[statusTransition.transition]);
     } catch (error) {
       toast.error(t('statusUpdateErrorMessage'));
 
@@ -153,7 +164,7 @@ const Actions = ({ className = '', contextMenuRef, patrol, patrolState }) => {
   const renderMenuOptions = () => <>
     {statusTransitions.map((statusTransition) => <Menu.Option
       key={statusTransition.state.key}
-      onClick={() => onSelectStatus(statusTransition.state)}
+      onClick={() => onSelectStatus(statusTransition)}
     >
       {tStatusTransitions(statusTransition.transition)}
     </Menu.Option>)}

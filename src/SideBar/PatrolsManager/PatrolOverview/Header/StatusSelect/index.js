@@ -14,6 +14,17 @@ import StatusPill from '../../../StatusPill';
 
 import * as styles from './styles.module.scss';
 
+// GA4 counts events by name, so every move a patrol can be put through is named
+// in its own right rather than labelling one event the moves share.
+export const TRACKED_ACTION_BY_TRANSITION = {
+  cancel: 'Cancel a patrol from patrol overview',
+  end: 'End a patrol from patrol overview',
+  pause: 'Pause a patrol from patrol overview',
+  restore: 'Restore a patrol from patrol overview',
+  resume: 'Resume a patrol from patrol overview',
+  start: 'Start a patrol from patrol overview',
+};
+
 const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
   const { t } = useTranslation('patrols', { keyPrefix: 'patrolOverview.header' });
   const { t: tStatusPill } = useTranslation('patrols', { keyPrefix: 'statusPill' });
@@ -89,10 +100,13 @@ const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
     }
   };
 
-  const onOptionClick = (option) => {
+  const onOptionClick = (option, transition) => {
     onSelect(option);
 
-    tracker.track('Select a status from patrol overview', option.key);
+    // Picking the status the patrol already has moves it nowhere to report.
+    if (transition) {
+      tracker.track(TRACKED_ACTION_BY_TRANSITION[transition]);
+    }
 
     closeMenu();
   };
@@ -163,7 +177,7 @@ const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
               <button
                 aria-current={isSelected || undefined}
                 className={styles.menuItemOption}
-                onClick={() => onOptionClick(option)}
+                onClick={() => onOptionClick(option, transition)}
                 ref={(element) => {
                   optionRefs.current[index] = element;
                 }}
