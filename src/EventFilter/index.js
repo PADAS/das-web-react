@@ -39,8 +39,18 @@ const EventFilter = ({ children, className = '', isSortable = false, summaryActi
 
   const [datesAnchor, setDatesAnchor] = useState(null);
   const [filterText, setFilterText] = useState(eventFilter.filter.text);
+  const [lastDispatchedText, setLastDispatchedText] = useState(eventFilter.filter.text);
+  const [lastSeenText, setLastSeenText] = useState(eventFilter.filter.text);
   const [filtersAnchor, setFiltersAnchor] = useState(null);
   const [openPopover, setOpenPopover] = useState(null);
+
+  // The box keeps its own copy of the text. A text set from outside it (an
+  // Atlas action, a restore) replaces that copy; its own debounced echo does not.
+  if (eventFilter.filter.text !== lastSeenText) {
+    setLastSeenText(eventFilter.filter.text);
+
+    if (eventFilter.filter.text !== lastDispatchedText) setFilterText(eventFilter.filter.text);
+  }
 
   const isDatesModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, eventFilter.filter.date_range);
   const isFiltersModified = !isEqual(INITIAL_FILTER_STATE.state, eventFilter.state)
@@ -61,6 +71,7 @@ const EventFilter = ({ children, className = '', isSortable = false, summaryActi
   const updateTextFilterDebounced = useMemo(
     () => debounce(
       (text) => {
+        setLastDispatchedText(text);
         dispatch(updateEventFilter({ filter: { text } }));
 
         tracker.track('Change the search text filter');
@@ -83,6 +94,7 @@ const EventFilter = ({ children, className = '', isSortable = false, summaryActi
     setFilterText('');
 
     updateTextFilterDebounced.cancel();
+    setLastDispatchedText('');
     dispatch(updateEventFilter({ filter: { text: '' } }));
 
     tracker.track('Clear the search text filter');
@@ -90,6 +102,7 @@ const EventFilter = ({ children, className = '', isSortable = false, summaryActi
 
   const onReset = () => {
     setFilterText('');
+    setLastDispatchedText(INITIAL_FILTER_STATE.filter.text);
 
     updateTextFilterDebounced.cancel();
     dispatch(updateEventFilter({

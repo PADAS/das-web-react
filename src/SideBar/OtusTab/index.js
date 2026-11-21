@@ -1,13 +1,23 @@
-import { memo, useCallback, useEffect, useId, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useEffectEvent, useId, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
+import {
+  ATLAS_MAP_ACTIONS,
+  ATLAS_MAP_RECORD_TYPES,
+  calcJumpCoordinatesForBbox,
+  parseAtlasMapMessage,
+} from '../../utils/atlas-map-messages';
 import { ATLAS_TOKEN_SESSION_EXPIRING_ERROR_CODE, fetchAtlasToken } from '../../ducks/atlas-token';
-import { BREAKPOINTS, DAS_HOST, SIDEBAR_WIDTH_PIXELS, VERTICAL_NAV_RAIL_WIDTH_PIXELS } from '../../constants';
+import { BREAKPOINTS, DAS_HOST, SIDEBAR_WIDTH_PIXELS, TAB_KEYS, VERTICAL_NAV_RAIL_WIDTH_PIXELS } from '../../constants';
 import { calcMaxOtusTabWidth, clampOtusTabWidth } from '../../utils/otus';
 import { clearAuth } from '../../ducks/auth';
+import { parseAtlasAppMessage } from '../../utils/atlas-app-messages';
 import { selectOtusTabWidth } from '../../selectors/otus';
 import { updateUserPreferences } from '../../ducks/user-preferences';
+import useAtlasAppActions from '../../hooks/useAtlasAppActions';
+import useAtlasCameraHistory from '../../hooks/useAtlasCameraHistory';
+import useJumpToLocation from '../../hooks/useJumpToLocation';
 import { useMatchMedia } from '../../hooks';
 import useNavigate from '../../hooks/useNavigate';
 
@@ -21,8 +31,10 @@ const KEYBOARD_RESIZE_STEP_PIXELS = 16;
 
 export const OTUS_COMMANDS = { NEW_THREAD: 'new-thread', TOGGLE_THREADS: 'toggle-threads' };
 export const OTUS_MESSAGE_TYPES = {
+  APP: 'otus:app',
   COMMAND: 'otus:command',
   CONNECT: 'otus:connect',
+  MAP: 'otus:map',
   READY: 'otus:ready',
   THREADS: 'otus:threads',
 };
@@ -41,12 +53,19 @@ const OtusTab = ({ isActive, url }) => {
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.otusTab' });
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
+  const jumpToLocation = useJumpToLocation();
   const navigate = useNavigate();
+  const cameraHistory = useAtlasCameraHistory();
+  const runAtlasAppAction = useAtlasAppActions(cameraHistory);
 
   const otusTabWidth = useSelector(selectOtusTabWidth);
 
   const frameWrapperRef = useRef(null);
   const iframeRef = useRef(null);
+  // Steps of one Atlas reply arrive back to back, and app actions await routes
+  // and data, so later steps wait for the ones before them.
+  const pendingActionCountRef = useRef(0);
+  const actionQueueRef = useRef(Promise.resolve());
 
   const panelId = useId();
   const titleId = useId();
@@ -139,6 +158,71 @@ const OtusTab = ({ isActive, url }) => {
 
   const onToggleRecent = useCallback(() => postCommand(OTUS_COMMANDS.TOGGLE_THREADS), [postCommand]);
 
+  // An action starts at once when none is running, and otherwise after the last.
+  const enqueueAction = (runAction) => {
+    const startAction = () => {
+      try {
+        return Promise.resolve(runAction());
+      } catch (error) {
+        return Promise.reject(error);
+      }
+    };
+
+    pendingActionCountRef.current += 1;
+
+    actionQueueRef.current = (pendingActionCountRef.current === 1 ? startAction() : actionQueueRef.current.then(startAction))
+      .catch((error) => console.warn('[otus:app] an Atlas action failed', error))
+      .finally(() => {
+        pendingActionCountRef.current -= 1;
+      });
+  };
+
+  // Atlas moves of the camera are written into the browser history.
+  const moveCameraWithHistory = (performMove) => cameraHistory.move(cameraHistory.begin(), performMove);
+
+  const applyMapMessage = useEffectEvent((message) => {
+    switch (message.action) {
+    case ATLAS_MAP_ACTIONS.JUMP_TO:
+      return moveCameraWithHistory(() => jumpToLocation(message.coordinates, message.zoom));
+
+    case ATLAS_MAP_ACTIONS.FIT_BOUNDS:
+      return moveCameraWithHistory(() => jumpToLocation(calcJumpCoordinatesForBbox(message.bbox)));
+
+    case ATLAS_MAP_ACTIONS.OPEN_RECORD: {
+      const tabKey = message.er_type === ATLAS_MAP_RECORD_TYPES.EVENT ? TAB_KEYS.EVENTS : TAB_KEYS.PATROLS;
+
+      navigate(`/${tabKey}/${message.id}`);
+      break;
+    }
+
+    default:
+      break;
+    }
+  });
+
+  const onMapMessage = useEffectEvent((data) => {
+    const message = parseAtlasMapMessage(data);
+    if (!message) {
+      console.warn('Ignoring an invalid Atlas map message', data);
+
+      return;
+    }
+
+    // Applied at once unless actions before it are still running.
+    enqueueAction(() => applyMapMessage(message));
+  });
+
+  const onAppMessage = useEffectEvent((data) => {
+    const message = parseAtlasAppMessage(data);
+    if (!message) {
+      console.warn('Ignoring an invalid Atlas app message', data);
+
+      return;
+    }
+
+    enqueueAction(() => runAtlasAppAction(message));
+  });
+
   useEffect(() => {
     let latestAtlasTokenRequest = null;
 
@@ -188,6 +272,10 @@ const OtusTab = ({ isActive, url }) => {
         if (event.data?.type === OTUS_MESSAGE_TYPES.THREADS) {
           setRecentOpenFrameKey(event.data.open === true ? frameKey : null);
         }
+
+        if (event.data?.type === OTUS_MESSAGE_TYPES.MAP) onMapMessage(event.data);
+
+        if (event.data?.type === OTUS_MESSAGE_TYPES.APP) onAppMessage(event.data);
       }
     };
 
