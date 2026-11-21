@@ -150,6 +150,40 @@ describe('EventFilter', () => {
     expect(screen.getByRole('searchbox', { name: 'Search Events...' })).toHaveValue('');
   });
 
+  describe('when the search text changes in the store', () => {
+    const tree = (eventFilter) => <Provider store={mockStore({ ...store, data: { ...store.data, eventFilter } })}>
+      <TrackerContext.Provider value={tracker}>
+        <EventFilter />
+      </TrackerContext.Provider>
+    </Provider>;
+
+    const withText = (text) => ({ ...store.data.eventFilter, filter: { ...store.data.eventFilter.filter, text } });
+
+    test('shows a text set from outside the box', () => {
+      const { rerender } = render(tree(withText('')));
+
+      rerender(tree(withText('tusk')));
+
+      expect(screen.getByRole('searchbox', { name: 'Search Events...' })).toHaveValue('tusk');
+    });
+
+    test('keeps what the user typed after its own search lands', async () => {
+      const { rerender } = render(tree(withText('')));
+      const searchBox = screen.getByRole('searchbox', { name: 'Search Events...' });
+
+      await userEvent.type(searchBox, 'sna');
+      await waitFor(
+        () => expect(updateEventFilter).toHaveBeenCalledWith({ filter: { text: 'sna' } }),
+        { timeout: TEXT_FILTER_DEBOUNCE_DELAY * 5 }
+      );
+      await userEvent.type(searchBox, 're');
+
+      rerender(tree(withText('sna')));
+
+      expect(searchBox).toHaveValue('snare');
+    });
+  });
+
   test('announces that both triggers open a dialog', () => {
     renderEventFilter();
 

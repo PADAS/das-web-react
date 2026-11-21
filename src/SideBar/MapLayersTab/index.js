@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,6 +20,8 @@ import Filters from './Filters';
 import FeaturesTab from './FeaturesTab';
 import SubjectsTab from './SubjectsTab';
 
+import { NavigationContext } from '../../NavigationContextProvider';
+
 import * as styles from './styles.module.scss';
 
 const mapLayerTracker = trackEventFactory(MAP_LAYERS_CATEGORY);
@@ -34,6 +36,8 @@ const MapLayersTab = () => {
   const subjectGroups = useSelector(selectHydratedSubjectGroupsWithLastPositionTime);
   const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
 
+  const { navigationData } = useContext(NavigationContext);
+
   const defaultActiveKey = useMemo(() => {
     if (subjectsEnabled) {
       return TAB_KEYS.SUBJECTS;
@@ -44,6 +48,21 @@ const MapLayersTab = () => {
     }
     return TAB_KEYS.EVENTS;
   }, [analyzersEnabled, spatialFeaturesEnabled, subjectsEnabled]);
+
+  const requestedTab = Object.values(TAB_KEYS).includes(navigationData?.mapLayersTab)
+    ? navigationData.mapLayersTab
+    : null;
+
+  const [activeKey, setActiveKey] = useState(requestedTab ?? defaultActiveKey);
+  const [handledNavigationData, setHandledNavigationData] = useState(navigationData);
+
+  // Every navigation carries new data, so a tab asked for again is selected
+  // again even after the user picked another one.
+  if (navigationData !== handledNavigationData) {
+    setHandledNavigationData(navigationData);
+
+    if (requestedTab) setActiveKey(requestedTab);
+  }
 
   const subjectIDs = useMemo(() => getUniqueSubjectGroupSubjectIDs(...subjectGroups), [subjectGroups]);
 
@@ -63,8 +82,9 @@ const MapLayersTab = () => {
   return <>
     <Tabs
         aria-labelledby="side-bar-tab-header"
+        activeKey={activeKey}
         className={styles.tabs}
-        defaultActiveKey={defaultActiveKey}
+        onSelect={setActiveKey}
         variant="underline"
       >
       {subjectsEnabled && <Tab
