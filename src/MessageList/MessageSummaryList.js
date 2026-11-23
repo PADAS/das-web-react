@@ -77,7 +77,7 @@ const MessageSummaryList = (props) => {
   return <div ref={containerRef} className={styles.scrollContainer}>
     {loading
       ? <div className={styles.loaderWrapper}>
-        <MoonLoader />
+        <MoonLoader color="var(--er-ui-cta-primary)" />
       </div>
       : <MessageList
         className={styles.summaryList}

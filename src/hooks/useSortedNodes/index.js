@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useState } from 'react';
-import Button from 'react-bootstrap/Button';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as ArrowDownIcon } from '../../common/images/icons/arrow-down.svg';
@@ -30,16 +29,17 @@ const useSortedNodes = (list = [], sortOrder = DESCENDING_SORT_ORDER) => {
   return useMemo(() => list.sort(sortFn).map(({ node }) =>  node), [list, sortFn]);
 };
 
-const DefaultButtonComponent = ({ toggleSortFn, disabled, testId, sortOrder, ...props }) => <Button className={styles.timeSortButton}
-    data-testid={testId}
-    disabled={disabled}
-    onClick={toggleSortFn}
-    type='button'
-    variant={sortOrder === DESCENDING_SORT_ORDER ? 'secondary' : 'primary'}
-    {...props}
-  >
-  {sortOrder === DESCENDING_SORT_ORDER ? <ArrowDownIcon /> : <ArrowUpIcon />}
-</Button>;
+const DefaultButtonComponent = ({ disabled, sortOrder, testId, toggleSortFn, ...otherProps }) => <button
+  aria-pressed={sortOrder !== DESCENDING_SORT_ORDER}
+  className={`${styles.timeSortButton} ${sortOrder !== DESCENDING_SORT_ORDER ? styles.active : ''}`}
+  data-testid={testId}
+  disabled={disabled}
+  onClick={toggleSortFn}
+  type="button"
+  {...otherProps}
+>
+  {sortOrder === DESCENDING_SORT_ORDER ? <ArrowDownIcon aria-hidden="true" /> : <ArrowUpIcon aria-hidden="true" />}
+</button>;
 
 export const useSortedNodesWithToggleBtn = (
   list = [{ sortDate: new Date(0), node: null }],

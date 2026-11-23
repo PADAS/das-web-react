@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as CheckLightIcon } from '../../../common/images/icons/check-light.svg';
 
 import { setTimeOfDayTimeZone } from '../../../ducks/tracks';
+import { themeReactSelect } from '../../../utils/colors';
 
 import * as styles from './styles.module.scss';
 
@@ -176,6 +177,7 @@ const TimeZoneSelect = () => {
         noOptionsMessage={() => t('noSelectOptionsMessage')}
         onChange={(newValue) => dispatch(setTimeOfDayTimeZone(newValue.value))}
         options={options}
+        theme={themeReactSelect}
         value={value}
       />
     </div>

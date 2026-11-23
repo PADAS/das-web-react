@@ -1,3 +1,5 @@
+@use '../common/styles/colors';
+
 .header {
   align-items: center;
   display: flex;
@@ -5,15 +7,15 @@
 }
 
 button.detailsButton {
-  color: white;
+  color: var(--er-ui-text-primary-text-reversed);
   text-decoration: underline;
 
   &:hover, &:active, &:visited {
-    color: white;
+    color: var(--er-ui-text-primary-text-reversed);
   }
 }
 
 .details {
-  border-top: 1px solid rgb(white, 0.5);
+  border-top: 1px solid colors.with-opacity(var(--er-ui-background-primary-background), 50%);
   padding: 0.5rem 0;
 }

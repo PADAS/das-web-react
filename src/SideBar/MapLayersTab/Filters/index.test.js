@@ -178,7 +178,11 @@ describe('SideBar - MapLayersTab - Filters', () => {
     const sortByButton = screen.getByRole('button', { name: 'Open sort options for layers' });
     await userEvent.click(sortByButton);
 
-    expect(screen.getByRole('menuitemradio', { name: 'Sort layers by last update' })).toBe(document.activeElement);
+    expect(await screen.findByRole('menu')).toHaveFocus();
+
+    await userEvent.keyboard('[ArrowDown]');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Sort layers by last update' })).toHaveFocus();
 
     await userEvent.keyboard('[ArrowDown]');
 

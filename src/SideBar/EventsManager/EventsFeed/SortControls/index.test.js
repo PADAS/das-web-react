@@ -131,23 +131,36 @@ describe('SideBar - EventsManager - EventsFeed - SortControls', () => {
     expect(getSortByButton()).toHaveAttribute('aria-expanded', 'false');
   });
 
-  test('focuses the checked option when the user opens the sort by menu', async () => {
+  test('checks the sort option in use and focuses the menu itself when the user opens it with a click', async () => {
     store.data.eventFilter.filter.sort = [SORT_DIRECTION.down, EVENT_SORT_OPTIONS[1]];
 
     renderSortControls();
 
-    await openSortByMenu('Created Date');
+    const menu = await openSortByMenu('Created Date');
 
     expect(getSortByButton('Created Date')).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByRole('menuitemradio', { name: 'Created Date' })).toHaveAttribute('aria-checked', 'true');
-    expect(screen.getByRole('menuitemradio', { name: 'Created Date' })).toHaveFocus();
     expect(screen.getByRole('menuitemradio', { name: 'Date Updated' })).toHaveAttribute('aria-checked', 'false');
+    expect(menu).toHaveFocus();
+  });
+
+  test('focuses the first option when the user opens the sort by menu from the keyboard', async () => {
+    renderSortControls();
+
+    getSortByButton().focus();
+    await userEvent.keyboard('{Enter}');
+
+    expect(await screen.findByRole('menuitemradio', { name: 'Date Updated' })).toHaveFocus();
   });
 
   test('moves the focus down the sort by menu options with the arrow down key, wrapping at the end', async () => {
     renderSortControls();
 
     await openSortByMenu();
+
+    await userEvent.keyboard('{ArrowDown}');
+
+    expect(screen.getByRole('menuitemradio', { name: 'Date Updated' })).toHaveFocus();
 
     await userEvent.keyboard('{ArrowDown}');
 

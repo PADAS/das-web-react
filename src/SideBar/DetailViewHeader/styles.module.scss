@@ -1,8 +1,7 @@
-@use '../../common/styles/vars/colors';
 @use '../shared';
 
 .header {
-  background: white;
+  background: var(--er-ui-background-primary-background);
   flex-shrink: 0;
 
   .topBar {
@@ -35,7 +34,7 @@
 
   .titleBar {
     align-items: center;
-    border-bottom: 1px solid colors.$light-gray-lines;
+    border-bottom: 1px solid var(--er-ui-divider-lines);
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;

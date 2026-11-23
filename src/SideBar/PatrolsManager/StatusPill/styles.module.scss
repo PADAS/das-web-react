@@ -1,5 +1,5 @@
 @use 'sass:map';
-@use '../../../common/styles/vars/colors';
+@use '../../../common/styles/colors';
 
 .statusPill {
   align-items: center;
@@ -12,27 +12,27 @@
 
   &.active {
     background-color: map.get(colors.$patrol-active-theme, 'base');
-    color: white;
+    color: var(--er-ui-text-primary-text-reversed);
   }
 
   &.paused {
     background-color: map.get(colors.$patrol-paused-theme, 'base');
-    color: white;
+    color: var(--er-ui-text-primary-text-reversed);
   }
 
   &.done {
     background-color: map.get(colors.$patrol-done-theme, 'base');
-    color: white;
+    color: var(--er-ui-text-primary-text-reversed);
   }
 
   &.readyToStart, &.scheduled {
     background-color: map.get(colors.$patrol-ready-theme, 'base');
-    color: white;
+    color: var(--er-ui-text-primary-text-reversed);
   }
 
   &.startOverdue {
     background-color: map.get(colors.$patrol-overdue-theme, 'base');
-    color: white;
+    color: var(--er-ui-text-primary-text-reversed);
   }
 
   &.cancelled, &.invalid {

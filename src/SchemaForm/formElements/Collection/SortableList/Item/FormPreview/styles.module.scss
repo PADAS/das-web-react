@@ -1,21 +1,20 @@
 @use '../../../../../../common/styles/buttons';
-@use '../../../../../../common/styles/vars/colors';
 
 .formPreview {
-  background-color: white;
-  border: 1px solid colors.$light-gray-border;
+  background-color: var(--er-ui-background-primary-background);
+  border: 1px solid var(--er-ui-divider-lines);
   border-bottom-left-radius: 0.25rem;
   border-bottom-right-radius: 0.25rem;
   border-top: 0;
   padding: 1rem 0.5rem;
 
   &.dragOverlay {
-    border: 2px solid colors.$bright-blue;
+    border: 2px solid var(--er-ui-cta-primary);
     border-top: 0;
   }
 
   &.error {
-    border-color: colors.$bright-red;
+    border-color: var(--er-ui-status-error-destructive);
   }
 
   .fieldSummary {
@@ -26,20 +25,20 @@
 
     .label {
       font-size: 0.875rem;
-      color: colors.$secondary-medium-gray;
+      color: var(--er-ui-text-secondary-text);
       margin: 0;
   
       &.error {
-        color: colors.$bright-red;
+        color: var(--er-ui-status-error-destructive);
       }
     }
   
     .value {
-      color: black;
+      color: var(--er-ui-text-primary-text);
       margin: 0;
   
       &.error {
-        color: colors.$bright-red;
+        color: var(--er-ui-status-error-destructive);
       }
     }
   

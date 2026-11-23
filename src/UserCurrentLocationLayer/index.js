@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 
 import { addMapImage } from '../utils/map';
 import { bboxBoundsPolygon, userLocationCanBeShown as userLocationCanBeShownSelector } from '../selectors';
+import { COLOR_TOKENS } from '../utils/colors';
 import { MAP_ICON_SCALE, SOURCE_IDS } from '../constants';
 import { MapContext } from '../MapContext';
 import { useMapEventBinding } from '../hooks';
@@ -74,8 +75,8 @@ const UserCurrentLocationLayer = ({ onIconClick }) => {
     'circle-radius': animationState.radius,
     'circle-radius-transition': { duration: 0 },
     'circle-opacity-transition': { duration: 0 },
-    'circle-color': 'rgba(0,0,0,0)',
-    'circle-stroke-color': '#007cbf',
+    'circle-color': 'transparent',
+    'circle-stroke-color': COLOR_TOKENS['ui-status-running'],
     'circle-stroke-width': animationState.strokeWidth,
     'circle-stroke-opacity': animationState.opacity,
   };

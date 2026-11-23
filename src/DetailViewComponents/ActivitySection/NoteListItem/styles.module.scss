@@ -1,5 +1,4 @@
 @use '../../../common/styles/buttons';
-@use '../../../common/styles/vars/colors';
 
 .smallItemIcon {
   --item-icon-size: 1.25rem;
@@ -21,7 +20,7 @@
   width: 100%;
 
   &:focus-visible {
-    outline: 2px solid colors.$bright-blue;
+    outline: 2px solid var(--er-ui-cta-primary);
     outline-offset: -2px;
   }
 
@@ -42,7 +41,7 @@
 
 .editingNoteActions {
   align-items: center;
-  border-top: 0.0625rem solid colors.$light-gray-lines;
+  border-top: 0.0625rem solid var(--er-ui-divider-lines);
   display: flex;
   height: 3rem;
   justify-content: flex-end;

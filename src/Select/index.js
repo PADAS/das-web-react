@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ReactComponent as CheckIcon } from '../common/images/icons/check-light.svg';
 
 import { BOOTSTRAP_DEFAULTS } from '../constants';
+import { themeReactSelect } from '../utils/colors';
 
 import * as styles from './styles.module.scss';
 
@@ -122,7 +123,8 @@ const Select = ({
       multiValue: () => styles.multiValue,
       multiValueRemove: () => styles.multiValueRemove,
       noOptionsMessage: () => styles.noOptionsMessage,
-      option: (state) => `${styles.cursorPointer} ${state.isFocused ? styles.optionFocused : ''}`,
+      option: (state) => `${styles.cursorPointer} ${state.isSelected ? styles.optionSelected : ''} ${
+        state.isFocused ? styles.optionFocused : ''}`,
       ...customClassNames,
     }}
     components={{ ClearIndicator, IndicatorSeparator, MenuList, Option, ...customComponents }}
@@ -139,6 +141,7 @@ const Select = ({
     options={options}
     placeholder=""
     styles={{ menuPortal: (base) => ({ ...base, zIndex: BOOTSTRAP_DEFAULTS.MODAL_ZINDEX + 1 }), ...customStyles }}
+    theme={themeReactSelect}
     value={resolvedValue}
     {...otherProps}
   />;

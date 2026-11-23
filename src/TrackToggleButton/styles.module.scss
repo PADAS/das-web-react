@@ -1,16 +1,16 @@
 @use '../common/styles/buttons';
 @use '../SubjectControls/mixins';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 .container {
   &[class*="visible"] {
-    border: 0.06px solid colors.$bright-blue;
-    background-color: rgba(colors.$bright-blue, 0.1);
+    border: 0.06px solid var(--er-ui-cta-primary);
+    background-color: colors.with-opacity(var(--er-ui-cta-primary), 10%);
   }
   
   &[class*="pinned"] {
-    border: 0.06px solid colors.$green;
-    background-color: rgba(colors.$green, 0.1);
+    border: 0.06px solid var(--er-green-9);
+    background-color: colors.with-opacity(var(--er-green-9), 10%);
   }
 
   .button {
@@ -22,19 +22,21 @@
       @include mixins.button-background('tracks_off_transparent');
     }
 
-    &.visible {
+    &.visible,
+    &.pinned {
       @include mixins.button-background('tracks_on');
     }
 
+    &.visible {
+      background-color: var(--er-ui-cta-primary);
+    }
+
     &.pinned {
-      @include mixins.button-background('tracks_pinned');
+      background-color: var(--er-green-9);
     }
   }
 
 }
-
-
-
 
 div.loadingOverlay {
   background: none;

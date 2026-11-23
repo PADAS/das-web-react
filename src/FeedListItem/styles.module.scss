@@ -1,4 +1,3 @@
-@use '../common/styles/vars/colors';
 @use '../common/styles/buttons';
 @use '../common/styles/layout';
 
@@ -31,14 +30,14 @@
   }
 
   align-items: center;
-  color: colors.$primary-font-color;
+  color: var(--er-ui-text-primary-text);
   height: var(--list-item-height);
   display: flex;
   line-height: normal;
   padding: 0 0.5rem 0 0;
 
   + .listItem {
-    border-top: 1px solid colors.$light-gray-border;
+    border-top: 1px solid var(--er-ui-divider-lines);
   }
 
   > * {

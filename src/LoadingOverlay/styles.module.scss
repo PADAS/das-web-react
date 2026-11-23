@@ -1,7 +1,9 @@
+@use '../common/styles/colors';
+
 .overlay {
   align-items: center;
-  background: rgb(0 0 0 / 50%);
-  color: white;
+  background: colors.with-opacity(var(--er-greyscale-0), 50%);
+  color: var(--er-ui-text-primary-text-reversed);
   display: flex;
   flex-flow: column;
   height: 100%;

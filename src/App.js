@@ -10,8 +10,6 @@ import ReactGA4 from 'react-ga4';
 
 import { createUserAnalyticsData } from './utils/analytics';
 
-import { ReactComponent as EarthRangerLogoSprite } from './common/images/sprites/logo-svg-sprite.svg';
-
 import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchDefaultPatrolSegmentTypeSchema } from './ducks/patrol-schemas';
 import { fetchEventCategories } from './ducks/event-categories';
@@ -242,10 +240,6 @@ export const App = () => {
           </SidebarScrollProvider>
 
           <ModalRenderer />
-        </div>
-
-        <div style={{ display: 'none', height: 0, width: 0 }}>
-          <EarthRangerLogoSprite />
         </div>
 
         <Drawer />

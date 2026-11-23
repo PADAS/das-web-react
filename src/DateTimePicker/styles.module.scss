@@ -1,5 +1,4 @@
-@use 'sass:color';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 .dateTimePicker {
   display: flex;
@@ -7,38 +6,38 @@
   &[aria-invalid="true"] {
     .datePicker {
       > svg {
-        color: colors.$bright-red;
+        color: var(--er-ui-status-error-destructive);
       }
 
       > [class*="react-datepicker-wrapper"] [class*="caret"] {
-        border-top-color: colors.$bright-red;
+        border-top-color: var(--er-ui-status-error-destructive);
       }
 
       ::placeholder {
-        color: color.adjust(colors.$bright-red, $lightness: 33%);
+        color: colors.tint(var(--er-ui-status-error-destructive), 56%);
       }
     }
 
     .datePicker:not(:focus-within) {
-      border-color: colors.$bright-red;
+      border-color: var(--er-ui-status-error-destructive);
     }
 
     .timePicker {
       svg > g {
-        stroke: colors.$bright-red;
+        stroke: var(--er-ui-status-error-destructive);
       }
   
       button > div {
-        border-top-color: colors.$bright-red;
+        border-top-color: var(--er-ui-status-error-destructive);
       }
   
       ::placeholder {
-        color: color.adjust(colors.$bright-red, $lightness: 33%);
+        color: colors.tint(var(--er-ui-status-error-destructive), 56%);
       }
     }
 
     .timePicker:not(:focus-within) {
-      border-color: colors.$bright-red;
+      border-color: var(--er-ui-status-error-destructive);
     }
   }
 

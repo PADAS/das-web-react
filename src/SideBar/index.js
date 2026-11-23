@@ -7,7 +7,6 @@ import { ReactComponent as ArrowLeftIcon } from '../common/images/icons/arrow-le
 import { ReactComponent as BulletListIcon } from '../common/images/icons/bullet-list.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as DocumentIcon } from '../common/images/icons/document.svg';
-import { ReactComponent as ERLogo } from '../common/images/icons/er-logo.svg';
 import { ReactComponent as GearIcon } from '../common/images/icons/gear.svg';
 import { ReactComponent as LayersIcon } from '../common/images/icons/layers.svg';
 import { ReactComponent as MarkerFeedIcon } from '../common/images/icons/marker-feed.svg';
@@ -27,6 +26,7 @@ import useReportsFeed from './useReportsFeed';
 
 import AddItemButton from '../AddItemButton';
 import Badge from '../Badge';
+import EarthRangerLogo from '../EarthRangerLogo';
 import Link from '../Link';
 import PatrolDetailView from '../PatrolDetailView';
 import SoundNotificationsPlayer from '../SoundNotificationsPlayer';
@@ -277,7 +277,7 @@ const SideBar = () => {
         onTransitionEnd={onTabTransitionEnd}
       >
         <div className={styles.printLogo}>
-          <ERLogo aria-hidden="true" />
+          <EarthRangerLogo alt="" type="horizontal" />
         </div>
 
         {(isSideBarOpen || isSideBarClosing) && !shouldHideDefaultHeader && <div className={styles.header}>

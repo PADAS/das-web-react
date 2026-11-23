@@ -43,10 +43,9 @@ const CancelationConfirmationModal = ({ onHide, show }) => {
         </Button>
 
         <Button
-          className={styles.discardButton}
           onClick={onClickDiscard}
           type="button"
-          variant="secondary"
+          variant="danger"
         >
           {t('cancelationConfirmationModal.discardButton')}
         </Button>

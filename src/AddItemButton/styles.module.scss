@@ -1,7 +1,6 @@
-@use 'sass:color';
 @use '../common/styles/buttons';
 @use '../common/styles/layout';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 @mixin add-item-button {
   align-items: center;
@@ -50,11 +49,11 @@
   }
 
   &:hover:not(:disabled, :focus-visible) svg {
-    background-color: colors.$transparent-dark-gray;
+    background-color: colors.with-opacity(var(--er-greyscale-0), 5%);
   }
 
   &:focus-visible {
-    outline: 2px solid colors.$bright-blue;
+    outline: 2px solid var(--er-ui-cta-primary);
   }
 }
 
@@ -62,24 +61,24 @@
   @include add-item-button;
 
   svg {
-    background-color: colors.$bright-blue;
+    background-color: var(--er-ui-cta-primary);
 
     path {
-      fill: colors.$bright-blue;
-      stroke: colors.$bright-blue;
+      fill: var(--er-ui-cta-primary);
+      stroke: var(--er-ui-cta-primary);
     }
 
     rect {
-      fill: white;
+      fill: var(--er-ui-text-primary-text-reversed);
     }
   }
 
   &:hover:not(:disabled, :focus-visible) svg {
-    background-color: color.adjust(colors.$bright-blue, $lightness: -5%);
+    background-color: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
 
     path {
-      fill: color.adjust(colors.$bright-blue, $lightness: -5%);
-      stroke: color.adjust(colors.$bright-blue, $lightness: -5%);
+      fill: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
+      stroke: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
     }
   }
 
@@ -87,15 +86,15 @@
     outline: none;
 
     svg {
-      background-color: white;
+      background-color: var(--er-ui-background-primary-background);
 
       path {
-        fill: colors.$bright-blue;
-        stroke: colors.$bright-blue;
+        fill: var(--er-ui-cta-primary);
+        stroke: var(--er-ui-cta-primary);
       }
 
       rect {
-        fill: colors.$bright-blue;
+        fill: var(--er-ui-cta-primary);
       }
     }
   }

@@ -1,17 +1,15 @@
-@use 'vars/colors';
-
 @mixin priority300 {
-  background-color: colors.$high-priority;
+  background-color: var(--er-ui-event-priority-red);
 }
 
 @mixin priority200 {
-  background-color: colors.$medium-priority;
+  background-color: var(--er-ui-event-priority-amber);
 }
 
 @mixin priority100 {
-  background-color: colors.$low-priority;
+  background-color: var(--er-ui-event-priority-green);
 }
 
 @mixin priority0 {
-  background-color: colors.$no-priority;
+  background-color: var(--er-ui-event-priority-grey);
 }

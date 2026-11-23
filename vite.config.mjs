@@ -1,6 +1,11 @@
+import { createRequire } from 'module';
 import { defineConfig, loadEnv, transformWithOxc } from 'vite';
 import react from '@vitejs/plugin-react';
+import { readFileSync } from 'fs';
 import svgr from 'vite-plugin-svgr';
+
+const FAVICON_SVG_PATH = createRequire(import.meta.url)
+  .resolve('@allenai/design-system/er-legacy/assets/EarthRanger-Logo-icon.svg');
 
 // Filter app source .js files. Leave out Vite virtual modules and node_modules.
 const JS_APP_SOURCE_MODULE_ID_REGEX =
@@ -40,6 +45,20 @@ const treatJsSourceAsJsx = () => {
     },
   };
 };
+
+// The DAS admin pages link /favicon.svg from the site root, which this app serves.
+const faviconPlugin = () => ({
+  name: 'serve-favicon-svg',
+  configureServer: (server) => {
+    server.middlewares.use('/favicon.svg', (_, response) => {
+      response.setHeader('Content-Type', 'image/svg+xml');
+      response.end(readFileSync(FAVICON_SVG_PATH));
+    });
+  },
+  generateBundle() {
+    this.emitFile({ fileName: 'favicon.svg', source: readFileSync(FAVICON_SVG_PATH), type: 'asset' });
+  },
+});
 
 const osanoPlugin = () => ({
   name: 'inject-osano',
@@ -87,6 +106,7 @@ export default defineConfig(({ mode }) => ({
       },
     }),
     osanoPlugin(),
+    faviconPlugin(),
   ],
   server: {
     port: Number(loadEnv(mode, process.cwd(), '').PORT) || 9000,
