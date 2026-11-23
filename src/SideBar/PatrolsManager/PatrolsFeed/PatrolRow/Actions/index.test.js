@@ -3,9 +3,9 @@ import { toast } from 'react-toastify';
 import userEvent from '@testing-library/user-event';
 
 import { activePatrol } from '../../../../../__test-helpers/fixtures/patrols';
-import { GA4_MAX_ACTION_LENGTH } from '../../../../../__test-helpers/analytics';
 import { createMapMock } from '../../../../../__test-helpers/mocks';
 import { downloadJsonAsFile } from '../../../../../utils/download';
+import { GA4_MAX_ACTION_LENGTH } from '../../../../../__test-helpers/analytics';
 import { MapContext } from '../../../../../MapContext';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
 import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS } from '../../../../../constants';

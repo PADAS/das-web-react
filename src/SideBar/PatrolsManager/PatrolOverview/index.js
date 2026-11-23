@@ -12,6 +12,7 @@ import buildPatrolStatusUpdate from '../utils/buildPatrolStatusUpdate';
 import { calcTitleAndSubtitleForPatrol, getTrackedSubjectsForPatrolSegment } from '../../../utils/patrols';
 import { fetchPatrol, updatePatrol, uploadPatrolFile } from '../../../ducks/patrols';
 import { fetchTracksIfNecessary } from '../../../utils/tracks';
+import getPatrolStatusTransition from '../utils/getPatrolStatusTransition';
 import { PATROL_OVERVIEW_CATEGORY, TrackerContext, trackEventFactory } from '../../../utils/analytics';
 import { selectPatrolRosterFallbackSubjects } from '../../../selectors/patrols';
 import { TAB_KEYS as SIDEBAR_TAB_KEYS } from '../../../constants';
@@ -32,6 +33,17 @@ const patrolOverviewTracker = trackEventFactory(PATROL_OVERVIEW_CATEGORY);
 
 const TAB_KEYS = { HISTORY: 'history', OVERVIEW: 'overview' };
 const TAB_LABELS = { [TAB_KEYS.HISTORY]: 'History', [TAB_KEYS.OVERVIEW]: 'Overview' };
+
+// GA4 counts events by name, so every move a patrol can be put through is named
+// in its own right rather than labelling one event the moves share.
+export const TRACKED_ACTION_BY_TRANSITION = {
+  cancel: 'Cancel a patrol from patrol overview',
+  end: 'End a patrol from patrol overview',
+  pause: 'Pause a patrol from patrol overview',
+  restore: 'Restore a patrol from patrol overview',
+  resume: 'Resume a patrol from patrol overview',
+  start: 'Start a patrol from patrol overview',
+};
 
 const PatrolOverviewContent = ({ patrol }) => {
   const dispatch = useDispatch();
@@ -117,6 +129,12 @@ const PatrolOverviewContent = ({ patrol }) => {
     const refetchPatrol = dispatch(fetchPatrol(patrol.id)).catch(() => {});
 
     if (patrolUpdateResult.status === 'fulfilled') {
+      // The move is reported once it is saved, since until then the user can
+      // still pick another status, pick this one back or discard it.
+      if (statusUpdate) {
+        patrolOverviewTracker.track(TRACKED_ACTION_BY_TRANSITION[getPatrolStatusTransition(patrolState, state)]);
+      }
+
       // The patrol update went through. Clear what it saved.
       setEditedState(null);
       setEditedTitle(null);
@@ -145,7 +163,7 @@ const PatrolOverviewContent = ({ patrol }) => {
     console.warn('Error saving patrol: ', failedRequest.reason);
 
     return false;
-  }, [activityEditing, dispatch, isStateDirty, patrol, patrolUpdates, state, t]);
+  }, [activityEditing, dispatch, isStateDirty, patrol, patrolState, patrolUpdates, state, t]);
 
   const onSave = useCallback(async () => {
     patrolOverviewTracker.track('Click the "Save" button in patrol overview');
