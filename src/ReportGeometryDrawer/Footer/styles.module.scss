@@ -1,4 +1,4 @@
-@use '../../common/styles/vars/colors';
+@use '../../common/styles/buttons';
 
 .footer {
   z-index: 12;
@@ -7,8 +7,7 @@
   left: 0;
   width: 100%;
   height: 4rem;
-  background: linear-gradient(180deg, #FFF 0%, rgb(255 255 255 / 65%) 100%);
-  backdrop-filter: blur(8px);
+  background: var(--er-ui-background-elevated-component);
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -17,8 +16,7 @@
 
 .cancelButton {
   background: transparent;
-  color: colors.$secondary-medium-gray;
-  font-weight: bold;
+  color: var(--er-ui-text-secondary-text);
   border: none;
   margin-right: 1rem;
   cursor: pointer;
@@ -26,7 +24,13 @@
 
 .saveButton {
   &.disabled {
-    opacity: 0.6;
+    --bs-btn-active-bg: var(--bs-btn-bg);
+    --bs-btn-active-border-color: var(--bs-btn-border-color);
+    --bs-btn-hover-bg: var(--bs-btn-bg);
+    --bs-btn-hover-border-color: var(--bs-btn-border-color);
+
     cursor: not-allowed;
+
+    @include buttons.disabled-button;
   }
 }

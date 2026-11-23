@@ -1,3 +1,4 @@
+import { COLOR_TOKENS } from '../utils/colors';
 import { DEFAULT_SYMBOL_LAYOUT } from '../constants';
 
 export const backgroundLayerStyles = {
@@ -92,8 +93,8 @@ export const labelLayerStyles = {
     'symbol-placement': 'point',
   },
   paint: {
-    'text-color': '#ffffff',
-    'icon-color': '#ffffff',
+    'text-color': COLOR_TOKENS['ui-text-primary-text-reversed'],
+    'icon-color': COLOR_TOKENS['ui-text-primary-text-reversed'],
     'text-halo-width': 0,
     'icon-halo-width': 0,
   }

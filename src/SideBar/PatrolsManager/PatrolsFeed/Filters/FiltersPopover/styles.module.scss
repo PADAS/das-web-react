@@ -1,6 +1,6 @@
 @use 'sass:map';
 @use '../../../../../common/styles/buttons';
-@use '../../../../../common/styles/vars/colors';
+@use '../../../../../common/styles/colors';
 @use '../shared';
 
 .filtersPopover {
@@ -21,7 +21,7 @@
     }
 
     .checkboxSection {
-      border-top: 1px solid colors.$light-gray-lines;
+      border-top: 1px solid var(--er-ui-divider-lines);
       padding: 1rem 0 0.75rem;
       position: relative;
 

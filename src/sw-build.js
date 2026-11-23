@@ -10,7 +10,8 @@ const buildSW = () => {
       swSrc: path.join(process.cwd(), 'src/sw-custom.js'), // custom sw rule
       swDest: path.join(process.cwd(), 'build/sw.js'), // sw output file (auto-generated)
       globDirectory: path.join(process.cwd(), 'build'),
-      globPatterns: ['**/*.{js,html,css,ico,png,svg}', 'manifest.json'],
+      // Latin Roboto covers the UI languages; other subsets cache at runtime.
+      globPatterns: ['**/*.{js,html,css,ico,png,svg}', '**/roboto-latin-wght-*.woff2', 'manifest.json'],
       globIgnores: [
         '**/*service-worker*.js',
         '**/*precache-manifest*.js',

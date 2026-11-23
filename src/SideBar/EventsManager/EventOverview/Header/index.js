@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as MarkerFeedIcon } from '../../../../common/images/icons/marker-feed.svg';
 
-import { collectionHasMultipleValidLocations, PRIORITY_COLOR_MAP } from '../../../../utils/events';
+import { collectionHasMultipleValidLocations } from '../../../../utils/events';
+import { PRIORITY_COLOR_MAP } from '../../../../utils/colors';
 import { TrackerContext } from '../../../../utils/analytics';
 import useJumpToLocation from '../../../../hooks/useJumpToLocation';
 import useReport from '../../../../hooks/useReport';

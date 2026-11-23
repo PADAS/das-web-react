@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import withMapViewConfig from '../WithMapViewConfig';
 
+import { COLOR_TOKENS } from '../utils/colors';
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
 import { useMapEventBinding } from '../hooks';
 import useMapSources from '../hooks/useMapSources';
@@ -10,6 +11,9 @@ const { ANALYZER_POLYS_WARNING, ANALYZER_POLYS_CRITICAL, ANALYZER_LINES_WARNING,
   ANALYZER_LINES_CRITICAL, SKY_LAYER } = LAYER_IDS;
 const { ANALYZER_POLYS_WARNING_SOURCE, ANALYZER_POLYS_CRITICAL_SOURCE,
   ANALYZER_LINES_CRITICAL_SOURCE, ANALYZER_LINES_WARNING_SOURCE } = SOURCE_IDS;
+
+// Yellow, not the warning token's orange, which sits too close to critical red.
+const WARNING_LINE_COLOR = COLOR_TOKENS['yellow-4'];
 
 const IF_HAS_STATE = (stateType, activeProp, defaultProp) => [['boolean', ['feature-state', stateType], false], activeProp, defaultProp];
 
@@ -21,7 +25,7 @@ const linePaint = {
   'line-dasharray': [1, 1.5],
   'line-color': [
     'case',
-    ...IF_HAS_STATE('active', 'yellow', '#CCC'),
+    ...IF_HAS_STATE('active', WARNING_LINE_COLOR, COLOR_TOKENS['greyscale-8']),
   ],
   'line-opacity': [
     'case',
@@ -34,7 +38,7 @@ const criticalLinePaint = {
   ...linePaint,
   'line-color': [
     'case',
-    ...IF_HAS_STATE('active', 'red', '#CCC'),
+    ...IF_HAS_STATE('active', COLOR_TOKENS['ui-status-error-destructive'], COLOR_TOKENS['greyscale-8']),
   ]
 };
 

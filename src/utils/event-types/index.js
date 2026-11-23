@@ -1,5 +1,3 @@
-import * as colorVariables from '../../common/styles/vars/colors.module.scss';
-
 export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) => {
   const { contains } = collection;
 
@@ -26,23 +24,6 @@ export const calcTopRatedReportAndTypeForCollection = (collection, reportTypes) 
   return sorted[0];
 };
 
-
-export const calcIconColorByPriority = (priority) => {
-  switch (priority) {
-  case 300: {
-    return colorVariables.red;
-  }
-  case 200: {
-    return colorVariables.amber;
-  }
-  case 100: {
-    return colorVariables.green;
-  }
-  default: {
-    return colorVariables.gray;
-  }
-  }
-};
 
 const getOrdernum = (item) => typeof item.ordernum === 'number' ? item.ordernum : 1000;
 

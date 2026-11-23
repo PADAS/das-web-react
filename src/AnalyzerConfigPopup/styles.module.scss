@@ -1,5 +1,3 @@
-@use '../common/styles/vars/colors';
-
 .analyzerPopup {
     padding: .25rem;
     line-height: normal;
@@ -12,7 +10,7 @@
     }
 
     h5 {
-      color: colors.$medium-light-gray;
+      color: var(--er-ui-text-secondary-text);
       font-size: .75rem;
       font-weight: normal;
       margin-top: 1.0rem;
@@ -23,13 +21,13 @@
 .gearIcon {
   height: 1.0rem;
   width: 1.0rem;
-  fill: colors.$bright-blue; 
+  fill: var(--er-ui-cta-primary); 
   margin-left: .5rem;
 }
 
 .typeIcon {
   height: 2.0rem;
   width: 2.0rem;
-  stroke: colors.$primary-font-color;
+  stroke: var(--er-ui-icons);
   margin-right: .25rem;
 }

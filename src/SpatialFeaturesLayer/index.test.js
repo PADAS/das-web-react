@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react';
 import { useSelector } from 'react-redux';
 import { buildGeoSpanFilter } from '../utils/map';
+import { COLOR_TOKENS } from '../utils/colors';
 import SpatialFeaturesLayer, { SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID } from './';
 import { MapContext } from '../MapContext';
 import { createMapMock, createMockInteractionEvent } from '../__test-helpers/mocks';
@@ -292,7 +293,7 @@ describe('SpatialFeaturesLayer', () => {
       'line-color',
       expect.arrayContaining([
         'case',
-        ['in', ['get', 'id'], ['literal', ['highlight-feature-1', 'highlight-feature-2']]], 'red'
+        ['in', ['get', 'id'], ['literal', ['highlight-feature-1', 'highlight-feature-2']]], COLOR_TOKENS['red-4']
       ])
     );
 
@@ -302,7 +303,7 @@ describe('SpatialFeaturesLayer', () => {
       'fill-color',
       expect.arrayContaining([
         'case',
-        ['in', ['get', 'id'], ['literal', ['highlight-feature-1', 'highlight-feature-2']]], 'red'
+        ['in', ['get', 'id'], ['literal', ['highlight-feature-1', 'highlight-feature-2']]], COLOR_TOKENS['red-4']
       ])
     );
   });

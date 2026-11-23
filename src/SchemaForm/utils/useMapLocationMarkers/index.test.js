@@ -2,6 +2,7 @@ import { waitFor } from '@testing-library/dom';
 
 import { renderHook } from '../../../test-utils';
 import { addMapImage } from '../../../utils/map';
+import { COLOR_TOKENS } from '../../../utils/colors';
 import { createMapMock } from '../../../__test-helpers/mocks';
 import { MapContext } from '../../../MapContext';
 
@@ -239,7 +240,7 @@ describe('SchemaForm - Utils - useMapLocationMarkers', () => {
     expect(map.addLayer).toHaveBeenCalledWith(
       {
         id: expect.stringMatching(LINES_LAYER_ID_PATTERN),
-        paint: { 'line-color': 'black', 'line-width': 1 },
+        paint: { 'line-color': COLOR_TOKENS['greyscale-0'], 'line-width': 1 },
         source: expect.stringMatching(LINES_SOURCE_ID_PATTERN),
         type: 'line',
       },
@@ -248,7 +249,7 @@ describe('SchemaForm - Utils - useMapLocationMarkers', () => {
     expect(map.addLayer).toHaveBeenCalledWith(
       {
         id: expect.stringMatching(OUTLINES_LAYER_ID_PATTERN),
-        paint: { 'line-color': 'white', 'line-width': 5 },
+        paint: { 'line-color': COLOR_TOKENS['greyscale-white'], 'line-width': 5 },
         source: expect.stringMatching(LINES_SOURCE_ID_PATTERN),
         type: 'line',
       },

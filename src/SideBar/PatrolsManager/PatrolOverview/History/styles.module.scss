@@ -1,8 +1,7 @@
-@use '../../../../common/styles/vars/colors';
 @use '../../shared';
 
 .history {
-  background: white;
+  background: var(--er-ui-background-primary-background);
   margin: 0 -1rem;
   padding: 1rem;
 
@@ -19,7 +18,7 @@
       margin-left: auto;
 
       .timeLabel {
-        color: colors.$off-black;
+        color: var(--er-ui-text-primary-text);
         font-size: 0.875rem;
       }
 
@@ -42,14 +41,14 @@
 
     .updateItem {
       align-items: flex-start;
-      border-bottom: 1px solid colors.$light-gray-lines;
+      border-bottom: 1px solid var(--er-ui-divider-lines);
       display: flex;
       gap: 0.75rem;
       justify-content: space-between;
       padding: 0.625rem 0;
 
       &:first-child {
-        border-top: 1px solid colors.$light-gray-lines;
+        border-top: 1px solid var(--er-ui-divider-lines);
       }
 
       .updateContent {
@@ -63,7 +62,7 @@
         }
 
         .updateUser {
-          color: colors.$off-black;
+          color: var(--er-ui-text-primary-text);
           font-size: 0.875rem;
           font-weight: 500;
         }

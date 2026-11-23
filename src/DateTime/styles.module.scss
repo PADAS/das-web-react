@@ -1,7 +1,5 @@
-@use '../common/styles/vars/colors';
-
 .dateTime {
-  color: colors.$secondary-medium-gray;
+  color: var(--er-ui-text-secondary-text);
   display: flex;
   flex-flow: column;
   line-height: normal;

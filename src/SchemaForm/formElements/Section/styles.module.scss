@@ -1,11 +1,9 @@
-@use '../../../common/styles/vars/colors';
-
 .section {
-  background-color: white;
+  background-color: var(--er-ui-background-primary-background);
   padding: 1rem;
 
   .header {
-    border-bottom: 1px solid colors.$light-gray-lines;
+    border-bottom: 1px solid var(--er-ui-divider-lines);
     font-size: 1.125rem;
     font-weight: 500;
     line-height: 1.375rem;

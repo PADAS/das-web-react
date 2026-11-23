@@ -51,11 +51,11 @@ if ('function' === typeof importScripts) {
       console.warn('Initial precaching setup failed:', error);
     }
 
-    // Font caching
+    // Roboto subsets beyond latin download only for the scripts a page shows.
     workbox.routing.registerRoute(
-      new RegExp('https://fonts.(?:.googleapis|gstatic).com/(.*)'),
+      ({ request, url }) => request.destination === 'font' && url.origin === self.location.origin,
       new workbox.strategies.CacheFirst({
-        cacheName: 'googleapis',
+        cacheName: 'fonts',
         plugins: [
           new workbox.expiration.ExpirationPlugin({
             maxEntries: 30,

@@ -1,5 +1,4 @@
 @use '../../common/styles/buttons';
-@use '../../common/styles/vars/colors';
 @use '../../common/styles/filter-popovers';
 
 .filtersPopover {
@@ -20,7 +19,7 @@
     }
 
     .checkboxSection {
-      border-top: 1px solid colors.$light-gray-lines;
+      border-top: 1px solid var(--er-ui-divider-lines);
       padding: 1rem 0 0.75rem;
       position: relative;
 
@@ -40,15 +39,15 @@
         @include filter-popovers.select-list-option-dot;
 
         &.active {
-          background-color: colors.$plum;
+          background-color: var(--er-ui-patrol-status-active);
         }
 
         &.resolved {
-          background-color: colors.$alt-light-gray;
+          background-color: var(--er-greyscale-5);
         }
 
         &.review {
-          background-color: colors.$dark-gold;
+          background-color: var(--er-yellow-2);
         }
       }
     }
