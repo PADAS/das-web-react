@@ -343,7 +343,7 @@ Either way the client gets an access token, Auth0's used as is, kept in a cookie
 
 The map fills the screen, framed by a top bar, a sidebar and a global menu. On small layouts the sidebar's icon rail moves into the global menu, and an open tab covers the map.
 
-**Top bar:** the global menu button, the logo, the map quick links, the system status, messages, notifications, and the user menu.
+**Top bar:** the global menu button, the logo, the map quick links, the system status, messages, notifications, and the user menu. On small layouts the system status moves beside the global menu button, balancing the two sides.
 - **System status** rolls four health checks into one badge: the browser's network, the server, the realtime socket, and each data integration's last heartbeat. It is how the control room tells a quiet site from a broken feed.
 - **Notifications** hold EarthRanger announcements and, when a new client version is installed, the prompt to reload.
 

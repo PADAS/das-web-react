@@ -160,6 +160,8 @@ const Nav = () => {
       <div className={styles.logoWrapper}>
         <EarthRangerLogo className={styles.logo} />
       </div>
+
+      {!isMediumLayoutOrLarger && <SystemStatus />}
     </div>
 
     {!!maps.length && <div className={styles.centerControls}>
@@ -173,7 +175,7 @@ const Nav = () => {
     </div>}
 
     <div className={styles.rightControls}>
-      <SystemStatus />
+      {isMediumLayoutOrLarger && <SystemStatus />}
 
       {hasMessagesReadPermission && <MessageMenu />}
 

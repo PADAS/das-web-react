@@ -131,6 +131,21 @@ describe('the Nav component', () => {
     expect(screen.queryByRole('button', { name: /^Notifications/ })).not.toBeInTheDocument();
   });
 
+  test('shows the system status in the right section of the top bar on medium screens and up', () => {
+    expect(screen.getByRole('banner').lastElementChild)
+      .toContainElement(screen.getByRole('button', { name: /^System status:/ }));
+  });
+
+  test('shows the system status in the left section of the top bar on small screens', () => {
+    BREAKPOINTS.screenIsMediumLayoutOrLarger.matches = false;
+
+    cleanup();
+    renderNav();
+
+    expect(screen.getByRole('banner').firstElementChild)
+      .toContainElement(screen.getByRole('button', { name: /^System status:/ }));
+  });
+
   describe('map quick links', () => {
     const park = { center: [1, 1], id: 'park', name: 'park', title: 'National Park', zoom: 9 };
     const reserve = { center: [2, 2], id: 'reserve', name: 'Game Reserve', zoom: 8 };
