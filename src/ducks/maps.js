@@ -1,78 +1,61 @@
 import axios from 'axios';
 import isEqual from 'react-fast-compare';
+import omit from 'lodash/omit';
 
 import { API_URL } from '../constants';
-export const MAPS_API_URL = `${API_URL}maps/`;
+import { getQuickLinkTitle } from '../utils/quick-links';
 
-// actions
-export const FETCH_MAPS_SUCCESS = 'FETCH_MAPS_SUCCESS';
-export const SET_HOME_MAP = 'SET_HOME_MAP';
+// Actions
+export const MAPS_API_URL = `${API_URL}quicklinks/`;
 
-// action creators
-export const fetchMaps = () => dispatch => axios.get(MAPS_API_URL)
-  .then((response) => {
-    dispatch(fetchMapsSuccess(response));
-  });
+export const FETCH_MAPS_SUCCESS = 'MAPS.FETCH_MAPS_SUCCESS';
+export const SET_HOME_MAP = 'MAPS.SET_HOME_MAP';
 
+// Action creators
+export const setHomeMap = (payload) => ({ payload, type: SET_HOME_MAP });
 
-export const setHomeMap = (payload) => ({
-  type: SET_HOME_MAP,
-  payload,
-});
+// The API sets no order, so the client lists the links by the title it shows.
+const sortMapsByTitle = (maps) => [...maps].sort((map, otherMap) => getQuickLinkTitle(map)
+  .localeCompare(getQuickLinkTitle(otherMap), undefined, { numeric: true, sensitivity: 'base' }));
 
+export const fetchMaps = () => async (dispatch, getState) => {
+  try {
+    const response = await axios.get(MAPS_API_URL);
+    const maps = sortMapsByTitle(response.data.data);
 
-const setHomeMapIfNecessary = (maps) => (dispatch, getState) => {
-  const { view: { homeMap } } = getState();
-  const defaultMap = maps.find(map => map.default === true) || maps[0];
+    const homeMap = getState().view.homeMap;
+    const homeMapFromApi = maps.find((map) => map.id === homeMap?.id);
+    if (!homeMapFromApi || !isEqual(homeMapFromApi, omit(homeMap, '_persist'))) {
+      dispatch(setHomeMap(homeMapFromApi ?? maps.find((map) => map.default === true) ?? maps[0]));
+    }
 
-  if (!homeMap?.id) {
-    return dispatch(setHomeMap(defaultMap));
+    dispatch({ payload: maps, type: FETCH_MAPS_SUCCESS });
+  } catch (error) {
+    console.warn('error fetching the map quick links', error);
   }
-
-  const homeMapClone = { ...homeMap };
-  const homeMapFromApi = maps.find(map => map.id === homeMapClone.id);
-
-  delete homeMapClone._persist;
-
-  if (isEqual(homeMapFromApi, homeMapClone)) return;
-  return dispatch(setHomeMap(homeMapFromApi || defaultMap));
 };
 
+// Reducer
+export const INITIAL_MAPS_STATE = [];
 
-const fetchMapsSuccess = (response) => dispatch => {
-  const maps = response.data.data;
-
-  dispatch(setHomeMapIfNecessary(maps));
-
-  dispatch({
-    type: FETCH_MAPS_SUCCESS,
-    payload: maps,
-  });
-};
-
-
-
-// reducers
-const INITIAL_MAPS_STATE = [];
-export default function reducer(state = INITIAL_MAPS_STATE, action = {}) {
+export const mapsReducer = (state = INITIAL_MAPS_STATE, action = {}) => {
   switch (action.type) {
-  case FETCH_MAPS_SUCCESS: {
+  case FETCH_MAPS_SUCCESS:
     return action.payload;
-  }
-  default: {
+
+  default:
     return state;
-  }
   }
 };
 
-const INITIAL_HOME_MAP_STATE = null;
-export const homeMapReducer = function homeMapReducer(state = INITIAL_HOME_MAP_STATE, action = {}) {
+export const INITIAL_HOME_MAP_STATE = null;
+
+export const homeMapReducer = (state = INITIAL_HOME_MAP_STATE, action = {}) => {
   switch (action.type) {
-  case SET_HOME_MAP: {
+  case SET_HOME_MAP:
     return { ...action.payload };
-  }
-  default: {
+
+  default:
     return state;
-  }
   }
 };

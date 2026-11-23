@@ -21,7 +21,8 @@
         },
         "navHomeMenu": {
             "homeMenuLabel": "नक्साको द्रुत लिकंहरु",
-            "homeMenuToggleLabel": "नक्साको द्रुत लिकंहरु: {{mapTitle}}",
+            "homeMenuToggleLabel": "नक्साको द्रुत लिकं छान्नुहोस्",
+            "jumpButtonLabel": "{{mapTitle}} मा जानुहोस्",
             "myCurrentLocationOptionLabel": "मेरो हालको लोकेसन"
         }
     },

@@ -21,7 +21,8 @@
     },
     "navHomeMenu": {
       "homeMenuLabel": "Liens rapides de la carte",
-      "homeMenuToggleLabel": "Liens rapides de la carte : {{mapTitle}}",
+      "homeMenuToggleLabel": "Choisir un lien rapide de la carte",
+      "jumpButtonLabel": "Aller à {{mapTitle}}",
       "myCurrentLocationOptionLabel": "Ma Position Actuelle"
     }
   },

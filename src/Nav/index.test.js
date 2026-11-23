@@ -3,24 +3,33 @@ import { Provider } from 'react-redux';
 import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
-import { createMapMock } from '../__test-helpers/mocks';
+import { act, cleanup, render, screen, waitFor } from '../test-utils';
 import { BREAKPOINTS } from '../constants';
 import { clearModals } from '../ducks/modals';
-import { clearUserProfile, USER_API_URL, CURRENT_USER_API_URL, USER_PROFILES_API_URL } from '../ducks/user';
-import { hideDrawer } from '../ducks/drawer';
-import { cleanup, render, screen, waitFor } from '../test-utils';
+import { clearUserProfile, CURRENT_USER_API_URL, USER_API_URL, USER_PROFILES_API_URL } from '../ducks/user';
+import { createMapMock } from '../__test-helpers/mocks';
+import { FETCH_MAPS_SUCCESS, setHomeMap } from '../ducks/maps';
 import getWindowLocation from '../utils/getWindowLocation';
-import { NEWS_API_URL } from '../ducks/news';
-import { userWithPin, userWithoutPin, userWithoutEula, userList } from '../__test-helpers/fixtures/users';
-
-import store from '../store';
+import { hideDrawer } from '../ducks/drawer';
 import { MapContext } from '../MapContext';
-import Nav from './';
-import ModalRenderer from '../ModalRenderer';
+import { NEWS_API_URL } from '../ducks/news';
+import store from '../store';
 import useNavigate from '../hooks/useNavigate';
+import { userList, userWithoutEula, userWithoutPin, userWithPin } from '../__test-helpers/fixtures/users';
+
+import ModalRenderer from '../ModalRenderer';
+
+import Nav from './';
+
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
 jest.mock('../utils/getWindowLocation', () => jest.fn());
+
+const mockTrack = jest.fn();
+jest.mock('../utils/analytics', () => ({
+  ...jest.requireActual('../utils/analytics'),
+  trackEventFactory: () => ({ track: (...args) => mockTrack(...args) }),
+}));
 
 const generateResponse = (data = []) => ({ data });
 
@@ -120,6 +129,45 @@ describe('the Nav component', () => {
 
     expect(await screen.findByRole('button', { name: /^User settings:/ })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^Notifications/ })).not.toBeInTheDocument();
+  });
+
+  describe('map quick links', () => {
+    const park = { center: [1, 1], id: 'park', name: 'park', title: 'National Park', zoom: 9 };
+    const reserve = { center: [2, 2], id: 'reserve', name: 'Game Reserve', zoom: 8 };
+
+    beforeEach(() => {
+      mockTrack.mockClear();
+
+      act(() => {
+        store.dispatch({ payload: [reserve, park], type: FETCH_MAPS_SUCCESS });
+        store.dispatch(setHomeMap(reserve));
+      });
+    });
+
+    afterEach(() => {
+      act(() => {
+        store.dispatch({ payload: [], type: FETCH_MAPS_SUCCESS });
+        store.dispatch(setHomeMap(null));
+      });
+    });
+
+    test('jumps to the selected link from the main button and tracks it by its displayed title', async () => {
+      await userEvent.click(screen.getByRole('button', { name: 'Jump to Game Reserve' }));
+
+      expect(map.easeTo).toHaveBeenCalledWith(expect.objectContaining({ center: [2, 2], zoom: 8 }));
+      expect(store.getState().view.homeMap).toEqual(reserve);
+      expect(mockTrack).toHaveBeenCalledWith('Jump to Home Area', 'Home Area:Game Reserve');
+    });
+
+    test('jumps to a link picked from the menu, selects it and tracks it by its displayed title', async () => {
+      await userEvent.click(screen.getByRole('button', { name: 'Choose a map quick link' }));
+      await userEvent.click(await screen.findByRole('menuitemradio', { name: 'National Park' }));
+
+      expect(map.easeTo).toHaveBeenCalledWith(expect.objectContaining({ center: [1, 1], zoom: 9 }));
+      expect(store.getState().view.homeMap).toEqual(park);
+      expect(screen.getByRole('button', { name: 'Jump to National Park' })).toBeInTheDocument();
+      expect(mockTrack).toHaveBeenCalledWith('Change Home Area', 'Home Area:National Park');
+    });
   });
 
   describe('changing profiles', () => {

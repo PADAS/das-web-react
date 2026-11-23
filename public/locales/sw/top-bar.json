@@ -21,7 +21,8 @@
     },
     "navHomeMenu": {
       "homeMenuLabel": "Vifungo vya Haraka vya Ramani",
-      "homeMenuToggleLabel": "Vifungo vya Haraka vya Ramani: {{mapTitle}}",
+      "homeMenuToggleLabel": "Chagua Kifungo cha Haraka cha Ramani",
+      "jumpButtonLabel": "Enda kwenye {{mapTitle}}",
       "myCurrentLocationOptionLabel": "Mahali Yangu ya Sasa"
     }
   },

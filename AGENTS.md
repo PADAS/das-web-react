@@ -214,17 +214,17 @@ They come in three levels:
 
 **Basemaps** are the imagery or cartography beneath the data, set in the admin. The default is the EarthRanger Terrain Map; others are either a Mapbox style, which replaces the whole map style, or a raster tile service (XYZ or WMS). The user's choice survives a reload.
 
-**Map quick links** (the API's "maps") are saved views set in the admin, a center and a zoom, such as a park or one of its sectors. The last one picked, or else the site's default, is the **home map**. The map opens on a link's `lnglat` query parameter, else where the user left it if they chose to restore the map position, else on the home map.
+**Map quick links** (the API's "quicklinks", which the code still calls maps) are saved views set in the admin, a center and a zoom, such as a park or one of its sectors. The client lists them by their displayed title, falling back to the name when they have none. The last one picked, or else the site's default, or else the first, is the **home map**. The map opens on a link's `lnglat` query parameter, else where the user left it if they chose to restore the map position, else on the home map.
 
 **UI**
 - **Base layer control** on the map: the basemap picker.
-- **Quick links** in the top bar: picking one jumps there and makes it the home map.
+- **Quick links** in the top bar: a split button whose main part jumps to the home map, and whose arrow opens the menu where picking a link jumps there and makes it the home map. The arrow hides when the menu would hold only the home map.
 
 **Key files**
 - `ducks/layers.js`, `ducks/maps.js`: the basemaps and the chosen one; the quick links and the home map.
 - `MapBaseLayerControl/`: the basemap picker.
 - `BaseLayerRenderer/`: the raster basemaps; `EarthRangerMap/` applies a Mapbox style one.
-- `Nav/NavHomeMenu/`: the quick links menu.
+- `Nav/NavHomeMenu/`: the quick links split button and menu.
 
 ### Analyzers and Alerts
 

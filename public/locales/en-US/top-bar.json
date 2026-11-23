@@ -21,7 +21,8 @@
     },
     "navHomeMenu": {
       "homeMenuLabel": "Map quick links",
-      "homeMenuToggleLabel": "Map quick links: {{mapTitle}}",
+      "homeMenuToggleLabel": "Choose a map quick link",
+      "jumpButtonLabel": "Jump to {{mapTitle}}",
       "myCurrentLocationOptionLabel": "My Current Location"
     }
   },

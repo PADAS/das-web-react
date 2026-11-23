@@ -5,10 +5,10 @@
   display: flex;
   min-width: 0;
 
-  .toggle {
+  .jumpButton {
     @include buttons.top-bar-button;
 
-    max-width: 100%;
+    min-width: 0;
 
     .icon {
       flex-shrink: 0;
@@ -16,13 +16,20 @@
     }
 
     .title {
+      max-width: 7.5rem;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+  }
+
+  .toggle {
+    @include buttons.top-bar-button;
+
+    flex-shrink: 0;
+    min-width: 1.75rem;
 
     .arrow {
-      flex-shrink: 0;
       height: 0.3125rem;
       width: 0.625rem;
 
@@ -34,21 +41,23 @@
     &[aria-expanded='true'] .arrow {
       transform: rotate(180deg);
     }
+  }
 
-    &.hasIcon {
-      .title,
-      .arrow {
-        display: none;
-      }
+  &.hasMenu {
+    .jumpButton {
+      border-bottom-right-radius: 0;
+      border-top-right-radius: 0;
     }
 
-    @media (min-width: layout.$md-layout-width-min) {
-      &.hasIcon {
-        .title,
-        .arrow {
-          display: initial;
-        }
-      }
+    .toggle {
+      border-bottom-left-radius: 0;
+      border-top-left-radius: 0;
+    }
+  }
+
+  @media (min-width: layout.$md-layout-width-min) {
+    .jumpButton .title {
+      max-width: none;
     }
   }
 }
@@ -57,4 +66,22 @@
   max-height: 75vh;
   max-width: 96vw;
   overflow-y: auto;
+
+  .optionIcon {
+    align-items: center;
+    color: var(--er-ui-icons);
+    display: flex;
+    flex-shrink: 0;
+    height: 1.25rem;
+    justify-content: center;
+    margin-right: 0.5rem;
+    width: 1.25rem;
+
+    img,
+    svg {
+      height: 100%;
+      object-fit: contain;
+      width: 100%;
+    }
+  }
 }
