@@ -44,37 +44,59 @@ describe('Selectors - getMapEventFeatureCollection', () => {
 });
 
 describe('Selectors - getAlertsEnabled', () => {
-  test('returns true when alerts feature flag is enabled and user has alertrule view permission', () => {
-    const user = { permissions: { alertrule: ['view'] } };
-    const alertsEnabled = true;
+  const ALERT_RULE_VIEW_PERMISSIONS = { alertrule: ['view'] };
 
-    expect(getAlertsEnabled.resultFunc(user, alertsEnabled)).toBe(true);
+  const buildState = ({ alertsEnabled = true, selectedUserProfile = {}, user = {} } = {}) => ({
+    data: { selectedUserProfile, user },
+    view: { systemConfig: { alerts_enabled: alertsEnabled } },
   });
 
-  test('returns false when alerts feature flag is disabled', () => {
-    const user = { permissions: { alertrule: ['view'] } };
-    const alertsEnabled = false;
+  test('returns true when the alerts flag is on and the user can view alert rules', () => {
+    const state = buildState({ user: { id: 'user', permissions: ALERT_RULE_VIEW_PERMISSIONS } });
 
-    expect(getAlertsEnabled.resultFunc(user, alertsEnabled)).toBe(false);
+    expect(getAlertsEnabled(state)).toBe(true);
   });
 
-  test('returns false when user does not have alertrule view permission', () => {
-    const user = { permissions: { alertrule: [] } };
-    const alertsEnabled = true;
+  test('returns false when the alerts flag is off', () => {
+    const state = buildState({
+      alertsEnabled: false,
+      user: { id: 'user', permissions: ALERT_RULE_VIEW_PERMISSIONS },
+    });
 
-    expect(getAlertsEnabled.resultFunc(user, alertsEnabled)).toBe(false);
+    expect(getAlertsEnabled(state)).toBe(false);
   });
 
-  test('returns false when user has no alertrule permissions', () => {
-    const user = { permissions: {} };
-    const alertsEnabled = true;
+  test('returns false when the user cannot view alert rules', () => {
+    const state = buildState({ user: { id: 'user', permissions: { alertrule: [] } } });
 
-    expect(getAlertsEnabled.resultFunc(user, alertsEnabled)).toBe(false);
+    expect(getAlertsEnabled(state)).toBe(false);
   });
 
-  test('returns false when user is null', () => {
-    const alertsEnabled = true;
+  test('returns false when the user has no alert rule permissions', () => {
+    const state = buildState({ user: { id: 'user', permissions: {} } });
 
-    expect(getAlertsEnabled.resultFunc(null, alertsEnabled)).toBe(false);
+    expect(getAlertsEnabled(state)).toBe(false);
+  });
+
+  test('returns false when the user is not loaded', () => {
+    expect(getAlertsEnabled(buildState({ user: null }))).toBe(false);
+  });
+
+  test('returns false for an active profile that cannot view alert rules while its account can', () => {
+    const state = buildState({
+      selectedUserProfile: { id: 'profile', permissions: {} },
+      user: { id: 'user', permissions: ALERT_RULE_VIEW_PERMISSIONS },
+    });
+
+    expect(getAlertsEnabled(state)).toBe(false);
+  });
+
+  test('returns true for an active profile that can view alert rules while its account cannot', () => {
+    const state = buildState({
+      selectedUserProfile: { id: 'profile', permissions: ALERT_RULE_VIEW_PERMISSIONS },
+      user: { id: 'user', permissions: {} },
+    });
+
+    expect(getAlertsEnabled(state)).toBe(true);
   });
 });

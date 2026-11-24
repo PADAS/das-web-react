@@ -12,6 +12,7 @@ import { APP_ROUTES } from '../../constants/routes';
 import { clearAuth } from '../../ducks/auth';
 import { deleteCookie } from '../../utils/auth';
 import { fetchCurrentUser } from '../../ducks/user';
+import { selectSignedInUser } from '../../selectors/user';
 import useNavigate from '../../hooks/useNavigate';
 
 import * as styles from './styles.module.scss';
@@ -23,7 +24,7 @@ const EulaPage = ({ temporaryAccessToken }) => {
   const { t } = useTranslation('eula');
 
   const eula = useSelector((state) => state.data.eula);
-  const user = useSelector((state) => state.data.user);
+  const signedInUser = useSelector(selectSignedInUser);
 
   const [canceled, setCanceled] = useState(false);
   const [formAccepted, setFormAccepted] = useState(false);
@@ -69,7 +70,7 @@ const EulaPage = ({ temporaryAccessToken }) => {
 
     if (!formAccepted) return;
 
-    dispatch(acceptEula({ accept: true, eula: eula.id, user: user.id }, generateTempAuthHeaderIfNecessary()))
+    dispatch(acceptEula({ accept: true, eula: eula.id, user: signedInUser.id }, generateTempAuthHeaderIfNecessary()))
       .then(() => dispatch(fetchCurrentUser())
         .catch((error) => {
           navigate({ pathname: APP_ROUTES.LOGIN, search: location.search });
@@ -82,7 +83,7 @@ const EulaPage = ({ temporaryAccessToken }) => {
 
         setFormError(true);
       });
-  }, [dispatch, eula.id, formAccepted, generateTempAuthHeaderIfNecessary, location.search, navigate, user.id]);
+  }, [dispatch, eula.id, formAccepted, generateTempAuthHeaderIfNecessary, location.search, navigate, signedInUser.id]);
 
   useEffect(() => {
     dispatch(fetchCurrentUser())
@@ -111,8 +112,8 @@ const EulaPage = ({ temporaryAccessToken }) => {
   }, [adminReferrer, canceled, rerouteCookieValue]);
 
   useEffect(() => {
-    if (Object.hasOwn(user, 'accepted_eula')) {
-      if (!user.accepted_eula) {
+    if (Object.hasOwn(signedInUser, 'accepted_eula')) {
+      if (!signedInUser.accepted_eula) {
         // Updating state from this effect is intended.
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setPageLoaded(true);

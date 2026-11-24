@@ -11,20 +11,14 @@ import { EVENT_FORM_STATES } from '../constants';
 import { getEventReporters } from '../selectors';
 import store from '../store';
 
-export const eventWasRecentlyEditedByCurrentUser = (event, currentUser) => {
+const ONE_MINUTE_MS = 60 * 1000;
+
+export const eventWasRecentlyEditedByCurrentUser = (event, activeUser) => {
   const eventCreationDetails = event?.updates?.[0];
-  const eventCreationUserId = eventCreationDetails?.user?.id;
 
-  if (eventCreationUserId !== currentUser.id) {
-    return false;
-  }
-
-  const isRecentlyCreated = Math.abs(new Date() - new Date(eventCreationDetails.time)) < 60000;
-  if (!isRecentlyCreated) {
-    return false;
-  }
-
-  return true;
+  return !!activeUser?.id
+    && eventCreationDetails?.user?.id === activeUser.id
+    && Math.abs(new Date() - new Date(eventCreationDetails.time)) < ONE_MINUTE_MS;
 };
 
 export const eventTypeTitleForEvent = (event, eventTypes = []) => {

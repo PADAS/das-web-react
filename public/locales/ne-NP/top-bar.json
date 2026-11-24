@@ -23,7 +23,8 @@
             "homeMenuLabel": "नक्साको द्रुत लिकंहरु",
             "homeMenuToggleLabel": "नक्साको द्रुत लिकंहरु: {{mapTitle}}",
             "myCurrentLocationOptionLabel": "मेरो हालको लोकेसन"
-        }
+        },
+        "profileSwitchErrorToastMessage": "प्रोफाइल {{username}} मा स्विच गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।"
     },
     "notificationMenu": {
         "notificationsPopover": {

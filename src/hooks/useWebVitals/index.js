@@ -1,17 +1,20 @@
 import { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { initializeWebVitals } from '../../utils/webVitals';
+
 import { createUserAnalyticsData } from '../../utils/analytics';
+import { initializeWebVitals } from '../../utils/webVitals';
+import { selectActiveUser, selectIsSignedInUserLoaded } from '../../selectors/user';
 
 const useWebVitals = () => {
-  const user = useSelector((state) => state.data?.user);
-  const selectedUserProfile = useSelector((state) => state.data?.selectedUserProfile);
+  const activeUser = useSelector(selectActiveUser);
+  const isSignedInUserLoaded = useSelector(selectIsSignedInUserLoaded);
   const serverVersion = useSelector((state) => state.data?.systemStatus?.server?.version);
+
   const isInitialized = useRef(false);
 
   useEffect(() => {
-    if (!isInitialized.current && user?.id) {
-      const userData = createUserAnalyticsData(user, selectedUserProfile, serverVersion);
+    if (!isInitialized.current && isSignedInUserLoaded) {
+      const userData = createUserAnalyticsData(activeUser, serverVersion);
       initializeWebVitals(userData);
       isInitialized.current = true;
 
@@ -19,7 +22,7 @@ const useWebVitals = () => {
         console.log('Web vitals initialized with user context:', userData);
       }
     }
-  }, [user, selectedUserProfile, serverVersion]);
+  }, [activeUser, isSignedInUserLoaded, serverVersion]);
 };
 
 export default useWebVitals;

@@ -8,6 +8,7 @@ import { clearAuth, resetMasterCancelToken } from '../ducks/auth';
 
 import { APP_ROUTES } from '../constants/routes';
 import { isStepUpChallenge, parseAuthChallenge, recoverAuth } from '../utils/auth-recovery';
+import { selectActiveProfileId, selectSignedInUser } from '../selectors/user';
 import { showToast } from '../utils/toast';
 import useAuthRecovery from '../hooks/useAuthRecovery';
 import useNavigate from '../hooks/useNavigate';
@@ -52,13 +53,13 @@ const handleGeoPermWarningHeader = (response, userLocationAccessGranted) => {
 
 
 const RequestConfigManager = ({
+  activeProfileId,
   clearAuth,
-  userLocationAccessGranted,
   masterRequestCancelToken,
   resetMasterCancelToken,
-  selectedUserProfile,
+  signedInUserId,
   token,
-  user,
+  userLocationAccessGranted,
 }) => {
   const { search } = useLocation();
   const navigate = useNavigate();
@@ -100,15 +101,15 @@ const RequestConfigManager = ({
   }, [masterRequestCancelToken]);
 
   const addUserProfileHeaderToRequestsIfNecessary = useCallback((config) => {
-    const profile = (selectedUserProfile && selectedUserProfile.id)
-    && (user && user.id)
-    && (selectedUserProfile.id !== user.id)
-    && selectedUserProfile.id;
+    const isActingAsProfile = !!activeProfileId && !!signedInUserId && activeProfileId !== signedInUserId;
+    // A read of the profile being switched to names it, not the active one.
+    const namesItsOwnProfile = !!config.headers['USER-PROFILE'];
 
-    if (config.url && !config.url.includes('/user/me') && profile) {
-      config.headers['USER-PROFILE'] = profile;
+    // /user/me stays the signed-in account, which the profile switcher lists.
+    if (config.url && !config.url.includes('/user/me') && isActingAsProfile && !namesItsOwnProfile) {
+      config.headers['USER-PROFILE'] = activeProfileId;
     }
-  }, [selectedUserProfile, user]);
+  }, [activeProfileId, signedInUserId]);
 
   const attachRequestInterceptors = useCallback(() => {
     const requestHandlers = (config) => {
@@ -173,8 +174,12 @@ const RequestConfigManager = ({
   return null;
 };
 
-const mapStateToProps = ({ data: { selectedUserProfile, user, masterRequestCancelToken, token }, view: { userLocationAccessGranted } }) => ({
-  selectedUserProfile, user, masterRequestCancelToken, token, userLocationAccessGranted: userLocationAccessGranted.granted,
+const mapStateToProps = (state) => ({
+  activeProfileId: selectActiveProfileId(state),
+  masterRequestCancelToken: state.data.masterRequestCancelToken,
+  signedInUserId: selectSignedInUser(state)?.id,
+  token: state.data.token,
+  userLocationAccessGranted: state.view.userLocationAccessGranted.granted,
 });
 
 

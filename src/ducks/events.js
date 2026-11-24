@@ -3,16 +3,16 @@ import union from 'lodash/union';
 import without from 'lodash/without';
 import xor from 'lodash/xor';
 
-import { API_URL, API_V2_URL, PREVIEW_FEATURES, REALTIME_OVERLAY_WINDOW_MS, TAB_KEYS } from '../constants';
-import globallyResettableReducer from '../reducers/global-resettable';
+import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
+  validateReportAgainstCurrentEventFilter } from '../utils/events';
 import { addRealtimeOverlayEvent, removeRealtimeOverlayEvent } from './events-realtime-overlay';
+import { API_URL, API_V2_URL, PREVIEW_FEATURES, REALTIME_OVERLAY_WINDOW_MS, TAB_KEYS } from '../constants';
 import { fetchPatrol, LINK_TARGETS_PAGE_SIZE, PATROLS_API_URL } from './patrols';
 import { generateErrorMessageForRequest } from '../utils/request';
 import { getBboxParamsFromMap, objectToParamString } from '../utils/query';
 import { getPreviewFeatureValue } from '../utils/feature-flags';
-import { addNormalizingPropertiesToEventDataFromAPI, eventBelongsToCollection,
-  validateReportAgainstCurrentEventFilter } from '../utils/events';
-import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
+import globallyResettableReducer from '../reducers/global-resettable';
+import { selectIsGeoPermissionRestricted } from '../selectors/user';
 
 import { calcEventFilterForRequest } from '../utils/event-filter';
 import { calcLocationParamStringForUserLocationCoords } from '../utils/location';
@@ -79,12 +79,8 @@ export const SOCKET_EVENT_DATA = 'SOCKET_EVENT_DATA';
 export const UPDATE_EVENT_PATROL_LINKS = 'EVENTS.UPDATE_EVENT_PATROL_LINKS';
 export const UPDATE_EVENT_STORE = 'UPDATE_EVENT_STORE';
 
-const shouldAppendLocationToRequest = (state) => {
-  const currentUser = state?.data?.selectedUserProfile?.username
-    ? state?.data?.selectedUserProfile
-    : state?.data?.user;
-  return userIsGeoPermissionRestricted(currentUser) && !!state?.view?.userLocation?.coords;
-};
+const shouldAppendLocationToRequest = (state) => selectIsGeoPermissionRestricted(state)
+  && !!state.view.userLocation?.coords;
 
 const excludeOpenEventIfAlreadyInEventStore = (events, eventStore) => {
   const currentTab = getCurrentTabFromURL(window.location.pathname);

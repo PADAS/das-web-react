@@ -3,9 +3,10 @@ import { createSelector } from 'reselect';
 import { bboxPolygon, featureCollection } from '@turf/turf';
 
 import { applyLocalEditsToEvent } from '../utils/locally-edited-event';
-import { createFeatureCollectionFromEvents } from '../utils/map';
 import { calcUrlForImage } from '../utils/img';
-import { PERMISSIONS } from '../constants';
+import { createFeatureCollectionFromEvents } from '../utils/map';
+import { PERMISSION_KEYS, PERMISSIONS } from '../constants';
+import { selectActiveUserPermissions } from './user';
 
 const locallyEditedEvent = ({ data: { locallyEditedEvent } }) => locallyEditedEvent;
 const mapEvents = ({ data: { mapEvents: { events } } }) => events;
@@ -16,7 +17,6 @@ const hiddenAnalyzerIDs = ({ data: { mapLayerFilter: { hiddenAnalyzerIDs } } }) 
 const userLocation = ({ view: { userLocation } }) => userLocation;
 const showUserLocation = ({ view: { showUserLocation } }) => showUserLocation;
 const getLastKnownMapBbox = ({ data: { mapEvents: { bbox } } }) => bbox;
-const getUser = ({ data: { user } }) => user;
 const getAlertsFeatureFlag = ({ view: { systemConfig } }) => systemConfig?.alerts_enabled;
 
 export const analyzerFeatures = ({ data: { analyzerFeatures } }) => analyzerFeatures.data;
@@ -107,11 +107,9 @@ export const getAnalyzerFeatureCollectionsByType = createSelector(
 );
 
 export const getAlertsEnabled = createSelector(
-  [getUser, getAlertsFeatureFlag],
-  (user, alertsEnabled) => {
-    return !!alertsEnabled
-      && !!(user?.permissions?.alertrule?.find?.(perm => perm === PERMISSIONS.READ));
-  },
+  [selectActiveUserPermissions, getAlertsFeatureFlag],
+  (activeUserPermissions, alertsEnabled) => !!alertsEnabled
+    && !!activeUserPermissions[PERMISSION_KEYS.ALERT_RULES]?.includes(PERMISSIONS.READ),
 );
 
 export const getFeatureSetFeatureCollectionsByType = createSelector(

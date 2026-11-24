@@ -5,11 +5,11 @@ import { useTranslation } from 'react-i18next';
 
 import { GEOLOCATION_PERMISSION_STATES } from '../utils/location/constants';
 import { GEOLOCATOR_OPTIONS } from '../constants';
+import { selectIsGeoPermissionRestricted, selectIsSignedInUserLoaded } from '../selectors/user';
 import { setCurrentUserLocation } from '../ducks/location';
 import { setUserLocationAccessGranted } from '../ducks/user';
 import { showToast } from '../utils/toast';
 import useGeolocationPermissionState from '../hooks/useGeolocationPermissionState';
-import { userIsGeoPermissionRestricted } from '../utils/geo-perms';
 
 const ONE_MINUTE = 1000 * 60;
 
@@ -17,12 +17,13 @@ const GeoLocationWatcher = ({ updateRate = ONE_MINUTE }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation('components', { keyPrefix: 'geoLocationWatcher' });
 
-  const user = useSelector((state) => state.data.user);
+  const isGeoPermissionRestricted = useSelector(selectIsGeoPermissionRestricted);
+  const isSignedInUserLoaded = useSelector(selectIsSignedInUserLoaded);
   const userLocation = useSelector((state) => state.view.userLocation);
   const userLocationAccessGranted = useSelector((state) => state.view.userLocationAccessGranted?.granted);
 
   // Placed after the selectors because it depends on one of them.
-  const geolocationPermissionState = useGeolocationPermissionState(!!user?.id);
+  const geolocationPermissionState = useGeolocationPermissionState(isSignedInUserLoaded);
 
   const errorToastId = useRef(null);
   const localUserLocationState = useRef(userLocation);
@@ -59,10 +60,10 @@ const GeoLocationWatcher = ({ updateRate = ONE_MINUTE }) => {
   }, [dispatch, onGeoUpdateSuccess]);
 
   const onGeoError = useCallback((error) => {
-    if (error && error.code === error.PERMISSION_DENIED && userIsGeoPermissionRestricted(user)) {
+    if (error && error.code === error.PERMISSION_DENIED && isGeoPermissionRestricted) {
       clearUserLocation();
     }
-  }, [clearUserLocation, user]);
+  }, [clearUserLocation, isGeoPermissionRestricted]);
 
   useEffect(() => {
     if (geolocationPermissionState === null) return;
@@ -80,11 +81,18 @@ const GeoLocationWatcher = ({ updateRate = ONE_MINUTE }) => {
   useEffect(() => {
     if (!userLocationAccessGranted) {
       clearUserLocation();
-      if (userIsGeoPermissionRestricted(user)) {
+      // Location access is unknown until it is first checked, once signed in.
+      if (isGeoPermissionRestricted && isSignedInUserLoaded) {
         showPermissionsToast();
       }
     }
-  }, [clearUserLocation, showPermissionsToast, userLocationAccessGranted, user]);
+  }, [
+    clearUserLocation,
+    isGeoPermissionRestricted,
+    isSignedInUserLoaded,
+    showPermissionsToast,
+    userLocationAccessGranted,
+  ]);
 
   useEffect(() => {
     if (userLocationAccessGranted) {

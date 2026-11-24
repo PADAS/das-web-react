@@ -38,6 +38,7 @@ import { calcEventFilterForRequest } from '../utils/event-filter';
 import { fetchTableauDashboard } from '../ducks/external-reporting';
 import { hideDrawer } from '../ducks/drawer';
 import { getAlertsEnabled } from '../selectors';
+import { selectActiveUser } from '../selectors/user';
 import {
   JIRA_IFRAME_HELP_BUTTON_SELECTOR,
   JIRA_WIDGET_IFRAME_SELECTOR,
@@ -116,6 +117,7 @@ const GlobalMenuDrawer = () => {
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
 
   const accessToken = useSelector((state) => state.data.token.access_token);
+  const activeUser = useSelector(selectActiveUser);
   const alertsEnabled = useSelector(getAlertsEnabled);
   const analyzersEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.ANALYZERS]);
   const dailyReportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.DAILY_REPORT]);
@@ -127,17 +129,14 @@ const GlobalMenuDrawer = () => {
   const kmlExportEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.KML_EXPORT]);
   const otusUrl = useSelector((state) => state.view.systemConfig.otusUrl);
   const patrolManagementEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]);
-  const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
   const serverVersion = useSelector((state) => state.data.systemStatus.server.version);
   const spatialFeaturesEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]);
   const subjectsEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.SUBJECTS]);
   const tableauEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.TABLEAU]);
-  const user = useSelector((state) => state.data.user);
 
   const closeButtonRef = useRef(null);
   const dataPrivacyPolicyLinkRef = useRef(null);
 
-  const activeUser = selectedUserProfile?.id ? selectedUserProfile : user;
   const canReadPatrols = patrolManagementEnabled && hasPatrolsReadPermission;
   const deviceMobileStoreLink = MOBILE_STORE_LINKS
     .find((mobileStoreLink) => mobileStoreLink.userAgentPattern.test(window.navigator.userAgent));

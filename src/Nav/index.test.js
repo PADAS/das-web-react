@@ -18,6 +18,8 @@ import { MapContext } from '../MapContext';
 import Nav from './';
 import ModalRenderer from '../ModalRenderer';
 import useNavigate from '../hooks/useNavigate';
+import * as toastUtils from '../utils/toast';
+
 jest.mock('../hooks/useNavigate', () => jest.fn());
 
 jest.mock('../utils/getWindowLocation', () => jest.fn());
@@ -131,19 +133,105 @@ describe('the Nav component', () => {
       await screen.findByRole('menu', { name: 'User settings' });
     });
 
-    test('reloads as the profile the user selects when it has no PIN', async () => {
+    test('reloads as the full record of the profile the user selects when it has no PIN', async () => {
+      const profileRecord = { ...userWithoutPin, permissions: { patrol: ['view'] } };
+      const profileHeaders = [];
+      server.use(http.get(`${USER_API_URL}/${userWithoutPin.id}`, ({ request }) => {
+        profileHeaders.push(request.headers.get('USER-PROFILE'));
+
+        return HttpResponse.json(generateResponse(profileRecord));
+      }));
       jest.useFakeTimers();
-      const nonPinProfileLink = screen.getByRole('menuitemradio', { name: userWithoutPin.username });
+      const user = userEvent.setup({ delay: null });
 
-      nonPinProfileLink.click();
+      await user.click(screen.getByRole('menuitemradio', { name: userWithoutPin.username }));
 
-      const state = store.getState();
-
-      expect(state.data.selectedUserProfile).toEqual(userWithoutPin);
+      await waitFor(() => expect(store.getState().data.selectedUserProfile).toEqual(profileRecord));
+      expect(profileHeaders).toEqual([userWithoutPin.id]);
 
       jest.advanceTimersByTime(500);
 
       expect(reload).toHaveBeenCalled();
+
+      jest.useRealTimers();
+    });
+
+    test('stays as the current user and says so when the selected profile cannot be read', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      jest.spyOn(toastUtils, 'showToast').mockImplementation(() => {});
+      server.use(http.get(`${USER_API_URL}/${userWithoutPin.id}`, () => HttpResponse.json(null, { status: 500 })));
+      jest.useFakeTimers();
+      const user = userEvent.setup({ delay: null });
+
+      await user.click(screen.getByRole('menuitemradio', { name: userWithoutPin.username }));
+
+      await waitFor(() => expect(toastUtils.showToast).toHaveBeenCalledWith({
+        message: `Could not switch to the profile ${userWithoutPin.username}. Please try again.`,
+      }));
+
+      jest.advanceTimersByTime(500);
+
+      expect(store.getState().data.selectedUserProfile).toEqual({});
+      expect(reload).not.toHaveBeenCalled();
+
+      jest.useRealTimers();
+    });
+
+    test('closes the PIN prompt when the protected profile it unlocked cannot be read', async () => {
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+      jest.spyOn(toastUtils, 'showToast').mockImplementation(() => {});
+      server.use(http.get(`${USER_API_URL}/${anotherPinProfile.id}`, () => HttpResponse.json(null, { status: 500 })));
+      jest.useFakeTimers();
+      const user = userEvent.setup({ delay: null });
+
+      await user.click(screen.getByRole('menuitemradio', { name: anotherPinProfile.username }));
+
+      const pinInputs = await screen.findAllByRole('input');
+      await user.type(pinInputs[0], anotherPinProfile.pin[0]);
+      await user.type(pinInputs[1], anotherPinProfile.pin[1]);
+      await user.type(pinInputs[2], anotherPinProfile.pin[2]);
+      await user.type(pinInputs[3], anotherPinProfile.pin[3]);
+
+      await waitFor(() => expect(toastUtils.showToast).toHaveBeenCalledTimes(1));
+      await waitFor(() => expect(screen.queryByText('Enter Your PIN')).not.toBeInTheDocument());
+      expect(store.getState().data.selectedUserProfile).toEqual({});
+
+      jest.useRealTimers();
+    });
+
+    test('stays as the main user when it is picked while an earlier profile pick is still loading', async () => {
+      jest.spyOn(toastUtils, 'showToast').mockImplementation(() => {});
+      let isProfileReadCancelled, releaseProfileRead;
+      const profileReadGate = new Promise((resolve) => {
+        releaseProfileRead = resolve;
+      });
+      server.use(http.get(`${USER_API_URL}/${userWithoutPin.id}`, async ({ request }) => {
+        await profileReadGate;
+        isProfileReadCancelled = request.signal.aborted;
+
+        return HttpResponse.json(generateResponse(userWithoutPin));
+      }));
+      const user = userEvent.setup({ delay: null });
+
+      await user.click(screen.getByRole('menuitemradio', { name: userWithoutPin.username }));
+      await waitFor(() => expect(screen.queryByRole('menu', { name: 'User settings' })).not.toBeInTheDocument());
+      await user.click(screen.getByRole('button', { name: /^User settings:/ }));
+      await user.click(await screen.findByRole('menuitemradio', { name: userWithPin.username }));
+
+      const pinInputs = await screen.findAllByRole('input');
+      jest.useFakeTimers();
+      await user.type(pinInputs[0], userWithPin.pin[0]);
+      await user.type(pinInputs[1], userWithPin.pin[1]);
+      await user.type(pinInputs[2], userWithPin.pin[2]);
+      await user.type(pinInputs[3], userWithPin.pin[3]);
+
+      releaseProfileRead();
+      await waitFor(() => expect(isProfileReadCancelled).toBe(true));
+      await waitFor(() => expect(screen.queryByText('Enter Your PIN')).not.toBeInTheDocument());
+      jest.advanceTimersByTime(500);
+
+      expect(store.getState().data.selectedUserProfile).toEqual({});
+      expect(toastUtils.showToast).not.toHaveBeenCalled();
 
       jest.useRealTimers();
     });
@@ -170,9 +258,7 @@ describe('the Nav component', () => {
       await user.type(pinInputs[2], anotherPinProfile.pin[2]);
       await user.type(pinInputs[3], anotherPinProfile.pin[3]);
 
-      state = store.getState();
-
-      expect(state.data.selectedUserProfile).toEqual(anotherPinProfile);
+      await waitFor(() => expect(store.getState().data.selectedUserProfile).toEqual(anotherPinProfile));
 
       jest.advanceTimersByTime(500);
 
@@ -188,9 +274,7 @@ describe('the Nav component', () => {
       const nonPinProfileLink = screen.getByRole('menuitemradio', { name: userWithoutPin.username });
       nonPinProfileLink.click();
 
-      const state = store.getState();
-
-      expect(state.data.selectedUserProfile).toEqual(userWithoutPin);
+      await waitFor(() => expect(store.getState().data.selectedUserProfile).toEqual(userWithoutPin));
 
       jest.advanceTimersByTime(500);
 

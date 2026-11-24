@@ -81,9 +81,9 @@ export const setServerVersionAnalyticsDimension = (version) => {
   ReactGA4.set({ 'user_properties': { server_version: version } });
 };
 
-export function setUserRole(role) {
+export const setUserRole = (role) => {
   ReactGA4.set({ 'user_properties': { user_role: role } });
-}
+};
 
 export const setSitenameDimension = (site) => {
   ReactGA4.set({ 'user_properties': { site_name: site } });
@@ -93,16 +93,12 @@ export const setClientReleaseIdentifier = () => {
   ReactGA4.set({ 'user_properties': { release_identifier: CLIENT_BUILD_VERSION } });
 };
 
-export const createUserAnalyticsData = (user = {}, selectedUserProfile = {}, serverVersion = 'unknown') => {
-  const activeUser = selectedUserProfile.id ? selectedUserProfile : user;
-
-  return {
-    user_role: activeUser.role || 'unknown',
-    organization: getWindowLocation().hostname,
-    user_id_hash: hashString(activeUser.id),
-    is_staff: activeUser.is_staff || false,
-    is_superuser: activeUser.is_superuser || false,
-    client_version: CLIENT_BUILD_VERSION,
-    server_version: serverVersion,
-  };
-};
+export const createUserAnalyticsData = (activeUser = {}, serverVersion = 'unknown') => ({
+  client_version: CLIENT_BUILD_VERSION,
+  is_staff: activeUser.is_staff || false,
+  is_superuser: activeUser.is_superuser || false,
+  organization: getWindowLocation().hostname,
+  server_version: serverVersion,
+  user_id_hash: hashString(activeUser.id),
+  user_role: activeUser.role || 'unknown',
+});

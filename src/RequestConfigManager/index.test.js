@@ -256,5 +256,13 @@ describe('RequestConfigManager', () => {
 
       expect(requestHandler(makeStatusConfig()).headers).not.toHaveProperty('USER-PROFILE');
     });
+
+    test('keeps the profile a request names itself while another profile is active', () => {
+      const { requestHandler } = renderManager({ selectedUserProfile: { id: 'p1' } });
+
+      const config = { headers: { 'USER-PROFILE': 'p2' }, url: '/api/v1.0/user/p2' };
+
+      expect(requestHandler(config).headers['USER-PROFILE']).toBe('p2');
+    });
   });
 });

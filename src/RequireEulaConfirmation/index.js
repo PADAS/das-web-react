@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { APP_ROUTES } from '../constants/routes';
 import { fetchCurrentUser } from '../ducks/user';
+import { selectSignedInUser } from '../selectors/user';
 import { SYSTEM_CONFIG_FLAGS } from '../constants';
 import useNavigate from '../hooks/useNavigate';
 
@@ -13,7 +14,7 @@ const RequireEulaConfirmation = ({ children }) => {
   const navigate = useNavigate();
 
   const eulaEnabled = useSelector((state) => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.EULA]);
-  const user = useSelector((state) => state.data.user);
+  const signedInUser = useSelector(selectSignedInUser);
 
   const [eulaAccepted, setEulaAccepted] = useState('unknown');
 
@@ -27,15 +28,15 @@ const RequireEulaConfirmation = ({ children }) => {
 
   useEffect(() => {
     // null check to distinguish from eulaEnabled = false
-    if (user.id && eulaEnabled !== null) {
-      const accepted = Object.hasOwn(user, 'accepted_eula') ? user.accepted_eula : true;
+    if (signedInUser.id && eulaEnabled !== null) {
+      const accepted = Object.hasOwn(signedInUser, 'accepted_eula') ? signedInUser.accepted_eula : true;
       const ignoreEula = eulaEnabled === false;
 
       // Updating state from this effect is intended.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setEulaAccepted(accepted || ignoreEula);
     }
-  }, [eulaEnabled, user]);
+  }, [eulaEnabled, signedInUser]);
 
   if (!eulaAccepted) {
     return <Navigate

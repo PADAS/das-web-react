@@ -1,46 +1,52 @@
-import axios from 'axios';
+import axios, { isCancel } from 'axios';
 import { API_URL } from '../constants';
-import { setUserRole } from '../utils/analytics';
 import globallyResettableReducer from '../reducers/global-resettable';
+import { selectActiveProfileId, selectSignedInUser } from '../selectors/user';
 
 export const USER_API_URL = `${API_URL}user`;
 export const CURRENT_USER_API_URL = `${USER_API_URL}/me`;
 export const USER_PROFILES_API_URL = `${CURRENT_USER_API_URL}/profiles`;
 
 // actions
-const FETCH_CURRENT_USER_SUCCESS = 'FETCH_CURRENT_USER_SUCCESS';
+export const FETCH_CURRENT_USER_SUCCESS = 'FETCH_CURRENT_USER_SUCCESS';
 const FETCH_USER_PROFILES_SUCCESS = 'FETCH_USER_PROFILES_SUCCESS';
 
-const SET_USER_PROFILE = 'SET_USER_PROFILE';
+export const SET_USER_PROFILE = 'SET_USER_PROFILE';
 const CLEAR_USER_PROFILE = 'CLEAR_USER_PROFILE';
 
 const SET_USER_LOCATION_ACESS_GRANTED = 'SET_USER_LOCATION_ACESS_GRANTED';
 
 // action creators
 
-export const fetchCurrentUser = () => (dispatch, getState) => axios.get(CURRENT_USER_API_URL)
-  .then(( { data: { data } }) => {
-    if (!!data.role && data.role.length > 0) {
-      setUserRole(data.role);
-    }
-    dispatch(fetchUserSuccess(data));
-    const { data: { selectedUserProfile } } = getState();
-    if (selectedUserProfile?.id && selectedUserProfile.id !== data.id) {
-      return axios.get(`${USER_API_URL}/${selectedUserProfile.id}`, {
-        headers: {
-          'User-Profile': selectedUserProfile.id,
-        },
-      })
-        .then(({ data: { data: profileUser } }) => {
-          dispatch(setUserProfile(profileUser));
-        });
-    }
-  })
-  .catch((error) => {
-    console.log('error fetching current user', error);
-    throw new Error(error);
-  });
+export const fetchCurrentUser = () => async (dispatch, getState) => {
+  try {
+    dispatch(fetchUserSuccess((await axios.get(CURRENT_USER_API_URL)).data.data));
+  } catch (error) {
+    console.warn('error fetching current user', error);
+    throw error;
+  }
 
+  const activeProfileId = selectActiveProfileId(getState());
+  if (activeProfileId && activeProfileId !== selectSignedInUser(getState()).id) {
+    await dispatch(fetchUserProfile(activeProfileId));
+  }
+};
+
+// The profiles list lacks permissions, so a profile is stored from its record.
+export const fetchUserProfile = (profileId, setCookie, signal) => async (dispatch) => {
+  try {
+    const profileUserResponse = await axios.get(`${USER_API_URL}/${profileId}`, {
+      headers: { 'USER-PROFILE': profileId },
+      signal,
+    });
+    dispatch(setUserProfile(profileUserResponse.data.data, setCookie));
+  } catch (error) {
+    if (!isCancel(error)) {
+      console.warn('error fetching user profile', error);
+    }
+    throw error;
+  }
+};
 
 export const fetchCurrentUserProfiles = () => async (dispatch) => {
   try {
