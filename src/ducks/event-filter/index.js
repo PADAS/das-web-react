@@ -1,3 +1,5 @@
+import isEqual from 'react-fast-compare';
+
 import { DEFAULT_EVENT_SORT, EVENT_STATE_CHOICES, REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS } from '../../constants';
 import { generateOptionalStorageConfig } from '../../reducers/storage-config';
 import { generateDaysAgoDate } from '../../utils/datetime';
@@ -52,21 +54,19 @@ export const updateEventFilter = update => (dispatch) => {
   });
 };
 
-export const setDefaultDateRange = (lower, upper) => {
+// A restored custom range stays; only one still at the default moves with it.
+export const setDefaultDateRange = (lower, upper) => (dispatch, getState) => {
+  const isAtDefaultDateRange = isEqual(
+    getState().data.eventFilter.filter.date_range,
+    INITIAL_FILTER_STATE.filter.date_range
+  );
+
   INITIAL_FILTER_STATE.filter.date_range.lower = lower;
   INITIAL_FILTER_STATE.filter.date_range.upper = upper;
 
-  return {
-    type: UPDATE_EVENT_FILTER,
-    payload: {
-      filter: {
-        date_range: {
-          lower,
-          upper,
-        },
-      },
-    },
-  };
+  if (isAtDefaultDateRange) {
+    dispatch({ payload: { filter: { date_range: { lower, upper } } }, type: UPDATE_EVENT_FILTER });
+  }
 };
 
 // REDUCER

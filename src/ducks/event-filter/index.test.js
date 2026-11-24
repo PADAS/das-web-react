@@ -1,4 +1,6 @@
 import { generateDaysAgoDate } from '../../utils/datetime';
+import { mockStore } from '../../__test-helpers/MockStore';
+
 import eventFilterReducer, {
   INITIAL_FILTER_STATE,
   setDefaultDateRange,
@@ -55,14 +57,33 @@ describe('Ducks - Event filter', () => {
     expect(dispatch).toHaveBeenCalledWith({ payload: update, type: UPDATE_EVENT_FILTER });
   });
 
-  test('setDefaultDateRange creates the UPDATE_EVENT_FILTER action and updates the INITIAL_FILTER_STATE', () => {
-    const lower = generateDaysAgoDate(5).toISOString();
-    const upper = null;
+  describe('setDefaultDateRange', () => {
+    const generateStore = (dateRange) => mockStore({
+      data: {
+        eventFilter: { ...INITIAL_FILTER_STATE, filter: { ...INITIAL_FILTER_STATE.filter, date_range: dateRange } },
+      },
+    });
 
-    const action = setDefaultDateRange(lower, upper);
+    test('updates the default date range and moves a filter at the previous default to it', () => {
+      const lower = generateDaysAgoDate(5).toISOString();
+      const store = generateStore({ ...INITIAL_FILTER_STATE.filter.date_range });
 
-    expect(action).toEqual({ payload: { filter: { date_range: { lower, upper } } }, type: UPDATE_EVENT_FILTER });
-    expect(INITIAL_FILTER_STATE.filter.date_range.lower).toBe(lower);
-    expect(INITIAL_FILTER_STATE.filter.date_range.upper).toBe(upper);
+      store.dispatch(setDefaultDateRange(lower, null));
+
+      expect(INITIAL_FILTER_STATE.filter.date_range).toEqual({ lower, upper: null });
+      expect(store.getActions()).toEqual([
+        { payload: { filter: { date_range: { lower, upper: null } } }, type: UPDATE_EVENT_FILTER },
+      ]);
+    });
+
+    test('updates the default date range but keeps a custom date range in the filter', () => {
+      const lower = generateDaysAgoDate(7).toISOString();
+      const store = generateStore({ lower: '2026-01-01T00:00:00.000Z', upper: null });
+
+      store.dispatch(setDefaultDateRange(lower, null));
+
+      expect(INITIAL_FILTER_STATE.filter.date_range).toEqual({ lower, upper: null });
+      expect(store.getActions()).toEqual([]);
+    });
   });
 });

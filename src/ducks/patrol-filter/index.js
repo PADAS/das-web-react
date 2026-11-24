@@ -52,21 +52,19 @@ export const updatePatrolFilter = (update) => (dispatch) => {
   dispatch({ type: UPDATE_PATROL_FILTER, payload: update });
 };
 
-export const setDefaultDateRange = (lower, upper) => {
+// A restored custom range stays; only one still at the default moves with it.
+export const setDefaultDateRange = (lower, upper) => (dispatch, getState) => {
+  const isAtDefaultDateRange = isEqual(
+    getState().data.patrolFilter.filter.date_range,
+    INITIAL_FILTER_STATE.filter.date_range
+  );
+
   INITIAL_FILTER_STATE.filter.date_range.lower = lower;
   INITIAL_FILTER_STATE.filter.date_range.upper = upper;
 
-  return {
-    type: UPDATE_PATROL_FILTER,
-    payload: {
-      filter: {
-        date_range: {
-          lower,
-          upper,
-        },
-      },
-    },
-  };
+  if (isAtDefaultDateRange) {
+    dispatch({ payload: { filter: { date_range: { lower, upper } } }, type: UPDATE_PATROL_FILTER });
+  }
 };
 
 // REDUCER

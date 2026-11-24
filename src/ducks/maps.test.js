@@ -18,7 +18,10 @@ import {
 const server = setupServer();
 
 beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
+afterEach(() => {
+  server.resetHandlers();
+  jest.restoreAllMocks();
+});
 afterAll(() => server.close());
 
 describe('ducks - maps', () => {
@@ -52,6 +55,15 @@ describe('ducks - maps', () => {
       await store.dispatch(fetchMaps());
 
       expect(getFetchedMaps()).toEqual([reserve, park, sector2, sector10]);
+    });
+
+    test('lists a quick link whose title is not text among the others', async () => {
+      const block1 = { center: [5, 5], id: 'block-1', name: 'block-1', title: 1, zoom: 12 };
+      quickLinks = [park, block1, reserve];
+
+      await store.dispatch(fetchMaps());
+
+      expect(getFetchedMaps()).toEqual([block1, reserve, park]);
     });
 
     test('selects the default quick link when none is selected yet', async () => {
@@ -100,8 +112,6 @@ describe('ducks - maps', () => {
 
       expect(store.getActions()).toEqual([]);
       expect(warn).toHaveBeenCalledWith('error fetching the map quick links', expect.any(Error));
-
-      warn.mockRestore();
     });
   });
 

@@ -8,6 +8,9 @@ import { getQuickLinkTitle } from '../utils/quick-links';
 // Actions
 export const MAPS_API_URL = `${API_URL}quicklinks/`;
 
+// Attributes may hold a title of any type, and a collator compares it as text.
+const TITLE_COLLATOR = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+
 export const FETCH_MAPS_SUCCESS = 'MAPS.FETCH_MAPS_SUCCESS';
 export const SET_HOME_MAP = 'MAPS.SET_HOME_MAP';
 
@@ -15,8 +18,8 @@ export const SET_HOME_MAP = 'MAPS.SET_HOME_MAP';
 export const setHomeMap = (payload) => ({ payload, type: SET_HOME_MAP });
 
 // The API sets no order, so the client lists the links by the title it shows.
-const sortMapsByTitle = (maps) => [...maps].sort((map, otherMap) => getQuickLinkTitle(map)
-  .localeCompare(getQuickLinkTitle(otherMap), undefined, { numeric: true, sensitivity: 'base' }));
+const sortMapsByTitle = (maps) => [...maps]
+  .sort((map, otherMap) => TITLE_COLLATOR.compare(getQuickLinkTitle(map), getQuickLinkTitle(otherMap)));
 
 export const fetchMaps = () => async (dispatch, getState) => {
   try {
