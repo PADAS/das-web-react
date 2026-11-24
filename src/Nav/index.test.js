@@ -4,7 +4,7 @@ import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
 import { act, cleanup, render, screen, waitFor } from '../test-utils';
-import { BREAKPOINTS } from '../constants';
+import { BREAKPOINTS, MAX_ZOOM } from '../constants';
 import { clearModals } from '../ducks/modals';
 import { clearUserProfile, CURRENT_USER_API_URL, USER_API_URL, USER_PROFILES_API_URL } from '../ducks/user';
 import { createMapMock } from '../__test-helpers/mocks';
@@ -13,6 +13,7 @@ import getWindowLocation from '../utils/getWindowLocation';
 import { hideDrawer } from '../ducks/drawer';
 import { MapContext } from '../MapContext';
 import { NEWS_API_URL } from '../ducks/news';
+import { setCurrentUserLocation } from '../ducks/location';
 import store from '../store';
 import useNavigate from '../hooks/useNavigate';
 import { userList, userWithoutEula, userWithoutPin, userWithPin } from '../__test-helpers/fixtures/users';
@@ -162,6 +163,7 @@ describe('the Nav component', () => {
     afterEach(() => {
       act(() => {
         store.dispatch({ payload: [], type: FETCH_MAPS_SUCCESS });
+        store.dispatch(setCurrentUserLocation(null));
         store.dispatch(setHomeMap(null));
       });
     });
@@ -182,6 +184,18 @@ describe('the Nav component', () => {
       expect(store.getState().view.homeMap).toEqual(park);
       expect(screen.getByRole('button', { name: 'Jump to National Park' })).toBeInTheDocument();
       expect(mockTrack).toHaveBeenCalledWith('Change Home Area', 'Home Area:National Park');
+    });
+
+    test('flies to the user location picked from the menu instead of easing there', async () => {
+      act(() => {
+        store.dispatch(setCurrentUserLocation({ coords: { latitude: 20.65, longitude: -103.4 } }));
+      });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Choose a map quick link' }));
+      await userEvent.click(await screen.findByRole('menuitem', { name: 'My Current Location' }));
+
+      expect(map.flyTo).toHaveBeenCalledWith(expect.objectContaining({ center: [-103.4, 20.65], zoom: MAX_ZOOM - 2 }));
+      expect(map.easeTo).not.toHaveBeenCalled();
     });
   });
 

@@ -106,7 +106,11 @@ const Nav = () => {
   };
 
   const onCurrentLocationClick = (userLocation) => {
-    jumpToLocation([userLocation.coords.longitude, userLocation.coords.latitude], CURRENT_LOCATION_ZOOM);
+    jumpToLocation(
+      [userLocation.coords.longitude, userLocation.coords.latitude],
+      CURRENT_LOCATION_ZOOM,
+      { isFlight: true }
+    );
 
     mainToolbarTracker.track('Click \'My Current Location\'');
   };
