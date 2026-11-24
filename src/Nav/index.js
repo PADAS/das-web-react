@@ -76,9 +76,6 @@ const Nav = () => {
   const profileReadAbortControllerRef = useRef(null);
 
   const changeProfile = async (profile) => {
-    // Only the latest pick may land, however slowly an earlier one loads.
-    profileReadAbortControllerRef.current?.abort();
-
     if (profile.id === signedInUser.id) {
       dispatch(clearUserProfile());
       reloadOnceProfileIsPersisted(true);
@@ -102,6 +99,8 @@ const Nav = () => {
   };
 
   const logOut = async () => {
+    profileReadAbortControllerRef.current?.abort();
+
     try {
       await dispatch(clearAuth());
 
@@ -133,6 +132,9 @@ const Nav = () => {
   };
 
   const onProfileClick = (profile) => {
+    // Only the latest pick may land, however slowly an earlier one loads.
+    profileReadAbortControllerRef.current?.abort();
+
     if (profile.pin) {
       const pinModal = dispatch(addModal({
         content: ProfilePINModal,

@@ -199,7 +199,7 @@ describe('the Nav component', () => {
       jest.useRealTimers();
     });
 
-    test('stays as the main user when it is picked while an earlier profile pick is still loading', async () => {
+    test('cancels a loading profile pick as soon as the user picks a protected profile', async () => {
       jest.spyOn(toastUtils, 'showToast').mockImplementation(() => {});
       let isProfileReadCancelled, releaseProfileRead;
       const profileReadGate = new Promise((resolve) => {
@@ -219,14 +219,17 @@ describe('the Nav component', () => {
       await user.click(await screen.findByRole('menuitemradio', { name: userWithPin.username }));
 
       const pinInputs = await screen.findAllByRole('input');
+      releaseProfileRead();
+      await waitFor(() => expect(isProfileReadCancelled).toBe(true));
+
+      expect(store.getState().data.selectedUserProfile).toEqual({});
+
       jest.useFakeTimers();
       await user.type(pinInputs[0], userWithPin.pin[0]);
       await user.type(pinInputs[1], userWithPin.pin[1]);
       await user.type(pinInputs[2], userWithPin.pin[2]);
       await user.type(pinInputs[3], userWithPin.pin[3]);
 
-      releaseProfileRead();
-      await waitFor(() => expect(isProfileReadCancelled).toBe(true));
       await waitFor(() => expect(screen.queryByText('Enter Your PIN')).not.toBeInTheDocument());
       jest.advanceTimersByTime(500);
 
@@ -234,6 +237,33 @@ describe('the Nav component', () => {
       expect(toastUtils.showToast).not.toHaveBeenCalled();
 
       jest.useRealTimers();
+    });
+
+    test('cancels a loading profile pick when the user logs out', async () => {
+      jest.spyOn(toastUtils, 'showToast').mockImplementation(() => {});
+      let isProfileReadCancelled, releaseProfileRead;
+      const profileReadGate = new Promise((resolve) => {
+        releaseProfileRead = resolve;
+      });
+      server.use(http.get(`${USER_API_URL}/${userWithoutPin.id}`, async ({ request }) => {
+        await profileReadGate;
+        isProfileReadCancelled = request.signal.aborted;
+
+        return HttpResponse.json(generateResponse(userWithoutPin));
+      }));
+      const user = userEvent.setup({ delay: null });
+
+      await user.click(screen.getByRole('menuitemradio', { name: userWithoutPin.username }));
+      await waitFor(() => expect(screen.queryByRole('menu', { name: 'User settings' })).not.toBeInTheDocument());
+      await user.click(screen.getByRole('button', { name: /^User settings:/ }));
+      await user.click(await screen.findByRole('menuitem', { name: 'Log out' }));
+
+      releaseProfileRead();
+      await waitFor(() => expect(isProfileReadCancelled).toBe(true));
+      await waitFor(() => expect(navigate).toHaveBeenCalledWith({ pathname: '/login' }, { replace: true }));
+
+      expect(store.getState().data.selectedUserProfile).toEqual({});
+      expect(toastUtils.showToast).not.toHaveBeenCalled();
     });
 
     test('asks for the PIN of a protected profile before reloading as it', async () => {
