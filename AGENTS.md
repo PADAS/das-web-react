@@ -20,27 +20,34 @@ This is the repository's only context file, and every agent loads all of it. Kee
 ### Core Concepts
 
 - **EarthRanger:** Real-time operational platform for protected areas. It brings sensor telemetry, field reports and partner data together on one map, so teams can see what is happening and respond.
-- **DAS (Domain Awareness System):** EarthRanger's legacy name, still in the repository name and some API references.
-- **Site (tenant):** One conservation area or organization at its own domain. The client is served from that domain and talks only to its backend, so everything it shows belongs to one site.
-- **EarthRanger Mobile:** The rangers' iOS/Android app for filing events, running patrols and tracking themselves. Much of what this client shows was created there.
-- **Admin:** Site configuration lives in the server's admin pages. The client reads it and never defines it.
+- **DAS (Domain Awareness System):** EarthRanger's legacy name, kept as the name of its server and in some repository names and API references.
+- **Site (tenant):** One conservation area or organization at its own domain. Each EarthRanger web app is served from that domain and talks only to its backend, so everything it shows belongs to one site.
+- **Admin:** Site configuration lives in the server's admin pages. The client reads it, and what the Event Form Builder configures, and never defines either.
+- **EarthRanger Web Client:** This app, which this file calls the client: the control room's map app, where a site's events, patrols, subjects and spatial data come together.
+- **EarthRanger Mobile:** The rangers' iOS and Android app for filing events, running patrols and tracking themselves. Much of what the client shows was created there.
+- **Event Form Builder:** The admin section where site administrators configure event types and, on sites that enable them, patrol types and subject subtypes, with their forms; v1 event types stay in the admin's own pages. The client renders the forms built there.
+- **Alert Configuration:** The page where each user decides which events notify them, where and when, while DAS evaluates each new or changed event and sends the messages. The client frames it; see Analyzers and Alerts.
 - **Companion products:** **Ecoscope**, the advanced analytics layer, and **Gundi**, the middleware that connects external data sources to EarthRanger.
 
 ### Events
 
-**Events** record something that happened at a place and time: a snare found, a carcass, an arrest, a fence break, a geofence breach. Rangers file them from the field, sensors and integrations file them automatically, and the control room triages and resolves them here.
+**Events** record something that happened at a place and time: a snare found, a carcass, an arrest, a fence break, a geofence breach. Rangers file them from the field, sensors and integrations file them automatically, the public submits them through community input forms, and the control room triages and resolves them in the EarthRanger Web Client.
 
 An event has a serial number users quote, a **title** (shown as its event type's name when it has none), a **state**, a **priority**, a **reporter** (a user, or a subject such as a ranger's radio), a time, notes, files, and `event_details`, the values captured by its type's form.
 
-**State** is the triage lifecycle: active until someone resolves it, with `review` for community submissions awaiting moderation. The client treats `new` as active too. **Priority** is `300` high / `200` medium / `100` low / `0` none.
+**State** is the triage lifecycle: `new` until its first edit makes it `active`, then `resolved`, with `review` for community submissions awaiting moderation. **Priority** is `300` high (red) / `200` medium (amber) / `100` low (green) / `0` none (gray). The client treats `new` events as active.
 
-> The codebase historically called events "reports", and many components, props and translation namespaces still do. "Event" is the preferred term.
+**Incident Collections** are events whose type has `is_collection`, grouping related events (a snare, a carcass and an arrest) through `contains`, each child pointing back through `is_contained_in`. An event belongs to one incident at most, and incidents do not nest. A collection has no reporter, location or time of its own. Jumping to one goes to its children, and changing its state changes theirs.
 
-**Event Types** are the templates events are filed against ("Injured Animal", "Snare"). A type sets the icon, the default priority and state, the geometry (a Point type stores `location`, a Polygon type `geometry`), whether its events are readonly, and the **form schema** behind the event's form, **v1** (legacy) or **v2** (current). **Event categories** group types and are the unit of permission: users can only create events in the categories they are granted.
+**Event types** are the templates events are filed against ("Injured Animal", "Snare"). A type has a **display name** and a **value**, the stable key the API, integrations and analysis tools know it by, unique per site and lowercased. It gives its events their **category**, their **icon**, and their default **priority** and **state**, optionally **auto-resolving** them after some hours. Its **geometry**, a point its events store as `location` or a polygon area they store as `geometry`, and whether it is a **collection** are fixed once it exists. A **read-only** type's events are filed by systems and never created or edited by hand, and an inactive type is no longer offered for new events. A type's **form** is what its events capture into `event_details`.
 
-**Incident Collections** are events whose type has `is_collection`, grouping related events (a snare, a carcass and an arrest) through `contains`, each child pointing back through `is_contained_in`. An event belongs to one incident at most, and incidents do not nest. A collection has no reporter, location or time of its own: jumping to it goes to its children, and changing its state changes theirs.
+**Event categories** group types ("Security", "Monitoring") and are the unit of permission: users are granted reading, creating, updating and deleting events category by category. A category's permissions are created and deleted automatically with it, and an inactive category hides its types everywhere in EarthRanger but the Event Form Builder.
+
+**Versions.** A type's form schema is **v1**, the legacy format, deprecated with a sunset date, or **v2**, the current one, and DAS serves each version from its own endpoints. The client renders both; see Form Schemas.
 
 An event can also belong to a **patrol**, when filed during one, and be **linked** to other events.
+
+> The codebase historically called events "reports", and many components, props and translation namespaces still do. "Event" is the preferred term.
 
 **UI**
 - **Events Feed** (`/events`): the filtered, sorted feed. The filter drives the map too.
@@ -61,7 +68,7 @@ An event can also belong to a **patrol**, when filed during one, and be **linked
 
 ### Subjects, Observations, and Tracks
 
-**Subjects** are the monitored entities, located and described by the devices assigned to them: collared animals, rangers, vehicles, aircraft, and fixed sensors such as camera traps or weather stations. A `subject_subtype` (`elephant`, `ranger`, `stationary-radio`) classifies a subject and implies its broad `subject_type` (`wildlife`, `person`, `vehicle`, `stationary-object`); sites define both vocabularies. A subject carries its `last_position` and when it was reported, whether `tracks_available`, and `device_status_properties`, the device's latest labeled readings (battery, temperature, radio state), one of which may be the default.
+**Subjects** are what EarthRanger tracks on the map, such as collared animals, rangers, vehicles, aircraft, and stationary objects like camera traps or weather stations. The devices assigned to them locate and describe them. A `subject_subtype` (`elephant`, `ranger`, `stationary-radio`) classifies a subject and implies its broad `subject_type` (`wildlife`, `person`, `vehicle`, `stationary-object`); sites define both vocabularies. A subject carries its `last_position` and when it was reported, whether `tracks_available`, and `device_status_properties`, the device's latest labeled readings (battery, temperature, radio state), one of which may be the default.
 
 **Subject groups** are a nested hierarchy configured in the admin. They decide which subjects a user can see and organize the Map Layers subject list. A subject may belong to several groups.
 
@@ -103,19 +110,23 @@ While the time slider is active, each subject sits at its last track point befor
 
 ### Patrols
 
-**Patrols** are timed field activities, such as on foot, by vehicle, by air or by boat, carried out by a team. They answer who went where, when, and what they found. A patrol itself is thin: a serial number, a title (falling back to its current leg's type), a priority from its type, notes and files. Everything operational lives on its **legs**, and almost everything the UI shows about a patrol, from its state to its route, is computed here from them.
+**Patrols** are timed field activities, such as on foot, by vehicle, by air or by boat, carried out by a team. They answer who went where, when, and what they found. A patrol itself is thin: a serial number, a title (falling back to its current leg's type), a priority from its type, notes and files. Everything operational lives on its **legs**. Almost everything the client shows about a patrol, from its state to its route, is computed from them.
 
 **Legs** each hold one stretch of the patrol: a patrol type, start and end times and locations, the team and tracking, and the values of two forms, the universal fields (`segment_details`) and the type's fields (`type_details`). Creating a patrol creates its first leg; a running patrol continues with a new leg, possibly of another type, such as on foot and then by vehicle.
 
 > The API calls legs "patrol segments". UI copy says "leg"; code names often follow the API.
+
+**Patrol types** are the templates legs belong to ("Foot Patrol", "Vehicle Patrol"). A type has a **display name** and a **value**, the stable key the API, integrations and analysis tools know it by, unique per site. It gives its legs their **icon**, and new patrols their default **priority**. An inactive type is no longer offered for new patrols. A type's **form** is what its legs capture into `type_details`.
+
+Patrols have no categories: permissions are granted across every type at once.
+
+**Universal patrol fields** are one site-wide form every leg renders above its type's fields, captured into `segment_details`.
 
 **Plan and actuals.** A leg's `scheduled_start` and `scheduled_end` are the plan; its `time_range` (`start_time`, `end_time`) is what happened, and the leg form decides which one a time goes into. A future start saved without "Automatically start" is a plan, fulfilled with the Start action. With it, or with a start in the past, it is written as the actual start, and the patrol begins by itself when it arrives. Ends work the same way. Only the first leg may keep a planned start; later legs begin by themselves.
 
 **Legs run in order,** sorted by their start. When the client adds a leg, it also ends the previous one at the new leg's start, in the same update, if it has no end yet. A leg with no end is read as having ended when the next one began.
 
 **Pauses** are legs marked `is_pause`. Pausing closes the running leg and opens a copy of it as a pause at the same instant; resuming closes the pause and opens another copy. A pause tracks nobody and has no form fields. The API omits pauses from patrol reads unless asked, so every patrol request here asks for them.
-
-**Patrol Types** are the templates legs belong to ("Vehicle Patrol", "Foot Patrol"), setting the name, icon, default priority, and the **form schema** of the leg's type fields. **Universal Patrol Fields** are one site-wide schema every leg renders above its type's fields.
 
 **Team & Tracking** says who went and what reported their position, from choices in the admin's patrol configuration:
 - a **team**, only a name, with no members of its own;
@@ -232,7 +243,7 @@ They come in three levels:
 
 **Spatial analyzers** are the geofence and feature-proximity ones. The client reads the active ones once at startup and draws their features: a geofence's warning and critical lines or polygons, or a proximity analyzer's features buffered by its distance threshold.
 
-**Alerts** are personal rules for which event types, under which conditions and at which hours, notify a user by email or text message. The server sends them; the client embeds its alerts page in an iframe, in Settings → Alerts and in a global menu modal.
+**Alerts** are personal rules for which events, under which conditions and at which hours, notify a user by email, WhatsApp or SMS. DAS sends them; the client frames the Alert Configuration page in an iframe, in Settings → Alerts and in a global menu modal.
 
 **UI**
 - **Map Layers → Analyzers** (`/layers`): the spatial analyzers, to toggle and jump to.
@@ -381,10 +392,10 @@ The map fills the screen, framed by a top bar, a sidebar and a global menu. On s
 
 ### Technical Stack
 
-- **Runtime and tooling:** Node 26, Yarn 4, Vite 8, ESLint, Stylelint
+- **Runtime and tooling:** Node 26, Yarn 4 through Corepack, Vite 8, ESLint, Stylelint
 - **UI:** React 19; `react-bootstrap` (Bootstrap 5); Sass modules; EarthRanger design tokens (`@allenai/design-system`)
 - **Routing:** React Router 8 declarative mode, with `BrowserRouter`
-- **State:** Redux 5 + `redux-thunk`, `redux-promise`, `reselect`; persistence via `redux-persist`
+- **State:** Redux 5 with `redux-thunk`, `redux-promise` and `reselect`, through `react-redux`; persistence through `redux-persist`
 - **Map:** Mapbox GL
 - **HTTP and real-time:** Axios, Socket.IO
 - **Auth:** `@auth0/auth0-react`
@@ -392,39 +403,41 @@ The map fills the screen, framed by a top bar, a sidebar and a global menu. On s
 - **i18n:** `i18next`, cached in localStorage in front of the HTTP backend
 - **Testing:** Jest with `jest-fixed-jsdom`, React Testing Library, MSW, `socket.io-mock`
 - **Analytics:** `react-ga4`
-- **Delivery:** Workbox service worker
+- **Delivery:** an nginx Docker image, built and deployed by GitHub Actions; a Workbox service worker
 
-All application source is `.js`, including JSX — Vite compiles every source `.js` as JSX. Environment variables are exposed under the `REACT_APP_` prefix.
+All application source is `.js`, including JSX — Vite compiles every source `.js` as JSX. Environment variables are exposed under the `REACT_APP_` prefix and baked in at build time.
 
 ### Project Structure
 
-- `src/index.js`: bootstrap and top-level routes
+- `index.html`, `src/index.js`: the document and the bootstrap, with the top-level routes
 - `src/App.js`: the authenticated shell
 - `src/config.js`: the Auth0 config, overridden per environment at runtime
-- `src/store.js`, `src/reducers/`: store wiring, the root reducer, per-slice persistence, and the sign-out reset
-- `src/{ComponentName}/`: component folders, nested under their parent once they belong to one
+- `src/store.js`, `src/reducers/`: the store, the root reducer, per-slice persistence, and the sign-out reset
+- `src/{ComponentName}/`: the component folders, nested under their parent once they belong to one
 - `src/common/`: shared assets and global SCSS partials
-- `src/ducks/`, `src/selectors/`, `src/hooks/`, `src/utils/`: Redux logic per domain, reselect selectors, shared hooks, general utilities
+- `src/ducks/`, `src/selectors/`, `src/hooks/`, `src/utils/`: the Redux logic per domain, the reselect selectors, shared hooks and general utilities
 - `src/views/`: full-page views rendered outside the app shell
 - `src/constants/`: shared constants, route patterns, and every env variable
-- `src/setupTests.js`, `src/test-utils.jsx`, `src/i18nForTests.js`, `src/__test-helpers/`, `jest-config/`: test setup, the provider-wrapping `render`, fixtures and mocks
+- `public/locales/`: translations
+- `src/setupTests.js`, `src/test-utils.jsx`, `src/i18nForTests.js`, `src/__test-helpers/`, `jest-config/`: the test setup, the provider-wrapping `render`, fixtures and mocks
+- `vite.config.mjs`, `eslint.config.mjs`, `stylelint.config.mjs`: build and lint config
+- `Dockerfile.mt`, `mt-nginx.conf`, `.github/workflows/`: the image, its nginx config, and the pipelines that build and deploy them
 
 ### Routing
 
-The app is mounted under `REACT_APP_ROUTE_PREFIX`. `constants/routes.js` holds the top-level routes: login, EULA and community sit above the shell, and everything else falls through to the authenticated app. Inside it, `SideBar/` routes each tab by its `TAB_KEYS` segment (`events`, `patrols`, `gear`, `layers`, `atlas` for the Otus tab, `settings`), and the Events and Patrols managers nest their own routes. Elsewhere, read the tab and item from the URL with `getCurrentTabFromURL` / `getCurrentIdFromURL` in `utils/navigation.js`.
+The app is served under `REACT_APP_ROUTE_PREFIX`, `/` on a site. In the image, nginx falls back to `index.html` for the app's top-level paths, such as `/events` or `/login`, and answers an empty `config.js` when the deployment provides none. `constants/routes.js` holds the top-level routes: login, EULA and community sit above the shell, and everything else falls through to the authenticated app. Inside it, `SideBar/` routes each tab by its `TAB_KEYS` segment (`events`, `patrols`, `gear`, `layers`, `atlas` for the Otus tab, `settings`), and the Events and Patrols managers nest their own routes. Elsewhere, read the tab and item from the URL with `getCurrentTabFromURL` / `getCurrentIdFromURL` in `utils/navigation.js`.
 
 Navigate with the app's `hooks/useNavigate`, not React Router's, so a form with unsaved changes can prompt before the user leaves.
 
 ### State and Data Loading
 
-- `state.data` holds API data; `state.view` holds UI state.
-- All Redux logic for a domain lives in its duck. Derived state belongs in a reselect selector, not in a component.
-- Slices that must survive a reload are wrapped in `persistReducer` at the root; slices that must be cleared on sign-out are wrapped in `globallyResettableReducer`.
-- Reference data every screen depends on (types, schemas, categories, quick links, subject groups, analyzers, team and tracking options) is fetched once when the shell mounts. Screens read it from the store rather than fetching it again.
+`state.data` holds API data and `state.view` UI state. All Redux logic for a domain lives in its duck, and derived state belongs in a reselect selector, not in a component. Slices that must survive a reload are wrapped in `persistReducer` at the root, and slices that must be cleared on sign-out in `globallyResettableReducer`.
+
+Reference data every screen depends on (types, schemas, categories, quick links, subject groups, analyzers, team and tracking options) is fetched once when the shell mounts, and screens read it from the store rather than fetching it again. Events, patrols, subjects and messages then stay current over the socket; see Real Time.
 
 ### API Layer
 
-Ducks call Axios directly with `API_URL` / `API_V2_URL` from `src/constants/`. `RequestConfigManager` configures the shared instance: the `Bearer` token, the `USER-PROFILE` header while a profile is active, and the 401 recovery. `skipAuth` does not drop the token; it only keeps a public or best-effort request out of that recovery.
+Ducks call Axios directly with `API_URL` / `API_V2_URL` from `src/constants/`. `RequestConfigManager` configures the shared instance: the `Bearer` token, the `USER-PROFILE` header while a profile is active, and the 401 recovery. `skipAuth` does not drop the token; it only keeps a public or best-effort request out of that recovery. Responses are used as DAS sends them, in snake_case, with no mapping.
 
 ### Real Time
 
@@ -438,7 +451,7 @@ One Mapbox instance, created by `EarthRangerMap/`, is shared through `MapContext
 
 A current (v2) schema is a `{json, ui}` pair: a JSON Schema that validates the values, and a layout of fields, headers and sections. The client fetches it with `pre_render`, so the server fills in the choice lists, and turns both halves into one flat **formElements** map (`utils/form-schemas/`) that `SchemaForm` renders and validates. Legacy v1 event schemas render through `@rjsf`.
 
-### Design Tokens
+### Styling
 
 Colors are the design tokens of `@allenai/design-system`, its `er-legacy` set until the EarthRanger rebrand reaches the app, loaded once as `--er-*` custom properties: semantic `--er-ui-*` tokens and the palette primitives behind them. They resolve at runtime, so Sass color functions cannot read them: `common/styles/_colors.scss` derives shades with `color-mix()` and holds the hover and active steps and the priority and patrol themes. Mapbox cannot read them either, so map paint and drawn images take hex values from `COLOR_TOKENS` in `utils/colors.js`. Libraries with palettes of their own are themed in `common/styles/_bootstrap-theme.scss` and `_vendor-theme.scss`, and react-select through `themeReactSelect`. Colors the server sends, such as a subject's, are drawn as given. The same package supplies the EarthRanger logos and favicon, and the font, Roboto, is self-hosted through `@fontsource-variable/roboto`.
 
@@ -454,7 +467,7 @@ Every permission and user-flag check reads the **active user**, the profile whil
 
 ### Analytics
 
-Current UIs put a category-scoped tracker on `TrackerContext` at the top of a feature and call `tracker.track(...)` from descendants, so no component names its own category. Older code builds a module-level `trackEventFactory(SOME_CATEGORY)` instead. Either way, an action is a readable sentence describing what the user did, of at most 40 characters: GA4 drops longer event names. Variable data goes in the label, never in the action.
+Current UIs put a category-scoped tracker on `TrackerContext` at the top of a feature and call `tracker.track(...)` from descendants, so no component names its own category. Older code builds a module-level `trackEventFactory(SOME_CATEGORY)` instead.
 
 ## Conventions
 
@@ -477,7 +490,7 @@ Group imports into blocks separated by a blank line, in this order:
 4. Components: app components, subcomponents, and lazily imported ones.
 5. `import * as styles from './styles.module.scss';`
 
-Sort each block alphabetically by the first imported binding, not by path. Reach into a package for a single export rather than pulling its barrel: `react-bootstrap/Overlay`, `lodash/omit`.
+Sort each block alphabetically by the first imported binding, not by path. Import with relative paths only. Reach into a package for a single export rather than pulling its barrel: `react-bootstrap/Overlay`, `lodash/omit`.
 
 ### Declarations and Naming
 
@@ -489,14 +502,15 @@ Sort each block alphabetically by the first imported binding, not by path. Reach
 - Booleans start with `is`/`has`/`can`/`should`; refs end in `Ref`; setters start with `set`. Handlers and handler props are `on` plus the event they handle, while a function that performs an action keeps its verb (`closeMenu`).
 - Selectors start with `select`, and whatever takes their value drops it: `selectPatrolTypes` gives `patrolTypes`, in `useSelector` reads and `createSelector` result functions alike.
 - Avoid a variable read only once. Prefer the readable one-liner, and introduce the variable only when its name is what makes the code readable.
-- Avoid destructuring anywhere but a component signature: `leg.startTime` keeps the origin of the value visible, while `const { startTime } = leg;` and `.map(({ id }) => id)` hide it. The one exception is unpacking a constants object at module level, where the origin is already in the line: `const { ACTIVE, DONE } = PATROL_UI_STATES;`.
+- Avoid destructuring anywhere but a component signature or a hook's result (`const { t } = useTranslation(…)`): `leg.startTime` keeps the origin of the value visible, while `const { startTime } = leg;` and `.map(({ id }) => id)` hide it. A constants object unpacks at module level too, where the origin is already in the line: `const { ACTIVE, DONE } = PATROL_UI_STATES;`.
 - Reach for `?.` and `??` when a value may be absent. `||` is for a genuine falsy check, not a stand-in for them.
+- Fields sent to or read from DAS keep the names DAS defines, snake_case included, since nothing maps them; see API Layer.
 - Mapping a domain value to a result is a `SCREAMING_SNAKE_CASE` lookup object, not a chain of `if`s: `STATES_BY_PATROL_STATE`, `PRIORITY_COLOR_MAP`. Name it `X_BY_Y` when keyed by a domain value, `X_MAP` otherwise. Reducers keep their `switch`.
 - Conditions read positively. A single branch wraps its logic rather than guarding with a bare `return;`; an early return that yields a value is fine.
 
 ### Alphabetical Ordering
 
-Sort alphabetically:
+Sort alphabetically, so diffs stay small and merge conflicts stay rare:
 
 - object literal keys — action objects (`{ payload, type }`), reducer state, option objects, configuration, fixtures;
 - JSX props, `aria-*` included, with `{...otherProps}` last;
@@ -552,27 +566,34 @@ Function parameters follow the call's own logic, not the alphabet.
 - Every user-facing string, including `aria-label` and `title` text, goes through i18n and is added to **every** locale, properly translated — never copied from English.
 - Match the wording a locale already carries: one term per domain noun across a namespace, one regional variant and one level of formality per locale, and the same value for a message that already exists under another key.
 
+### Analytics
+
+- Track with the `tracker` from `TrackerContext`, called as `tracker.track(action, label)`.
+- The action is a readable sentence describing what the user did, of at most 40 characters: GA4 drops longer event names. Variable data goes in the label, never in the action.
+
 ### Comments
 
 Comment only what the code cannot say — a non-obvious *why*, a caveat, an external reference. If naming and structure can carry it, no comment is written. Anything that restates what the code does is noise, and most code needs none at all.
 
-- **One line, one reason.** Take a second line only when the first cannot carry the reason, never a third, and cut any sentence that argues the same point again. `//` only, each line at most 80 columns, however wide the code nearby.
+- **One line, one reason.** Take a second line only when the first cannot carry the reason, never a third, and cut any sentence that argues the same point again. `//` only (`{/* */}` in JSX), each line at most 80 columns, however wide the code nearby.
 - **Directly above the line it explains**, as a full sentence ending in a period. A comment above a function is for a caveat that governs the whole of it, never a summary of what it does — if a function needs that summary, its name is wrong or it is doing too much.
-- An `eslint-disable` or `stylelint-disable` line always carries the reason it is there.
-- A `TODO` is only for a blocker outside this repository, and says what it is waiting on. Otherwise, never leave working notes behind: no narrating the change (`// now using X instead of Y`, `// this fixes the bug`), no ticket numbers, no references to plans or conversations that exist only on your machine. The diff and the commit message are for that.
-- None at all in `styles.module.scss` or test files, even for the subtle case. Test intent goes in the `describe` / `test` names: rename or split instead. Why production code is surprising belongs in the production file.
+- A comment that disables a linter, such as `eslint-disable`, always carries the reason it is there.
+- A `TODO` is only for a blocker outside this repository, and says what it is waiting on. Otherwise, never leave working notes behind: no narrating the change (`// now using X instead of Y`, `// this fixes the bug`), no ticket numbers, no references to PRs, plans or conversations. The diff and the commit message are for that.
+- A file adapted from external docs links its source at the top.
+- None at all in component stylesheets or test files, even for the subtle case. Test intent goes in the names of the tests and their `describe` blocks: rename or split instead. Why production code is surprising belongs in the production file.
 
 ### Accessibility
 
 - **WCAG 2.1 AA** compliance.
 - Prefer **semantic HTML** over custom abstractions, and use **ARIA only when native semantics are insufficient**.
 - Every interactive element is reachable and operable by keyboard, with a visible focus state and correct roles, names and states.
-- A custom menu or listbox owns its keyboard model (arrows, Home/End, Escape, Tab) and returns focus to its trigger when it closes.
+- A custom widget, such as a menu, popover or listbox, owns its keyboard model (arrows, Home/End, Escape, Tab) and returns focus to its trigger when it closes.
 - Generate element ids with `useId`; mark decorative icons `aria-hidden`.
 
 ### Testing
 
-- Co-located `index.test.js` beside the module it covers. Imports follow the app's block order, with the module under test imported last in its own block as `from './'`, followed by the file's `jest.mock` calls.
+- Stack: Jest with `jest-fixed-jsdom`, React Testing Library, `user-event`, `jest-dom`, MSW.
+- A test sits beside the module it covers, named after it: `index.test.js`. Imports follow the app's block order, with the module under test imported last in its own block as `from './'`, followed by the file's `jest.mock` calls.
 - `describe('<path>')`, where the path mirrors the folder chain joined by ` - `. Top-level components use just their name. Nest a `describe` per exported function when a module exports several.
 - `test('<third person present tense>')`: "shows the…", "does not render…", "updates the lock map setting when the user interacts with its checkbox".
 - Set mutable fixtures and handler mocks in `beforeEach`. Then declare a local render helper — `renderGeneralFieldSet`, `renderStatusSelect` — that wraps the component in whatever providers it needs and accepts prop and store overrides, plus small query helpers where a query repeats.
@@ -587,11 +608,19 @@ Comment only what the code cannot say — a non-obvious *why*, a caveat, an exte
 
 ### Commands
 
-- `yarn start`: Vite dev server on port 9000, against the development backend at https://root.dev.pamdas.org. Each developer configures it in `.env.development`.
-- `yarn build`: production bundle, then the service worker
+- `yarn start`: the Vite dev server on port 9000, against the development backend at https://root.dev.pamdas.org. Each developer configures it in `.env.development`.
+- `yarn build`: the production bundle, then the service worker.
 - `yarn test <path-or-pattern>`: Jest. It pins `TZ=UTC`; a bare `jest` invocation will fail datetime tests on any other machine timezone.
 - `yarn format`: ESLint, then Stylelint, with fixes, over the whole repository.
-- `yarn check-i18n-files-version`: verifies the translation cache version was bumped
+- `yarn check-i18n-files-version`: checks that the translation cache version was bumped.
+
+### Deployment
+
+The image builds with `yarn build` and serves through nginx. GitHub Actions run the workflows in `.github/workflows/`:
+
+- **Pull requests:** the tests and the translation cache version check, then, once the PR has the `deploy` label, a preview environment at `https://<branch>.dev.pamdas.org`, removed nightly once stale.
+- **`develop`:** the `er-dev` cluster and the legacy `develop` site.
+- **`release-*` branches:** stage, then each production cluster behind its own approval, and the legacy single-tenant sites in batches.
 
 ### Scope
 
@@ -603,12 +632,12 @@ Older code that departs from these conventions is neither migrated nor copied: m
 
 Before you call the work done, reread what you wrote — every changed hunk, not from memory — and improve it. This is judgment, not a lint step. Go through these in order, and fix what you find:
 
-1. **Correctness.** What input makes this wrong? Empty collections, absent dates, a patrol with no legs, a subject with no position.
+1. **Correctness.** What input makes this wrong? Empty collections, absent dates, a patrol with no legs, a subject with no position, a failed DAS request.
 2. **Readability.** Would a reviewer understand this without asking? Better names beat more code, and more code beats a comment explaining a bad name.
 3. **Conventions.** Reread against the sections above — ordering, imports, component body order, naming. Drift here is the most common review comment.
-4. **Cost.** Work repeated per render or per item, a selector that rebuilds an array each call, a `useMemo` that guards nothing, a memo boundary that never bails, a listener never removed.
+4. **Cost.** Work repeated per render or per item, a `useMemo` that guards nothing, a memo boundary that never bails, a listener never removed, a selector that rebuilds an array each call.
 5. **Semantics and accessibility.** Native element over a div, keyboard path, focus after the interaction, roles and names a screen reader will announce.
-6. **Translations.** Every new string in every locale, genuinely translated, and matching the wording those locales already use.
+6. **Translations.** Every new string through i18n and in every locale, genuinely translated, and matching the wording those locales already use.
 7. **Comments.** Delete each one that says what the code says, and shorten every two-line comment that one line would carry. Keep only the *why*.
 8. **Tests.** Cover the behavior you changed, at the level the change lives at.
 
@@ -626,6 +655,6 @@ Run the Polish Pass over the diff, and check as well:
 
 - **Correctness.** The change does what the PR description and its ticket, if there is one, say it does, and follows the business rules in the Product section for every domain it touches. It works as the user expects, handles failed requests and invalid input, and introduces no bug or regression on the paths it touches.
 - **Code quality.** The code follows the Conventions above, and is clean, readable, simple and elegant. Dead code is removed, and touched code is brought up to standard under the boy scout rule, within the bounds set in Scope.
-- **Performance.** React does no needless work: no avoidable re-renders or effects, and every memo is justified and correct. API calls are not duplicated, over-fetched or fired where the store already holds the data. State lives at the right level — Redux, component state or context — without copies to keep in sync. Algorithms fit the data: no brute force or needless nested loops, and a lookup map or set wherever repeated searches through an array would do.
+- **Performance.** React does no needless work: no avoidable re-renders or effects, and every memo is justified and correct. Requests to DAS are not duplicated, over-fetched, made one after another where they could run in parallel, or made for data the app already holds. State lives at the right level, such as the URL, a store, a component or a context, without copies to keep in sync. Algorithms fit the data: no brute force or needless nested loops, and a lookup map or set wherever repeated searches through an array would do.
 - **Accessibility.** The UI meets WCAG 2.1 AA. The HTML is valid and semantic, native elements come before ARIA, and ARIA, where needed, is correct and minimal. Every interactive element can be reached and operated by keyboard, with focus managed on purpose.
 - **Tests.** Every change is fully covered. Each test asserts behavior and is named for its scenario and expectation, and a regression test fails without the fix.
