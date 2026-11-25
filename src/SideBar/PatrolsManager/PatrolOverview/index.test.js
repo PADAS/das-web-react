@@ -19,7 +19,7 @@ import * as trackUtils from '../../../utils/tracks';
 import { TRACK_LENGTH_ORIGINS } from '../../../ducks/tracks';
 import useNavigate from '../../../hooks/useNavigate';
 
-import PatrolOverview from './';
+import PatrolOverview, { TRACKED_ACTION_BY_TRANSITION } from './';
 
 const LocationDisplay = () => <div data-testid="test-location">{useLocation().pathname}</div>;
 
@@ -1144,6 +1144,24 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       patrol_segments: [{ ...patrol.patrol_segments.at(-1), ...segment }],
     });
 
+    const pausedPatrol = {
+      ...patrolWithLeader,
+      patrol_segments: [
+        {
+          ...patrolWithLeader.patrol_segments.at(-1),
+          time_range: { end_time: '2021-11-01T12:50:00.724000-07:00', start_time: '2021-11-01T11:50:00.724000-07:00' },
+        },
+        {
+          ...patrolWithLeader.patrol_segments.at(-1),
+          id: '1b3f1d66-5a26-4a12-9f5e-0a43c0f55a8e',
+          is_pause: true,
+          time_range: { end_time: null, start_time: '2021-11-01T12:50:00.724000-07:00' },
+        },
+      ],
+    };
+
+    const trackedActions = () => ReactGA4.event.mock.calls.map(([event]) => event.action);
+
     test('follows the patrol state while the user has not picked one', async () => {
       const { rerender } = await renderPatrolInStore(patrolWithLeader);
 
@@ -1327,7 +1345,71 @@ describe('SideBar - PatrolsManager - PatrolOverview', () => {
       expect(patrolSegments.at(-2).time_range.end_time).toBe(patrolSegments.at(-1).time_range.start_time);
     });
 
-    test('prompts before navigating away with a picked status', async () => {
+    test('tracks the move the saved status makes', async () => {
+      await renderPatrolInStore(patrolWithLeader);
+
+      await selectStatus('End');
+      await savedPayload();
+
+      await waitFor(() => expect(ReactGA4.event).toHaveBeenCalledWith({
+        action: 'End a patrol from patrol overview',
+        category: PATROL_OVERVIEW_CATEGORY,
+        label: null,
+      }));
+    });
+
+    test('tracks resuming a paused patrol apart from the moves that also land it active', async () => {
+      await renderPatrolInStore(pausedPatrol);
+
+      await selectStatus('Resume');
+      await savedPayload();
+
+      await waitFor(() => expect(ReactGA4.event).toHaveBeenCalledWith({
+        action: 'Resume a patrol from patrol overview',
+        category: PATROL_OVERVIEW_CATEGORY,
+        label: null,
+      }));
+    });
+
+    test('tracks no move while the picked status is still unsaved', async () => {
+      await renderPatrolInStore(patrolWithLeader);
+
+      await selectStatus('End');
+
+      expect(trackedActions()).not.toContain('End a patrol from patrol overview');
+    });
+
+    test('tracks no move when the status the patrol is already in is picked back and saved', async () => {
+      await renderPatrolInStore(patrolWithLeader);
+
+      await selectStatus('End');
+      await selectStatus('Active');
+      await userEvent.type(screen.getByTestId('patrolOverview-title'), ' edited');
+      await savedPayload();
+
+      expect(trackedActions().filter((action) => action.endsWith('from patrol overview')))
+        .not.toContain('End a patrol from patrol overview');
+    });
+
+    test('tracks no move when the patrol update fails', async () => {
+      updatePatrol.mockImplementation(() => () => Promise.reject(new Error('Update error')));
+      jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+      await renderPatrolInStore(patrolWithLeader);
+
+      await selectStatus('End');
+      await savedPayload();
+
+      await waitFor(() => expect(toast.error).toHaveBeenCalled());
+      expect(trackedActions()).not.toContain('End a patrol from patrol overview');
+    });
+
+    test('names every move it tracks within the length GA4 keeps an event name at', () => {
+      Object.values(TRACKED_ACTION_BY_TRANSITION)
+        .forEach((action) => expect(action.length).toBeLessThanOrEqual(GA4_MAX_ACTION_LENGTH));
+    });
+
+    test('prompts before navigating away with a picked status', async () =>{
       store.data.patrolStore[patrolWithLeader.id] = patrolWithLeader;
 
       await renderPatrolOverview(patrolWithLeader.id, { withNavigateAwayButton: true });

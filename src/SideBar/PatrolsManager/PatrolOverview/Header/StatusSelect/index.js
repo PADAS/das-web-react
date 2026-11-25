@@ -1,9 +1,8 @@
-import { memo, useContext } from 'react';
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import getPatrolStatusOptions from '../../../utils/getPatrolStatusOptions';
 import getPatrolStatusTransition from '../../../utils/getPatrolStatusTransition';
-import { TrackerContext } from '../../../../../utils/analytics';
 import useMenuToggle from '../../../../../hooks/useMenuToggle';
 import { usePatrolsPermissions } from '../../../../../hooks/usePermissions';
 
@@ -20,15 +19,7 @@ const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
   const menuToggle = useMenuToggle();
   const { hasPatrolsUpdatePermission } = usePatrolsPermissions();
 
-  const tracker = useContext(TrackerContext);
-
   const options = getPatrolStatusOptions(patrol, patrolState);
-
-  const onOptionClick = (option) => {
-    onSelect(option);
-
-    tracker.track('Select a status from patrol overview', option.key);
-  };
 
   if (!hasPatrolsUpdatePermission || options.length < 2) {
     return <StatusPill isDirty={isDirty} state={state} />;
@@ -63,7 +54,7 @@ const StatusSelect = ({ isDirty, onSelect, patrol, patrolState, state }) => {
         return <Menu.Option
           aria-current={option === state || undefined}
           key={option.key}
-          onClick={() => onOptionClick(option)}
+          onClick={() => onSelect(option)}
         >
           {transition ? tStatusTransitions(transition) : tStatusPill(`uiStateTitles.${option.key}`)}
         </Menu.Option>;

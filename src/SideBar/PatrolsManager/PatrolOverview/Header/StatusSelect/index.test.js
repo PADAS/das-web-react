@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { mockStore } from '../../../../../__test-helpers/MockStore';
 import { PATROL_UI_STATES, PERMISSION_KEYS, PERMISSIONS } from '../../../../../constants';
 import { render, screen } from '../../../../../test-utils';
-import { TrackerContext } from '../../../../../utils/analytics';
 
 import StatusSelect from './';
 
@@ -39,25 +38,21 @@ const storeWithPermissions = (patrolsPermissions) => ({
 
 describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', () => {
   let onSelect;
-  let track;
 
   beforeEach(() => {
     onSelect = jest.fn();
-    track = jest.fn();
   });
 
   const renderStatusSelect = ({ store = storeWithPermissions([PERMISSIONS.UPDATE]), ...props } = {}) => render(
     <Provider store={mockStore(store)}>
-      <TrackerContext.Provider value={{ track }}>
-        <StatusSelect
-          isDirty={false}
-          onSelect={onSelect}
-          patrol={activePatrol}
-          patrolState={ACTIVE}
-          state={ACTIVE}
-          {...props}
-        />
-      </TrackerContext.Provider>
+      <StatusSelect
+        isDirty={false}
+        onSelect={onSelect}
+        patrol={activePatrol}
+        patrolState={ACTIVE}
+        state={ACTIVE}
+        {...props}
+      />
     </Provider>
   );
 
@@ -237,9 +232,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
   test('hides the menu and carries focus on to the next element when Tab is pressed', async () => {
     render(
       <Provider store={mockStore(storeWithPermissions([PERMISSIONS.UPDATE]))}>
-        <TrackerContext.Provider value={{ track }}>
-          <StatusSelect isDirty={false} onSelect={onSelect} patrol={activePatrol} patrolState={ACTIVE} state={ACTIVE} />
-        </TrackerContext.Provider>
+        <StatusSelect isDirty={false} onSelect={onSelect} patrol={activePatrol} patrolState={ACTIVE} state={ACTIVE} />
 
         <button type="button">Next</button>
       </Provider>
@@ -293,15 +286,6 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Active' }));
 
     expect(onSelect).toHaveBeenCalledWith(ACTIVE);
-  });
-
-  test('tracks the picked status', async () => {
-    renderStatusSelect();
-
-    await openMenu();
-    await userEvent.click(await screen.findByRole('menuitem', { name: 'End' }));
-
-    expect(track).toHaveTrackedAction('Select a status from patrol overview', 'done');
   });
 
   test('italicizes the status while it is unsaved', () => {
