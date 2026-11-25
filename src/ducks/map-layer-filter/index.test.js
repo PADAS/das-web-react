@@ -3,18 +3,22 @@ import mapLayerFilterReducer, {
   hideAnalyzers,
   hideFeatures,
   hideSubjects,
+  hideSubjectsFromAtlas,
   INITIAL_FILTER_STATE,
+  mapLayerFilterPersistenceConfig,
   SET_GROUPED,
   SET_SORT_BY,
   SET_SORT_DIRECTION,
   SET_TEXT,
   setMapLayersFilterText,
+  setMapLayersFilterTextFromAtlas,
   setMapLayersGrouped,
   setMapLayersSortBy,
   setMapLayersSortDirection,
   showAnalyzers,
   showFeatures,
   showSubjects,
+  showSubjectsFromAtlas,
 } from '.';
 import { MAP_LAYER_SORT_VALUES, SORT_DIRECTION } from '../../constants';
 
@@ -132,6 +136,79 @@ describe('mapLayerFilterReducer', () => {
       const expectedState = { ...INITIAL_FILTER_STATE, text: 'search' };
 
       expect(mapLayerFilterReducer(INITIAL_FILTER_STATE, action)).toEqual(expectedState);
+    });
+  });
+
+  describe('when Atlas changes the filter', () => {
+    const calcStoredValue = (state, key) => mapLayerFilterPersistenceConfig.transforms
+      .reduce((value, transform) => transform.in(value, key, state), state[key]);
+
+    const reduce = (state, ...actions) => actions.reduce(mapLayerFilterReducer, state);
+
+    test('applies the subjects Atlas hides and shows', () => {
+      const state = reduce(
+        { ...INITIAL_FILTER_STATE, hiddenSubjectIDs: ['kito'] },
+        hideSubjectsFromAtlas('zawadi'),
+        showSubjectsFromAtlas('kito')
+      );
+
+      expect(state.hiddenSubjectIDs).toEqual(['zawadi']);
+    });
+
+    test('stores the hidden subjects as they were before Atlas changed them', () => {
+      const state = reduce(
+        { ...INITIAL_FILTER_STATE, hiddenSubjectIDs: ['kito', 'tumaini'] },
+        hideSubjectsFromAtlas('zawadi', 'kito'),
+        showSubjectsFromAtlas('tumaini'),
+        hideSubjectsFromAtlas('tumaini')
+      );
+
+      expect(calcStoredValue(state, 'hiddenSubjectIDs').sort()).toEqual(['kito', 'tumaini']);
+    });
+
+    test('stores a subject the user changes after Atlas as the user left it', () => {
+      const state = reduce(
+        INITIAL_FILTER_STATE,
+        hideSubjectsFromAtlas('zawadi', 'kito'),
+        showSubjects('zawadi'),
+        hideSubjects('zawadi')
+      );
+
+      expect(calcStoredValue(state, 'hiddenSubjectIDs')).toEqual(['zawadi']);
+    });
+
+    test('stores the search text as it was before Atlas changed it', () => {
+      const state = reduce(
+        { ...INITIAL_FILTER_STATE, text: 'boma' },
+        setMapLayersFilterTextFromAtlas('Kito'),
+        setMapLayersFilterTextFromAtlas('fence')
+      );
+
+      expect(state.text).toBe('fence');
+      expect(calcStoredValue(state, 'text')).toBe('boma');
+    });
+
+    test('stores the search text the user types after Atlas', () => {
+      const state = reduce(
+        { ...INITIAL_FILTER_STATE, text: 'boma' },
+        setMapLayersFilterTextFromAtlas('Kito'),
+        setMapLayersFilterText('fence')
+      );
+
+      expect(calcStoredValue(state, 'text')).toBe('fence');
+    });
+
+    test('does not store the record of what Atlas replaced', () => {
+      const state = reduce(
+        INITIAL_FILTER_STATE,
+        hideSubjectsFromAtlas('zawadi'),
+        setMapLayersFilterTextFromAtlas('Kito')
+      );
+      const changedKeys = Object.keys(state).filter((key) => state[key] !== INITIAL_FILTER_STATE[key]);
+
+      expect(mapLayerFilterPersistenceConfig.blacklist).toEqual(
+        expect.arrayContaining(changedKeys.filter((key) => !['hiddenSubjectIDs', 'text'].includes(key)))
+      );
     });
   });
 });

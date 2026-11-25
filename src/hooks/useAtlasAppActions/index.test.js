@@ -3,7 +3,10 @@ import { applyMiddleware, combineReducers, legacy_createStore as createStore } f
 import { thunk } from 'redux-thunk';
 
 import eventFilterReducer, { INITIAL_FILTER_STATE as INITIAL_EVENT_FILTER_STATE } from '../../ducks/event-filter';
-import mapLayerFilterReducer from '../../ducks/map-layer-filter';
+import mapLayerFilterReducer, {
+  setMapLayersFilterTextFromAtlas,
+  showSubjectsFromAtlas,
+} from '../../ducks/map-layer-filter';
 import patrolFilterReducer, { INITIAL_FILTER_STATE as INITIAL_PATROL_FILTER_STATE } from '../../ducks/patrol-filter';
 import popupReducer from '../../ducks/popup';
 import timeSliderReducer, { clearVirtualDate, setVirtualDate } from '../../ducks/timeslider';
@@ -16,7 +19,13 @@ import {
   subjectTrackReducer,
 } from '../../ducks/map-ui';
 import { fetchEvent } from '../../ducks/events';
-import { fetchPatrol, patrolStoreReducer, patrolTracksReducer, UPDATE_PATROL_SUCCESS } from '../../ducks/patrols';
+import {
+  fetchPatrol,
+  patrolStoreReducer,
+  patrolTracksReducer,
+  UPDATE_PATROL_SUCCESS,
+  UPDATE_PATROL_TRACK_STATE,
+} from '../../ducks/patrols';
 import { fetchTracksIfNecessary } from '../../utils/tracks';
 import { getBoundsForPatrol, patrolStateAllowsTrackDisplay } from '../../utils/patrols';
 import { mapFeatureHighlightIdReducer } from '../../ducks/mapFeatureHighlight';
@@ -520,13 +529,15 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       expect(store.getState().view.bounceEventIDs).toBe('');
     });
 
-    test('still flies to the event when the open record has unsaved edits', async () => {
-      const { latest, run } = setUp(undefined, { isNavigationBlocked: true });
+    test('stops without flying or bouncing when the open record has unsaved edits', async () => {
+      const { latest, run, store } = setUp(undefined, { isNavigationBlocked: true });
 
       await run({ action: 'open-event', id: EVENT_ID });
 
       expect(latest.navigate).not.toHaveBeenCalled();
-      expect(latest.jumpToLocation).toHaveBeenCalledWith([36.8, -1.3]);
+      expect(fetchEvent).not.toHaveBeenCalled();
+      expect(latest.jumpToLocation).not.toHaveBeenCalled();
+      expect(store.getState().view.bounceEventIDs).toBe('');
     });
 
     test('warns when the event cannot be loaded', async () => {
@@ -570,6 +581,42 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       expect(store.getState().view.patrolTrackState.pinned).toEqual([PATROL_ID]);
       expect(latest.navigate).toHaveBeenCalledWith(`/patrols/${PATROL_ID}`, undefined, undefined);
       expect(latest.jumpToLocation).toHaveBeenCalledWith([[1, 2], [3, 4]], undefined, { maxZoom: 17 });
+    });
+
+    test('pins its track only after the navigation, and moves the camera after both', async () => {
+      const calls = [];
+      const cameraHistory = {
+        begin: jest.fn(() => 'session'),
+        move: jest.fn(async (session, performMove) => {
+          calls.push(['move', session]);
+          performMove();
+        }),
+      };
+      const { latest, run, store } = setUp(undefined, { cameraHistory });
+      latest.navigate.mockImplementation((path) => {
+        calls.push(['navigate', path, store.getState().view.patrolTrackState.pinned]);
+        latest.location = { pathname: path, search: '' };
+      });
+
+      await run({ action: 'open-patrol', id: PATROL_ID });
+
+      expect(calls).toEqual([['navigate', `/patrols/${PATROL_ID}`, []], ['move', 'session']]);
+      expect(store.getState().view.patrolTrackState.pinned).toEqual([PATROL_ID]);
+      expect(latest.jumpToLocation).toHaveBeenCalledWith([[1, 2], [3, 4]], undefined, { maxZoom: 17 });
+    });
+
+    test('stops without pinning or moving the camera when the open record has unsaved edits', async () => {
+      const cameraHistory = { begin: jest.fn(() => 'session'), move: jest.fn() };
+      const { latest, run, store } = setUp(undefined, { cameraHistory, isNavigationBlocked: true });
+      const dispatchSpy = jest.spyOn(store, 'dispatch');
+
+      await run({ action: 'open-patrol', id: PATROL_ID });
+
+      expect(latest.navigate).not.toHaveBeenCalled();
+      expect(dispatchSpy).not.toHaveBeenCalledWith(expect.objectContaining({ type: UPDATE_PATROL_TRACK_STATE }));
+      expect(store.getState().view.patrolTrackState.pinned).toEqual([]);
+      expect(latest.jumpToLocation).not.toHaveBeenCalled();
+      expect(cameraHistory.move).not.toHaveBeenCalled();
     });
 
     test('warns when the patrol has nothing to fit to', async () => {
@@ -616,6 +663,14 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       });
       expect(calcFramedCentre(latest.map.easeTo.mock.calls[0][0].padding)).toEqual([958, 600]);
       expect(store.getState().view.subjectTrackState.pinned).toEqual([]);
+    });
+
+    test('shows the subject as from Atlas, so it is kept out of storage', async () => {
+      const { actions, run } = setUp({ data: { subjectStore: { [SUBJECT_ID]: subject } } });
+
+      await run({ action: 'subject-popup', id: SUBJECT_ID });
+
+      expect(actions).toContainEqual(showSubjectsFromAtlas(SUBJECT_ID));
     });
 
     test('frames the subject beside the nav rail alone when the sidebar is closed', async () => {
@@ -720,6 +775,16 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       expect(store.getState().view.subjectTrackState.pinned.sort()).toEqual([SUBJECT_ID, OTHER_SUBJECT_ID].sort());
       expect(latest.jumpToLocation).toHaveBeenCalledWith([[2, 2], [1, 1], [3, 3]]);
       expect(latest.map.easeTo).not.toHaveBeenCalled();
+    });
+
+    test('shows the subjects as from Atlas, so they are kept out of storage', async () => {
+      const now = Date.now();
+      const { actions, run, store } = setUp();
+      cleanups.push(simulateTrackLoading(store, { [SUBJECT_ID]: makeTrack([[[2, 2], now - HOUR_MS]]) }));
+
+      await run({ action: 'subject-track', ids: [SUBJECT_ID] });
+
+      expect(actions).toContainEqual(showSubjectsFromAtlas(SUBJECT_ID));
     });
 
     test('frames a single subject at its latest position, zoomed out past its track', async () => {
@@ -899,6 +964,21 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       expect(store.getState().data.mapLayerFilter.hiddenSubjectIDs.sort())
         .toEqual([OTHER_SUBJECT_ID, THIRD_SUBJECT_ID].sort());
     });
+
+    test.each([
+      { hide: [SUBJECT_ID] },
+      { show: [SUBJECT_ID] },
+      { only: [SUBJECT_ID] },
+    ])('marks the change from %o as from Atlas, so it is kept out of storage', async (params) => {
+      const { actions, run } = setUp({ data: { subjectGroups } });
+
+      await run({ action: 'subjects-visibility', ...params });
+
+      const visibilityActions = actions.filter((action) => ['HIDE_SUBJECTS', 'SHOW_SUBJECTS'].includes(action.type));
+      expect(visibilityActions.length).toBeGreaterThan(0);
+      expect(visibilityActions)
+        .toEqual(visibilityActions.map(() => expect.objectContaining({ meta: { isFromAtlas: true } })));
+    });
   });
 
   describe('show-feature', () => {
@@ -1007,6 +1087,14 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
 
       expect(store.getState().data.mapLayerFilter.text).toBe('Kito');
       expect(latest.navigate).not.toHaveBeenCalled();
+    });
+
+    test('marks the search text as from Atlas, so it is kept out of storage', async () => {
+      const { actions, run } = setUp();
+
+      await run({ action: 'layers-search', text: 'Kito' });
+
+      expect(actions).toContainEqual(setMapLayersFilterTextFromAtlas('Kito'));
     });
 
     test('opens Map Layers on the tab asked for', async () => {

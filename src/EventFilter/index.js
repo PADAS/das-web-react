@@ -44,14 +44,6 @@ const EventFilter = ({ children, className = '', isSortable = false, summaryActi
   const [filtersAnchor, setFiltersAnchor] = useState(null);
   const [openPopover, setOpenPopover] = useState(null);
 
-  // The box keeps its own copy of the text. A text set from outside it (an
-  // Atlas action, a restore) replaces that copy; its own debounced echo does not.
-  if (eventFilter.filter.text !== lastSeenText) {
-    setLastSeenText(eventFilter.filter.text);
-
-    if (eventFilter.filter.text !== lastDispatchedText) setFilterText(eventFilter.filter.text);
-  }
-
   const isDatesModified = !isEqual(INITIAL_FILTER_STATE.filter.date_range, eventFilter.filter.date_range);
   const isFiltersModified = !isEqual(INITIAL_FILTER_STATE.state, eventFilter.state)
     || !isEqual(INITIAL_FILTER_STATE.filter.event_type, eventFilter.filter.event_type)
@@ -80,6 +72,18 @@ const EventFilter = ({ children, className = '', isSortable = false, summaryActi
     ),
     [dispatch, tracker]
   );
+
+  // The box keeps its own copy of the text. A text set from outside it (an
+  // Atlas action, a restore) replaces that copy; its own debounced echo does not.
+  if (eventFilter.filter.text !== lastSeenText) {
+    setLastSeenText(eventFilter.filter.text);
+
+    if (eventFilter.filter.text !== lastDispatchedText) {
+      updateTextFilterDebounced.cancel();
+      setFilterText(eventFilter.filter.text);
+      setLastDispatchedText(null);
+    }
+  }
 
   const hideDatesPopover = useCallback(() => setOpenPopover(hidePopoverIfOpen(POPOVER_KEYS.DATES)), []);
   const hideFiltersPopover = useCallback(() => setOpenPopover(hidePopoverIfOpen(POPOVER_KEYS.FILTERS)), []);

@@ -28,7 +28,13 @@ import {
 import { getBoundsForPatrol, patrolStateAllowsTrackDisplay } from '../../utils/patrols';
 import { getPreviewFeatureValue } from '../../utils/feature-flags';
 import { getUniqueSubjectGroupSubjectIDs } from '../../utils/subjects';
-import { hideSubjects, setMapLayersFilterText, showAnalyzers, showFeatures, showSubjects } from '../../ducks/map-layer-filter';
+import {
+  hideSubjectsFromAtlas,
+  setMapLayersFilterTextFromAtlas,
+  showAnalyzers,
+  showFeatures,
+  showSubjectsFromAtlas,
+} from '../../ducks/map-layer-filter';
 import {
   openMapFeatureType,
   pinSubjectTracks,
@@ -231,7 +237,7 @@ const createActionRunner = ({ getLatest, store }) => {
       return null;
     }
 
-    dispatch(showSubjects(id));
+    dispatch(showSubjectsFromAtlas(id));
     const cameraSession = fly ? cameraHistory().begin() : null;
     const moved = fly ? cameraHistory().move(cameraSession, () => frameSubject(feature.geometry.coordinates)) : null;
     dispatch(showPopup('subject', {
@@ -330,7 +336,8 @@ const createActionRunner = ({ getLatest, store }) => {
 
       // The camera entry is written before leaving, and the move joins the new route's entry.
       const cameraSession = cameraHistory().begin();
-      await navigateTo(action, `/${TAB_KEYS.EVENTS}/${id}`);
+      const isEventOpened = await navigateTo(action, `/${TAB_KEYS.EVENTS}/${id}`);
+      if (!isEventOpened) return;
 
       let event = getState().data.eventStore[id];
       if (!event?.geojson && !event?.contains) {
@@ -367,11 +374,12 @@ const createActionRunner = ({ getLatest, store }) => {
         return skip(action, `patrol ${id} could not be loaded (${error?.response?.status ?? error?.message})`);
       }
 
+      const cameraSession = cameraHistory().begin();
+      const isPatrolOpened = await navigateTo(action, `/${TAB_KEYS.PATROLS}/${id}`);
+      if (!isPatrolOpened) return;
+
       const { pinned, visible } = getState().view.patrolTrackState;
       dispatch(updatePatrolTrackState({ pinned: uniq([id, ...pinned]), visible: visible.filter((item) => item !== id) }));
-
-      const cameraSession = cameraHistory().begin();
-      await navigateTo(action, `/${TAB_KEYS.PATROLS}/${id}`);
 
       const patrol = getState().data.patrolStore[id];
       if (patrolStateAllowsTrackDisplay(patrol)) {
@@ -411,7 +419,7 @@ const createActionRunner = ({ getLatest, store }) => {
 
       const previousTracks = getState().data.tracks;
       const isWindowChanged = await applyTrackWindow({ since, until });
-      dispatch(showSubjects(...ids));
+      dispatch(showSubjectsFromAtlas(...ids));
       dispatch(pinSubjectTracks(...ids));
 
       await waitForTracks(ids, { previousTracks: isWindowChanged ? previousTracks : null });
@@ -478,15 +486,15 @@ const createActionRunner = ({ getLatest, store }) => {
       if (!isEnabled(getState(), SYSTEM_CONFIG_FLAGS.SUBJECTS)) return skip(action, 'subjects are disabled');
 
       if (hide) {
-        dispatch(hideSubjects(...hide));
+        dispatch(hideSubjectsFromAtlas(...hide));
       } else if (show) {
-        dispatch(showSubjects(...show));
+        dispatch(showSubjectsFromAtlas(...show));
       } else {
         const allSubjectIds = getUniqueSubjectGroupSubjectIDs(...selectHydratedSubjectGroupsWithLastPositionTime(getState()));
         const idsToHide = allSubjectIds.filter((id) => !only.includes(id));
 
-        dispatch(showSubjects(...only));
-        if (idsToHide.length) dispatch(hideSubjects(...idsToHide));
+        dispatch(showSubjectsFromAtlas(...only));
+        if (idsToHide.length) dispatch(hideSubjectsFromAtlas(...idsToHide));
       }
     },
 
@@ -535,7 +543,7 @@ const createActionRunner = ({ getLatest, store }) => {
         || isEnabled(state, SYSTEM_CONFIG_FLAGS.EVENTS);
       if (!isLayersTabShown) return skip(action, 'the Map Layers tab is disabled');
 
-      dispatch(setMapLayersFilterText(text));
+      dispatch(setMapLayersFilterTextFromAtlas(text));
 
       if (tab) {
         if (!isEnabled(state, LAYERS_TAB_FLAGS[tab])) return skip(action, `the ${tab} tab is disabled`);

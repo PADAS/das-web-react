@@ -2,6 +2,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import {
+  CLIENT_BUILD_VERSION,
   DAS_HOST,
   MIN_VISIBLE_MAP_WIDTH_PIXELS,
   SIDEBAR_WIDTH_PIXELS,
@@ -18,7 +19,7 @@ import useJumpToLocation from '../../hooks/useJumpToLocation';
 import { useMatchMedia } from '../../hooks';
 import useNavigate from '../../hooks/useNavigate';
 
-import OtusTab, { OTUS_READY_TIMEOUT_MS } from './';
+import OtusTab, { ATLAS_REPLY_GAP_MS, ATLAS_STEP_TIMEOUT_MS, OTUS_READY_TIMEOUT_MS } from './';
 
 jest.mock('../../ducks/atlas-token', () => ({
   ...jest.requireActual('../../ducks/atlas-token'),
@@ -141,7 +142,13 @@ describe('SideBar - OtusTab', () => {
   const dispatchThreadsMessage = (data, overrides = {}) => dispatchFrameMessage({ type: 'otus:threads', ...data }, overrides);
 
   const connectMessage = (atlasToken = ATLAS_TOKEN) => [
-    { expires_at: atlasToken.expiresAt, site_url: DAS_HOST, token: atlasToken.token, type: 'otus:connect' },
+    {
+      client_version: CLIENT_BUILD_VERSION,
+      expires_at: atlasToken.expiresAt,
+      site_url: DAS_HOST,
+      token: atlasToken.token,
+      type: 'otus:connect',
+    },
     OTUS_URL,
   ];
 
@@ -856,6 +863,60 @@ describe('SideBar - OtusTab', () => {
       await flushActionQueue();
 
       expect(jumpToLocation).toHaveBeenCalledWith([36.8, -1.3], undefined);
+    });
+
+    describe('when a step does not finish', () => {
+      beforeEach(() => {
+        jest.useFakeTimers();
+        runAtlasAppAction.mockImplementationOnce(() => new Promise(() => {}));
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      const advanceTimersBy = (milliseconds) => act(() => jest.advanceTimersByTimeAsync(milliseconds));
+
+      test('applies the next step once the stuck one runs out of time', async () => {
+        renderOtusTab();
+
+        dispatchAppMessage({ action: 'report-heatmap', on: true });
+        dispatchAppMessage({ action: 'report-heatmap', on: false });
+        await advanceTimersBy(ATLAS_STEP_TIMEOUT_MS - 1);
+
+        expect(runAtlasAppAction).toHaveBeenCalledTimes(1);
+
+        await advanceTimersBy(1);
+
+        expect(runAtlasAppAction).toHaveBeenCalledTimes(2);
+        expect(runAtlasAppAction).toHaveBeenLastCalledWith({ action: 'report-heatmap', on: false });
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining('report-heatmap'));
+      });
+
+      test('drops the waiting steps of an earlier reply once a new reply arrives', async () => {
+        renderOtusTab();
+
+        dispatchAppMessage({ action: 'report-heatmap', on: true });
+        dispatchFrameMessage({ action: 'jump-to', coordinates: [36.8, -1.3], type: 'otus:map' });
+        await advanceTimersBy(ATLAS_REPLY_GAP_MS + 1);
+        dispatchAppMessage({ action: 'subject-popup', id: SUBJECT_ID });
+        await advanceTimersBy(ATLAS_STEP_TIMEOUT_MS);
+
+        expect(jumpToLocation).not.toHaveBeenCalled();
+        expect(runAtlasAppAction).toHaveBeenCalledTimes(2);
+        expect(runAtlasAppAction).toHaveBeenLastCalledWith({ action: 'subject-popup', id: SUBJECT_ID });
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining('jump-to'));
+      });
+
+      test('keeps the waiting steps of the same reply', async () => {
+        renderOtusTab();
+
+        dispatchAppMessage({ action: 'report-heatmap', on: true });
+        dispatchFrameMessage({ action: 'jump-to', coordinates: [36.8, -1.3], type: 'otus:map' });
+        await advanceTimersBy(ATLAS_STEP_TIMEOUT_MS);
+
+        expect(jumpToLocation).toHaveBeenCalledWith([36.8, -1.3], undefined);
+      });
     });
   });
 

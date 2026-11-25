@@ -9,7 +9,14 @@ import {
   parseAtlasMapMessage,
 } from '../../utils/atlas-map-messages';
 import { ATLAS_TOKEN_SESSION_EXPIRING_ERROR_CODE, fetchAtlasToken } from '../../ducks/atlas-token';
-import { BREAKPOINTS, DAS_HOST, SIDEBAR_WIDTH_PIXELS, TAB_KEYS, VERTICAL_NAV_RAIL_WIDTH_PIXELS } from '../../constants';
+import {
+  BREAKPOINTS,
+  CLIENT_BUILD_VERSION,
+  DAS_HOST,
+  SIDEBAR_WIDTH_PIXELS,
+  TAB_KEYS,
+  VERTICAL_NAV_RAIL_WIDTH_PIXELS,
+} from '../../constants';
 import { calcMaxOtusTabWidth, clampOtusTabWidth } from '../../utils/otus';
 import { clearAuth } from '../../ducks/auth';
 import { parseAtlasAppMessage } from '../../utils/atlas-app-messages';
@@ -28,6 +35,11 @@ import Header from './Header';
 import * as styles from './styles.module.scss';
 
 const KEYBOARD_RESIZE_STEP_PIXELS = 16;
+
+// A reply's steps arrive together, so one after this gap starts a new reply.
+export const ATLAS_REPLY_GAP_MS = 2000;
+// Longer than the slowest step's own waits, about 10 seconds in all.
+export const ATLAS_STEP_TIMEOUT_MS = 15_000;
 
 export const OTUS_COMMANDS = { NEW_THREAD: 'new-thread', TOGGLE_THREADS: 'toggle-threads' };
 export const OTUS_MESSAGE_TYPES = {
@@ -66,6 +78,8 @@ const OtusTab = ({ isActive, url }) => {
   // and data, so later steps wait for the ones before them.
   const pendingActionCountRef = useRef(0);
   const actionQueueRef = useRef(Promise.resolve());
+  const lastActionReceivedAtRef = useRef(-Infinity);
+  const replyCountRef = useRef(0);
 
   const panelId = useId();
   const titleId = useId();
@@ -158,14 +172,39 @@ const OtusTab = ({ isActive, url }) => {
 
   const onToggleRecent = useCallback(() => postCommand(OTUS_COMMANDS.TOGGLE_THREADS), [postCommand]);
 
-  // An action starts at once when none is running, and otherwise after the last.
-  const enqueueAction = (runAction) => {
+  // An action starts at once when none is running, and otherwise after the
+  // last, unless a newer reply arrived meanwhile.
+  const enqueueAction = (actionName, runAction) => {
+    const receivedAt = Date.now();
+    if (receivedAt - lastActionReceivedAtRef.current > ATLAS_REPLY_GAP_MS) replyCountRef.current += 1;
+    lastActionReceivedAtRef.current = receivedAt;
+
+    const replyCount = replyCountRef.current;
+
     const startAction = () => {
-      try {
-        return Promise.resolve(runAction());
-      } catch (error) {
-        return Promise.reject(error);
+      if (replyCount !== replyCountRef.current) {
+        console.warn(`[otus:app] ${actionName}: skipped, a newer Atlas reply arrived`);
+
+        return Promise.resolve();
       }
+
+      let timeoutId;
+      const timeout = new Promise((resolve) => {
+        timeoutId = setTimeout(() => {
+          console.warn(`[otus:app] ${actionName}: moving on after ${ATLAS_STEP_TIMEOUT_MS} ms without finishing`);
+
+          resolve();
+        }, ATLAS_STEP_TIMEOUT_MS);
+      });
+
+      let action;
+      try {
+        action = Promise.resolve(runAction());
+      } catch (error) {
+        action = Promise.reject(error);
+      }
+
+      return Promise.race([action, timeout]).finally(() => clearTimeout(timeoutId));
     };
 
     pendingActionCountRef.current += 1;
@@ -209,7 +248,7 @@ const OtusTab = ({ isActive, url }) => {
     }
 
     // Applied at once unless actions before it are still running.
-    enqueueAction(() => applyMapMessage(message));
+    enqueueAction(message.action, () => applyMapMessage(message));
   });
 
   const onAppMessage = useEffectEvent((data) => {
@@ -220,7 +259,7 @@ const OtusTab = ({ isActive, url }) => {
       return;
     }
 
-    enqueueAction(() => runAtlasAppAction(message));
+    enqueueAction(message.action, () => runAtlasAppAction(message));
   });
 
   useEffect(() => {
@@ -245,6 +284,8 @@ const OtusTab = ({ isActive, url }) => {
         if (atlasToken?.token) {
           iframeRef.current?.contentWindow?.postMessage(
             {
+              // This build's version, so Atlas only offers to drive what this client can do.
+              client_version: CLIENT_BUILD_VERSION,
               expires_at: atlasToken.expiresAt,
               site_url: DAS_HOST,
               token: atlasToken.token,

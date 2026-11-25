@@ -7,7 +7,7 @@ import eventCategories from '../__test-helpers/fixtures/event-categories';
 import { eventTypes } from '../__test-helpers/fixtures/event-types';
 import { INITIAL_FILTER_STATE, updateEventFilter } from '../ducks/event-filter';
 import { mockStore } from '../__test-helpers/MockStore';
-import { render, screen, waitFor } from '../test-utils';
+import { act, render, screen, waitFor } from '../test-utils';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
 import { TrackerContext } from '../utils/analytics';
 
@@ -151,36 +151,67 @@ describe('EventFilter', () => {
   });
 
   describe('when the search text changes in the store', () => {
-    const tree = (eventFilter) => <Provider store={mockStore({ ...store, data: { ...store.data, eventFilter } })}>
-      <TrackerContext.Provider value={tracker}>
-        <EventFilter />
-      </TrackerContext.Provider>
-    </Provider>;
+    let changingStore, changingStoreState;
+    beforeEach(() => {
+      changingStoreState = store;
+      changingStore = mockStore(() => changingStoreState);
 
-    const withText = (text) => ({ ...store.data.eventFilter, filter: { ...store.data.eventFilter.filter, text } });
+      render(<Provider store={changingStore}>
+        <TrackerContext.Provider value={tracker}>
+          <EventFilter />
+        </TrackerContext.Provider>
+      </Provider>);
+    });
+
+    const getSearchBox = () => screen.getByRole('searchbox', { name: 'Search Events...' });
+
+    const setStoreText = (text) => act(() => {
+      const eventFilter = { ...store.data.eventFilter, filter: { ...store.data.eventFilter.filter, text } };
+      changingStoreState = { ...store, data: { ...store.data, eventFilter } };
+
+      changingStore.dispatch({ type: 'STORE_CHANGED' });
+    });
+
+    const waitForSearch = (text) => waitFor(
+      () => expect(updateEventFilter).toHaveBeenCalledWith({ filter: { text } }),
+      { timeout: TEXT_FILTER_DEBOUNCE_DELAY * 5 }
+    );
 
     test('shows a text set from outside the box', () => {
-      const { rerender } = render(tree(withText('')));
+      setStoreText('tusk');
 
-      rerender(tree(withText('tusk')));
-
-      expect(screen.getByRole('searchbox', { name: 'Search Events...' })).toHaveValue('tusk');
+      expect(getSearchBox()).toHaveValue('tusk');
     });
 
     test('keeps what the user typed after its own search lands', async () => {
-      const { rerender } = render(tree(withText('')));
-      const searchBox = screen.getByRole('searchbox', { name: 'Search Events...' });
+      await userEvent.type(getSearchBox(), 'sna');
+      await waitForSearch('sna');
+      await userEvent.type(getSearchBox(), 're');
 
-      await userEvent.type(searchBox, 'sna');
-      await waitFor(
-        () => expect(updateEventFilter).toHaveBeenCalledWith({ filter: { text: 'sna' } }),
-        { timeout: TEXT_FILTER_DEBOUNCE_DELAY * 5 }
-      );
-      await userEvent.type(searchBox, 're');
+      setStoreText('sna');
 
-      rerender(tree(withText('sna')));
+      expect(getSearchBox()).toHaveValue('snare');
+    });
 
-      expect(searchBox).toHaveValue('snare');
+    test('shows a text set from outside the box that matches what the user last searched', async () => {
+      await userEvent.type(getSearchBox(), 'rhino');
+      await waitForSearch('rhino');
+      setStoreText('rhino');
+
+      setStoreText('elephant');
+      setStoreText('rhino');
+
+      expect(getSearchBox()).toHaveValue('rhino');
+    });
+
+    test('drops a search the user was still typing when a text arrives from outside the box', async () => {
+      await userEvent.type(getSearchBox(), 'rhin');
+
+      setStoreText('elephant');
+      await act(() => new Promise((resolve) => setTimeout(resolve, TEXT_FILTER_DEBOUNCE_DELAY * 2)));
+
+      expect(updateEventFilter).not.toHaveBeenCalledWith({ filter: { text: 'rhin' } });
+      expect(getSearchBox()).toHaveValue('elephant');
     });
   });
 
