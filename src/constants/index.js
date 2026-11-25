@@ -360,6 +360,7 @@ export const EXTERNAL_SAME_DOMAIN_ROUTES = [
 ];
 
 export const PERMISSION_KEYS = {
+  ALERT_RULES: 'alertrule',
   EVENTS: 'event',
   EVENT_RELATED_SEGMENTS: 'event_related_segments',
   EVENT_RELATIONSHIPS: 'event_relationship',

@@ -23,7 +23,8 @@
       "homeMenuLabel": "Liens rapides de la carte",
       "homeMenuToggleLabel": "Liens rapides de la carte : {{mapTitle}}",
       "myCurrentLocationOptionLabel": "Ma Position Actuelle"
-    }
+    },
+    "profileSwitchErrorToastMessage": "Impossible de passer au profil {{username}}. Veuillez réessayer."
   },
   "notificationMenu": {
     "notificationsPopover": {

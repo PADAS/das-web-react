@@ -37,90 +37,45 @@ test('it will trigger track after specific delay by calling debouncedTrack', asy
 });
 
 describe('createUserAnalyticsData', () => {
-  it('should create data with main user when no profile selected', () => {
-    const user = {
-      id: 'user123',
-      role: 'ranger',
-      is_staff: false,
-      is_superuser: false,
-    };
-    const selectedUserProfile = {};
-    const serverVersion = '1.2.3';
-
-    const data = createUserAnalyticsData(user, selectedUserProfile, serverVersion);
+  it('describes the active user it is given', () => {
+    const activeUser = { id: 'profile456', is_staff: true, is_superuser: false, role: 'admin' };
+    const data = createUserAnalyticsData(activeUser, '2.0.0');
 
     expect(data).toEqual({
-      user_role: 'ranger',
-      organization: 'test.earthranger.com',
-      user_id_hash: expect.any(String),
-      is_staff: false,
-      is_superuser: false,
       client_version: expect.any(String),
-      server_version: '1.2.3',
+      is_staff: true,
+      is_superuser: false,
+      organization: 'test.earthranger.com',
+      server_version: '2.0.0',
+      user_id_hash: expect.any(String),
+      user_role: 'admin',
     });
     expect(data.user_id_hash).not.toBe('unknown');
   });
 
-  it('should create data with selected profile when available', () => {
-    const user = {
-      id: 'user123',
-      role: 'ranger',
-      is_staff: false,
-      is_superuser: false,
-    };
-    const selectedUserProfile = {
-      id: 'profile456',
-      role: 'admin',
-      is_staff: true,
-      is_superuser: false,
-    };
-    const serverVersion = '2.0.0';
-
-    const data = createUserAnalyticsData(user, selectedUserProfile, serverVersion);
-
-    expect(data).toEqual({
-      user_role: 'admin',
-      organization: 'test.earthranger.com',
-      user_id_hash: expect.any(String),
-      is_staff: true,
-      is_superuser: false,
-      client_version: expect.any(String),
-      server_version: '2.0.0',
-    });
-  });
-
   it('should handle missing user data gracefully', () => {
-    const data = createUserAnalyticsData({}, {});
-
-    expect(data).toEqual({
-      user_role: 'unknown',
-      organization: 'test.earthranger.com',
-      user_id_hash: 'unknown',
+    expect(createUserAnalyticsData({})).toEqual({
+      client_version: expect.any(String),
       is_staff: false,
       is_superuser: false,
-      client_version: expect.any(String),
+      organization: 'test.earthranger.com',
       server_version: 'unknown',
+      user_id_hash: 'unknown',
+      user_role: 'unknown',
     });
   });
 
   it('should handle missing server version gracefully', () => {
-    const user = {
-      id: 'user123',
-      role: 'ranger',
-      is_staff: false,
-      is_superuser: false,
-    };
+    const activeUser = { id: 'user123', is_staff: false, is_superuser: false, role: 'ranger' };
 
-    const data = createUserAnalyticsData(user, {});
-
-    expect(data).toEqual({
-      user_role: 'ranger',
-      organization: 'test.earthranger.com',
-      user_id_hash: expect.any(String),
-      is_staff: false,
-      is_superuser: false,
+    expect(createUserAnalyticsData(activeUser)).toEqual({
       client_version: expect.any(String),
+      is_staff: false,
+      is_superuser: false,
+      organization: 'test.earthranger.com',
       server_version: 'unknown',
+      user_id_hash: expect.any(String),
+      user_role: 'ranger',
     });
   });
 });

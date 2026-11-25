@@ -23,7 +23,8 @@
       "homeMenuLabel": "Vifungo vya Haraka vya Ramani",
       "homeMenuToggleLabel": "Vifungo vya Haraka vya Ramani: {{mapTitle}}",
       "myCurrentLocationOptionLabel": "Mahali Yangu ya Sasa"
-    }
+    },
+    "profileSwitchErrorToastMessage": "Imeshindwa kubadilisha kwenda profaili {{username}}. Tafadhali jaribu tena."
   },
   "notificationMenu": {
     "notificationsPopover": {

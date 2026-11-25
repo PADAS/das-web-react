@@ -1,4 +1,4 @@
-import { lazy, memo, useEffect } from 'react';
+import { lazy, memo, useEffect, useRef } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
@@ -6,16 +6,18 @@ import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as MenuIcon } from '../common/images/icons/menu.svg';
 
-import { addModal } from '../ducks/modals';
+import { addModal, removeModal } from '../ducks/modals';
 import { APP_ROUTES } from '../constants/routes';
 import { BREAKPOINTS, MAX_ZOOM, REACT_APP_ROUTE_PREFIX } from '../constants';
 import { clearAuth } from '../ducks/auth';
-import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, setUserProfile } from '../ducks/user';
+import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, fetchUserProfile } from '../ducks/user';
 import getWindowLocation from '../utils/getWindowLocation';
 import { GLOBAL_MENU_DRAWER_ID } from '../Drawer';
 import { MAIN_TOOLBAR_CATEGORY, trackEventFactory } from '../utils/analytics';
+import { selectActiveUser, selectSignedInUser } from '../selectors/user';
 import { setHomeMap } from '../ducks/maps';
 import { showDrawer } from '../ducks/drawer';
+import { showToast } from '../utils/toast';
 import useJumpToLocation from '../hooks/useJumpToLocation';
 import { useMatchMedia } from '../hooks';
 import { useMessagesPermissions } from '../hooks/usePermissions';
@@ -61,32 +63,44 @@ const Nav = () => {
   const jumpToLocation = useJumpToLocation();
   const navigate = useNavigate();
 
+  const activeUser = useSelector(selectActiveUser);
   const homeMap = useSelector((state) => state.view.homeMap);
   const isGlobalMenuOpen = useSelector(
     (state) => state.view.drawer.isOpen && state.view.drawer.drawerId === GLOBAL_MENU_DRAWER_ID
   );
   const isIdpRequired = useSelector((state) => !!state.view.systemConfig?.require_idp);
   const maps = useSelector((state) => state.data.maps);
-  const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
-  const user = useSelector((state) => state.data.user);
+  const signedInUser = useSelector(selectSignedInUser);
   const userProfiles = useSelector((state) => state.data.userProfiles);
 
-  const changeProfile = (profile) => {
-    const isMainUser = profile.username === user.username;
-    if (isMainUser) {
+  const profileReadAbortControllerRef = useRef(null);
+
+  const changeProfile = async (profile) => {
+    if (profile.id === signedInUser.id) {
       dispatch(clearUserProfile());
+      reloadOnceProfileIsPersisted(true);
 
       mainToolbarTracker.track('Select to operate as the main user');
     } else {
-      dispatch(setUserProfile(profile, true));
+      const profileReadAbortController = new AbortController();
+      profileReadAbortControllerRef.current = profileReadAbortController;
 
-      mainToolbarTracker.track('Select to operate as a user profile');
+      try {
+        await dispatch(fetchUserProfile(profile.id, true, profileReadAbortController.signal));
+        reloadOnceProfileIsPersisted(false);
+
+        mainToolbarTracker.track('Select to operate as a user profile');
+      } catch {
+        if (!profileReadAbortController.signal.aborted) {
+          showToast({ message: t('profileSwitchErrorToastMessage', { username: profile.username }) });
+        }
+      }
     }
-
-    reloadOnceProfileIsPersisted(isMainUser);
   };
 
   const logOut = async () => {
+    profileReadAbortControllerRef.current?.abort();
+
     try {
       await dispatch(clearAuth());
 
@@ -118,11 +132,18 @@ const Nav = () => {
   };
 
   const onProfileClick = (profile) => {
+    // Only the latest pick may land, however slowly an earlier one loads.
+    profileReadAbortControllerRef.current?.abort();
+
     if (profile.pin) {
-      dispatch(addModal({
+      const pinModal = dispatch(addModal({
         content: ProfilePINModal,
         modalProps: { className: styles.profilePinModal },
-        onSuccess: () => changeProfile(profile),
+        onClose: () => profileReadAbortControllerRef.current?.abort(),
+        onSuccess: async () => {
+          await changeProfile(profile);
+          dispatch(removeModal(pinModal.id));
+        },
         profile,
       }));
     } else {
@@ -172,10 +193,10 @@ const Nav = () => {
       {isMediumLayoutOrLarger && <NotificationMenu />}
 
       <UserMenu
+        activeUser={activeUser}
         onLogOutClick={logOut}
         onProfileClick={onProfileClick}
-        selectedUserProfile={selectedUserProfile}
-        user={user}
+        signedInUser={signedInUser}
         userProfiles={userProfiles}
       />
     </div>

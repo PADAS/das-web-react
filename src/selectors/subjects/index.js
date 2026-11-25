@@ -10,17 +10,17 @@ import {
 } from '../../utils/subjects';
 import { addPropsToGeoJsonByKey } from '../../utils/map';
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
+import { selectActiveUserPermissions } from '../user';
 
 const selectHiddenSubjectIDs = (state) => state.data.mapLayerFilter.hiddenSubjectIDs;
 const selectMapSubjects = (state) => state.data.mapSubjects.subjects;
+const selectPatrolsUserPermissions = (state) => selectActiveUserPermissions(state)[PERMISSION_KEYS.PATROLS];
 const selectShowInactiveRadios = (state) => state.view.showInactiveRadios;
-const selectSelectedUserProfile = (state) => state.data.selectedUserProfile;
 const selectSubjectGroups = (state) => state.data.subjectGroups;
 const selectSubjectStore = (state) => state.data.subjectStore;
 const selectSystemConfig = (state) => state.view.systemConfig;
 const selectTimeSliderState = (state) => state.view.timeSliderState;
 const selectTracks = (state) => state.data.tracks;
-const selectUser = (state) => state.data.user;
 
 /**
  * Map subject pins (GeoJSON) for the main map. Excludes hidden subjects and ropeless-gear
@@ -121,15 +121,6 @@ export const selectHydratedSubjectGroupsWithLastPositionTime = createSelector(
 export const allSubjects = createSelector(
   [selectSubjectStore],
   (subjectStore) => Object.values(subjectStore),
-);
-
-const selectPatrolsUserPermissions = createSelector(
-  [selectUser, selectSelectedUserProfile],
-  (user, selectedUserProfile) => {
-    const userPermissions = (selectedUserProfile.id ? selectedUserProfile : user).permissions;
-
-    return userPermissions?.[PERMISSION_KEYS.PATROLS];
-  },
 );
 
 export const getMapSubjectFeatureCollectionWithVirtualPositioning = createSelector(

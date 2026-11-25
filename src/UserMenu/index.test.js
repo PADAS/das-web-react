@@ -28,9 +28,10 @@ describe('UserMenu', () => {
   });
 
   const renderUserMenu = (props = {}) => render(<UserMenu
+    activeUser={user}
     onLogOutClick={onLogOutClick}
     onProfileClick={onProfileClick}
-    user={user}
+    signedInUser={user}
     {...props}
   />);
 
@@ -50,8 +51,8 @@ describe('UserMenu', () => {
     expect(getToggle()).toHaveTextContent('john.doe');
   });
 
-  test('names the toggle after the selected profile while one is active', () => {
-    renderUserMenu({ selectedUserProfile: userProfiles[0], userProfiles });
+  test('names the toggle after the active profile', () => {
+    renderUserMenu({ activeUser: userProfiles[0], userProfiles });
 
     expect(getToggle()).toHaveAccessibleName('User settings: jane.smith');
     expect(getToggle()).not.toHaveTextContent('john.doe');
@@ -103,7 +104,7 @@ describe('UserMenu', () => {
       .toEqual(['john.doe', 'jane.smith', 'bob.jones']);
   });
 
-  test('checks the user while no profile is selected', async () => {
+  test('checks the user while no profile is active', async () => {
     renderUserMenu({ userProfiles });
 
     await openMenu();
@@ -112,8 +113,8 @@ describe('UserMenu', () => {
     expect(screen.getByRole('menuitemradio', { name: 'jane.smith' })).toHaveAttribute('aria-checked', 'false');
   });
 
-  test('checks the selected profile', async () => {
-    renderUserMenu({ selectedUserProfile: userProfiles[0], userProfiles });
+  test('checks the active profile', async () => {
+    renderUserMenu({ activeUser: userProfiles[0], userProfiles });
 
     await openMenu();
 

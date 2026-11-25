@@ -8,6 +8,7 @@ import {
   createNewReportForEventType,
   eventBelongsToCollection,
   eventBelongsToPatrol,
+  eventWasRecentlyEditedByCurrentUser,
   getCoordinatesForEvent,
   getEventIncidentId,
   getEventPatrolId,
@@ -96,6 +97,29 @@ describe('utils - events', () => {
         priority: 300,
         state: 'active',
       });
+    });
+  });
+
+  describe('eventWasRecentlyEditedByCurrentUser', () => {
+    const buildEvent = (userId, time = new Date().toISOString()) => ({ updates: [{ time, user: { id: userId } }] });
+
+    test('returns true for an event the active user created in the last minute', () => {
+      expect(eventWasRecentlyEditedByCurrentUser(buildEvent('profile-id'), { id: 'profile-id' })).toBe(true);
+    });
+
+    test('returns false for an event another user created', () => {
+      expect(eventWasRecentlyEditedByCurrentUser(buildEvent('other-id'), { id: 'profile-id' })).toBe(false);
+    });
+
+    test('returns false for an event the active user created over a minute ago', () => {
+      const event = buildEvent('profile-id', new Date(Date.now() - 2 * 60 * 1000).toISOString());
+
+      expect(eventWasRecentlyEditedByCurrentUser(event, { id: 'profile-id' })).toBe(false);
+    });
+
+    test('returns false for an event with no creator while the active user has not loaded', () => {
+      expect(eventWasRecentlyEditedByCurrentUser({}, {})).toBe(false);
+      expect(eventWasRecentlyEditedByCurrentUser({}, null)).toBe(false);
     });
   });
 

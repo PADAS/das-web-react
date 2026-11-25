@@ -206,6 +206,35 @@ describe('useReportsFeed', () => {
     });
   });
 
+  test('sends the user location for a geo-restricted profile whose account is not restricted', async () => {
+    const locationParams = [];
+    server.use(http.get(EVENTS_API_URL, ({ request }) => {
+      locationParams.push(new URL(request.url).searchParams.get('location'));
+
+      return HttpResponse.json(eventFeedResponse);
+    }));
+    store.data.selectedUserProfile = { id: 'profile', permissions: { '_geographic_distance': {} } };
+    store.data.user = { id: 'user', permissions: {} };
+
+    renderUseReportsFeed();
+
+    await waitFor(() => expect(locationParams).toEqual(['65.7,50.3']));
+  });
+
+  test('does not send the user location for an unrestricted profile whose account is geo-restricted', async () => {
+    const locationParams = [];
+    server.use(http.get(EVENTS_API_URL, ({ request }) => {
+      locationParams.push(new URL(request.url).searchParams.get('location'));
+
+      return HttpResponse.json(eventFeedResponse);
+    }));
+    store.data.selectedUserProfile = { id: 'profile', permissions: {} };
+
+    renderUseReportsFeed();
+
+    await waitFor(() => expect(locationParams).toEqual([null]));
+  });
+
   test('loads the reports feed normally', async () => {
     store.data.user.permissions = [];
     const builtStore = mockStore(store);

@@ -11,8 +11,8 @@ import { fetchEventFeed, fetchEventFeedCancelToken } from '../../ducks/events';
 import { getFeedEvents } from '../../selectors';
 import { INITIAL_FILTER_STATE } from '../../ducks/event-filter';
 import { objectToParamString } from '../../utils/query';
+import { selectIsGeoPermissionRestricted } from '../../selectors/user';
 import { TAB_KEYS } from '../../constants';
-import { userIsGeoPermissionRestricted } from '../../utils/geo-perms';
 import useFeedTableView from '../../FeedTable/useFeedTableView';
 
 const EVENT_FEED_PAGE_SIZE = 50;
@@ -22,7 +22,7 @@ const useReportsFeed = () => {
 
   const eventFilter = useSelector((state) => state.data.eventFilter);
   const events = useSelector((state) => getFeedEvents(state));
-  const userIsGeoPermRestricted = useSelector((state) => userIsGeoPermissionRestricted(state?.data?.user));
+  const isGeoPermissionRestricted = useSelector(selectIsGeoPermissionRestricted);
   const userLocationCoords = useSelector((state) => state?.view?.userLocation?.coords);
   const feedSort = eventFilter.filter.sort;
 
@@ -56,8 +56,8 @@ const useReportsFeed = () => {
   }, feedSort));
 
   const geoResrictedUserLocationCoords = useMemo(
-    () => userIsGeoPermRestricted && userLocationCoords,
-    [userIsGeoPermRestricted, userLocationCoords]
+    () => isGeoPermissionRestricted && userLocationCoords,
+    [isGeoPermissionRestricted, userLocationCoords]
   );
 
   // Using this ref during render is intended.
