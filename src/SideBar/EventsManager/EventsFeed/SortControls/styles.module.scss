@@ -1,14 +1,12 @@
 @use '../../../../common/styles/buttons';
 
 .sortingButton {
-  @include buttons.chip-text-button;
-  @include buttons.chip-active-state;
+  @include buttons.chip-outline-button;
+  @include buttons.chip-outline-active-state;
 
+  // A form field's name can outrun the feed, so the label clips only once
+  // the button has a line to itself.
   min-width: 0;
-
-  .sortingButtonIcon {
-    margin-right: 0.375rem;
-  }
 
   .sortingButtonLabel {
     overflow: hidden;

@@ -6,6 +6,9 @@ import isEqual from 'react-fast-compare';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { useTranslation } from 'react-i18next';
 
+import { ReactComponent as ArrowDownSmallIcon } from '../common/images/icons/arrow-down-small.svg';
+import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
+
 import { caseInsensitiveCompare } from '../utils/string';
 import { INITIAL_FILTER_STATE, updatePatrolFilter } from '../ducks/patrol-filter';
 import { resetGlobalDateRange } from '../ducks/global-date-range';
@@ -16,7 +19,6 @@ import { trackEventFactory, PATROL_FILTER_CATEGORY } from '../utils/analytics';
 import DateRangePopover from './DateRangePopover';
 import FiltersPopover from './FiltersPopover';
 import FriendlyFilterString from '../FriendlyFilterString';
-import { ReactComponent as RefreshIcon } from '../common/images/icons/refresh-icon.svg';
 
 import SearchBar from '../SearchBar';
 
@@ -128,6 +130,8 @@ const PatrolFilter = ({ className = '', summaryActionsRef }) => {
             type="button"
           >
             {t('filtersTitle')}
+
+            <ArrowDownSmallIcon aria-hidden="true" className={styles.arrow} />
           </button>
         </OverlayTrigger>
 
@@ -146,6 +150,8 @@ const PatrolFilter = ({ className = '', summaryActionsRef }) => {
             type="button"
           >
             {t('datesTitle')}
+
+            <ArrowDownSmallIcon aria-hidden="true" className={styles.arrow} />
           </button>
         </OverlayTrigger>
       </div>

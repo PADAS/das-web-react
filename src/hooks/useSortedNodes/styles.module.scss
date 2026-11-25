@@ -1,8 +1,8 @@
 @use '../../common/styles/buttons';
 
 .timeSortButton {
-  @include buttons.chip-icon-button;
-  @include buttons.chip-active-state;
+  @include buttons.chip-outline-icon-button;
+  @include buttons.chip-outline-active-state;
 
   margin-left: 0.5rem;
 

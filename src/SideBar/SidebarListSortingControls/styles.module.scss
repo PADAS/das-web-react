@@ -4,25 +4,27 @@
 .sortingButtons {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.5rem;
   width: 100%;
 
   @media (min-width: layout.$md-layout-width-min) {
+    flex: 1 0 auto;
     justify-content: flex-end;
     margin-top: 0;
-    width: 60%;
+    max-width: 100%;
+    min-width: 0;
+    width: auto;
   }
 
   .sortingButton {
-    @include buttons.chip-text-button;
-    @include buttons.chip-active-state;
+    @include buttons.chip-outline-button;
+    @include buttons.chip-outline-active-state;
 
-    max-width: 40%;
-
-    .sortingButtonIcon {
-      margin-right: 0.375rem;
-    }
+    // A form field's name can outrun the feed, so the label clips only once
+    // the button has a line to itself.
+    min-width: 0;
 
     .sortingButtonLabel {
       overflow: hidden;

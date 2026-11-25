@@ -75,7 +75,7 @@ const SortControls = ({ isTableView = false }) => {
       type="button"
       {...menuToggle.toggleProps}
       >
-      <SortLinesIcon aria-hidden="true" className={styles.sortingButtonIcon} />
+      <SortLinesIcon aria-hidden="true" />
 
       <span className={styles.sortingButtonLabel}>{sortByLabel}</span>
     </button>
