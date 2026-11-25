@@ -24,7 +24,8 @@
       "homeMenuToggleLabel": "Elegir un acceso rápido del mapa",
       "jumpButtonLabel": "Ir a {{mapTitle}}",
       "myCurrentLocationOptionLabel": "Mi Ubicación Actual"
-    }
+    },
+    "profileSwitchErrorToastMessage": "No se pudo cambiar al perfil {{username}}. Inténtelo de nuevo."
   },
   "notificationMenu": {
     "notificationsPopover": {

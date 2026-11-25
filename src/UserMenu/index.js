@@ -18,10 +18,10 @@ const mainToolbarTracker = trackEventFactory(MAIN_TOOLBAR_CATEGORY);
 const trackMenuToggle = (isShown) => mainToolbarTracker.track(`${isShown ? 'Open' : 'Close'} User Menu`);
 
 const UserMenu = ({
+  activeUser,
   onLogOutClick,
   onProfileClick,
-  selectedUserProfile = null,
-  user,
+  signedInUser,
   userProfiles = EMPTY_USER_PROFILES,
 }) => {
   const { t } = useTranslation('top-bar', { keyPrefix: 'userMenu' });
@@ -29,8 +29,6 @@ const UserMenu = ({
   const menuToggle = useMenuToggle({ onToggle: trackMenuToggle });
 
   const profilesGroupLabelId = useId();
-
-  const displayUser = selectedUserProfile?.username ? selectedUserProfile : user;
 
   const onLogOutOptionClick = () => {
     onLogOutClick();
@@ -40,7 +38,7 @@ const UserMenu = ({
 
   return <div className={styles.userMenu}>
     <button
-      aria-label={t('toggleLabel', { username: displayUser.username })}
+      aria-label={t('toggleLabel', { username: activeUser.username })}
       className={styles.toggle}
       title={t('menuLabel')}
       type="button"
@@ -48,7 +46,7 @@ const UserMenu = ({
     >
       <UserIcon aria-hidden="true" className={styles.userIcon} />
 
-      <span className={styles.username}>{displayUser.username}</span>
+      <span className={styles.username}>{activeUser.username}</span>
 
       <ArrowDownSmallIcon aria-hidden="true" className={styles.arrow} />
     </button>
@@ -61,8 +59,8 @@ const UserMenu = ({
           </span>
 
           <ul aria-labelledby={profilesGroupLabelId} className={styles.profilesList} role="group">
-            {[user, ...userProfiles].map((profile) => <Menu.Option
-              aria-checked={profile.username === displayUser.username}
+            {[signedInUser, ...userProfiles].map((profile) => <Menu.Option
+              aria-checked={profile.id === activeUser.id}
               key={profile.id}
               onClick={() => onProfileClick(profile)}
               role="menuitemradio"

@@ -7,6 +7,7 @@ import { render, waitFor } from '../test-utils';
 import GeoLocationWatcher from './';
 
 import { USER_LOCATION_RETRIEVED } from '../ducks/location';
+import * as toastUtils from '../utils/toast';
 
 const mockUserLocation = {
   coords: {
@@ -45,6 +46,8 @@ describe('The GeoLocationWatcher', () => {
     };
 
     global.navigator.permissions = { query: jest.fn().mockResolvedValue(permissionStatus) };
+
+    jest.spyOn(toastUtils, 'showToast');
   });
 
   const renderGeoLocationWatcher = (props) => {
@@ -109,5 +112,33 @@ describe('The GeoLocationWatcher', () => {
     await waitFor(() => expect(global.navigator.geolocation.getCurrentPosition).toHaveBeenCalled());
 
     expect(toast.dismiss).not.toHaveBeenCalled();
+  });
+
+  test('asks a geo-restricted profile to share its location when access is not granted', async () => {
+    store.data.selectedUserProfile = { id: 'profile-id', permissions: { view_event_geographic_distance: ['view'] } };
+    store.view.userLocationAccessGranted = { granted: false };
+    renderGeoLocationWatcher();
+
+    await waitFor(() => expect(toastUtils.showToast).toHaveBeenCalledTimes(1));
+  });
+
+  test('does not ask a stored geo-restricted profile to share its location before the user is loaded', () => {
+    store.data.selectedUserProfile = { id: 'profile-id', permissions: { view_event_geographic_distance: ['view'] } };
+    store.data.user = {};
+    store.view.userLocationAccessGranted = { granted: false };
+    renderGeoLocationWatcher();
+
+    expect(toastUtils.showToast).not.toHaveBeenCalled();
+  });
+
+  test('does not ask an unrestricted profile of a geo-restricted account to share its location', async () => {
+    store.data.selectedUserProfile = { id: 'profile-id', permissions: {} };
+    store.data.user.permissions = { view_event_geographic_distance: ['view'] };
+    store.view.userLocationAccessGranted = { granted: false };
+    renderGeoLocationWatcher();
+
+    await waitFor(() => expect(global.navigator.permissions.query).toHaveBeenCalled());
+
+    expect(toastUtils.showToast).not.toHaveBeenCalled();
   });
 });

@@ -318,6 +318,7 @@ Either way the client gets an access token, Auth0's used as is, kept in a cookie
 - `Login/`, `Auth0TokenManager/`: signing in, and the Auth0 callback with account linking.
 - `RequireAccessToken/`, `RequireEulaConfirmation/`, `views/EULA/`: the guards and the EULA page.
 - `ducks/auth.js`, `ducks/user.js`: the token, the user and their profiles.
+- `selectors/user/`: the active user, meaning the profile while one is active, and its permissions.
 - `utils/auth-recovery.js`, `hooks/useAuthRecovery.js`: the 401 recovery.
 - `utils/geo-perms.js`: which users are geographically restricted.
 - `UserMenu/`, `ProfilePINModal/`: the user menu and the profile PIN prompt.
@@ -449,7 +450,7 @@ Three separate gates, often combined on one element:
 - **Preview features** (`PREVIEW_FEATURES`, read with `usePreviewFeature`) roll an unfinished feature out one site at a time, sometimes by switching between two implementations. One the server omits is off.
 - **Development feature flags** (`DEVELOPMENT_FEATURE_FLAGS`, read with `useFeatureFlag`) are client-side defaults for work in progress, overridable per user from Settings → General.
 
-Permissions come from the user, or the active profile, through the `use<Domain>Permissions` hooks in `hooks/usePermissions/`.
+Every permission and user-flag check reads the **active user**, the profile while one is active, through `selectors/user/` or the `use<Domain>Permissions` hooks in `hooks/usePermissions/` built on it. Account-level concerns, such as accepting the EULA or switching profiles, read the signed-in account instead. It stays in `state.data.user`, since `/user/me` is read without the profile header, and only `selectors/user/` reads that slice or the profile directly.
 
 ### Analytics
 

@@ -2,18 +2,16 @@ import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import { PERMISSION_KEYS, PERMISSIONS } from '../../constants';
+import { selectActiveUserPermissions } from '../../selectors/user';
 
 const EMPTY_PERMISSION_SET = new Set();
 
 const usePermissions = (permissionKey) => {
-  const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
-  const user = useSelector((state) => state.data.user);
+  const activeUserPermissions = useSelector(selectActiveUserPermissions);
 
-  const permissionsSource = selectedUserProfile?.id ? selectedUserProfile : user;
-
-  const permissionSet = useMemo(() => permissionsSource?.permissions?.[permissionKey]
-    ? new Set(permissionsSource.permissions[permissionKey])
-    : EMPTY_PERMISSION_SET, [permissionKey, permissionsSource]);
+  const permissionSet = useMemo(() => activeUserPermissions[permissionKey]
+    ? new Set(activeUserPermissions[permissionKey])
+    : EMPTY_PERMISSION_SET, [activeUserPermissions, permissionKey]);
 
   return useMemo(() => ({
     hasCreatePermission: permissionSet.has(PERMISSIONS.CREATE),

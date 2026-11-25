@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { DAS_HOST } from '../../constants';
 import { resetSocketStateTracking } from './helpers';
+import { selectActiveProfileId } from '../../selectors/user';
 import { SOCKET_HEALTHY_STATUS } from '../../ducks/system-status';
 import { clearAuth } from '../../ducks/auth';
 import { isStepUpChallenge, parseAuthChallenge, recoverAuth } from '../../utils/auth-recovery';
@@ -53,7 +54,7 @@ const useRealTimeImplementation = () => {
     const authorize = () => {
       socket.emit('authorization', { type: 'authorization', id: 1, authorization: `Bearer ${store.getState().data.token.access_token}` });
 
-      const profileId = store.getState().data.selectedUserProfile?.id;
+      const profileId = selectActiveProfileId(store.getState());
       if (profileId) {
         socket.emit('profile', { profile_id: profileId });
       }

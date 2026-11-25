@@ -57,7 +57,7 @@ describe('useWebVitals hook', () => {
     expect(createUserAnalyticsData).not.toHaveBeenCalled();
   });
 
-  it('should initialize web vitals when user with ID is available', () => {
+  it('initializes web vitals with the active profile once the signed-in user is available', () => {
     const mockUser = {
       id: 'user123',
       username: 'testuser',
@@ -97,7 +97,7 @@ describe('useWebVitals hook', () => {
 
     renderHook(() => useWebVitals(), { wrapper });
 
-    expect(createUserAnalyticsData).toHaveBeenCalledWith(mockUser, mockSelectedProfile, mockServerVersion);
+    expect(createUserAnalyticsData).toHaveBeenCalledWith(mockSelectedProfile, mockServerVersion);
     expect(initializeWebVitals).toHaveBeenCalledWith(mockUserData);
   });
 

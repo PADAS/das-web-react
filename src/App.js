@@ -8,7 +8,7 @@ import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import ReactGA4 from 'react-ga4';
 
-import { createUserAnalyticsData } from './utils/analytics';
+import { createUserAnalyticsData, setUserRole } from './utils/analytics';
 
 import { fetchAnalyzers } from './ducks/analyzers';
 import { fetchDefaultPatrolSegmentTypeSchema } from './ducks/patrol-schemas';
@@ -23,11 +23,11 @@ import { fetchAllGear, GEAR_LIST_POLL_INTERVAL_MS } from './ducks/gear';
 import { fetchSubjectGroups } from './ducks/subjects';
 import { fetchSystemStatus } from './ducks/system-status';
 import { getCurrentIdFromURL, getCurrentTabFromURL } from './utils/navigation';
+import { selectActiveUser, selectIsGeoPermissionRestricted, selectIsSignedInUserLoaded } from './selectors/user';
 import { setDefaultCustomTrackLength, setTrackLength } from './ducks/tracks';
 import { showToast } from './utils/toast';
 import useFeedTableView from './FeedTable/useFeedTableView';
 import useNavigate from './hooks/useNavigate';
-import { userIsGeoPermissionRestricted } from './utils/geo-perms';
 
 import Drawer from './Drawer';
 import Map from './Map';
@@ -53,16 +53,16 @@ export const App = () => {
 
   const { t } = useTranslation('errors');
 
+  const activeUser = useSelector(selectActiveUser);
   const homeMap = useSelector((state) => state.view.homeMap);
+  const isSignedInUserLoaded = useSelector(selectIsSignedInUserLoaded);
   const mapLocationSelection = useSelector((state) => state.view.mapLocationSelection);
   const mapPosition = useSelector((state) => state.data.mapPosition);
-  const user = useSelector((state) => state.data.user);
-  const selectedUserProfile = useSelector((state) => state.data.selectedUserProfile);
   const serverVersion = useSelector((state) => state.data?.systemStatus?.server?.version);
   const mapboxSupported = useMemo(() => !!mapboxgl.supported(), []);
 
   const showGeoPermWarningMessage = useSelector(
-    (state) => !!state.view.userLocation && userIsGeoPermissionRestricted(user)
+    (state) => !!state.view.userLocation && selectIsGeoPermissionRestricted(state)
   );
   const trackSettings = useSelector((state) => state.view.trackSettings);
 
@@ -124,11 +124,10 @@ export const App = () => {
   // set user scope for service worker caching
   useEffect(() => {
     if (navigator?.serviceWorker?.controller) {
-      if (user?.id) {
-        const scopeHash = selectedUserProfile?.id ?? user.id;
+      if (isSignedInUserLoaded) {
         navigator.serviceWorker.controller.postMessage({
           type: 'SET_SCOPE',
-          scope: { hash: scopeHash }
+          scope: { hash: activeUser.id }
         });
       } else {
         // Clear scope when user logs out
@@ -138,7 +137,13 @@ export const App = () => {
         });
       }
     }
-  }, [user, selectedUserProfile]);
+  }, [activeUser.id, isSignedInUserLoaded]);
+
+  useEffect(() => {
+    if (activeUser.role) {
+      setUserRole(activeUser.role);
+    }
+  }, [activeUser.role]);
 
   useEffect(() => {
     /* use these catch blocks to provide error toasts if/as desired */
@@ -206,14 +211,14 @@ export const App = () => {
 
   useEffect(() => {
     if (!mapboxSupported && import.meta.env.PROD) {
-      const userData = createUserAnalyticsData(user, selectedUserProfile, serverVersion);
+      const userData = createUserAnalyticsData(activeUser, serverVersion);
 
       ReactGA4.event('MapboxGL not supported', {
         event_category: 'Client Hardware Issue',
         ...userData,
       });
     }
-  }, [mapboxSupported, selectedUserProfile, user, serverVersion]);
+  }, [activeUser, mapboxSupported, serverVersion]);
 
   const mapLocationSelectionModeClass = mapLocationSelection.isPickingLocation ? 'picking-location-fullscreen' : '';
 

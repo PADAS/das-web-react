@@ -78,6 +78,48 @@ describe('SoundNotificationsPlayer - NewEventNotificationPlayer', () => {
     expect(onPlayNotificationSound).not.toHaveBeenCalled();
   });
 
+  it('does not play sound if the event was created recently by the active profile', () => {
+    store.data.selectedUserProfile = { id: 'profile1' };
+    const { rerender } = render(
+      <Provider store={mockStore(store)}>
+        <NewEventNotificationPlayer onPlayNotificationSound={onPlayNotificationSound} />
+      </Provider>
+    );
+
+    store.data.recentEventDataReceived = {
+      data: { id: 'event2', updates: [{ time: new Date(), user: { id: 'profile1' } }] },
+    };
+    store.data.feedEvents = { results: ['event2', 'event1'] };
+    rerender(
+      <Provider store={mockStore(store)}>
+        <NewEventNotificationPlayer onPlayNotificationSound={onPlayNotificationSound} />
+      </Provider>
+    );
+
+    expect(onPlayNotificationSound).not.toHaveBeenCalled();
+  });
+
+  it('plays a sound for an event the signed-in account created recently while a profile is active', () => {
+    store.data.selectedUserProfile = { id: 'profile1' };
+    const { rerender } = render(
+      <Provider store={mockStore(store)}>
+        <NewEventNotificationPlayer onPlayNotificationSound={onPlayNotificationSound} />
+      </Provider>
+    );
+
+    store.data.recentEventDataReceived = {
+      data: { id: 'event2', updates: [{ time: new Date(), user: { id: 'user1' } }] },
+    };
+    store.data.feedEvents = { results: ['event2', 'event1'] };
+    rerender(
+      <Provider store={mockStore(store)}>
+        <NewEventNotificationPlayer onPlayNotificationSound={onPlayNotificationSound} />
+      </Provider>
+    );
+
+    expect(onPlayNotificationSound).toHaveBeenCalledTimes(1);
+  });
+
   it('does not play sound if the previous event that was notified is still the same than the new', () => {
     store.data.recentEventDataReceived = {
       data: {
