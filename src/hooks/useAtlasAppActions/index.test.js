@@ -30,6 +30,7 @@ import { fetchTracksIfNecessary } from '../../utils/tracks';
 import { getBoundsForPatrol, patrolStateAllowsTrackDisplay } from '../../utils/patrols';
 import { mapFeatureHighlightIdReducer } from '../../ducks/mapFeatureHighlight';
 import { PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS } from '../../constants';
+import { ATLAS_TOOL_NAMES } from '../../utils/atlas-tools/validate';
 import { selectPatrolTrackData } from '../../selectors/patrols';
 
 import { runAtlasAppAction } from './';
@@ -65,6 +66,9 @@ const TYPE_ID = '66666666-7777-4888-8999-aaaaaaaaaaaa';
 const HOUR_MS = 3_600_000;
 const DAY_MS = 24 * HOUR_MS;
 const iso = (time) => new Date(time).toISOString();
+
+const done = (text) => ({ content: [{ text, type: 'text' }], isError: false });
+const failed = (text) => ({ content: [{ text, type: 'text' }], isError: true });
 
 const identity = (initialState) => (state = initialState) => state;
 
@@ -410,7 +414,7 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
 
       expect(store.getState().data.eventFilter.filter.text).toBe('x');
       expect(latest.navigate).not.toHaveBeenCalled();
-      expect(warn).toHaveBeenCalledWith('[otus:app] events-filter: not opening /events, the open record has unsaved edits');
+      expect(warn).toHaveBeenCalledWith('[atlas-tools] events-filter: not opening /events, the open record has unsaved edits');
     });
 
     test('is skipped when events are disabled', async () => {
@@ -419,7 +423,7 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       await run({ action: 'events-filter', text: 'x' });
 
       expect(actions).toEqual([]);
-      expect(warn).toHaveBeenCalledWith('[otus:app] events-filter: skipped, events are disabled');
+      expect(warn).toHaveBeenCalledWith('[atlas-tools] events-filter: skipped, events are disabled');
     });
   });
 
@@ -463,7 +467,7 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       await run({ action: 'patrols-filter', status: ['done'] });
 
       expect(actions).toEqual([]);
-      expect(warn).toHaveBeenCalledWith(expect.stringContaining('[otus:app] patrols-filter: skipped'));
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('[atlas-tools] patrols-filter: skipped'));
     });
 
     test('is skipped when patrols are disabled', async () => {
@@ -547,7 +551,7 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       await run({ action: 'open-event', id: EVENT_ID });
 
       expect(latest.jumpToLocation).not.toHaveBeenCalled();
-      expect(warn).toHaveBeenCalledWith(`[otus:app] open-event: skipped, event ${EVENT_ID} could not be loaded (404)`);
+      expect(warn).toHaveBeenCalledWith(`[atlas-tools] open-event: skipped, event ${EVENT_ID} could not be loaded (404)`);
     });
 
     test('is skipped when events are disabled', async () => {
@@ -626,7 +630,7 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       await run({ action: 'open-patrol', id: PATROL_ID });
 
       expect(latest.jumpToLocation).not.toHaveBeenCalled();
-      expect(warn).toHaveBeenCalledWith(`[otus:app] open-patrol: patrol ${PATROL_ID} has no positions to fit the map to`);
+      expect(warn).toHaveBeenCalledWith(`[atlas-tools] open-patrol: patrol ${PATROL_ID} has no positions to fit the map to`);
     });
 
     test('is skipped without the patrol read permission', async () => {
@@ -749,7 +753,7 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       await run({ action: 'subject-popup', id: SUBJECT_ID });
 
       expect(store.getState().view.popup).toBeNull();
-      expect(warn).toHaveBeenCalledWith(`[otus:app] subject-popup: skipped, subject ${SUBJECT_ID} has no known position`);
+      expect(warn).toHaveBeenCalledWith(`[atlas-tools] subject-popup: skipped, subject ${SUBJECT_ID} has no known position`);
     });
 
     test('is skipped when subjects are disabled', async () => {
@@ -848,7 +852,7 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
         await done;
 
         expect(latest.map.easeTo).not.toHaveBeenCalled();
-        expect(warn).toHaveBeenCalledWith('[otus:app] subject-track: no track positions in the window to fit the map to');
+        expect(warn).toHaveBeenCalledWith('[atlas-tools] subject-track: no track positions in the window to fit the map to');
       } finally {
         jest.useRealTimers();
       }
@@ -1018,7 +1022,7 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       await run({ action: 'show-feature', id: SUBJECT_ID });
 
       expect(actions).toEqual([]);
-      expect(warn).toHaveBeenCalledWith(`[otus:app] show-feature: skipped, feature ${SUBJECT_ID} is not listed in Map Layers`);
+      expect(warn).toHaveBeenCalledWith(`[atlas-tools] show-feature: skipped, feature ${SUBJECT_ID} is not listed in Map Layers`);
     });
 
     test('is skipped when spatial features are disabled', async () => {
@@ -1112,16 +1116,389 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
 
       expect(store.getState().data.mapLayerFilter.text).toBe('fence');
       expect(latest.navigate).not.toHaveBeenCalled();
-      expect(warn).toHaveBeenCalledWith('[otus:app] layers-search: skipped, the analyzers tab is disabled');
+      expect(warn).toHaveBeenCalledWith('[atlas-tools] layers-search: skipped, the analyzers tab is disabled');
     });
   });
 
-  test('ignores an unknown action', async () => {
-    const { actions, run } = setUp();
+  describe('jump-to', () => {
+    test('moves the map to the coordinates and zoom, through the history', async () => {
+      const calls = [];
+      const cameraHistory = {
+        begin: jest.fn(() => 'session'),
+        move: jest.fn(async (session, performMove) => {
+          calls.push(['move', session]);
+          performMove();
+        }),
+      };
+      const { latest, run } = setUp(undefined, { cameraHistory });
 
-    await run({ action: 'delete-everything' });
+      const result = await run({ action: 'jump-to', coordinates: [36.8, -1.3], zoom: 12 });
 
-    expect(actions).toEqual([]);
+      expect(cameraHistory.begin).toHaveBeenCalledTimes(1);
+      expect(calls).toEqual([['move', 'session']]);
+      expect(latest.jumpToLocation).toHaveBeenCalledWith([36.8, -1.3], 12);
+      expect(result).toEqual(done('Moved the map to 36.8, -1.3 at zoom 12.'));
+    });
+
+    test('leaves the zoom to the default when none is given', async () => {
+      const { latest, run } = setUp();
+
+      const result = await run({ action: 'jump-to', coordinates: [36.8, -1.3] });
+
+      expect(latest.jumpToLocation).toHaveBeenCalledWith([36.8, -1.3], undefined);
+      expect(result).toEqual(done('Moved the map to 36.8, -1.3.'));
+    });
+  });
+
+  describe('fit-bounds', () => {
+    test('fits the map to the bbox, through the history', async () => {
+      const cameraHistory = {
+        begin: jest.fn(() => 'session'),
+        move: jest.fn(async (_session, performMove) => performMove()),
+      };
+      const { latest, run } = setUp(undefined, { cameraHistory });
+
+      const result = await run({ action: 'fit-bounds', bbox: [-10, -5, 10, 5] });
+
+      expect(cameraHistory.move).toHaveBeenCalledWith('session', expect.any(Function));
+      expect(latest.jumpToLocation).toHaveBeenCalledWith([[-10, -5], [10, 5]]);
+      expect(result).toEqual(done('Fitted the map to -10, -5, 10, 5.'));
+    });
+
+    test('centres the map on a bbox without area', async () => {
+      const { latest, run } = setUp();
+
+      await run({ action: 'fit-bounds', bbox: [1, 2, 1, 2] });
+
+      expect(latest.jumpToLocation).toHaveBeenCalledWith([1, 2]);
+    });
+  });
+
+  describe('open-record', () => {
+    test.each([
+      ['event', `/events/${EVENT_ID}`],
+      ['patrol', `/patrols/${EVENT_ID}`],
+    ])('opens the %s', async (erType, path) => {
+      const { latest, run } = setUp();
+
+      const result = await run({ action: 'open-record', er_type: erType, id: EVENT_ID });
+
+      expect(latest.navigate).toHaveBeenCalledWith(path);
+      expect(result).toEqual(done(`Opened ${erType} ${EVENT_ID}.`));
+    });
+
+    test('writes no camera, as it does not move it', async () => {
+      const cameraHistory = { begin: jest.fn(), move: jest.fn() };
+      const { run } = setUp(undefined, { cameraHistory });
+
+      await run({ action: 'open-record', er_type: 'event', id: EVENT_ID });
+
+      expect(cameraHistory.begin).not.toHaveBeenCalled();
+    });
+
+    test('leaves the user to confirm leaving unsaved edits, as a link would', async () => {
+      const { latest, run } = setUp(undefined, { isNavigationBlocked: true });
+
+      const result = await run({ action: 'open-record', er_type: 'event', id: EVENT_ID });
+
+      expect(latest.navigate).toHaveBeenCalledWith(`/events/${EVENT_ID}`);
+      expect(result).toEqual(done(
+        `Asked the user to leave the open record, which has unsaved edits, to open event ${EVENT_ID}.`
+      ));
+    });
+  });
+
+  describe('results', () => {
+    // With every feature off, each tool answers without waiting on the map.
+    test.each(ATLAS_TOOL_NAMES)('runs %s', async (name) => {
+      const { run } = setUp({
+        view: withSystemConfig({
+          [SYSTEM_CONFIG_FLAGS.ANALYZERS]: false,
+          [SYSTEM_CONFIG_FLAGS.EVENTS]: false,
+          [SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT]: false,
+          [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: false,
+          [SYSTEM_CONFIG_FLAGS.SUBJECTS]: false,
+        }),
+      });
+      const args = {
+        'events-filter': { open: false },
+        'fit-bounds': { bbox: [1, 2, 3, 4] },
+        'jump-to': { coordinates: [1, 2] },
+        'layers-search': { text: 'x' },
+        'open-record': { er_type: 'event', id: EVENT_ID },
+        'patrols-filter': {},
+        'report-heatmap': { on: true },
+        'subjects-visibility': { show: [SUBJECT_ID] },
+      }[name];
+
+      const result = await run({ action: name, ...(args ?? { id: SUBJECT_ID, ids: [SUBJECT_ID], time: iso(Date.now()) }) });
+
+      expect(result.content[0].text).not.toMatch(/Unknown tool/);
+    });
+
+    test('is an error for an unknown tool, and changes nothing', async () => {
+      const { actions, run } = setUp();
+
+      const result = await run({ action: 'delete-everything' });
+
+      expect(actions).toEqual([]);
+      expect(result).toEqual(failed('Unknown tool: delete-everything'));
+    });
+
+    test('is an error for a tool that throws', async () => {
+      fetchPatrol.mockImplementation(() => () => Promise.resolve());
+      patrolStateAllowsTrackDisplay.mockImplementation(() => {
+        throw new Error('boom');
+      });
+      const { run } = setUp();
+
+      const result = await run({ action: 'open-patrol', id: PATROL_ID });
+
+      expect(result).toEqual(failed('Failed: boom'));
+      expect(warn).toHaveBeenCalledWith('[atlas-tools] open-patrol: failed (boom)');
+    });
+
+    describe('when a tool is skipped', () => {
+      const disabled = (flag) => ({ view: withSystemConfig({ [flag]: false }) });
+
+      test.each([
+        ['events-filter', { text: 'x' }, disabled(SYSTEM_CONFIG_FLAGS.EVENTS), 'events are disabled'],
+        ['open-event', { id: EVENT_ID }, disabled(SYSTEM_CONFIG_FLAGS.EVENTS), 'events are disabled'],
+        ['report-heatmap', { on: true }, disabled(SYSTEM_CONFIG_FLAGS.EVENTS), 'events are disabled'],
+        [
+          'patrols-filter',
+          {},
+          disabled(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT),
+          'patrols are disabled or not readable by this user',
+        ],
+        [
+          'open-patrol',
+          { id: PATROL_ID },
+          disabled(SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT),
+          'patrols are disabled or not readable by this user',
+        ],
+        ['subject-popup', { id: SUBJECT_ID }, disabled(SYSTEM_CONFIG_FLAGS.SUBJECTS), 'subjects are disabled'],
+        ['subject-track', { ids: [SUBJECT_ID] }, disabled(SYSTEM_CONFIG_FLAGS.SUBJECTS), 'subjects are disabled'],
+        [
+          'subject-at-time',
+          { id: SUBJECT_ID, time: iso(Date.now()) },
+          disabled(SYSTEM_CONFIG_FLAGS.SUBJECTS),
+          'subjects are disabled',
+        ],
+        ['subject-heatmap', { ids: [SUBJECT_ID] }, disabled(SYSTEM_CONFIG_FLAGS.SUBJECTS), 'subjects are disabled'],
+        ['subjects-visibility', { hide: [SUBJECT_ID] }, disabled(SYSTEM_CONFIG_FLAGS.SUBJECTS), 'subjects are disabled'],
+        [
+          'show-feature',
+          { id: FEATURE_ID },
+          disabled(SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES),
+          'spatial features are disabled',
+        ],
+        ['show-feature', { id: FEATURE_ID }, undefined, `feature ${FEATURE_ID} is not listed in Map Layers`],
+        ['show-analyzer', { id: ANALYZER_ID }, disabled(SYSTEM_CONFIG_FLAGS.ANALYZERS), 'analyzers are disabled'],
+        ['show-analyzer', { id: ANALYZER_ID }, undefined, `analyzer ${ANALYZER_ID} is not active`],
+        [
+          'layers-search',
+          { tab: 'analyzers', text: 'x' },
+          disabled(SYSTEM_CONFIG_FLAGS.ANALYZERS),
+          'the analyzers tab is disabled',
+        ],
+        [
+          'subject-popup',
+          { id: SUBJECT_ID },
+          { data: { subjectStore: { [SUBJECT_ID]: { ...subject, last_position: { geometry: null, properties: {} } } } } },
+          `subject ${SUBJECT_ID} has no known position`,
+        ],
+      ])('is an error for %s with %j', async (name, args, state, reason) => {
+        const { run } = setUp(state);
+
+        const result = await run({ action: name, ...args });
+
+        expect(result).toEqual(failed(`Skipped, ${reason}.`));
+        expect(warn).toHaveBeenCalledWith(`[atlas-tools] ${name}: skipped, ${reason}`);
+      });
+
+      test('is an error when the Map Layers tab is disabled', async () => {
+        const { run } = setUp({
+          view: withSystemConfig({
+            [SYSTEM_CONFIG_FLAGS.ANALYZERS]: false,
+            [SYSTEM_CONFIG_FLAGS.EVENTS]: false,
+            [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: false,
+            [SYSTEM_CONFIG_FLAGS.SUBJECTS]: false,
+          }),
+        });
+
+        const result = await run({ action: 'layers-search', text: 'x' });
+
+        expect(result).toEqual(failed('Skipped, the Map Layers tab is disabled.'));
+      });
+
+      test('is an error without the patrol read permission', async () => {
+        const { run } = setUp(undefined, { canReadPatrols: false });
+
+        const result = await run({ action: 'patrols-filter', status: ['done'] });
+
+        expect(result).toEqual(failed('Skipped, patrols are disabled or not readable by this user.'));
+      });
+
+      test('is an error when the event cannot be loaded', async () => {
+        fetchEvent.mockImplementation(() => () => Promise.reject({ response: { status: 404 } }));
+        const { run } = setUp();
+
+        const result = await run({ action: 'open-event', id: EVENT_ID });
+
+        expect(result).toEqual(failed(`Skipped, event ${EVENT_ID} could not be loaded (404).`));
+      });
+
+      test('is an error when the patrol cannot be loaded', async () => {
+        fetchPatrol.mockImplementation(() => () => Promise.reject({ response: { status: 403 } }));
+        const { run } = setUp();
+
+        const result = await run({ action: 'open-patrol', id: PATROL_ID });
+
+        expect(result).toEqual(failed(`Skipped, patrol ${PATROL_ID} could not be loaded (403).`));
+      });
+
+      test.each(['subject-popup', 'subject-at-time'])('is an error for %s when the subject cannot be loaded', async (name) => {
+        jest.spyOn(axios, 'get').mockRejectedValue({ response: { status: 404 } });
+        const { run } = setUp();
+
+        const result = await run({ action: name, id: SUBJECT_ID, time: iso(Date.now()) });
+
+        expect(result).toEqual(failed(`Skipped, subject ${SUBJECT_ID} could not be loaded (404).`));
+      });
+    });
+
+    test.each([
+      ['open-event', { id: EVENT_ID }, `Did not open event ${EVENT_ID}: the open record has unsaved edits.`],
+      ['open-patrol', { id: PATROL_ID }, `Did not open patrol ${PATROL_ID}: the open record has unsaved edits.`],
+    ])('is an error when %s cannot leave unsaved edits', async (name, args, text) => {
+      fetchPatrol.mockImplementation(() => () => Promise.resolve());
+      const { run } = setUp(undefined, { isNavigationBlocked: true });
+
+      const result = await run({ action: name, ...args });
+
+      expect(result).toEqual(failed(text));
+    });
+
+    describe('when a tool is done', () => {
+      test.each([
+        [{ open: false, text: 'x' }, undefined, 'Set the Events filter.'],
+        [{ text: 'x' }, undefined, 'Set the Events filter and opened the Events feed.'],
+        [
+          { text: 'x' },
+          { isNavigationBlocked: true },
+          'Set the Events filter, but did not open the Events feed: the open record has unsaved edits.',
+        ],
+      ])('says what events-filter %j did', async (args, contextOverrides, text) => {
+        const { run } = setUp(undefined, contextOverrides);
+
+        expect(await run({ action: 'events-filter', ...args })).toEqual(done(text));
+      });
+
+      test.each([
+        [{ text: 'x' }, 'Set the Patrols filter.'],
+        [{ open: true }, 'Set the Patrols filter and opened the Patrols feed.'],
+      ])('says what patrols-filter %j did', async (args, text) => {
+        const { run } = setUp();
+
+        expect(await run({ action: 'patrols-filter', ...args })).toEqual(done(text));
+      });
+
+      test('says the event was opened and the map moved to it', async () => {
+        const event = { geojson: { geometry: { coordinates: [36.8, -1.3], type: 'Point' } }, id: EVENT_ID };
+        fetchEvent.mockImplementation(() => () => Promise.resolve({ data: { data: event } }));
+        const { run } = setUp();
+
+        expect(await run({ action: 'open-event', id: EVENT_ID }))
+          .toEqual(done(`Opened event ${EVENT_ID} and moved the map to it.`));
+      });
+
+      test('says the patrol was opened and the map fitted to it', async () => {
+        fetchPatrol.mockImplementation(() => () => Promise.resolve());
+        patrolStateAllowsTrackDisplay.mockReturnValue(false);
+        selectPatrolTrackData.mockReturnValue({});
+        getBoundsForPatrol.mockReturnValue([1, 2, 3, 4]);
+        const { run } = setUp();
+
+        expect(await run({ action: 'open-patrol', id: PATROL_ID }))
+          .toEqual(done(`Opened patrol ${PATROL_ID}, pinned its track and fitted the map to it.`));
+      });
+
+      test.each([
+        [{}, `Showed the popup of subject ${SUBJECT_ID} at its last position.`],
+        [{ track: true }, `Showed the popup of subject ${SUBJECT_ID} at its last position and pinned its track.`],
+      ])('says what subject-popup %j did', async (args, text) => {
+        const { run } = setUp({ data: { subjectStore: { [SUBJECT_ID]: subject } } });
+
+        expect(await run({ action: 'subject-popup', id: SUBJECT_ID, ...args })).toEqual(done(text));
+      });
+
+      test('says the tracks were pinned and the map moved to them', async () => {
+        const now = Date.now();
+        const { run, store } = setUp();
+        cleanups.push(simulateTrackLoading(store, {
+          [OTHER_SUBJECT_ID]: makeTrack([[[3, 3], now - HOUR_MS]]),
+          [SUBJECT_ID]: makeTrack([[[2, 2], now - HOUR_MS]]),
+        }));
+
+        expect(await run({ action: 'subject-track', ids: [SUBJECT_ID, OTHER_SUBJECT_ID] }))
+          .toEqual(done('Pinned the track of 2 subjects and moved the map to it.'));
+      });
+
+      test.each([
+        [true, 'Turned the event heatmap on.'],
+        [false, 'Turned the event heatmap off.'],
+      ])('says report-heatmap on: %s did', async (on, text) => {
+        const { run } = setUp();
+
+        expect(await run({ action: 'report-heatmap', on })).toEqual(done(text));
+      });
+
+      test.each([
+        [{ hide: [SUBJECT_ID] }, `Hid subject ${SUBJECT_ID} on the map.`],
+        [{ show: [SUBJECT_ID, OTHER_SUBJECT_ID] }, 'Showed 2 subjects on the map.'],
+        [{ only: [SUBJECT_ID] }, `Showed only subject ${SUBJECT_ID} on the map.`],
+      ])('says what subjects-visibility %j did', async (args, text) => {
+        const { run } = setUp();
+
+        expect(await run({ action: 'subjects-visibility', ...args })).toEqual(done(text));
+      });
+
+      test('says the analyzer was shown and the map fitted to it', async () => {
+        const analyzerFeatures = {
+          data: [{
+            geojson: {
+              features: [{ geometry: { coordinates: [[1, 1], [3, 4]], type: 'LineString' }, properties: {}, type: 'Feature' }],
+              type: 'FeatureCollection',
+            },
+            id: ANALYZER_ID,
+          }],
+        };
+        const { run } = setUp({ data: { analyzerFeatures } });
+
+        expect(await run({ action: 'show-analyzer', id: ANALYZER_ID }))
+          .toEqual(done(`Showed analyzer ${ANALYZER_ID} and fitted the map to it.`));
+      });
+
+      test('says the feature was shown and the map fitted to it', async () => {
+        const featureSets = {
+          data: [{ types: [{ feature_summaries: [{ bounds: [36, -2, 37, -1], id: FEATURE_ID, name: 'Boma' }], name: 'Bomas' }] }],
+        };
+        const { run } = setUp({ data: { featureSets } });
+
+        expect(await run({ action: 'show-feature', id: FEATURE_ID }))
+          .toEqual(done(`Showed feature ${FEATURE_ID} and fitted the map to it.`));
+      });
+
+      test.each([
+        [{ text: 'Kito' }, 'Searched Map Layers for "Kito".'],
+        [{ tab: 'features', text: 'boma' }, 'Searched Map Layers for "boma" and opened its features tab.'],
+      ])('says what layers-search %j did', async (args, text) => {
+        const { run } = setUp();
+
+        expect(await run({ action: 'layers-search', ...args })).toEqual(done(text));
+      });
+    });
   });
 
   test('starts from the initial event filter', () => {

@@ -9,17 +9,16 @@ import {
   VERTICAL_NAV_RAIL_WIDTH_PIXELS,
 } from '../../constants';
 import { act, fireEvent, render, screen } from '../../test-utils';
+import { ATLAS_TOOLS } from '../../utils/atlas-tools/validate';
 import { clearAuth } from '../../ducks/auth';
 import { fetchAtlasToken } from '../../ducks/atlas-token';
 import { mockStore } from '../../__test-helpers/MockStore';
 import { updateUserPreferences } from '../../ducks/user-preferences';
-import useAtlasAppActions from '../../hooks/useAtlasAppActions';
-import useAtlasCameraHistory from '../../hooks/useAtlasCameraHistory';
-import useJumpToLocation from '../../hooks/useJumpToLocation';
+import { useAtlasTools } from '../../AtlasTools';
 import { useMatchMedia } from '../../hooks';
 import useNavigate from '../../hooks/useNavigate';
 
-import OtusTab, { ATLAS_REPLY_GAP_MS, ATLAS_STEP_TIMEOUT_MS, OTUS_READY_TIMEOUT_MS } from './';
+import OtusTab, { OTUS_READY_TIMEOUT_MS } from './';
 
 jest.mock('../../ducks/atlas-token', () => ({
   ...jest.requireActual('../../ducks/atlas-token'),
@@ -36,13 +35,9 @@ jest.mock('../../hooks', () => ({
   useMatchMedia: jest.fn(),
 }));
 
-jest.mock('../../hooks/useJumpToLocation', () => jest.fn());
-
 jest.mock('../../hooks/useNavigate', () => jest.fn());
 
-jest.mock('../../hooks/useAtlasAppActions', () => jest.fn());
-
-jest.mock('../../hooks/useAtlasCameraHistory', () => jest.fn());
+jest.mock('../../AtlasTools', () => ({ ...jest.requireActual('../../AtlasTools'), useAtlasTools: jest.fn() }));
 
 const ATLAS_TOKEN = { expiresAt: '2026-11-18T20:00:00Z', expiresIn: 28800, token: 'the-atlas-token' };
 const OTUS_URL = 'https://otus.example.com';
@@ -58,23 +53,12 @@ const UNAUTHORIZED_ERROR = Object.assign(new Error('Request failed with status c
 const MAX_WIDTH = 1440 - VERTICAL_NAV_RAIL_WIDTH_PIXELS - MIN_VISIBLE_MAP_WIDTH_PIXELS;
 
 describe('SideBar - OtusTab', () => {
-  let cameraHistory, jumpToLocation, navigate, reduxStore, runAtlasAppAction, store, user;
+  let callTool, navigate, reduxStore, store, user;
   beforeEach(() => {
     clearAuth.mockImplementation(() => () => {});
     fetchAtlasToken.mockImplementation(() => () => Promise.resolve(ATLAS_TOKEN));
-    cameraHistory = {
-      begin: jest.fn(() => 'session'),
-      move: jest.fn((_session, performMove) => {
-        performMove();
-
-        return Promise.resolve();
-      }),
-    };
-    useAtlasCameraHistory.mockImplementation(() => cameraHistory);
-    runAtlasAppAction = jest.fn(() => Promise.resolve());
-    useAtlasAppActions.mockImplementation(() => runAtlasAppAction);
-    jumpToLocation = jest.fn();
-    useJumpToLocation.mockImplementation(() => jumpToLocation);
+    callTool = jest.fn();
+    useAtlasTools.mockImplementation(() => ({ callTool }));
     navigate = jest.fn();
     useNavigate.mockImplementation(() => navigate);
     useMatchMedia.mockImplementation(() => true);
@@ -635,288 +619,215 @@ describe('SideBar - OtusTab', () => {
     expect(postMessage).not.toHaveBeenCalled();
   });
 
-  describe('map messages', () => {
-    const EVENT_ID = '6f1c2d3e-4b5a-4c7d-8e9f-0a1b2c3d4e5f';
-
-    let warn;
-    beforeEach(() => {
-      warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    });
-
-    afterEach(() => {
-      warn.mockRestore();
-    });
-
-    const dispatchMapMessage = (data, overrides = {}) => dispatchFrameMessage({ type: 'otus:map', ...data }, overrides);
-
-    test('jumps to the coordinates of a jump-to message', () => {
-      renderOtusTab();
-
-      dispatchMapMessage({ action: 'jump-to', coordinates: [36.8, -1.3], zoom: 12 });
-
-      expect(jumpToLocation).toHaveBeenCalledWith([36.8, -1.3], 12);
-    });
-
-    test('leaves the zoom to the default when a jump-to message has none', () => {
-      renderOtusTab();
-
-      dispatchMapMessage({ action: 'jump-to', coordinates: [36.8, -1.3] });
-
-      expect(jumpToLocation).toHaveBeenCalledWith([36.8, -1.3], undefined);
-    });
-
-    test.each([
-      ['jump-to', { coordinates: [36.8, -1.3] }],
-      ['fit-bounds', { bbox: [-10, -5, 10, 5] }],
-    ])('writes the camera of a %s message into the history', (action, params) => {
-      renderOtusTab();
-
-      dispatchMapMessage({ action, ...params });
-
-      expect(cameraHistory.begin).toHaveBeenCalledTimes(1);
-      expect(cameraHistory.move).toHaveBeenCalledWith('session', expect.any(Function));
-      expect(jumpToLocation).toHaveBeenCalledTimes(1);
-    });
-
-    test('writes no camera for a message that does not move it', () => {
-      renderOtusTab();
-
-      dispatchMapMessage({ action: 'open-record', er_type: 'event', id: EVENT_ID });
-
-      expect(cameraHistory.begin).not.toHaveBeenCalled();
-    });
-
-    test('fits the map to the bbox of a fit-bounds message', () => {
-      renderOtusTab();
-
-      dispatchMapMessage({ action: 'fit-bounds', bbox: [-10, -5, 10, 5] });
-
-      expect(jumpToLocation).toHaveBeenCalledWith([[-10, -5], [10, 5]]);
-    });
-
-    test('opens the event of an open-record message', () => {
-      renderOtusTab();
-
-      dispatchMapMessage({ action: 'open-record', er_type: 'event', id: EVENT_ID });
-
-      expect(navigate).toHaveBeenCalledWith(`/events/${EVENT_ID}`);
-    });
-
-    test('opens the patrol of an open-record message', () => {
-      renderOtusTab();
-
-      dispatchMapMessage({ action: 'open-record', er_type: 'patrol', id: EVENT_ID });
-
-      expect(navigate).toHaveBeenCalledWith(`/patrols/${EVENT_ID}`);
-    });
-
-    test('ignores a map message from another origin', () => {
-      renderOtusTab();
-
-      dispatchMapMessage({ action: 'jump-to', coordinates: [36.8, -1.3] }, { origin: 'https://impostor.example.com' });
-
-      expect(jumpToLocation).not.toHaveBeenCalled();
-    });
-
-    test('ignores a map message from a window other than the frame', () => {
-      renderOtusTab();
-
-      dispatchMapMessage({ action: 'jump-to', coordinates: [36.8, -1.3] }, { source: window });
-
-      expect(jumpToLocation).not.toHaveBeenCalled();
-    });
-
-    test('ignores and warns about an invalid map message', () => {
-      renderOtusTab();
-
-      dispatchMapMessage({ action: 'jump-to', coordinates: [500, -1.3] });
-
-      expect(jumpToLocation).not.toHaveBeenCalled();
-      expect(warn).toHaveBeenCalled();
-    });
-
-    test('ignores a map message with an unknown action', () => {
-      renderOtusTab();
-
-      dispatchMapMessage({ action: 'delete-everything' });
-
-      expect(jumpToLocation).not.toHaveBeenCalled();
-      expect(navigate).not.toHaveBeenCalled();
-    });
-
-    test('does not treat a map message as the ready message', () => {
-      renderOtusTab();
-
-      dispatchMapMessage({ action: 'jump-to', coordinates: [36.8, -1.3] });
-
-      expect(fetchAtlasToken).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('app messages', () => {
+  describe('MCP messages', () => {
     const SUBJECT_ID = '6f1c2d3e-4b5a-4c7d-8e9f-0a1b2c3d4e5f';
+    const RESULT = { content: [{ text: 'Showed the popup of subject.', type: 'text' }], isError: false };
 
     let warn;
     beforeEach(() => {
       warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      callTool.mockImplementation(() => Promise.resolve(RESULT));
     });
 
     afterEach(() => {
       warn.mockRestore();
     });
 
-    const dispatchAppMessage = (data, overrides = {}) => dispatchFrameMessage({ type: 'otus:app', ...data }, overrides);
+    const dispatchMcpMessage = (data, overrides = {}) => dispatchFrameMessage(
+      { type: 'otus:mcp', jsonrpc: '2.0', ...data },
+      overrides
+    );
 
-    const flushActionQueue = () => act(async () => {
+    const flushReplies = () => act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
 
-    test('applies a valid app message', async () => {
+    const callMessage = (params, id = 7) => ({ id, method: 'tools/call', params });
+
+    test('lists every tool to the frame, at its origin', async () => {
       renderOtusTab();
+      const postMessage = mockFramePostMessage();
 
-      dispatchAppMessage({ action: 'subject-popup', id: SUBJECT_ID, track: true });
-      await flushActionQueue();
+      dispatchMcpMessage({ id: 'list-1', method: 'tools/list' });
+      await flushReplies();
 
-      expect(runAtlasAppAction).toHaveBeenCalledWith({ action: 'subject-popup', id: SUBJECT_ID, track: true });
+      expect(postMessage).toHaveBeenCalledWith(
+        { type: 'otus:mcp', jsonrpc: '2.0', id: 'list-1', result: { tools: ATLAS_TOOLS } },
+        OTUS_URL
+      );
+      expect(postMessage.mock.calls[0][0].result.tools).toHaveLength(16);
+      expect(Object.keys(postMessage.mock.calls[0][0].result.tools[0]).sort())
+        .toEqual(['annotations', 'description', 'inputSchema', 'name']);
     });
 
-    test('shares its camera history with the app actions', () => {
+    test('calls a tool with its arguments and batch, and replies with its result', async () => {
       renderOtusTab();
+      const postMessage = mockFramePostMessage();
 
-      expect(useAtlasAppActions).toHaveBeenCalledWith(cameraHistory);
-    });
-
-    test('ignores an app message from another origin', async () => {
-      renderOtusTab();
-
-      dispatchAppMessage({ action: 'report-heatmap', on: false }, { origin: 'https://impostor.example.com' });
-      await flushActionQueue();
-
-      expect(runAtlasAppAction).not.toHaveBeenCalled();
-    });
-
-    test('ignores an app message from a window other than the frame', async () => {
-      renderOtusTab();
-
-      dispatchAppMessage({ action: 'report-heatmap', on: false }, { source: window });
-      await flushActionQueue();
-
-      expect(runAtlasAppAction).not.toHaveBeenCalled();
-    });
-
-    test('ignores and warns about an invalid app message', async () => {
-      renderOtusTab();
-
-      dispatchAppMessage({ action: 'subject-popup', id: 'Kito' });
-      await flushActionQueue();
-
-      expect(runAtlasAppAction).not.toHaveBeenCalled();
-      expect(warn).toHaveBeenCalledWith('Ignoring an invalid Atlas app message', expect.anything());
-    });
-
-    test('applies app messages one at a time, in order', async () => {
-      let finishFirst;
-      runAtlasAppAction.mockImplementationOnce(() => new Promise((resolve) => {
-        finishFirst = resolve;
+      dispatchMcpMessage(callMessage({
+        _meta: { batch: 'reply-1' },
+        arguments: { id: SUBJECT_ID, track: true },
+        name: 'subject-popup',
       }));
-      renderOtusTab();
+      await flushReplies();
 
-      dispatchAppMessage({ action: 'report-heatmap', on: true });
-      dispatchAppMessage({ action: 'report-heatmap', on: false });
-      await flushActionQueue();
-
-      expect(runAtlasAppAction).toHaveBeenCalledTimes(1);
-
-      await act(async () => finishFirst());
-      await flushActionQueue();
-
-      expect(runAtlasAppAction).toHaveBeenCalledTimes(2);
-      expect(runAtlasAppAction).toHaveBeenLastCalledWith({ action: 'report-heatmap', on: false });
+      expect(callTool).toHaveBeenCalledWith('subject-popup', { id: SUBJECT_ID, track: true }, { batch: 'reply-1' });
+      expect(postMessage).toHaveBeenCalledWith({ type: 'otus:mcp', jsonrpc: '2.0', id: 7, result: RESULT }, OTUS_URL);
     });
 
-    test('keeps applying messages after an action fails', async () => {
-      runAtlasAppAction.mockImplementationOnce(() => Promise.reject(new Error('boom')));
+    test('calls a tool without a batch when none is given', async () => {
       renderOtusTab();
+      mockFramePostMessage();
 
-      dispatchAppMessage({ action: 'report-heatmap', on: true });
-      dispatchAppMessage({ action: 'report-heatmap', on: false });
-      await flushActionQueue();
+      dispatchMcpMessage(callMessage({ arguments: { on: true }, name: 'report-heatmap' }));
+      await flushReplies();
 
-      expect(runAtlasAppAction).toHaveBeenCalledTimes(2);
-      expect(warn).toHaveBeenCalledWith('[otus:app] an Atlas action failed', expect.any(Error));
+      expect(callTool).toHaveBeenCalledWith('report-heatmap', { on: true }, { batch: undefined });
     });
 
-    test('holds a map message back until the app actions before it are done', async () => {
-      let finishFirst;
-      runAtlasAppAction.mockImplementationOnce(() => new Promise((resolve) => {
-        finishFirst = resolve;
+    test('replies with an error result as a result, not a JSON-RPC error', async () => {
+      const skipped = { content: [{ text: 'Skipped, events are disabled.', type: 'text' }], isError: true };
+      callTool.mockImplementation(() => Promise.resolve(skipped));
+      renderOtusTab();
+      const postMessage = mockFramePostMessage();
+
+      dispatchMcpMessage(callMessage({ arguments: { on: true }, name: 'report-heatmap' }));
+      await flushReplies();
+
+      expect(postMessage).toHaveBeenCalledWith({ type: 'otus:mcp', jsonrpc: '2.0', id: 7, result: skipped }, OTUS_URL);
+    });
+
+    test('replies with the invalid params error of a call the tools reject', async () => {
+      callTool.mockImplementation(() => Promise.reject({ code: -32602, message: 'Unknown tool: delete-everything' }));
+      renderOtusTab();
+      const postMessage = mockFramePostMessage();
+
+      dispatchMcpMessage(callMessage({ arguments: {}, name: 'delete-everything' }));
+      await flushReplies();
+
+      expect(postMessage).toHaveBeenCalledWith(
+        { type: 'otus:mcp', jsonrpc: '2.0', id: 7, error: { code: -32602, message: 'Unknown tool: delete-everything' } },
+        OTUS_URL
+      );
+    });
+
+    test.each([
+      ['no params', undefined, 'tools/call needs params'],
+      ['params that are not an object', 'subject-popup', 'tools/call needs params'],
+      ['a batch that is not a string', { _meta: { batch: 3 }, arguments: {}, name: 'report-heatmap' }, '_meta.batch must be a string'],
+    ])('replies with an invalid params error for %s', async (_, params, message) => {
+      renderOtusTab();
+      const postMessage = mockFramePostMessage();
+
+      dispatchMcpMessage(callMessage(params));
+      await flushReplies();
+
+      expect(callTool).not.toHaveBeenCalled();
+      expect(postMessage).toHaveBeenCalledWith(
+        { type: 'otus:mcp', jsonrpc: '2.0', id: 7, error: { code: -32602, message } },
+        OTUS_URL
+      );
+    });
+
+    test('replies with a method not found error for an unknown method', async () => {
+      renderOtusTab();
+      const postMessage = mockFramePostMessage();
+
+      dispatchMcpMessage({ id: 8, method: 'resources/list' });
+      await flushReplies();
+
+      expect(postMessage).toHaveBeenCalledWith(
+        { type: 'otus:mcp', jsonrpc: '2.0', id: 8, error: { code: -32601, message: 'Method not found: resources/list' } },
+        OTUS_URL
+      );
+    });
+
+    test.each([
+      ['no id', { id: undefined, method: 'tools/list' }],
+      ['an id that is an object', { id: { key: 1 }, method: 'tools/list' }],
+      ['a null id', { id: null, method: 'tools/list' }],
+      ['another JSON-RPC version', { id: 1, jsonrpc: '1.0', method: 'tools/list' }],
+      ['no JSON-RPC version', { id: 1, jsonrpc: undefined, method: 'tools/list' }],
+    ])('ignores and warns about a message with %s', async (_, data) => {
+      renderOtusTab();
+      const postMessage = mockFramePostMessage();
+
+      dispatchMcpMessage(data);
+      await flushReplies();
+
+      expect(postMessage).not.toHaveBeenCalled();
+      expect(callTool).not.toHaveBeenCalled();
+      expect(warn).toHaveBeenCalledWith('Ignoring a malformed Atlas MCP message', expect.anything());
+    });
+
+    test('ignores an MCP message from another origin', async () => {
+      renderOtusTab();
+      const postMessage = mockFramePostMessage();
+
+      dispatchMcpMessage(
+        callMessage({ arguments: { on: true }, name: 'report-heatmap' }),
+        { origin: 'https://impostor.example.com' }
+      );
+      await flushReplies();
+
+      expect(callTool).not.toHaveBeenCalled();
+      expect(postMessage).not.toHaveBeenCalled();
+    });
+
+    test('ignores an MCP message from a window other than the frame', async () => {
+      renderOtusTab();
+      const postMessage = mockFramePostMessage();
+
+      dispatchMcpMessage({ id: 1, method: 'tools/list' }, { source: window });
+      await flushReplies();
+
+      expect(postMessage).not.toHaveBeenCalled();
+    });
+
+    test('replies to the window that asked, even after the frame reloads', async () => {
+      let finishCall;
+      callTool.mockImplementation(() => new Promise((resolve) => {
+        finishCall = () => resolve(RESULT);
       }));
+      fetchAtlasToken.mockImplementationOnce(() => () => Promise.reject(new Error('Request failed')));
       renderOtusTab();
+      fireEvent.load(getFrame());
+      await dispatchReadyMessage();
+      const postMessage = mockFramePostMessage();
+      const frameWindow = getFrame().contentWindow;
 
-      dispatchAppMessage({ action: 'subject-track', ids: [SUBJECT_ID] });
-      dispatchFrameMessage({ action: 'jump-to', coordinates: [36.8, -1.3], type: 'otus:map' });
-      await flushActionQueue();
+      dispatchMcpMessage(callMessage({ arguments: { on: true }, name: 'report-heatmap' }));
+      await user.click(screen.getByRole('button', { name: 'Try again' }));
+      const reloadedFramePostMessage = mockFramePostMessage();
+      await act(async () => finishCall());
+      await flushReplies();
 
-      expect(jumpToLocation).not.toHaveBeenCalled();
-
-      await act(async () => finishFirst());
-      await flushActionQueue();
-
-      expect(jumpToLocation).toHaveBeenCalledWith([36.8, -1.3], undefined);
+      expect(getFrame().contentWindow).not.toBe(frameWindow);
+      expect(postMessage).toHaveBeenCalledWith(expect.objectContaining({ id: 7, result: RESULT }), OTUS_URL);
+      expect(reloadedFramePostMessage).not.toHaveBeenCalled();
     });
 
-    describe('when a step does not finish', () => {
-      beforeEach(() => {
-        jest.useFakeTimers();
-        runAtlasAppAction.mockImplementationOnce(() => new Promise(() => {}));
-      });
+    test.each([
+      ['otus:app', { action: 'report-heatmap', on: true }],
+      ['otus:map', { action: 'jump-to', coordinates: [36.8, -1.3] }],
+    ])('no longer acts on %s messages', async (type, data) => {
+      renderOtusTab();
+      const postMessage = mockFramePostMessage();
 
-      afterEach(() => {
-        jest.useRealTimers();
-      });
+      dispatchFrameMessage({ type, ...data });
+      await flushReplies();
 
-      const advanceTimersBy = (milliseconds) => act(() => jest.advanceTimersByTimeAsync(milliseconds));
+      expect(callTool).not.toHaveBeenCalled();
+      expect(postMessage).not.toHaveBeenCalled();
+    });
 
-      test('applies the next step once the stuck one runs out of time', async () => {
-        renderOtusTab();
+    test('does not treat an MCP message as the ready message', async () => {
+      renderOtusTab();
 
-        dispatchAppMessage({ action: 'report-heatmap', on: true });
-        dispatchAppMessage({ action: 'report-heatmap', on: false });
-        await advanceTimersBy(ATLAS_STEP_TIMEOUT_MS - 1);
+      dispatchMcpMessage({ id: 1, method: 'tools/list' });
+      await flushReplies();
 
-        expect(runAtlasAppAction).toHaveBeenCalledTimes(1);
-
-        await advanceTimersBy(1);
-
-        expect(runAtlasAppAction).toHaveBeenCalledTimes(2);
-        expect(runAtlasAppAction).toHaveBeenLastCalledWith({ action: 'report-heatmap', on: false });
-        expect(warn).toHaveBeenCalledWith(expect.stringContaining('report-heatmap'));
-      });
-
-      test('drops the waiting steps of an earlier reply once a new reply arrives', async () => {
-        renderOtusTab();
-
-        dispatchAppMessage({ action: 'report-heatmap', on: true });
-        dispatchFrameMessage({ action: 'jump-to', coordinates: [36.8, -1.3], type: 'otus:map' });
-        await advanceTimersBy(ATLAS_REPLY_GAP_MS + 1);
-        dispatchAppMessage({ action: 'subject-popup', id: SUBJECT_ID });
-        await advanceTimersBy(ATLAS_STEP_TIMEOUT_MS);
-
-        expect(jumpToLocation).not.toHaveBeenCalled();
-        expect(runAtlasAppAction).toHaveBeenCalledTimes(2);
-        expect(runAtlasAppAction).toHaveBeenLastCalledWith({ action: 'subject-popup', id: SUBJECT_ID });
-        expect(warn).toHaveBeenCalledWith(expect.stringContaining('jump-to'));
-      });
-
-      test('keeps the waiting steps of the same reply', async () => {
-        renderOtusTab();
-
-        dispatchAppMessage({ action: 'report-heatmap', on: true });
-        dispatchFrameMessage({ action: 'jump-to', coordinates: [36.8, -1.3], type: 'otus:map' });
-        await advanceTimersBy(ATLAS_STEP_TIMEOUT_MS);
-
-        expect(jumpToLocation).toHaveBeenCalledWith([36.8, -1.3], undefined);
-      });
+      expect(fetchAtlasToken).not.toHaveBeenCalled();
     });
   });
 

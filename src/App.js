@@ -32,6 +32,7 @@ import useNavigate from './hooks/useNavigate';
 import { jumpToStartingCamera, useJumpToCameraOnHistoryPop } from './hooks/useAtlasCameraHistory';
 import { userIsGeoPermissionRestricted } from './utils/geo-perms';
 
+import AtlasToolsProvider from './AtlasTools';
 import Drawer from './Drawer';
 import Map from './Map';
 import MapDrawingToolsContextProvider from './MapDrawingTools/ContextProvider';
@@ -213,31 +214,33 @@ export const App = () => {
     onDragOver={disallowDragAndDrop}
     >
     <MapContext.Provider value={map}>
-      <MapDrawingToolsContextProvider>
-        <PrintTitle />
+      <AtlasToolsProvider>
+        <MapDrawingToolsContextProvider>
+          <PrintTitle />
 
-        <Nav />
+          <Nav />
 
-        <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-          {mapboxSupported
-            ? <Map inert={isMapCoveredByTable} map={map} onMapLoad={onMapHasLoaded} socket={socket} />
-            : <ErrorMessage className='webgl-error-message' message={t('webGlDisabled')} />}
+          <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+            {mapboxSupported
+              ? <Map inert={isMapCoveredByTable} map={map} onMapLoad={onMapHasLoaded} socket={socket} />
+              : <ErrorMessage className='webgl-error-message' message={t('webGlDisabled')} />}
 
-          <SidebarScrollProvider>
-            <SideBar map={map} />
-          </SidebarScrollProvider>
+            <SidebarScrollProvider>
+              <SideBar map={map} />
+            </SidebarScrollProvider>
 
-          <ModalRenderer />
-        </div>
+            <ModalRenderer />
+          </div>
 
-        <div style={{ display: 'none', height: 0, width: 0 }}>
-          <EarthRangerLogoSprite />
-        </div>
+          <div style={{ display: 'none', height: 0, width: 0 }}>
+            <EarthRangerLogoSprite />
+          </div>
 
-        <Drawer />
+          <Drawer />
 
-        <ServiceWorkerWatcher />
-      </MapDrawingToolsContextProvider>
+          <ServiceWorkerWatcher />
+        </MapDrawingToolsContextProvider>
+      </AtlasToolsProvider>
     </MapContext.Provider>
 
     <ToastContainer transition={Slide} />

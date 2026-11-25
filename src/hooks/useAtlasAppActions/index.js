@@ -15,7 +15,6 @@ import {
   TAB_KEYS,
   VERTICAL_NAV_RAIL_WIDTH_PIXELS,
 } from '../../constants';
-import { ATLAS_APP_ACTIONS } from '../../utils/atlas-app-messages';
 import { addPropsToGeoJsonByKey, calcSidebarPaddingLeft } from '../../utils/map';
 import { fetchEvent } from '../../ducks/events';
 import { fetchPatrol, updatePatrolTrackState } from '../../ducks/patrols';
@@ -46,10 +45,11 @@ import { selectHydratedSubjectGroupsWithLastPositionTime } from '../../selectors
 import { selectOtusTabWidth } from '../../selectors/otus';
 import { selectPatrolTrackData } from '../../selectors/patrols';
 import { setMapFeatureHighlightIDs } from '../../ducks/mapFeatureHighlight';
-import { setTimeSliderAt, sleep, waitUntil } from '../../utils/atlas-view';
+import { calcJumpCoordinatesForBbox, setTimeSliderAt, sleep, waitUntil } from '../../utils/atlas-view';
 import { setTrackLength, setTrackLengthOrigin, TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 import { setVirtualDate } from '../../ducks/timeslider';
 import { showPopup } from '../../ducks/popup';
+import { toolErrorResult, toolResult } from '../../utils/atlas-tools/results';
 import { updateEventFilter } from '../../ducks/event-filter';
 import { updatePatrolFilter } from '../../ducks/patrol-filter';
 import { useMatchMedia } from '..';
@@ -84,13 +84,21 @@ const LAYERS_TAB_FLAGS = {
   subjects: SYSTEM_CONFIG_FLAGS.SUBJECTS,
 };
 
-const skip = (action, reason) => console.warn(`[otus:app] ${action}: skipped, ${reason}`);
+const LOG_PREFIX = '[atlas-tools]';
+
+const warn = (action, message) => console.warn(`${LOG_PREFIX} ${action}: ${message}`);
+
+const skip = (action, reason) => {
+  warn(action, `skipped, ${reason}`);
+
+  return toolErrorResult(`Skipped, ${reason}.`);
+};
+
+const UNSAVED_EDITS = 'the open record has unsaved edits';
+
+const countSubjects = (ids) => ids.length === 1 ? `subject ${ids[0]}` : `${ids.length} subjects`;
 
 const isEnabled = (state, flag) => !!state.view.systemConfig[flag];
-
-const bboxToCorners = ([west, south, east, north]) => (west === east && south === north
-  ? [west, south]
-  : [[west, south], [east, north]]);
 
 // Positions of a fetched track inside the window, most recent first.
 const calcTrackCoordinatesInWindow = (trackData, since, until) => {
@@ -137,7 +145,7 @@ const createActionRunner = ({ getLatest, store }) => {
 
   const navigateTo = async (action, path, navigationData) => {
     if (getLatest().isNavigationBlocked) {
-      console.warn(`[otus:app] ${action}: not opening ${path}, the open record has unsaved edits`);
+      warn(action, `not opening ${path}, ${UNSAVED_EDITS}`);
 
       return false;
     }
@@ -224,18 +232,12 @@ const createActionRunner = ({ getLatest, store }) => {
     try {
       subject = await fetchSubject(id);
     } catch (error) {
-      skip(action, `subject ${id} could not be loaded (${error?.response?.status ?? error?.message})`);
-
-      return null;
+      return { error: skip(action, `subject ${id} could not be loaded (${error?.response?.status ?? error?.message})`) };
     }
 
     const lastPosition = addPropsToGeoJsonByKey(subject, 'last_position').last_position;
     const feature = lastPosition?.type === 'FeatureCollection' ? lastPosition.features?.[0] : lastPosition;
-    if (!feature?.geometry) {
-      skip(action, `subject ${id} has no known position`);
-
-      return null;
-    }
+    if (!feature?.geometry) return { error: skip(action, `subject ${id} has no known position`) };
 
     dispatch(showSubjectsFromAtlas(id));
     const cameraSession = fly ? cameraHistory().begin() : null;
@@ -247,7 +249,7 @@ const createActionRunner = ({ getLatest, store }) => {
     }));
     await moved;
 
-    return subject;
+    return { subject };
   };
 
   const jumpToTracks = async (action, ids, { frameSingleSubject = false, since, until }) => {
@@ -255,9 +257,9 @@ const createActionRunner = ({ getLatest, store }) => {
     const coordinates = ids.flatMap((id) => calcTrackCoordinatesInWindow(tracks[id], since, until));
 
     if (!coordinates.length) {
-      console.warn(`[otus:app] ${action}: no track positions in the window to fit the map to`);
+      warn(action, 'no track positions in the window to fit the map to');
 
-      return;
+      return false;
     }
 
     const cameraSession = cameraHistory().begin();
@@ -275,10 +277,13 @@ const createActionRunner = ({ getLatest, store }) => {
     } else {
       await cameraHistory().move(cameraSession, () => jumpTo(coordinates));
     }
+
+    return true;
   };
 
+  // Each handler returns a sentence of what it did, or a skip's error result.
   const handlers = {
-    [ATLAS_APP_ACTIONS.EVENTS_FILTER]: async (params) => {
+    'events-filter': async (params) => {
       const state = getState();
       if (!isEnabled(state, SYSTEM_CONFIG_FLAGS.EVENTS)) return skip(params.action, 'events are disabled');
 
@@ -304,10 +309,14 @@ const createActionRunner = ({ getLatest, store }) => {
       }));
 
       // Unlike the other filters, this one opens its feed unless told not to.
-      if (params.open !== false) await navigateTo(params.action, `/${TAB_KEYS.EVENTS}`);
+      if (params.open === false) return 'Set the Events filter.';
+
+      return await navigateTo(params.action, `/${TAB_KEYS.EVENTS}`)
+        ? 'Set the Events filter and opened the Events feed.'
+        : `Set the Events filter, but did not open the Events feed: ${UNSAVED_EDITS}.`;
     },
 
-    [ATLAS_APP_ACTIONS.PATROLS_FILTER]: async (params) => {
+    'patrols-filter': async (params) => {
       const state = getState();
       if (!isEnabled(state, SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT) || !getLatest().canReadPatrols) {
         return skip(params.action, 'patrols are disabled or not readable by this user');
@@ -328,16 +337,20 @@ const createActionRunner = ({ getLatest, store }) => {
 
       dispatch(updatePatrolFilter({ filter, ...(params.status && { status: params.status }) }));
 
-      if (params.open) await navigateTo(params.action, `/${TAB_KEYS.PATROLS}`);
+      if (!params.open) return 'Set the Patrols filter.';
+
+      return await navigateTo(params.action, `/${TAB_KEYS.PATROLS}`)
+        ? 'Set the Patrols filter and opened the Patrols feed.'
+        : `Set the Patrols filter, but did not open the Patrols feed: ${UNSAVED_EDITS}.`;
     },
 
-    [ATLAS_APP_ACTIONS.OPEN_EVENT]: async ({ action, id }) => {
+    'open-event': async ({ action, id }) => {
       if (!isEnabled(getState(), SYSTEM_CONFIG_FLAGS.EVENTS)) return skip(action, 'events are disabled');
 
       // The camera entry is written before leaving, and the move joins the new route's entry.
       const cameraSession = cameraHistory().begin();
       const isEventOpened = await navigateTo(action, `/${TAB_KEYS.EVENTS}/${id}`);
-      if (!isEventOpened) return;
+      if (!isEventOpened) return toolErrorResult(`Did not open event ${id}: ${UNSAVED_EDITS}.`);
 
       let event = getState().data.eventStore[id];
       if (!event?.geojson && !event?.contains) {
@@ -348,11 +361,13 @@ const createActionRunner = ({ getLatest, store }) => {
         }
       }
 
+      let text = `Opened event ${id} and moved the map to it.`;
       const coordinates = event.is_collection ? getCoordinatesForCollection(event) : getCoordinatesForEvent(event);
       if (coordinates?.length) {
         await cameraHistory().move(cameraSession, () => jumpTo(coordinates));
       } else {
-        console.warn(`[otus:app] ${action}: event ${id} has no location to fly to`);
+        warn(action, `event ${id} has no location to fly to`);
+        text = `Opened event ${id}; it has no location to move the map to.`;
       }
 
       // Only the non-tile events layer can bounce a marker.
@@ -361,9 +376,11 @@ const createActionRunner = ({ getLatest, store }) => {
         await sleep(BOUNCE_DELAY_MS);
         dispatch(setBounceEventIDs(event.is_collection ? getEventIdsForCollection(event) ?? [] : [id]));
       }
+
+      return text;
     },
 
-    [ATLAS_APP_ACTIONS.OPEN_PATROL]: async ({ action, id }) => {
+    'open-patrol': async ({ action, id }) => {
       if (!isEnabled(getState(), SYSTEM_CONFIG_FLAGS.PATROL_MANAGEMENT) || !getLatest().canReadPatrols) {
         return skip(action, 'patrols are disabled or not readable by this user');
       }
@@ -376,7 +393,7 @@ const createActionRunner = ({ getLatest, store }) => {
 
       const cameraSession = cameraHistory().begin();
       const isPatrolOpened = await navigateTo(action, `/${TAB_KEYS.PATROLS}/${id}`);
-      if (!isPatrolOpened) return;
+      if (!isPatrolOpened) return toolErrorResult(`Did not open patrol ${id}: ${UNSAVED_EDITS}.`);
 
       const { pinned, visible } = getState().view.patrolTrackState;
       dispatch(updatePatrolTrackState({ pinned: uniq([id, ...pinned]), visible: visible.filter((item) => item !== id) }));
@@ -391,30 +408,41 @@ const createActionRunner = ({ getLatest, store }) => {
 
       const latestPatrol = getState().data.patrolStore[id];
       const bounds = getBoundsForPatrol(latestPatrol, selectPatrolTrackData(getState(), latestPatrol));
-      if (bounds) {
-        await cameraHistory().move(
-          cameraSession,
-          () => jumpTo(bboxToCorners(bounds), undefined, { maxZoom: PATROL_FIT_MAX_ZOOM })
-        );
-      } else {
-        console.warn(`[otus:app] ${action}: patrol ${id} has no positions to fit the map to`);
+      if (!bounds) {
+        warn(action, `patrol ${id} has no positions to fit the map to`);
+
+        return `Opened patrol ${id} and pinned its track; it has no positions to fit the map to.`;
       }
+
+      await cameraHistory().move(
+        cameraSession,
+        () => jumpTo(calcJumpCoordinatesForBbox(bounds), undefined, { maxZoom: PATROL_FIT_MAX_ZOOM })
+      );
+
+      return `Opened patrol ${id}, pinned its track and fitted the map to it.`;
     },
 
-    [ATLAS_APP_ACTIONS.SUBJECT_POPUP]: async ({ action, id, track }) => {
+    'subject-popup': async ({ action, id, track }) => {
       if (!isEnabled(getState(), SYSTEM_CONFIG_FLAGS.SUBJECTS)) return skip(action, 'subjects are disabled');
 
-      const subject = await openSubjectPopup(action, id);
-      if (!subject || !track) return;
+      const { error, subject } = await openSubjectPopup(action, id);
+      if (error) return error;
 
-      if (subject.tracks_available) {
-        dispatch(pinSubjectTracks(id));
-      } else {
-        console.warn(`[otus:app] ${action}: subject ${id} has no track available`);
+      const text = `Showed the popup of subject ${id} at its last position`;
+      if (!track) return `${text}.`;
+
+      if (!subject.tracks_available) {
+        warn(action, `subject ${id} has no track available`);
+
+        return `${text}; it has no track to show.`;
       }
+
+      dispatch(pinSubjectTracks(id));
+
+      return `${text} and pinned its track.`;
     },
 
-    [ATLAS_APP_ACTIONS.SUBJECT_TRACK]: async ({ action, ids, since, until }) => {
+    'subject-track': async ({ action, ids, since, until }) => {
       if (!isEnabled(getState(), SYSTEM_CONFIG_FLAGS.SUBJECTS)) return skip(action, 'subjects are disabled');
 
       const previousTracks = getState().data.tracks;
@@ -423,16 +451,20 @@ const createActionRunner = ({ getLatest, store }) => {
       dispatch(pinSubjectTracks(...ids));
 
       await waitForTracks(ids, { previousTracks: isWindowChanged ? previousTracks : null });
-      await jumpToTracks(action, ids, { frameSingleSubject: true, since, until });
+      const isMoved = await jumpToTracks(action, ids, { frameSingleSubject: true, since, until });
+
+      return isMoved
+        ? `Pinned the track of ${countSubjects(ids)} and moved the map to it.`
+        : `Pinned the track of ${countSubjects(ids)}; no track positions in the window to move the map to.`;
     },
 
-    [ATLAS_APP_ACTIONS.SUBJECT_AT_TIME]: async ({ action, id, time }) => {
+    'subject-at-time': async ({ action, id, time }) => {
       if (!isEnabled(getState(), SYSTEM_CONFIG_FLAGS.SUBJECTS)) return skip(action, 'subjects are disabled');
 
       // The map moves an open subject popup to the slider's position, so the
       // popup opens first.
-      const subject = await openSubjectPopup(action, id, { fly: false });
-      if (!subject) return;
+      const { error, subject } = await openSubjectPopup(action, id, { fly: false });
+      if (error) return error;
 
       const now = Date.now();
       const momentTime = Math.min(Date.parse(time), now);
@@ -455,14 +487,18 @@ const createActionRunner = ({ getLatest, store }) => {
       dispatch(setVirtualDate(moment));
 
       const position = isTrackLoaded ? findSubjectPositionAt(getState().data.tracks[id], moment) : null;
-      if (position) {
-        await cameraHistory().move(cameraHistory().begin(), () => frameSubject(position));
-      } else {
-        console.warn(`[otus:app] ${action}: subject ${id} has no position at or before ${moment}`);
+      if (!position) {
+        warn(action, `subject ${id} has no position at or before ${moment}`);
+
+        return `Set the time slider to ${moment}, but subject ${id} has no position at or before it.`;
       }
+
+      await cameraHistory().move(cameraHistory().begin(), () => frameSubject(position));
+
+      return `Showed subject ${id} where it was at ${moment}.`;
     },
 
-    [ATLAS_APP_ACTIONS.SUBJECT_HEATMAP]: async ({ action, ids, since, until }) => {
+    'subject-heatmap': async ({ action, ids, since, until }) => {
       if (!isEnabled(getState(), SYSTEM_CONFIG_FLAGS.SUBJECTS)) return skip(action, 'subjects are disabled');
 
       const previousTracks = getState().data.tracks;
@@ -472,33 +508,47 @@ const createActionRunner = ({ getLatest, store }) => {
       dispatch(updateHeatmapSubjects(ids));
 
       await waitForTracks(ids, { every: false, previousTracks: isWindowChanged ? previousTracks : null });
-      await jumpToTracks(action, ids, { since, until });
+      const isMoved = await jumpToTracks(action, ids, { since, until });
+
+      return isMoved
+        ? `Turned on the heatmap of ${countSubjects(ids)} and moved the map to it.`
+        : `Turned on the heatmap of ${countSubjects(ids)}; no track positions in the window to move the map to.`;
     },
 
-    [ATLAS_APP_ACTIONS.REPORT_HEATMAP]: ({ action, on }) => {
+    'report-heatmap': ({ action, on }) => {
       if (!isEnabled(getState(), SYSTEM_CONFIG_FLAGS.EVENTS)) return skip(action, 'events are disabled');
 
       if (on) dispatch(updateHeatmapSubjects([]));
       dispatch(setReportHeatmapVisibility(on));
+
+      return `Turned the event heatmap ${on ? 'on' : 'off'}.`;
     },
 
-    [ATLAS_APP_ACTIONS.SUBJECTS_VISIBILITY]: ({ action, hide, only, show }) => {
+    'subjects-visibility': ({ action, hide, only, show }) => {
       if (!isEnabled(getState(), SYSTEM_CONFIG_FLAGS.SUBJECTS)) return skip(action, 'subjects are disabled');
 
       if (hide) {
         dispatch(hideSubjectsFromAtlas(...hide));
-      } else if (show) {
-        dispatch(showSubjectsFromAtlas(...show));
-      } else {
-        const allSubjectIds = getUniqueSubjectGroupSubjectIDs(...selectHydratedSubjectGroupsWithLastPositionTime(getState()));
-        const idsToHide = allSubjectIds.filter((id) => !only.includes(id));
 
-        dispatch(showSubjectsFromAtlas(...only));
-        if (idsToHide.length) dispatch(hideSubjectsFromAtlas(...idsToHide));
+        return `Hid ${countSubjects(hide)} on the map.`;
       }
+
+      if (show) {
+        dispatch(showSubjectsFromAtlas(...show));
+
+        return `Showed ${countSubjects(show)} on the map.`;
+      }
+
+      const allSubjectIds = getUniqueSubjectGroupSubjectIDs(...selectHydratedSubjectGroupsWithLastPositionTime(getState()));
+      const idsToHide = allSubjectIds.filter((id) => !only.includes(id));
+
+      dispatch(showSubjectsFromAtlas(...only));
+      if (idsToHide.length) dispatch(hideSubjectsFromAtlas(...idsToHide));
+
+      return `Showed only ${countSubjects(only)} on the map.`;
     },
 
-    [ATLAS_APP_ACTIONS.SHOW_FEATURE]: async ({ action, id }) => {
+    'show-feature': async ({ action, id }) => {
       const state = getState();
       if (!isEnabled(state, SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES)) return skip(action, 'spatial features are disabled');
 
@@ -512,18 +562,22 @@ const createActionRunner = ({ getLatest, store }) => {
       dispatch(openMapFeatureType(featureType.name));
 
       if (!summary.bounds) {
-        return console.warn(`[otus:app] ${action}: feature ${id} is shown, but its extent is unknown`);
+        warn(action, `feature ${id} is shown, but its extent is unknown`);
+
+        return `Showed feature ${id}; its extent is unknown, so the map did not move.`;
       }
 
-      const moved = cameraHistory().move(cameraHistory().begin(), () => jumpTo(bboxToCorners(summary.bounds)));
+      const moved = cameraHistory().move(cameraHistory().begin(), () => jumpTo(calcJumpCoordinatesForBbox(summary.bounds)));
       dispatch(setMapFeatureHighlightIDs([id]));
 
       const centerPoint = center(bboxPolygon(summary.bounds), { properties: { id, name: summary.name } });
       dispatch(showPopup('feature-symbol', { ...centerPoint, coordinates: centerPoint.geometry.coordinates }));
       await moved;
+
+      return `Showed feature ${id} and fitted the map to it.`;
     },
 
-    [ATLAS_APP_ACTIONS.SHOW_ANALYZER]: async ({ action, id }) => {
+    'show-analyzer': async ({ action, id }) => {
       const state = getState();
       if (!isEnabled(state, SYSTEM_CONFIG_FLAGS.ANALYZERS)) return skip(action, 'analyzers are disabled');
 
@@ -532,12 +586,14 @@ const createActionRunner = ({ getLatest, store }) => {
 
       dispatch(showAnalyzers(id));
 
-      if (analyzer.geojson?.features?.length) {
-        await cameraHistory().move(cameraHistory().begin(), () => jumpTo(bboxToCorners(bbox(analyzer.geojson))));
-      }
+      if (!analyzer.geojson?.features?.length) return `Showed analyzer ${id}; it has no outline to fit the map to.`;
+
+      await cameraHistory().move(cameraHistory().begin(), () => jumpTo(calcJumpCoordinatesForBbox(bbox(analyzer.geojson))));
+
+      return `Showed analyzer ${id} and fitted the map to it.`;
     },
 
-    [ATLAS_APP_ACTIONS.LAYERS_SEARCH]: async ({ action, tab, text }) => {
+    'layers-search': async ({ action, tab, text }) => {
       const state = getState();
       const isLayersTabShown = Object.values(LAYERS_TAB_FLAGS).some((flag) => isEnabled(state, flag))
         || isEnabled(state, SYSTEM_CONFIG_FLAGS.EVENTS);
@@ -545,21 +601,62 @@ const createActionRunner = ({ getLatest, store }) => {
 
       dispatch(setMapLayersFilterTextFromAtlas(text));
 
-      if (tab) {
-        if (!isEnabled(state, LAYERS_TAB_FLAGS[tab])) return skip(action, `the ${tab} tab is disabled`);
+      const searched = `Searched Map Layers for "${text}"`;
+      if (!tab) return `${searched}.`;
 
-        await navigateTo(action, `/${TAB_KEYS.LAYERS}`, { mapLayersTab: tab });
-      }
+      if (!isEnabled(state, LAYERS_TAB_FLAGS[tab])) return skip(action, `the ${tab} tab is disabled`);
+
+      return await navigateTo(action, `/${TAB_KEYS.LAYERS}`, { mapLayersTab: tab })
+        ? `${searched} and opened its ${tab} tab.`
+        : `${searched}, but did not open its ${tab} tab: ${UNSAVED_EDITS}.`;
+    },
+
+    'jump-to': async ({ coordinates, zoom }) => {
+      await cameraHistory().move(cameraHistory().begin(), () => jumpTo(coordinates, zoom));
+
+      return `Moved the map to ${coordinates[0]}, ${coordinates[1]}${zoom === undefined ? '' : ` at zoom ${zoom}`}.`;
+    },
+
+    'fit-bounds': async ({ bbox: bounds }) => {
+      await cameraHistory().move(cameraHistory().begin(), () => jumpTo(calcJumpCoordinatesForBbox(bounds)));
+
+      return `Fitted the map to ${bounds.join(', ')}.`;
+    },
+
+    // As a link to the record would: unsaved edits ask the user before leaving.
+    'open-record': ({ er_type: erType, id }) => {
+      const tabKey = erType === 'event' ? TAB_KEYS.EVENTS : TAB_KEYS.PATROLS;
+      const isNavigationBlocked = getLatest().isNavigationBlocked;
+
+      getLatest().navigate(`/${tabKey}/${id}`);
+
+      return isNavigationBlocked
+        ? `Asked the user to leave the open record, which has unsaved edits, to open ${erType} ${id}.`
+        : `Opened ${erType} ${id}.`;
     },
   };
 
-  return (message) => handlers[message.action]?.(message);
+  return async (message) => {
+    const { action } = message;
+    if (!Object.hasOwn(handlers, action)) return toolErrorResult(`Unknown tool: ${action}`);
+
+    try {
+      const outcome = await handlers[action](message);
+
+      return typeof outcome === 'string' ? toolResult(outcome) : outcome;
+    } catch (error) {
+      warn(action, `failed (${error?.message ?? error})`);
+
+      return toolErrorResult(`Failed: ${error?.message ?? String(error)}`);
+    }
+  };
 };
 
-// Exported for tests: applies one validated message.
+// Exported for tests: runs one validated call, given as its tool name in
+// action and its arguments, and resolves to its MCP result.
 export const runAtlasAppAction = (message, context) => createActionRunner(context)(message);
 
-// Applies validated otus:app messages with the app's own action creators and
+// Runs validated Atlas tool calls with the app's own action creators and
 // hooks. The caller runs them one at a time, in the order they arrive, and
 // shares its camera history with them.
 const useAtlasAppActions = (cameraHistory) => {

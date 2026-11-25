@@ -2,29 +2,20 @@ import { memo, useCallback, useEffect, useEffectEvent, useId, useRef, useState }
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import {
-  ATLAS_MAP_ACTIONS,
-  ATLAS_MAP_RECORD_TYPES,
-  calcJumpCoordinatesForBbox,
-  parseAtlasMapMessage,
-} from '../../utils/atlas-map-messages';
 import { ATLAS_TOKEN_SESSION_EXPIRING_ERROR_CODE, fetchAtlasToken } from '../../ducks/atlas-token';
 import {
   BREAKPOINTS,
   CLIENT_BUILD_VERSION,
   DAS_HOST,
   SIDEBAR_WIDTH_PIXELS,
-  TAB_KEYS,
   VERTICAL_NAV_RAIL_WIDTH_PIXELS,
 } from '../../constants';
+import { ATLAS_TOOLS } from '../../utils/atlas-tools/validate';
 import { calcMaxOtusTabWidth, clampOtusTabWidth } from '../../utils/otus';
 import { clearAuth } from '../../ducks/auth';
-import { parseAtlasAppMessage } from '../../utils/atlas-app-messages';
 import { selectOtusTabWidth } from '../../selectors/otus';
 import { updateUserPreferences } from '../../ducks/user-preferences';
-import useAtlasAppActions from '../../hooks/useAtlasAppActions';
-import useAtlasCameraHistory from '../../hooks/useAtlasCameraHistory';
-import useJumpToLocation from '../../hooks/useJumpToLocation';
+import { JSON_RPC_ERROR_CODES, useAtlasTools } from '../../AtlasTools';
 import { useMatchMedia } from '../../hooks';
 import useNavigate from '../../hooks/useNavigate';
 
@@ -36,22 +27,18 @@ import * as styles from './styles.module.scss';
 
 const KEYBOARD_RESIZE_STEP_PIXELS = 16;
 
-// A reply's steps arrive together, so one after this gap starts a new reply.
-export const ATLAS_REPLY_GAP_MS = 2000;
-// Longer than the slowest step's own waits, about 10 seconds in all.
-export const ATLAS_STEP_TIMEOUT_MS = 15_000;
-
 export const OTUS_COMMANDS = { NEW_THREAD: 'new-thread', TOGGLE_THREADS: 'toggle-threads' };
 export const OTUS_MESSAGE_TYPES = {
-  APP: 'otus:app',
   COMMAND: 'otus:command',
   CONNECT: 'otus:connect',
-  MAP: 'otus:map',
+  MCP: 'otus:mcp',
   READY: 'otus:ready',
   THREADS: 'otus:threads',
 };
 // Longer than the 8 seconds Otus itself waits for the token.
 export const OTUS_READY_TIMEOUT_MS = 10_000;
+
+const isJsonRpcId = (id) => typeof id === 'string' || (typeof id === 'number' && Number.isFinite(id));
 
 const WIDTH_BY_RESIZE_KEY = {
   ArrowLeft: (width) => width - KEYBOARD_RESIZE_STEP_PIXELS,
@@ -65,21 +52,13 @@ const OtusTab = ({ isActive, url }) => {
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.otusTab' });
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
-  const jumpToLocation = useJumpToLocation();
   const navigate = useNavigate();
-  const cameraHistory = useAtlasCameraHistory();
-  const runAtlasAppAction = useAtlasAppActions(cameraHistory);
+  const { callTool } = useAtlasTools();
 
   const otusTabWidth = useSelector(selectOtusTabWidth);
 
   const frameWrapperRef = useRef(null);
   const iframeRef = useRef(null);
-  // Steps of one Atlas reply arrive back to back, and app actions await routes
-  // and data, so later steps wait for the ones before them.
-  const pendingActionCountRef = useRef(0);
-  const actionQueueRef = useRef(Promise.resolve());
-  const lastActionReceivedAtRef = useRef(-Infinity);
-  const replyCountRef = useRef(0);
 
   const panelId = useId();
   const titleId = useId();
@@ -172,94 +151,48 @@ const OtusTab = ({ isActive, url }) => {
 
   const onToggleRecent = useCallback(() => postCommand(OTUS_COMMANDS.TOGGLE_THREADS), [postCommand]);
 
-  // An action starts at once when none is running, and otherwise after the
-  // last, unless a newer reply arrived meanwhile.
-  const enqueueAction = (actionName, runAction) => {
-    const receivedAt = Date.now();
-    if (receivedAt - lastActionReceivedAtRef.current > ATLAS_REPLY_GAP_MS) replyCountRef.current += 1;
-    lastActionReceivedAtRef.current = receivedAt;
+  const callToolForFrame = async (params) => {
+    if (typeof params !== 'object' || params === null || Array.isArray(params)) {
+      return { error: { code: JSON_RPC_ERROR_CODES.INVALID_PARAMS, message: 'tools/call needs params' } };
+    }
 
-    const replyCount = replyCountRef.current;
+    const { _meta: meta, arguments: args, name } = params;
+    if (meta?.batch !== undefined && typeof meta.batch !== 'string') {
+      return { error: { code: JSON_RPC_ERROR_CODES.INVALID_PARAMS, message: '_meta.batch must be a string' } };
+    }
 
-    const startAction = () => {
-      if (replyCount !== replyCountRef.current) {
-        console.warn(`[otus:app] ${actionName}: skipped, a newer Atlas reply arrived`);
-
-        return Promise.resolve();
-      }
-
-      let timeoutId;
-      const timeout = new Promise((resolve) => {
-        timeoutId = setTimeout(() => {
-          console.warn(`[otus:app] ${actionName}: moving on after ${ATLAS_STEP_TIMEOUT_MS} ms without finishing`);
-
-          resolve();
-        }, ATLAS_STEP_TIMEOUT_MS);
-      });
-
-      let action;
-      try {
-        action = Promise.resolve(runAction());
-      } catch (error) {
-        action = Promise.reject(error);
-      }
-
-      return Promise.race([action, timeout]).finally(() => clearTimeout(timeoutId));
-    };
-
-    pendingActionCountRef.current += 1;
-
-    actionQueueRef.current = (pendingActionCountRef.current === 1 ? startAction() : actionQueueRef.current.then(startAction))
-      .catch((error) => console.warn('[otus:app] an Atlas action failed', error))
-      .finally(() => {
-        pendingActionCountRef.current -= 1;
-      });
+    try {
+      return { result: await callTool(name, args, { batch: meta?.batch }) };
+    } catch (error) {
+      return {
+        error: {
+          code: error?.code ?? JSON_RPC_ERROR_CODES.INVALID_PARAMS,
+          message: error?.message ?? String(error),
+        },
+      };
+    }
   };
 
-  // Atlas moves of the camera are written into the browser history.
-  const moveCameraWithHistory = (performMove) => cameraHistory.move(cameraHistory.begin(), performMove);
-
-  const applyMapMessage = useEffectEvent((message) => {
-    switch (message.action) {
-    case ATLAS_MAP_ACTIONS.JUMP_TO:
-      return moveCameraWithHistory(() => jumpToLocation(message.coordinates, message.zoom));
-
-    case ATLAS_MAP_ACTIONS.FIT_BOUNDS:
-      return moveCameraWithHistory(() => jumpToLocation(calcJumpCoordinatesForBbox(message.bbox)));
-
-    case ATLAS_MAP_ACTIONS.OPEN_RECORD: {
-      const tabKey = message.er_type === ATLAS_MAP_RECORD_TYPES.EVENT ? TAB_KEYS.EVENTS : TAB_KEYS.PATROLS;
-
-      navigate(`/${tabKey}/${message.id}`);
-      break;
-    }
-
-    default:
-      break;
-    }
-  });
-
-  const onMapMessage = useEffectEvent((data) => {
-    const message = parseAtlasMapMessage(data);
-    if (!message) {
-      console.warn('Ignoring an invalid Atlas map message', data);
+  // Atlas calls the app's tools as an MCP client would, over JSON-RPC. The
+  // reply goes to the window that asked, even if the frame reloaded since.
+  const onMcpMessage = useEffectEvent(async (data, frameWindow) => {
+    if (data.jsonrpc !== '2.0' || !isJsonRpcId(data.id)) {
+      console.warn('Ignoring a malformed Atlas MCP message', data);
 
       return;
     }
 
-    // Applied at once unless actions before it are still running.
-    enqueueAction(message.action, () => applyMapMessage(message));
-  });
-
-  const onAppMessage = useEffectEvent((data) => {
-    const message = parseAtlasAppMessage(data);
-    if (!message) {
-      console.warn('Ignoring an invalid Atlas app message', data);
-
-      return;
+    const targetOrigin = otusOrigin;
+    let reply;
+    if (data.method === 'tools/list') {
+      reply = { result: { tools: ATLAS_TOOLS } };
+    } else if (data.method === 'tools/call') {
+      reply = await callToolForFrame(data.params);
+    } else {
+      reply = { error: { code: JSON_RPC_ERROR_CODES.METHOD_NOT_FOUND, message: `Method not found: ${data.method}` } };
     }
 
-    enqueueAction(message.action, () => runAtlasAppAction(message));
+    frameWindow.postMessage({ type: OTUS_MESSAGE_TYPES.MCP, jsonrpc: '2.0', id: data.id, ...reply }, targetOrigin);
   });
 
   useEffect(() => {
@@ -314,9 +247,7 @@ const OtusTab = ({ isActive, url }) => {
           setRecentOpenFrameKey(event.data.open === true ? frameKey : null);
         }
 
-        if (event.data?.type === OTUS_MESSAGE_TYPES.MAP) onMapMessage(event.data);
-
-        if (event.data?.type === OTUS_MESSAGE_TYPES.APP) onAppMessage(event.data);
+        if (event.data?.type === OTUS_MESSAGE_TYPES.MCP) onMcpMessage(event.data, event.source);
       }
     };
 

@@ -80,3 +80,9 @@ export const setTimeSliderAt = async (store, { dateRange, origin, virtualDate })
 
   if (virtualDate) store.dispatch(setVirtualDate(virtualDate));
 };
+
+// A bbox without area would make fitBounds zoom all the way in, so it becomes
+// a single point that jumpToLocation centers on instead.
+export const calcJumpCoordinatesForBbox = ([west, south, east, north]) => (west === east && south === north
+  ? [west, south]
+  : [[west, south], [east, north]]);

@@ -4,7 +4,13 @@ import { thunk } from 'redux-thunk';
 import eventFilterReducer from '../ducks/event-filter';
 import timeSliderReducer, { setVirtualDate } from '../ducks/timeslider';
 
-import { setTimeSliderAt, TIME_SLIDER_MOUNT_DELAY_MS, TIME_SLIDER_RESET_TIMEOUT_MS, waitUntil } from './atlas-view';
+import {
+  calcJumpCoordinatesForBbox,
+  setTimeSliderAt,
+  TIME_SLIDER_MOUNT_DELAY_MS,
+  TIME_SLIDER_RESET_TIMEOUT_MS,
+  waitUntil,
+} from './atlas-view';
 
 // The real duck reaches the app's store through its imports.
 jest.mock('../ducks/tracks', () => ({
@@ -125,6 +131,16 @@ describe('utils - atlas-view', () => {
       await setTimeSliderAt(store, { dateRange: { lower, upper }, virtualDate });
 
       expect(store.getState().view.timeSliderState.virtualDate).toBe(virtualDate);
+    });
+  });
+
+  describe('calcJumpCoordinatesForBbox', () => {
+    test('returns the corners of a bbox with area', () => {
+      expect(calcJumpCoordinatesForBbox([-10, -5, 10, 5])).toEqual([[-10, -5], [10, 5]]);
+    });
+
+    test('returns a single point for a bbox without area', () => {
+      expect(calcJumpCoordinatesForBbox([1, 2, 1, 2])).toEqual([1, 2]);
     });
   });
 });
