@@ -330,11 +330,16 @@ Either way the client gets an access token, Auth0's used as is, kept in a cookie
 
 **Conversations** belong to Otus, per user and site, so they survive a reload. Since Otus starts a sandbox per user, the frame loads on the tab's first visit, then stays alive while the user switches tabs.
 
+**Tools.** Atlas shows its answers in the client by calling the client's tools, such as setting the events filter, opening a patrol or moving the map, as an MCP client would: JSON-RPC `tools/list` and `tools/call` over `postMessage`. Each call resolves to an MCP result saying what was done, or why not, such as a feature the site has turned off. Calls run one at a time in arrival order, those of an older Atlas reply still waiting are dropped, and camera moves are written to the browser history so Back returns the map. The tools and their input schemas are a contract Otus keeps a copy of, so a change to them is made in both. With `REACT_APP_ENABLE_WEBMCP`, the same tools are offered to browser agents through WebMCP.
+
 **UI**
 - **Otus tab** (`/atlas`): the client's own header, whose New conversation and Recent buttons it relays to the frame, and whose Recent button shows pressed while Otus reports its conversation list open, above the Otus frame. On medium layouts and up the panel resizes by drag or keyboard, its width survives a reload, and the map's padding follows it.
 
 **Key files**
 - `SideBar/OtusTab/`: the frame, the handshake, the resizing, and the header.
+- `utils/atlas-tools/tools.json`, `utils/atlas-tools/validate.js`: the tools contract, and the checks it cannot state.
+- `AtlasTools/`: the app-wide queue that runs tool calls, and WebMCP.
+- `hooks/useAtlasAppActions/`, `hooks/useAtlasCameraHistory/`: what each tool does, and the camera history.
 - `ducks/atlas-token/`: requesting the Atlas token.
 - `ducks/system-config/`: the Otus URL.
 - `selectors/otus/`, `utils/otus.js`: the panel width and its bounds.

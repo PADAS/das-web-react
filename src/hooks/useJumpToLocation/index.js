@@ -14,7 +14,7 @@ const DEFAULT_LOCATION_JUMP_PADDING = {
   bottom: 12,
   right: 12,
 };
-const MAP_CONTROLS_PADDING_PIXELS = 90;
+export const MAP_CONTROLS_PADDING_PIXELS = 90;
 const MIN_UNPADDED_MAP_WIDTH_PIXELS = 150;
 
 const flattenToCoordinatePairs = (coords) => (Array.isArray(coords[0]) ? coords.flatMap(flattenToCoordinatePairs) : [coords]);

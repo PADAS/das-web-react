@@ -7,15 +7,16 @@ import { ReactComponent as PlusCircleIcon } from '../../../common/images/icons/p
 
 import * as styles from './styles.module.scss';
 
-const Header = ({ isRecentOpen = false, onClose, onNewConversation, onToggleRecent, titleId }) => {
+const Header = ({ isBooting = false, isRecentOpen = false, onClose, onNewConversation, onToggleRecent, titleId }) => {
   const { t } = useTranslation('components', { keyPrefix: 'sideBar.otusTab.header' });
 
   return <header className={styles.header}>
     <button
       aria-label={t('newConversationButtonLabel')}
       className={styles.newConversationButton}
+      disabled={isBooting}
       onClick={onNewConversation}
-      title={t('newConversationButtonLabel')}
+      title={isBooting ? t('startingTooltip') : t('newConversationButtonLabel')}
       type="button"
     >
       <PlusCircleIcon aria-hidden="true" className={styles.newConversationButtonIcon} />

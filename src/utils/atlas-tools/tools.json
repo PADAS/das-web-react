@@ -1,0 +1,651 @@
+{
+  "$comment": "The EarthRanger tools Atlas (and, with WebMCP, any browser agent) may call. The contract between das-web-react and otus: das-web-react owns this file, and otus keeps a copy (agents/otus/skills/show_in_app/tools.json) with a test that every step to_view.py writes validates against it. validate.js checks each call against its inputSchema (so unknown tools, and unknown keys, which every schema's additionalProperties: false forbids, are refused) and then adds the rules JSON Schema cannot say, or says only in a dialect some consumers do not read: since, until and time must each be a real instant (no month 13, 2026-02-30 or 24:00, and an offset of at most 23:59) and are normalized to UTC (YYYY-MM-DDTHH:mm:ss.sssZ); since must not be after until (equal is allowed); coordinates and lnglat are [longitude, latitude] and bbox is [longitude, latitude, longitude, latitude], each longitude in -180..180 and latitude in -90..90; bbox needs west <= east and south <= north; ids (every value with the uuid pattern, alone or in a list) are lower-cased; duplicate items of every list but coordinates, lnglat and bbox are dropped (ids after lower-casing). Change the two together.",
+  "version": 1,
+  "tools": [
+    {
+      "name": "events-filter",
+      "description": "Set the Events feed filter in EarthRanger (the map's event markers follow it). Fields left out keep the user's current value; give until: null for a window that runs to now. Opens the Events feed unless open is false.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "since": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}[Tt]\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?([Zz]|[+-]\\d{2}:?\\d{2})$",
+            "description": "Window start, an ISO 8601 time with its offset."
+          },
+          "until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}[Tt]\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?([Zz]|[+-]\\d{2}:?\\d{2})$",
+                "description": "An ISO 8601 time with its offset, e.g. 2026-11-20T00:00:00+03:00."
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Window end, an ISO 8601 time with its offset, or null for open-ended (now)."
+          },
+          "event_types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+            },
+            "maxItems": 500,
+            "description": "Event type ids; an empty list shows every type, at most 500; duplicates are ignored."
+          },
+          "priority": {
+            "type": "array",
+            "items": {
+              "enum": [
+                0,
+                100,
+                200,
+                300
+              ]
+            },
+            "maxItems": 4,
+            "description": "Priorities to show (300 red, 200 amber, 100 green, 0 grey); an empty list shows all."
+          },
+          "state": {
+            "enum": [
+              "active",
+              "review",
+              "resolved",
+              "all"
+            ],
+            "description": "Event state to show."
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Search text, at most 100 characters (UTF-16 units); an empty string clears it."
+          },
+          "reported_by": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+            },
+            "maxItems": 500,
+            "description": "Reporter ids; an empty list shows every reporter, at most 500; duplicates are ignored."
+          },
+          "sort": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "enum": [
+                  "updated_at",
+                  "created_at",
+                  "event_time"
+                ]
+              },
+              "dir": {
+                "enum": [
+                  "up",
+                  "down"
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "field",
+              "dir"
+            ],
+            "description": "Sort order of the feed."
+          },
+          "open": {
+            "type": "boolean",
+            "description": "Navigate to the Events feed (default true)."
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "patrols-filter",
+      "description": "Set the Patrols feed filter in EarthRanger. Fields left out keep the user's current value; until: null means the end of today. Opens the Patrols feed only when open is true.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "since": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}[Tt]\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?([Zz]|[+-]\\d{2}:?\\d{2})$",
+            "description": "Window start, an ISO 8601 time with its offset."
+          },
+          "until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}[Tt]\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?([Zz]|[+-]\\d{2}:?\\d{2})$",
+                "description": "An ISO 8601 time with its offset, e.g. 2026-11-20T00:00:00+03:00."
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Window end, or null for the end of today."
+          },
+          "status": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "active",
+                "done",
+                "cancelled"
+              ]
+            },
+            "maxItems": 3,
+            "description": "Patrol statuses to show; an empty list shows all."
+          },
+          "patrol_types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+            },
+            "maxItems": 500,
+            "description": "Patrol type ids; an empty list shows every type, at most 500; duplicates are ignored."
+          },
+          "leaders": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+            },
+            "maxItems": 500,
+            "description": "Leader subject ids; an empty list shows every leader, at most 500; duplicates are ignored."
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Search text, at most 100 characters (UTF-16 units); an empty string clears it."
+          },
+          "open": {
+            "type": "boolean",
+            "description": "Navigate to the Patrols feed (default false)."
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "open-event",
+      "description": "Open one event's detail view in EarthRanger and centre the map on it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+            "description": "The event's id."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "open-patrol",
+      "description": "Open one patrol's detail view in EarthRanger and pin its track.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+            "description": "The patrol's id."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "subject-popup",
+      "description": "Show a subject's popup on the EarthRanger map, flying to its last position, and optionally its track.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+            "description": "The subject's id."
+          },
+          "track": {
+            "type": "boolean",
+            "description": "Also show its track."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "subject-track",
+      "description": "Pin the tracks of up to 20 subjects on the EarthRanger map. A window that runs to now is since alone; until without since is ignored. A window changes the user's settings and the result says how: one ending now (or within the last hour) sets the track length to the whole days since since; one ending earlier sets the events filter's date range to the window and turns the time slider on at its end.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+            },
+            "maxItems": 20,
+            "description": "Subject ids, at most 20; duplicates are ignored.",
+            "minItems": 1
+          },
+          "since": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}[Tt]\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?([Zz]|[+-]\\d{2}:?\\d{2})$",
+            "description": "Window start, an ISO 8601 time with its offset."
+          },
+          "until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}[Tt]\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?([Zz]|[+-]\\d{2}:?\\d{2})$",
+                "description": "An ISO 8601 time with its offset, e.g. 2026-11-20T00:00:00+03:00."
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Window end, an ISO 8601 time with its offset, or null for open-ended (now)."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "ids"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "subject-at-time",
+      "description": "Show where a subject was at a given time, on its track in EarthRanger. This sets the user's events filter date range to the time ±1 day (ending no later than now) and turns the time slider on at the time; the result says the range.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+            "description": "The subject's id."
+          },
+          "time": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}[Tt]\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?([Zz]|[+-]\\d{2}:?\\d{2})$",
+            "description": "An ISO 8601 time with its offset, e.g. 2026-11-20T00:00:00+03:00."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "time"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "subject-heatmap",
+      "description": "Turn on a heatmap of up to 200 subjects' positions on the EarthRanger map. A window that runs to now is since alone; until without since is ignored. A window changes the user's settings and the result says how: one ending now (or within the last hour) sets the track length to the whole days since since; one ending earlier sets the events filter's date range to the window and turns the time slider on at its end.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+            },
+            "maxItems": 200,
+            "description": "Subject ids, at most 200; duplicates are ignored.",
+            "minItems": 1
+          },
+          "since": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}[Tt]\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?([Zz]|[+-]\\d{2}:?\\d{2})$",
+            "description": "Window start, an ISO 8601 time with its offset."
+          },
+          "until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}[Tt]\\d{2}:\\d{2}(:\\d{2}(\\.\\d{1,9})?)?([Zz]|[+-]\\d{2}:?\\d{2})$",
+                "description": "An ISO 8601 time with its offset, e.g. 2026-11-20T00:00:00+03:00."
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Window end, an ISO 8601 time with its offset, or null for open-ended (now)."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "ids"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "report-heatmap",
+      "description": "Turn the heatmap of the event (report) markers on the EarthRanger map on or off.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "on": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "on"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "subjects-visibility",
+      "description": "Show or hide subjects on the EarthRanger map: exactly one of only (show these, hide the rest), hide, or show. Lasts until the page reloads.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "only": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+            },
+            "maxItems": 500,
+            "description": "Subject ids, at most 500; duplicates are ignored.",
+            "minItems": 1
+          },
+          "hide": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+            },
+            "maxItems": 500,
+            "description": "Subject ids, at most 500; duplicates are ignored.",
+            "minItems": 1
+          },
+          "show": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+            },
+            "maxItems": 500,
+            "description": "Subject ids, at most 500; duplicates are ignored.",
+            "minItems": 1
+          }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "only"
+            ]
+          },
+          {
+            "required": [
+              "hide"
+            ]
+          },
+          {
+            "required": [
+              "show"
+            ]
+          }
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "show-feature",
+      "description": "Show a spatial feature (a place, fence or area) on the EarthRanger map and fit the map to it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+            "description": "The feature's id."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "show-analyzer",
+      "description": "Show an analyzer's outline on the EarthRanger map and fit the map to it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+            "description": "The analyzer's id."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "layers-search",
+      "description": "Search the EarthRanger Map Layers panel; matching groups expand. Lasts until the page reloads.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Search text, at most 100 characters (UTF-16 units)."
+          },
+          "tab": {
+            "enum": [
+              "subjects",
+              "features",
+              "analyzers"
+            ],
+            "description": "Which tab to search."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "text"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "jump-to",
+      "description": "Move the EarthRanger map camera to a point; the browser's Back button returns it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "coordinates": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "description": "[longitude, latitude]: longitude -180..180, latitude -90..90.",
+            "items": {
+              "type": "number"
+            }
+          },
+          "zoom": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 22
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "coordinates"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "fit-bounds",
+      "description": "Fit the EarthRanger map camera to a box; the browser's Back button returns it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "bbox": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "description": "[west, south, east, north] in degrees: longitudes -180..180, latitudes -90..90, west <= east and south <= north.",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "bbox"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "open-record",
+      "description": "Open an event or patrol in EarthRanger, as a link to it would.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "er_type": {
+            "enum": [
+              "event",
+              "patrol"
+            ]
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          },
+          "lnglat": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2,
+            "description": "[longitude, latitude] to centre the map on, as the record link's ?lnglat= does."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "er_type",
+          "id"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    }
+  ]
+}

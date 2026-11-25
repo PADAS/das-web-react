@@ -6,6 +6,7 @@ import { INITIAL_TRACK_STATE, updateHeatmapSubjects, updateTrackState } from '..
 import { mockStore } from '../../__test-helpers/MockStore';
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { render, screen } from '../../test-utils';
+import { NavigationContext } from '../../NavigationContextProvider';
 
 import MapLayersTab from './';
 
@@ -135,5 +136,37 @@ describe('SideBar - MapLayersTab', () => {
     expect(updateHeatmapSubjects).toHaveBeenCalledWith([]);
     expect(updateTrackState).toHaveBeenCalledTimes(1);
     expect(updateTrackState).toHaveBeenCalledWith(INITIAL_TRACK_STATE);
+  });
+
+  describe('when a navigation asks for a tab', () => {
+    const tree = (navigationData) => <Provider store={mockStore(store)}>
+      <NavigationContext.Provider value={{ navigationData }}>
+        <MapLayersTab />
+      </NavigationContext.Provider>
+    </Provider>;
+
+    test('selects the tab asked for', () => {
+      render(tree({ mapLayersTab: 'events' }));
+
+      expect(screen.getByRole('tab', { name: 'Events' })).toHaveAttribute('aria-selected', 'true');
+    });
+
+    test('ignores a tab it does not have', () => {
+      render(tree({ mapLayersTab: 'settings' }));
+
+      expect(screen.getByRole('tab', { name: 'Subjects' })).toHaveAttribute('aria-selected', 'true');
+    });
+
+    test('selects the tab asked for again after the user picked another one', async () => {
+      const { rerender } = render(tree({ mapLayersTab: 'features' }));
+
+      await userEvent.click(screen.getByRole('tab', { name: 'Events' }));
+
+      expect(screen.getByRole('tab', { name: 'Events' })).toHaveAttribute('aria-selected', 'true');
+
+      rerender(tree({ mapLayersTab: 'features' }));
+
+      expect(screen.getByRole('tab', { name: 'Features' })).toHaveAttribute('aria-selected', 'true');
+    });
   });
 });

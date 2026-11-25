@@ -325,6 +325,7 @@
         "closeButtonLabel": "Funga Atlas",
         "newConversationButtonLabel": "Mazungumzo mapya",
         "recentButtonLabel": "Za hivi karibuni",
+        "startingTooltip": "Atlas inaanza…",
         "title": "Atlas"
       },
       "iframeTitle": "Gumzo na Atlas",

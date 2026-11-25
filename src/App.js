@@ -27,8 +27,10 @@ import { setDefaultCustomTrackLength, setTrackLength } from './ducks/tracks';
 import { showToast } from './utils/toast';
 import useFeedTableView from './FeedTable/useFeedTableView';
 import useNavigate from './hooks/useNavigate';
+import { jumpToStartingCamera, useJumpToCameraOnHistoryPop } from './hooks/useAtlasCameraHistory';
 import { userIsGeoPermissionRestricted } from './utils/geo-perms';
 
+import AtlasToolsProvider from './AtlasTools';
 import Drawer from './Drawer';
 import Map from './Map';
 import MapDrawingToolsContextProvider from './MapDrawingTools/ContextProvider';
@@ -72,6 +74,7 @@ export const App = () => {
   const [map, setMap] = useState(null);
 
   const { isTableView } = useFeedTableView();
+  useJumpToCameraOnHistoryPop(map);
 
   const currentTab = getCurrentTabFromURL(location.pathname);
   // The table covers the map, so its controls leave the tab order.
@@ -79,23 +82,7 @@ export const App = () => {
   let sidebarOpen = !!currentTab;
 
   const jumpToStartingLocation = useCallback((map) => {
-    const urlParams = new URLSearchParams(location.search);
-    const lnglat = urlParams.get('lnglat');
-
-    if (lnglat) {
-      const lngLatFromParams = lnglat.replace(' ', '').split(',').map((n) => parseFloat(n));
-
-      urlParams.delete('lnglat');
-      const remainingSearch = urlParams.toString();
-      const newLocation = {
-        ...location,
-        search: remainingSearch ? `?${remainingSearch}` : ''
-      };
-
-      navigate(newLocation, { replace: true, state: { comesFromLngLatRedirection: true } });
-
-      map.jumpTo({ center: lngLatFromParams, zoom: 16 });
-    } else if (homeMap && !mapPosition?.center && !mapPosition?.zoom) {
+    if (!jumpToStartingCamera({ location, map, navigate }) && homeMap && !mapPosition?.center && !mapPosition?.zoom) {
       map.jumpTo({ center: homeMap.center, zoom: homeMap.zoom });
     }
   }, [homeMap, location, mapPosition, navigate]);
@@ -225,27 +212,29 @@ export const App = () => {
     onDragOver={disallowDragAndDrop}
     >
     <MapContext.Provider value={map}>
-      <MapDrawingToolsContextProvider>
-        <PrintTitle />
+      <AtlasToolsProvider>
+        <MapDrawingToolsContextProvider>
+          <PrintTitle />
 
-        <Nav />
+          <Nav />
 
-        <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-          {mapboxSupported
-            ? <Map inert={isMapCoveredByTable} map={map} onMapLoad={onMapHasLoaded} socket={socket} />
-            : <ErrorMessage className='webgl-error-message' message={t('webGlDisabled')} />}
+          <div className={`app-container ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+            {mapboxSupported
+              ? <Map inert={isMapCoveredByTable} map={map} onMapLoad={onMapHasLoaded} socket={socket} />
+              : <ErrorMessage className='webgl-error-message' message={t('webGlDisabled')} />}
 
-          <SidebarScrollProvider>
-            <SideBar map={map} />
-          </SidebarScrollProvider>
+            <SidebarScrollProvider>
+              <SideBar map={map} />
+            </SidebarScrollProvider>
 
-          <ModalRenderer />
-        </div>
+            <ModalRenderer />
+          </div>
 
-        <Drawer />
+          <Drawer />
 
-        <ServiceWorkerWatcher />
-      </MapDrawingToolsContextProvider>
+          <ServiceWorkerWatcher />
+        </MapDrawingToolsContextProvider>
+      </AtlasToolsProvider>
     </MapContext.Provider>
 
     <ToastContainer transition={Slide} />

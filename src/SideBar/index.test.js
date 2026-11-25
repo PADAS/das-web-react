@@ -19,6 +19,7 @@ import { mockStore } from '../__test-helpers/MockStore';
 import patrols from '../__test-helpers/fixtures/patrols';
 import patrolTypes from '../__test-helpers/fixtures/patrol-types';
 import { act, createEvent, fireEvent, render, screen, waitFor } from '../test-utils';
+import AtlasToolsProvider from '../AtlasTools';
 import SideBar from '.';
 import { BREAKPOINTS, PERMISSION_KEYS, PERMISSIONS, PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS } from '../constants';
 import { SET_FEED_TABLE_VIEW, setFeedTableView } from '../ducks/feed-table-view';
@@ -167,7 +168,9 @@ describe('SideBar', () => {
   const sideBarTree = (mockedStore) => <Provider store={mockedStore}>
     <MockSocketProvider>
       <MapContext.Provider value={map}>
-        <SideBar />
+        <AtlasToolsProvider>
+          <SideBar />
+        </AtlasToolsProvider>
       </MapContext.Provider>
     </MockSocketProvider>
   </Provider>;
@@ -741,15 +744,7 @@ describe('SideBar', () => {
     useLocationMock = jest.fn((() => ({ pathname: '/events' })));
     useLocation.mockImplementation(useLocationMock);
 
-    rerender(
-      <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <MapContext.Provider value={map}>
-            <SideBar />
-          </MapContext.Provider>
-        </MockSocketProvider>
-      </Provider>
-    );
+    rerender(sideBarTree(mockStore(store)));
 
     await waitFor(() => {
       expect(screen.queryByTestId('badgeIcon')).toBeNull();
@@ -773,15 +768,7 @@ describe('SideBar', () => {
     useLocationMock = jest.fn((() => ({ pathname: `/events/${report.id}` })));
     useLocation.mockImplementation(useLocationMock);
 
-    rerender(
-      <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <MapContext.Provider value={map}>
-            <SideBar />
-          </MapContext.Provider>
-        </MockSocketProvider>
-      </Provider>
-    );
+    rerender(sideBarTree(mockStore(store)));
 
     await waitFor(() => {
       expect(screen.getByTestId('badgeIcon')).toBeDefined();
@@ -805,15 +792,7 @@ describe('SideBar', () => {
     useLocationMock = jest.fn((() => ({ pathname: '/patrols' })));
     useLocation.mockImplementation(useLocationMock);
 
-    rerender(
-      <Provider store={mockStore(store)}>
-        <MockSocketProvider>
-          <MapContext.Provider value={map}>
-            <SideBar />
-          </MapContext.Provider>
-        </MockSocketProvider>
-      </Provider>
-    );
+    rerender(sideBarTree(mockStore(store)));
 
     await waitFor(() => {
       expect(screen.getByTestId('badgeIcon')).toBeDefined();

@@ -14,6 +14,7 @@ export const REACT_APP_BASE_MAP_STYLES = import.meta.env.REACT_APP_BASE_MAP_STYL
 export const REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS = import.meta.env.REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS;
 export const REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS = import.meta.env.REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS;
 export const REACT_APP_OTUS_URL = import.meta.env.REACT_APP_OTUS_URL;
+export const REACT_APP_ENABLE_WEBMCP = import.meta.env.REACT_APP_ENABLE_WEBMCP;
 
 export const DAS_HOST = import.meta.env.REACT_APP_DAS_HOST
   || `${window.location.protocol}//${window.location.host}`;

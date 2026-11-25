@@ -24,8 +24,13 @@ $cta-primary-hover: colors.shade(var(--er-ui-cta-primary), colors.$hover-shade);
     padding: 0;
     width: 2rem;
 
-    &:hover {
+    &:hover:not(:disabled) {
       color: $cta-primary-hover;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
     }
 
     &:focus-visible {
