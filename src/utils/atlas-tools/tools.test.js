@@ -2,26 +2,45 @@ import { createHash } from 'crypto';
 
 import toolsDocument from './tools.json';
 
-// otus keeps a copy of tools.json, and Atlas is told its version on connect.
-const CONTRACT_FINGERPRINT = {
-  sha256: '6caba7b2d2104e5054dfff8b4403a6c0b4251c6c9f6eb164a05e5f375edd9b75',
-  version: 1,
+// The sha256 of each contract version's tool names and input schemas. otus
+// keeps a copy of tools.json, and Atlas is told its version on connect, so a
+// version, once shipped, always means the same schemas.
+const CONTRACT_FINGERPRINTS = {
+  1: 'f96d5df99300674ef83cec9952e26b024bcc77a8716f3a1a456770dc7e146469',
 };
 
-const CHANGED_MESSAGE = 'tools.json changed: bump its version, update this fingerprint, and copy the file to otus '
+const CHANGED_MESSAGE = 'The names or input schemas in tools.json changed: bump its version, add the new version and '
+  + 'its sha256 to CONTRACT_FINGERPRINTS (never edit an existing entry), and copy tools.json to otus '
   + '(agents/otus/skills/show_in_app/tools.json)';
 
-describe('utils - atlas-tools - tools.json', () => {
-  test('matches the contract otus has a copy of', () => {
-    const fingerprint = {
-      sha256: createHash('sha256').update(JSON.stringify(toolsDocument.tools)).digest('hex'),
-      version: toolsDocument.version,
-    };
+const fingerprint = (tools) => createHash('sha256')
+  .update(JSON.stringify(tools.map(({ name, inputSchema }) => ({ name, inputSchema }))))
+  .digest('hex');
 
-    if (fingerprint.sha256 !== CONTRACT_FINGERPRINT.sha256 || fingerprint.version !== CONTRACT_FINGERPRINT.version) {
-      throw new Error(`${CHANGED_MESSAGE}. Now ${JSON.stringify(fingerprint)}.`);
+describe('utils - atlas-tools - tools.json', () => {
+  test('has the names and input schemas pinned for its version', () => {
+    const sha256 = fingerprint(toolsDocument.tools);
+
+    if (sha256 !== CONTRACT_FINGERPRINTS[toolsDocument.version]) {
+      throw new Error(`${CHANGED_MESSAGE}. Version ${toolsDocument.version} is now ${sha256}.`);
     }
 
-    expect(fingerprint).toEqual(CONTRACT_FINGERPRINT);
+    expect(sha256).toBe(CONTRACT_FINGERPRINTS[toolsDocument.version]);
+  });
+
+  test('pins each version to its own names and input schemas', () => {
+    const shas = Object.values(CONTRACT_FINGERPRINTS);
+
+    if (new Set(shas).size !== shas.length) {
+      throw new Error(`Two versions in CONTRACT_FINGERPRINTS share a sha256, so one was edited. ${CHANGED_MESSAGE}.`);
+    }
+
+    expect(new Set(shas).size).toBe(shas.length);
+  });
+
+  test('is the latest version pinned', () => {
+    const latestVersion = Math.max(...Object.keys(CONTRACT_FINGERPRINTS).map(Number));
+
+    expect(toolsDocument.version).toBe(latestVersion);
   });
 });

@@ -652,7 +652,11 @@ describe('SideBar - OtusTab', () => {
 
   describe('MCP messages', () => {
     const SUBJECT_ID = '6f1c2d3e-4b5a-4c7d-8e9f-0a1b2c3d4e5f';
-    const RESULT = { content: [{ text: 'Showed the popup of subject.', type: 'text' }], isError: false };
+    const RESULT = {
+      _meta: { status: 'applied' },
+      content: [{ text: 'Showed the popup of subject.', type: 'text' }],
+      isError: false,
+    };
 
     let warn;
     beforeEach(() => {
@@ -721,8 +725,97 @@ describe('SideBar - OtusTab', () => {
       expect(callTool).toHaveBeenCalledWith('report-heatmap', { on: true }, { batch: undefined });
     });
 
+    describe('with a progress token', () => {
+      const startedNotification = (progressToken) => ({
+        type: 'otus:mcp',
+        jsonrpc: '2.0',
+        method: 'notifications/progress',
+        params: { message: 'started', progress: 0, progressToken },
+      });
+
+      test.each([['a string', 'call-7'], ['a number', 7]])(
+        'tells the frame when a call with %s as its token starts, before replying',
+        async (_, progressToken) => {
+          callTool.mockImplementation((name, args, { onStart }) => {
+            onStart();
+
+            return Promise.resolve(RESULT);
+          });
+          renderOtusTab();
+          const postMessage = mockFramePostMessage();
+
+          dispatchMcpMessage(callMessage({ _meta: { progressToken }, arguments: { on: true }, name: 'report-heatmap' }));
+          await flushReplies();
+
+          expect(postMessage.mock.calls).toEqual([
+            [startedNotification(progressToken), OTUS_URL],
+            [{ type: 'otus:mcp', jsonrpc: '2.0', id: 7, result: RESULT }, OTUS_URL],
+          ]);
+        }
+      );
+
+      test('says nothing of a call that never starts', async () => {
+        const superseded = {
+          _meta: { status: 'superseded' },
+          content: [{ text: 'Skipped, superseded by a newer reply.', type: 'text' }],
+          isError: true,
+        };
+        callTool.mockImplementation(() => Promise.resolve(superseded));
+        renderOtusTab();
+        const postMessage = mockFramePostMessage();
+
+        dispatchMcpMessage(callMessage({ _meta: { progressToken: 'call-7' }, arguments: { on: true }, name: 'report-heatmap' }));
+        await flushReplies();
+
+        expect(callTool).toHaveBeenCalledWith('report-heatmap', { on: true }, { batch: undefined, onStart: expect.any(Function) });
+        expect(postMessage.mock.calls).toEqual([[{ type: 'otus:mcp', jsonrpc: '2.0', id: 7, result: superseded }, OTUS_URL]]);
+      });
+
+      test.each([
+        ['an object', { key: 1 }],
+        ['null', null],
+        ['an infinite number', Infinity],
+      ])('does not ask to hear of the start with %s as the token', async (_, progressToken) => {
+        renderOtusTab();
+        mockFramePostMessage();
+
+        dispatchMcpMessage(callMessage({ _meta: { progressToken }, arguments: { on: true }, name: 'report-heatmap' }));
+        await flushReplies();
+
+        expect(callTool).toHaveBeenCalledWith('report-heatmap', { on: true }, { batch: undefined, onStart: undefined });
+      });
+
+      test('tells the window that asked, even after the frame reloads', async () => {
+        let startCall;
+        callTool.mockImplementation((name, args, { onStart }) => new Promise((resolve) => {
+          startCall = () => {
+            onStart();
+            resolve(RESULT);
+          };
+        }));
+        fetchAtlasToken.mockImplementationOnce(() => () => Promise.reject(new Error('Request failed')));
+        renderOtusTab();
+        fireEvent.load(getFrame());
+        await dispatchReadyMessage();
+        const postMessage = mockFramePostMessage();
+
+        dispatchMcpMessage(callMessage({ _meta: { progressToken: 'call-7' }, arguments: { on: true }, name: 'report-heatmap' }));
+        await user.click(screen.getByRole('button', { name: 'Try again' }));
+        const reloadedFramePostMessage = mockFramePostMessage();
+        await act(async () => startCall());
+        await flushReplies();
+
+        expect(postMessage).toHaveBeenCalledWith(startedNotification('call-7'), OTUS_URL);
+        expect(reloadedFramePostMessage).not.toHaveBeenCalled();
+      });
+    });
+
     test('replies with an error result as a result, not a JSON-RPC error', async () => {
-      const skipped = { content: [{ text: 'Skipped, events are disabled.', type: 'text' }], isError: true };
+      const skipped = {
+        _meta: { status: 'refused' },
+        content: [{ text: 'Skipped, events are disabled.', type: 'text' }],
+        isError: true,
+      };
       callTool.mockImplementation(() => Promise.resolve(skipped));
       renderOtusTab();
       const postMessage = mockFramePostMessage();

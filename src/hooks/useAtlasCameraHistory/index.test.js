@@ -232,6 +232,33 @@ describe('hooks - useAtlasCameraHistory', () => {
     expect(map.jumpTo).not.toHaveBeenCalled();
   });
 
+  test('writes nothing after a move whose signal aborts before it ends, and leaves the next move its own entry', async () => {
+    const { atlasMove, current, map, url } = renderCameraHistory();
+    const controller = new AbortController();
+
+    let session;
+    act(() => {
+      session = current().cameraHistory.begin();
+    });
+    await act(async () => {
+      const moved = current().cameraHistory.move(
+        session,
+        () => map.easeTo({ center: [1, 1], zoom: 3 }),
+        { signal: controller.signal }
+      );
+      controller.abort();
+      await moved;
+    });
+
+    expect(map.easeTo).toHaveBeenCalled();
+    expect(current().navigationType).toBe('REPLACE');
+    expect(url()).toBe('/atlas?keep=1&lnglat=10.000000,20.000000&zoom=5.00');
+
+    await atlasMove({ center: [2, 2], zoom: 4 });
+
+    expect(current().navigationType).toBe('PUSH');
+  });
+
   test('moves without writing when there is no session', async () => {
     const { current, map, url } = renderCameraHistory();
 

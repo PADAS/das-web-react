@@ -1,3 +1,4 @@
+import { act, renderHook } from '@testing-library/react';
 import axios from 'axios';
 import { applyMiddleware, combineReducers, legacy_createStore as createStore } from 'redux';
 import { thunk } from 'redux-thunk';
@@ -31,7 +32,11 @@ import { getBoundsForPatrol, patrolStateAllowsTrackDisplay } from '../../utils/p
 import { mapFeatureHighlightIdReducer } from '../../ducks/mapFeatureHighlight';
 import { PREVIEW_FEATURES, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { ATLAS_TOOL_NAMES } from '../../utils/atlas-tools/validate';
+import { MemoryRouter, useLocation } from 'react-router';
 import { selectPatrolTrackData } from '../../selectors/patrols';
+import useAtlasCameraHistory from '../useAtlasCameraHistory';
+
+import { MapContext } from '../../MapContext';
 
 import { runAtlasAppAction } from './';
 
@@ -74,8 +79,8 @@ const HOUR_MS = 3_600_000;
 const DAY_MS = 24 * HOUR_MS;
 const iso = (time) => new Date(time).toISOString();
 
-const done = (text) => ({ content: [{ text, type: 'text' }], isError: false });
-const failed = (text) => ({ content: [{ text, type: 'text' }], isError: true });
+const done = (text) => ({ _meta: { status: 'applied' }, content: [{ text, type: 'text' }], isError: false });
+const failed = (text, status = 'refused') => ({ _meta: { status }, content: [{ text, type: 'text' }], isError: true });
 
 const identity = (initialState) => (state = initialState) => state;
 
@@ -326,7 +331,7 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       expect(calls).toEqual([
         'begin',
         ['navigate', `/events/${EVENT_ID}`],
-        ['move', 'session', undefined],
+        ['move', 'session', { signal: undefined }],
         ['jump', [36.8, -1.3]],
       ]);
     });
@@ -338,7 +343,7 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
 
       await run({ action: 'subject-popup', id: SUBJECT_ID });
 
-      expect(calls).toEqual(['begin', ['move', 'session', undefined]]);
+      expect(calls).toEqual(['begin', ['move', 'session', { signal: undefined }]]);
       expect(latest.map.easeTo).toHaveBeenCalledTimes(1);
     });
 
@@ -405,6 +410,53 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       await run({ action: 'events-filter', since: '2026-11-01T00:00:00.000Z', until: null });
 
       expect(store.getState().data.eventFilter.filter.date_range.upper).toBeNull();
+    });
+
+    describe('with a range the user set', () => {
+      const DATE_RANGE = { lower: '2026-11-01T00:00:00.000Z', upper: '2026-11-10T00:00:00.000Z' };
+
+      const setUpWithDateRange = () => setUp({
+        data: {
+          eventFilter: {
+            ...INITIAL_EVENT_FILTER_STATE,
+            filter: { ...INITIAL_EVENT_FILTER_STATE.filter, date_range: DATE_RANGE },
+          },
+        },
+      });
+
+      test.each([
+        [
+          'a start after its end',
+          { since: '2026-11-15T00:00:00.000Z' },
+          'Refused: the filter would end (2026-11-10T00:00:00.000Z) before it starts (2026-11-15T00:00:00.000Z); '
+            + 'give until or until: null.',
+        ],
+        [
+          'an end before its start',
+          { until: '2026-10-15T00:00:00.000Z' },
+          'Refused: the filter would end (2026-10-15T00:00:00.000Z) before it starts (2026-11-01T00:00:00.000Z); '
+            + 'give until or until: null.',
+        ],
+      ])('refuses %s, and changes nothing', async (_, args, text) => {
+        const { actions, latest, run, store } = setUpWithDateRange();
+
+        const result = await run({ action: 'events-filter', text: 'snare', ...args });
+
+        expect(result).toEqual(failed(text));
+        expect(actions).toEqual([]);
+        expect(store.getState().data.eventFilter.filter.date_range).toEqual(DATE_RANGE);
+        expect(latest.navigate).not.toHaveBeenCalled();
+      });
+
+      test('accepts a start after its end once the end is opened', async () => {
+        const { run, store } = setUpWithDateRange();
+
+        const result = await run({ action: 'events-filter', open: false, since: '2026-11-15T00:00:00.000Z', until: null });
+
+        expect(result).toEqual(done('Set the Events filter.'));
+        expect(store.getState().data.eventFilter.filter.date_range)
+          .toEqual({ lower: '2026-11-15T00:00:00.000Z', upper: null });
+      });
     });
 
     test('does not touch the patrol filter', async () => {
@@ -477,6 +529,20 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
         tracked_by: [SUBJECT_ID],
       });
       expect(latest.navigate).not.toHaveBeenCalled();
+    });
+
+    test('refuses a start after the end of the user\'s range, and changes nothing', async () => {
+      const { actions, run, store } = setUp();
+      const { date_range: dateRange } = store.getState().data.patrolFilter.filter;
+      const since = iso(Date.parse(dateRange.upper) + DAY_MS);
+
+      const result = await run({ action: 'patrols-filter', open: true, since, status: ['done'] });
+
+      expect(result).toEqual(failed(
+        `Refused: the filter would end (${dateRange.upper}) before it starts (${since}); give until or until: null.`
+      ));
+      expect(actions).toEqual([]);
+      expect(store.getState().data.patrolFilter.filter.date_range).toBe(dateRange);
     });
 
     test('opens the patrols feed when asked', async () => {
@@ -840,8 +906,9 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       const { run, store } = setUp();
       cleanups.push(simulateTrackLoading(store, { [SUBJECT_ID]: makeTrack([[[1, 1], now - HOUR_MS]]) }));
 
-      await run({ action: 'subject-track', ids: [SUBJECT_ID], since: iso(now - 6.5 * DAY_MS) });
+      const result = await run({ action: 'subject-track', ids: [SUBJECT_ID], since: iso(now - 6.5 * DAY_MS) });
 
+      expect(result.content[0].text).toMatch(/ The track length is now 7 days\.$/);
       expect(store.getState().view.trackSettings).toEqual(expect.objectContaining({ length: 7, origin: 'CUSTOM_LENGTH' }));
       expect(store.getState().view.timeSliderState.active).toBe(false);
     });
@@ -859,9 +926,13 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
         ]),
       }));
 
-      await run({ action: 'subject-track', ids: [SUBJECT_ID], since, until });
+      const result = await run({ action: 'subject-track', ids: [SUBJECT_ID], since, until });
 
       const state = store.getState();
+      expect(result).toEqual(done(
+        `Pinned the track of subject ${SUBJECT_ID} and moved the map to it. `
+          + `The events filter is now ${since} to ${until}, with the time slider at ${until}.`
+      ));
       expect(state.data.eventFilter.filter.date_range).toEqual({ lower: since, upper: until });
       expect(state.view.trackSettings.origin).toBe('EVENT_FILTER');
       expect(state.view.timeSliderState).toEqual(expect.objectContaining({ active: true, virtualDate: until }));
@@ -914,7 +985,9 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
         });
         await jest.advanceTimersByTimeAsync(10);
 
-        expect(result).toEqual(done(`Pinned the track of subject ${SUBJECT_ID} and moved the map to it.`));
+        expect(result).toEqual(done(
+          `Pinned the track of subject ${SUBJECT_ID} and moved the map to it. The track length is now 7 days.`
+        ));
         expect(countTrackRequests()).toBe(0);
         expect(actions).not.toContainEqual(expect.objectContaining({ type: FETCH_TRACKS_SUCCESS }));
         expect(store.getState().data.tracks[SUBJECT_ID]).toBe(storedTrack);
@@ -963,7 +1036,9 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       const result = await run({ action: 'subject-at-time', id: SUBJECT_ID, time });
 
       const state = store.getState();
-      expect(result).toEqual(done(`Showed subject ${SUBJECT_ID} where it was at ${time}.`));
+      expect(result).toEqual(done(
+        `Showed subject ${SUBJECT_ID} where it was at ${time}. The events filter is now ${iso(now - 4 * DAY_MS)} to ${iso(now - 2 * DAY_MS)}.`
+      ));
       expect(state.view.popup.type).toBe('subject');
       expect(state.view.timeSliderState).toEqual(expect.objectContaining({ active: true, virtualDate: time }));
       expect(state.data.eventFilter.filter.date_range).toEqual({ lower: iso(now - 4 * DAY_MS), upper: iso(now - 2 * DAY_MS) });
@@ -1000,7 +1075,9 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
         // Only the time slider's own reset is waited for.
         await jest.advanceTimersByTimeAsync(100);
 
-        expect(result).toEqual(done(`Showed subject ${SUBJECT_ID} where it was at ${time}.`));
+        expect(result).toEqual(done(
+          `Showed subject ${SUBJECT_ID} where it was at ${time}. The events filter is now ${iso(now - 4 * DAY_MS)} to ${iso(now - 2 * DAY_MS)}.`
+        ));
         expect(countTrackRequests()).toBe(0);
         expect(actions).not.toContainEqual(expect.objectContaining({ type: FETCH_TRACKS_SUCCESS }));
         expect(store.getState().data.tracks[SUBJECT_ID]).toBe(storedTrack);
@@ -1014,7 +1091,8 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       jest.useFakeTimers();
       try {
         const { latest, run } = setUp({ data: { subjectStore: { [SUBJECT_ID]: { ...subject, tracks_available: false } } } });
-        const time = iso(Date.now() - DAY_MS);
+        const now = Date.now();
+        const time = iso(now - DAY_MS);
 
         let result;
         run({ action: 'subject-at-time', id: SUBJECT_ID, time }).then((value) => {
@@ -1022,7 +1100,10 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
         });
         await jest.advanceTimersByTimeAsync(100);
 
-        expect(result).toEqual(done(`Set the time slider to ${time}, but subject ${SUBJECT_ID} has no position at or before it.`));
+        expect(result).toEqual(done(
+          `Set the time slider to ${time}, but subject ${SUBJECT_ID} has no position at or before it. `
+          + `The events filter is now ${iso(now - 2 * DAY_MS)} to ${iso(now)}.`
+        ));
         expect(countTrackRequests()).toBe(0);
         expect(latest.map.easeTo).not.toHaveBeenCalled();
       } finally {
@@ -1071,7 +1152,9 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
           });
         await jest.advanceTimersByTimeAsync(10);
 
-        expect(result).toEqual(done('Turned on the heatmap of 2 subjects and moved the map to it.'));
+        expect(result).toEqual(done(
+          'Turned on the heatmap of 2 subjects and moved the map to it. The track length is now 7 days.'
+        ));
         expect(countTrackRequests()).toBe(0);
         expect(actions).not.toContainEqual(expect.objectContaining({ type: FETCH_TRACKS_SUCCESS }));
         expect(latest.jumpToLocation).toHaveBeenCalledWith([[1, 1], [3, 3]]);
@@ -1295,12 +1378,15 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       expect(latest.navigate).toHaveBeenCalledWith('/layers', undefined, { mapLayersTab: 'features' });
     });
 
-    test('does not open a disabled tab', async () => {
-      const { latest, run, store } = setUp({ view: withSystemConfig({ [SYSTEM_CONFIG_FLAGS.ANALYZERS]: false }) });
+    test('changes nothing when the tab asked for is disabled', async () => {
+      const { actions, latest, run, store } = setUp({ view: withSystemConfig({ [SYSTEM_CONFIG_FLAGS.ANALYZERS]: false }) });
+      const { text } = store.getState().data.mapLayerFilter;
 
-      await run({ action: 'layers-search', tab: 'analyzers', text: 'fence' });
+      const result = await run({ action: 'layers-search', tab: 'analyzers', text: 'fence' });
 
-      expect(store.getState().data.mapLayerFilter.text).toBe('fence');
+      expect(result).toEqual(failed('Skipped, the analyzers tab is disabled.'));
+      expect(actions).toEqual([]);
+      expect(store.getState().data.mapLayerFilter.text).toBe(text);
       expect(latest.navigate).not.toHaveBeenCalled();
       expect(warn).toHaveBeenCalledWith('[atlas-tools] layers-search: skipped, the analyzers tab is disabled');
     });
@@ -1346,7 +1432,7 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
 
       const result = await run({ action: 'fit-bounds', bbox: [-10, -5, 10, 5] });
 
-      expect(cameraHistory.move).toHaveBeenCalledWith('session', expect.any(Function));
+      expect(cameraHistory.move).toHaveBeenCalledWith('session', expect.any(Function), { signal: undefined });
       expect(latest.jumpToLocation).toHaveBeenCalledWith([[-10, -5], [10, 5]]);
       expect(result).toEqual(done('Fitted the map to -10, -5, 10, 5.'));
     });
@@ -1467,7 +1553,7 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
   });
 
   describe('when the call is cancelled', () => {
-    const STOPPED = failed('Stopped, the call was cancelled.');
+    const STOPPED = failed('Stopped, the call was cancelled.', 'cancelled');
 
     const runWithSignal = (context, message, controller) => runAtlasAppAction(message, { ...context, signal: controller.signal });
 
@@ -1541,6 +1627,42 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       expect(await finished).toEqual(STOPPED);
       expect(latest.jumpToLocation).not.toHaveBeenCalled();
       expect(latest.map.easeTo).not.toHaveBeenCalled();
+    });
+
+    test('writes no history once cancelled while the camera moves, and is not applied', async () => {
+      const moveEndListeners = new Set();
+      const map = {
+        getCenter: () => ({ lat: -1.3, lng: 36.8 }),
+        getZoom: () => 12,
+        off: (type, listener) => moveEndListeners.delete(listener),
+        on: (type, listener) => moveEndListeners.add(listener),
+      };
+      const rendered = renderHook(() => ({ cameraHistory: useAtlasCameraHistory(), location: useLocation() }), {
+        wrapper: ({ children }) => <MemoryRouter initialEntries={['/atlas']}>
+          <MapContext.Provider value={map}>{children}</MapContext.Provider>
+        </MemoryRouter>,
+      });
+      const controller = new AbortController();
+      const { context, latest } = setUp(undefined, { cameraHistory: rendered.result.current.cameraHistory });
+
+      let finished;
+      act(() => {
+        finished = runWithSignal(context, { action: 'jump-to', coordinates: [1, 2] }, controller);
+      });
+      const locationBeforeMoveEnd = rendered.result.current.location;
+      expect(latest.jumpToLocation).toHaveBeenCalled();
+      expect(moveEndListeners.size).toBe(1);
+
+      controller.abort();
+      let result;
+      await act(async () => {
+        moveEndListeners.forEach((listener) => listener());
+        result = await finished;
+      });
+
+      expect(result._meta.status).not.toBe('applied');
+      expect(result).toEqual(STOPPED);
+      expect(rendered.result.current.location).toBe(locationBeforeMoveEnd);
     });
 
     test('does not set the time slider\'s date or move the camera after waiting for the slider', async () => {

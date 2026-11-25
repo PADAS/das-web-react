@@ -12,7 +12,7 @@ jest.mock('../constants', () => ({
   },
 }));
 
-const done = (text) => ({ content: [{ text, type: 'text' }], isError: false });
+const done = (text) => ({ _meta: { status: 'applied' }, content: [{ text, type: 'text' }], isError: false });
 
 const duplicateError = () => Object.assign(new Error('A tool with this name is already registered'), { name: 'InvalidStateError' });
 
@@ -161,7 +161,11 @@ describe('AtlasTools - useWebMcpTools', () => {
 
       const result = await modelContext.tools.get('jump-to').execute({});
 
-      expect(result).toEqual({ content: [{ text: 'Invalid arguments for jump-to: nope', type: 'text' }], isError: true });
+      expect(result).toEqual({
+        _meta: { status: 'refused' },
+        content: [{ text: 'Invalid arguments for jump-to: nope', type: 'text' }],
+        isError: true,
+      });
     });
 
     test('keeps registering after a tool fails, and warns', async () => {

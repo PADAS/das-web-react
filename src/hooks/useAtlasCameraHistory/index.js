@@ -33,7 +33,8 @@ const waitForMoveEnd = (map) => new Promise((resolve) => {
    returns to where the map was. Before a move the current entry is replaced to
    carry the camera; once the move ends a new entry is pushed with the new one,
    or the entry an Atlas navigation already pushed is replaced. Moves close
-   behind an earlier Atlas write replace its entry rather than pushing.
+   behind an earlier Atlas write replace its entry rather than pushing. A move
+   whose signal aborts before it ends writes nothing more.
 
    Writes go straight to the router: they keep the path and the location state,
    so the app's unsaved edits guard (which only ever asks before leaving a
@@ -72,7 +73,7 @@ const useAtlasCameraHistory = () => {
       return { isCoalescing, pathname: location.pathname };
     };
 
-    const move = async (session, performMove, { replace = false } = {}) => {
+    const move = async (session, performMove, { replace = false, signal } = {}) => {
       const { map } = latestRef.current;
       if (!session || !map) {
         performMove();
@@ -83,6 +84,7 @@ const useAtlasCameraHistory = () => {
       const moveEnd = waitForMoveEnd(map);
       performMove();
       await moveEnd;
+      if (signal?.aborted) return;
 
       const hasNavigated = latestRef.current.location.pathname !== session.pathname;
       writeCamera({ replace: replace || session.isCoalescing || hasNavigated });

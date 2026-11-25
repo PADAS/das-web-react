@@ -49,7 +49,7 @@ import { calcJumpCoordinatesForBbox, setTimeSliderAt, sleep, waitUntil } from '.
 import { setTrackLength, setTrackLengthOrigin, TRACK_LENGTH_ORIGINS } from '../../ducks/tracks';
 import { setVirtualDate } from '../../ducks/timeslider';
 import { showPopup } from '../../ducks/popup';
-import { toolErrorResult, toolResult } from '../../utils/atlas-tools/results';
+import { TOOL_STATUSES, toolErrorResult, toolResult } from '../../utils/atlas-tools/results';
 import { updateEventFilter } from '../../ducks/event-filter';
 import { updatePatrolFilter } from '../../ducks/patrol-filter';
 import { useMatchMedia } from '..';
@@ -96,6 +96,26 @@ const skip = (action, reason) => {
 };
 
 const UNSAVED_EDITS = 'the open record has unsaved edits';
+
+// The filter's range merged with the step's, or a refusal if it would end before it starts.
+const mergeDateRange = (action, currentDateRange, { since, until }) => {
+  const dateRange = {
+    lower: since ?? currentDateRange.lower,
+    upper: until !== undefined ? until : currentDateRange.upper,
+  };
+
+  if (dateRange.lower && dateRange.upper && Date.parse(dateRange.upper) < Date.parse(dateRange.lower)) {
+    warn(action, `refused, the filter would end (${dateRange.upper}) before it starts (${dateRange.lower})`);
+
+    return {
+      refusal: toolErrorResult(
+        `Refused: the filter would end (${dateRange.upper}) before it starts (${dateRange.lower}); give until or until: null.`
+      ),
+    };
+  }
+
+  return { dateRange };
+};
 
 const countSubjects = (ids) => ids.length === 1 ? `subject ${ids[0]}` : `${ids.length} subjects`;
 
@@ -165,10 +185,12 @@ const createActionRunner = ({ getLatest, signal, store }) => {
 
         return history.begin();
       },
-      move: (...args) => {
+      // The move ends after the call may have been given up on, so it is
+      // stopped there too, and writes no history.
+      move: (session, performMove, options) => {
         checkNotAborted();
 
-        return history.move(...args);
+        return Promise.resolve(history.move(session, performMove, { ...options, signal })).then(checkNotAborted);
       },
     };
   };
@@ -237,20 +259,27 @@ const createActionRunner = ({ getLatest, signal, store }) => {
 
   // An open-ended window (or one ending now) is the track length. One ending
   // in the past can only be drawn by the time slider, so it moves the event
-  // filter's range, which the slider and the track envelope follow.
+  // filter's range, which the slider and the track envelope follow. Returns a
+  // sentence of what it changed, as both outlast the call.
   const applyTrackWindow = async ({ since, until }) => {
-    if (!since) return;
+    if (!since) return '';
 
     if (!until || Date.now() - Date.parse(until) <= HOUR_MS) {
+      const days = Math.max(1, Math.ceil((Date.now() - Date.parse(since)) / DAY_MS));
+
       dispatch(setTrackLengthOrigin(TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH));
-      dispatch(setTrackLength(Math.max(1, Math.ceil((Date.now() - Date.parse(since)) / DAY_MS))));
-    } else {
-      await setTimeSliderAt(guardedStore, {
-        dateRange: { lower: since, upper: until },
-        origin: TRACK_LENGTH_ORIGINS.EVENT_FILTER,
-        virtualDate: until,
-      });
+      dispatch(setTrackLength(days));
+
+      return ` The track length is now ${days} ${days === 1 ? 'day' : 'days'}.`;
     }
+
+    await setTimeSliderAt(guardedStore, {
+      dateRange: { lower: since, upper: until },
+      origin: TRACK_LENGTH_ORIGINS.EVENT_FILTER,
+      virtualDate: until,
+    });
+
+    return ` The events filter is now ${since} to ${until}, with the time slider at ${until}.`;
   };
 
   const fetchSubject = async (id) => {
@@ -322,13 +351,12 @@ const createActionRunner = ({ getLatest, signal, store }) => {
       const state = getState();
       if (!isEnabled(state, SYSTEM_CONFIG_FLAGS.EVENTS)) return skip(params.action, 'events are disabled');
 
-      const { date_range: currentDateRange } = state.data.eventFilter.filter;
       const filter = {};
       if (params.since !== undefined || params.until !== undefined) {
-        filter.date_range = {
-          lower: params.since ?? currentDateRange.lower,
-          upper: params.until !== undefined ? params.until : currentDateRange.upper,
-        };
+        const { dateRange, refusal } = mergeDateRange(params.action, state.data.eventFilter.filter.date_range, params);
+        if (refusal) return refusal;
+
+        filter.date_range = dateRange;
       }
       if (params.event_types) filter.event_type = params.event_types;
       if (params.priority) filter.priority = params.priority;
@@ -357,14 +385,13 @@ const createActionRunner = ({ getLatest, signal, store }) => {
         return skip(params.action, 'patrols are disabled or not readable by this user');
       }
 
-      const { date_range: currentDateRange } = state.data.patrolFilter.filter;
       const filter = {};
       if (params.since !== undefined || params.until !== undefined) {
         // An open-ended range is requested up to the end of today, as the app does.
-        filter.date_range = {
-          lower: params.since ?? currentDateRange.lower,
-          upper: params.until !== undefined ? params.until : currentDateRange.upper,
-        };
+        const { dateRange, refusal } = mergeDateRange(params.action, state.data.patrolFilter.filter.date_range, params);
+        if (refusal) return refusal;
+
+        filter.date_range = dateRange;
       }
       if (params.patrol_types) filter.patrol_type = params.patrol_types;
       if (params.leaders) filter.tracked_by = params.leaders;
@@ -480,16 +507,16 @@ const createActionRunner = ({ getLatest, signal, store }) => {
     'subject-track': async ({ action, ids, since, until }) => {
       if (!isEnabled(getState(), SYSTEM_CONFIG_FLAGS.SUBJECTS)) return skip(action, 'subjects are disabled');
 
-      await applyTrackWindow({ since, until });
+      const windowText = await applyTrackWindow({ since, until });
       dispatch(showSubjectsFromAtlas(...ids));
       dispatch(pinSubjectTracks(...ids));
 
       await waitForTracks(ids);
       const isMoved = await jumpToTracks(action, ids, { frameSingleSubject: true, since, until });
 
-      return isMoved
+      return (isMoved
         ? `Pinned the track of ${countSubjects(ids)} and moved the map to it.`
-        : `Pinned the track of ${countSubjects(ids)}; no track positions in the window to move the map to.`;
+        : `Pinned the track of ${countSubjects(ids)}; no track positions in the window to move the map to.`) + windowText;
     },
 
     'subject-at-time': async ({ action, id, time }) => {
@@ -503,14 +530,13 @@ const createActionRunner = ({ getLatest, signal, store }) => {
       const now = Date.now();
       const momentTime = Math.min(Date.parse(time), now);
       const moment = new Date(momentTime).toISOString();
+      const dateRange = {
+        lower: new Date(momentTime - DAY_MS).toISOString(),
+        upper: new Date(Math.min(now, momentTime + DAY_MS)).toISOString(),
+      };
 
-      await setTimeSliderAt(guardedStore, {
-        dateRange: {
-          lower: new Date(momentTime - DAY_MS).toISOString(),
-          upper: new Date(Math.min(now, momentTime + DAY_MS)).toISOString(),
-        },
-        virtualDate: moment,
-      });
+      await setTimeSliderAt(guardedStore, { dateRange, virtualDate: moment });
+      const filterText = ` The events filter is now ${dateRange.lower} to ${dateRange.upper}.`;
 
       let isTrackLoaded = false;
       if (subject.tracks_available) {
@@ -527,18 +553,18 @@ const createActionRunner = ({ getLatest, signal, store }) => {
       if (!position) {
         warn(action, `subject ${id} has no position at or before ${moment}`);
 
-        return `Set the time slider to ${moment}, but subject ${id} has no position at or before it.`;
+        return `Set the time slider to ${moment}, but subject ${id} has no position at or before it.${filterText}`;
       }
 
       await cameraHistory().move(cameraHistory().begin(), () => frameSubject(position));
 
-      return `Showed subject ${id} where it was at ${moment}.`;
+      return `Showed subject ${id} where it was at ${moment}.${filterText}`;
     },
 
     'subject-heatmap': async ({ action, ids, since, until }) => {
       if (!isEnabled(getState(), SYSTEM_CONFIG_FLAGS.SUBJECTS)) return skip(action, 'subjects are disabled');
 
-      await applyTrackWindow({ since, until });
+      const windowText = await applyTrackWindow({ since, until });
       // The map turns the report heatmap off while a subject heatmap is on.
       dispatch(setReportHeatmapVisibility(false));
       dispatch(updateHeatmapSubjects(ids));
@@ -546,9 +572,9 @@ const createActionRunner = ({ getLatest, signal, store }) => {
       await waitForTracks(ids, { every: false });
       const isMoved = await jumpToTracks(action, ids, { since, until });
 
-      return isMoved
+      return (isMoved
         ? `Turned on the heatmap of ${countSubjects(ids)} and moved the map to it.`
-        : `Turned on the heatmap of ${countSubjects(ids)}; no track positions in the window to move the map to.`;
+        : `Turned on the heatmap of ${countSubjects(ids)}; no track positions in the window to move the map to.`) + windowText;
     },
 
     'report-heatmap': ({ action, on }) => {
@@ -634,13 +660,12 @@ const createActionRunner = ({ getLatest, signal, store }) => {
       const isLayersTabShown = Object.values(LAYERS_TAB_FLAGS).some((flag) => isEnabled(state, flag))
         || isEnabled(state, SYSTEM_CONFIG_FLAGS.EVENTS);
       if (!isLayersTabShown) return skip(action, 'the Map Layers tab is disabled');
+      if (tab && !isEnabled(state, LAYERS_TAB_FLAGS[tab])) return skip(action, `the ${tab} tab is disabled`);
 
       dispatch(setMapLayersFilterTextFromAtlas(text));
 
       const searched = `Searched Map Layers for "${text}"`;
       if (!tab) return `${searched}.`;
-
-      if (!isEnabled(state, LAYERS_TAB_FLAGS[tab])) return skip(action, `the ${tab} tab is disabled`);
 
       return await navigateTo(action, `/${TAB_KEYS.LAYERS}`, { mapLayersTab: tab })
         ? `${searched} and opened its ${tab} tab.`
@@ -695,7 +720,7 @@ const createActionRunner = ({ getLatest, signal, store }) => {
       if (error instanceof StepAbortedError) {
         warn(action, 'stopped, the call was cancelled');
 
-        return toolErrorResult('Stopped, the call was cancelled.');
+        return toolErrorResult('Stopped, the call was cancelled.', TOOL_STATUSES.CANCELLED);
       }
 
       warn(action, `failed (${error?.message ?? error})`);

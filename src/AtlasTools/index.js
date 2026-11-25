@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
-import { toolErrorResult } from '../utils/atlas-tools/results';
+import { TOOL_STATUSES, toolErrorResult } from '../utils/atlas-tools/results';
 import useAtlasAppActions from '../hooks/useAtlasAppActions';
 import useAtlasCameraHistory from '../hooks/useAtlasCameraHistory';
 import { validateToolCall } from '../utils/atlas-tools/validate';
@@ -23,7 +23,8 @@ const isOfOlderBatch = (call, batch) => call.batch !== undefined && call.batch !
    with a batch (one Atlas reply) makes its batch the current one, and the
    calls of an older batch are dropped, the running one included; a call
    without one never is. A call given up on (dropped, or out of time) is
-   aborted, so it changes nothing more in the app. */
+   aborted, so it changes nothing more in the app. onStart is called when a
+   call leaves the queue and starts running. */
 const AtlasToolsProvider = ({ children }) => {
   const cameraHistory = useAtlasCameraHistory();
   const runAtlasAppAction = useAtlasAppActions(cameraHistory);
@@ -40,7 +41,7 @@ const AtlasToolsProvider = ({ children }) => {
   const waitingCallsRef = useRef([]);
 
   // Resolves to the call's result, or to the result it was stopped with.
-  const runCall = useCallback(({ batch, name, params }) => new Promise((resolve) => {
+  const runCall = useCallback(({ batch, name, onStart, params }) => new Promise((resolve) => {
     const controller = new AbortController();
     let isFinished = false;
     let timeoutId;
@@ -65,8 +66,14 @@ const AtlasToolsProvider = ({ children }) => {
     timeoutId = setTimeout(() => {
       console.warn(`[atlas-tools] ${name}: moving on after ${ATLAS_STEP_TIMEOUT_MS} ms without finishing`);
 
-      stop(toolErrorResult(TIMEOUT_TEXT));
+      stop(toolErrorResult(TIMEOUT_TEXT, TOOL_STATUSES.TIMEOUT));
     }, ATLAS_STEP_TIMEOUT_MS);
+
+    try {
+      onStart?.();
+    } catch (error) {
+      console.warn(`[atlas-tools] ${name}: could not report its start`, error);
+    }
 
     (async () => {
       try {
@@ -96,13 +103,13 @@ const AtlasToolsProvider = ({ children }) => {
 
   // Rejects an invalid call with a JSON-RPC error, and otherwise resolves to
   // the MCP result of the call.
-  const callTool = useCallback((name, args, { batch } = {}) => {
+  const callTool = useCallback((name, args, { batch, onStart } = {}) => {
     const validation = validateToolCall(name, args);
     if (!validation.ok) {
       return Promise.reject({ code: JSON_RPC_ERROR_CODES.INVALID_PARAMS, message: validation.message });
     }
 
-    if (isUnmountedRef.current) return Promise.resolve(toolErrorResult(CANCELLED_TEXT));
+    if (isUnmountedRef.current) return Promise.resolve(toolErrorResult(CANCELLED_TEXT, TOOL_STATUSES.CANCELLED));
 
     if (batch !== undefined && batch !== currentBatchRef.current) {
       currentBatchRef.current = batch;
@@ -111,7 +118,7 @@ const AtlasToolsProvider = ({ children }) => {
         if (!isOfOlderBatch(call, batch)) return true;
 
         console.warn(`[atlas-tools] ${call.name}: skipped, a newer Atlas reply arrived`);
-        call.resolve(toolErrorResult(SUPERSEDED_TEXT));
+        call.resolve(toolErrorResult(SUPERSEDED_TEXT, TOOL_STATUSES.SUPERSEDED));
 
         return false;
       });
@@ -119,12 +126,12 @@ const AtlasToolsProvider = ({ children }) => {
       const runningCall = runningCallRef.current;
       if (runningCall && isOfOlderBatch(runningCall, batch)) {
         console.warn(`[atlas-tools] ${runningCall.name}: stopped, a newer Atlas reply arrived`);
-        runningCall.stop(toolErrorResult(SUPERSEDED_TEXT));
+        runningCall.stop(toolErrorResult(SUPERSEDED_TEXT, TOOL_STATUSES.SUPERSEDED));
       }
     }
 
     return new Promise((resolve) => {
-      waitingCallsRef.current.push({ batch, name, params: validation.params, resolve });
+      waitingCallsRef.current.push({ batch, name, onStart, params: validation.params, resolve });
 
       runWaitingCalls();
     });
@@ -139,9 +146,9 @@ const AtlasToolsProvider = ({ children }) => {
 
       const waitingCalls = waitingCallsRef.current;
       waitingCallsRef.current = [];
-      waitingCalls.forEach((call) => call.resolve(toolErrorResult(CANCELLED_TEXT)));
+      waitingCalls.forEach((call) => call.resolve(toolErrorResult(CANCELLED_TEXT, TOOL_STATUSES.CANCELLED)));
 
-      runningCallRef.current?.stop(toolErrorResult(CANCELLED_TEXT));
+      runningCallRef.current?.stop(toolErrorResult(CANCELLED_TEXT, TOOL_STATUSES.CANCELLED));
     };
   }, []);
 

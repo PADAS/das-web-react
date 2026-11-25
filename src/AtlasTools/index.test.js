@@ -14,12 +14,12 @@ jest.mock('./useWebMcpTools', () => jest.fn());
 
 const SUBJECT_ID = '6f1c2d3e-4b5a-4c7d-8e9f-0a1b2c3d4e5f';
 
-const done = (text) => ({ content: [{ text, type: 'text' }], isError: false });
-const failed = (text) => ({ content: [{ text, type: 'text' }], isError: true });
+const done = (text) => ({ _meta: { status: 'applied' }, content: [{ text, type: 'text' }], isError: false });
+const failed = (text, status = 'refused') => ({ _meta: { status }, content: [{ text, type: 'text' }], isError: true });
 
-const CANCELLED = failed('Cancelled, Atlas tools are no longer available.');
-const SUPERSEDED = failed('Skipped, superseded by a newer reply.');
-const TIMED_OUT = failed('Moved on, the call did not finish within 15 s.');
+const CANCELLED = failed('Cancelled, Atlas tools are no longer available.', 'cancelled');
+const SUPERSEDED = failed('Skipped, superseded by a newer reply.', 'superseded');
+const TIMED_OUT = failed('Moved on, the call did not finish within 15 s.', 'timeout');
 
 const WITH_SIGNAL = { signal: expect.any(AbortSignal) };
 
@@ -177,6 +177,70 @@ describe('AtlasTools', () => {
     await flush();
 
     expect(runAtlasAppAction).toHaveBeenCalledTimes(2);
+  });
+
+  describe('the start of a call', () => {
+    test('is reported when the call leaves the queue, just before it runs', async () => {
+      const [finishFirst] = deferRuns(1);
+      const { callTool } = renderAtlasTools();
+      const onFirstStart = jest.fn(() => expect(runAtlasAppAction).not.toHaveBeenCalled());
+      const onSecondStart = jest.fn(() => expect(runAtlasAppAction).toHaveBeenCalledTimes(1));
+
+      callTool('report-heatmap', { on: true }, { onStart: onFirstStart });
+      const second = callTool('jump-to', { coordinates: [1, 2] }, { onStart: onSecondStart });
+      await flush();
+
+      expect(onFirstStart).toHaveBeenCalledTimes(1);
+      expect(onSecondStart).not.toHaveBeenCalled();
+
+      await finishFirst();
+      await second;
+
+      expect(onFirstStart).toHaveBeenCalledTimes(1);
+      expect(onSecondStart).toHaveBeenCalledTimes(1);
+    });
+
+    test('is not reported for a call dropped by a newer batch before it starts', async () => {
+      deferRuns(1);
+      const { callTool } = renderAtlasTools();
+      const onStart = jest.fn();
+
+      callTool('report-heatmap', { on: true }, { batch: 'reply-1' });
+      const waiting = callTool('jump-to', { coordinates: [1, 2] }, { batch: 'reply-1', onStart });
+      await flush();
+      await callTool('report-heatmap', { on: false }, { batch: 'reply-2' });
+
+      await expect(waiting).resolves.toEqual(SUPERSEDED);
+      expect(onStart).not.toHaveBeenCalled();
+    });
+
+    test('is not reported for a call cancelled before it starts', async () => {
+      deferRuns(1);
+      const { result, unmount } = renderAtlasToolsHook();
+      const onStart = jest.fn();
+
+      result.current.callTool('report-heatmap', { on: true });
+      const waiting = result.current.callTool('jump-to', { coordinates: [1, 2] }, { onStart });
+      await flush();
+      unmount();
+      await flush();
+
+      await expect(waiting).resolves.toEqual(CANCELLED);
+      expect(onStart).not.toHaveBeenCalled();
+    });
+
+    test('does not stop the call when reporting it fails', async () => {
+      const { callTool } = renderAtlasTools();
+
+      const result = await callTool('report-heatmap', { on: true }, {
+        onStart: () => {
+          throw new Error('gone');
+        },
+      });
+
+      expect(result).toEqual(done('Ran report-heatmap.'));
+      expect(warn).toHaveBeenCalledWith('[atlas-tools] report-heatmap: could not report its start', expect.any(Error));
+    });
   });
 
   describe('batches', () => {

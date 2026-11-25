@@ -41,6 +41,7 @@ export const OTUS_READY_TIMEOUT_MS = 10_000;
 // The tools this client offers, so Atlas need not list them before connecting.
 const ATLAS_TOOLS_SUMMARY = { names: ATLAS_TOOL_NAMES, version: ATLAS_TOOLS_VERSION };
 
+// MCP progress tokens take the same values.
 const isJsonRpcId = (id) => typeof id === 'string' || (typeof id === 'number' && Number.isFinite(id));
 
 const WIDTH_BY_RESIZE_KEY = {
@@ -154,7 +155,7 @@ const OtusTab = ({ isActive, url }) => {
 
   const onToggleRecent = useCallback(() => postCommand(OTUS_COMMANDS.TOGGLE_THREADS), [postCommand]);
 
-  const callToolForFrame = async (params) => {
+  const callToolForFrame = async (params, postToFrame) => {
     if (typeof params !== 'object' || params === null || Array.isArray(params)) {
       return { error: { code: JSON_RPC_ERROR_CODES.INVALID_PARAMS, message: 'tools/call needs params' } };
     }
@@ -164,8 +165,17 @@ const OtusTab = ({ isActive, url }) => {
       return { error: { code: JSON_RPC_ERROR_CODES.INVALID_PARAMS, message: '_meta.batch must be a string' } };
     }
 
+    // The frame is told when a call leaves the queue, so it can tell waiting from stuck.
+    const progressToken = meta?.progressToken;
+    const onStart = isJsonRpcId(progressToken)
+      ? () => postToFrame({
+        method: 'notifications/progress',
+        params: { message: 'started', progress: 0, progressToken },
+      })
+      : undefined;
+
     try {
-      return { result: await callTool(name, args, { batch: meta?.batch }) };
+      return { result: await callTool(name, args, { batch: meta?.batch, onStart }) };
     } catch (error) {
       return {
         error: {
@@ -186,16 +196,21 @@ const OtusTab = ({ isActive, url }) => {
     }
 
     const targetOrigin = otusOrigin;
+    const postToFrame = (message) => frameWindow.postMessage(
+      { type: OTUS_MESSAGE_TYPES.MCP, jsonrpc: '2.0', ...message },
+      targetOrigin
+    );
+
     let reply;
     if (data.method === 'tools/list') {
       reply = { result: { _meta: { contractVersion: ATLAS_TOOLS_VERSION }, tools: ATLAS_TOOLS } };
     } else if (data.method === 'tools/call') {
-      reply = await callToolForFrame(data.params);
+      reply = await callToolForFrame(data.params, postToFrame);
     } else {
       reply = { error: { code: JSON_RPC_ERROR_CODES.METHOD_NOT_FOUND, message: `Method not found: ${data.method}` } };
     }
 
-    frameWindow.postMessage({ type: OTUS_MESSAGE_TYPES.MCP, jsonrpc: '2.0', id: data.id, ...reply }, targetOrigin);
+    postToFrame({ id: data.id, ...reply });
   });
 
   useEffect(() => {
