@@ -320,6 +320,7 @@
         "closeButtonLabel": "Fechar Atlas",
         "newConversationButtonLabel": "Nova conversa",
         "recentButtonLabel": "Recentes",
+        "startingTooltip": "O Atlas está iniciando…",
         "title": "Atlas"
       },
       "iframeTitle": "Chat com o Atlas",

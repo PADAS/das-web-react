@@ -260,6 +260,31 @@ describe('SideBar - OtusTab', () => {
     expect(postMessage).toHaveBeenCalledWith({ command: 'toggle-threads', type: 'otus:command' }, OTUS_URL);
   });
 
+  test('disables the new conversation button while the frame reports Atlas is starting', () => {
+    renderOtusTab();
+
+    dispatchFrameMessage({ type: 'otus:booting', booting: true });
+
+    expect(screen.getByRole('button', { name: 'New conversation' })).toBeDisabled();
+  });
+
+  test('enables the new conversation button once the frame reports Atlas has started', () => {
+    renderOtusTab();
+    dispatchFrameMessage({ type: 'otus:booting', booting: true });
+
+    dispatchFrameMessage({ type: 'otus:booting', booting: false });
+
+    expect(screen.getByRole('button', { name: 'New conversation' })).toBeEnabled();
+  });
+
+  test('ignores a booting message that does not come from the frame origin', () => {
+    renderOtusTab();
+
+    dispatchFrameMessage({ type: 'otus:booting', booting: true }, { origin: 'https://evil.example.com' });
+
+    expect(screen.getByRole('button', { name: 'New conversation' })).toBeEnabled();
+  });
+
   test('shows the recent button as pressed once the frame reports the recent conversations are open', () => {
     renderOtusTab();
 

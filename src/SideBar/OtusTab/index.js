@@ -29,6 +29,7 @@ const KEYBOARD_RESIZE_STEP_PIXELS = 16;
 
 export const OTUS_COMMANDS = { NEW_THREAD: 'new-thread', TOGGLE_THREADS: 'toggle-threads' };
 export const OTUS_MESSAGE_TYPES = {
+  BOOTING: 'otus:booting',
   COMMAND: 'otus:command',
   CONNECT: 'otus:connect',
   MCP: 'otus:mcp',
@@ -67,6 +68,7 @@ const OtusTab = ({ isActive, url }) => {
   const panelId = useId();
   const titleId = useId();
 
+  const [bootingFrameKey, setBootingFrameKey] = useState(null);
   const [connectedFrameKey, setConnectedFrameKey] = useState(null);
   const [failedFrameKey, setFailedFrameKey] = useState(null);
   const [frameReloadCount, setFrameReloadCount] = useState(0);
@@ -93,6 +95,8 @@ const OtusTab = ({ isActive, url }) => {
   const isLoading = loadedFrameKey !== frameKey;
   // A reloaded frame starts with Recent closed, so only its own message counts.
   const isRecentOpen = recentOpenFrameKey === frameKey;
+  // Atlas's sandbox is starting, so a new conversation has no session to start in.
+  const isBooting = bootingFrameKey === frameKey;
   const isSessionExpiring = sessionExpiringFrameKey === frameKey;
   // A frame Otus refuses still fires load, so only a connection proves it.
   const isWaitingForConnection = !isLoading && connectedFrameKey !== frameKey;
@@ -262,6 +266,10 @@ const OtusTab = ({ isActive, url }) => {
       if (event.origin === otusOrigin && event.source === iframeRef.current?.contentWindow) {
         if (event.data?.type === OTUS_MESSAGE_TYPES.READY) connect();
 
+        if (event.data?.type === OTUS_MESSAGE_TYPES.BOOTING) {
+          setBootingFrameKey(event.data.booting === true ? frameKey : null);
+        }
+
         if (event.data?.type === OTUS_MESSAGE_TYPES.THREADS) {
           setRecentOpenFrameKey(event.data.open === true ? frameKey : null);
         }
@@ -295,6 +303,7 @@ const OtusTab = ({ isActive, url }) => {
     style={isMediumLayoutOrLarger ? { width } : undefined}
     >
     <Header
+      isBooting={isBooting}
       isRecentOpen={isRecentOpen}
       onClose={onClose}
       onNewConversation={onNewConversation}

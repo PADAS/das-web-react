@@ -325,6 +325,7 @@
         "closeButtonLabel": "Close Atlas",
         "newConversationButtonLabel": "New conversation",
         "recentButtonLabel": "Recent",
+        "startingTooltip": "Atlas is starting up...",
         "title": "Atlas"
       },
       "iframeTitle": "Atlas chat",

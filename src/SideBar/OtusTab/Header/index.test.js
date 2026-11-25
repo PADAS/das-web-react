@@ -47,6 +47,22 @@ describe('SideBar - OtusTab - Header', () => {
     expect(onNewConversation).toHaveBeenCalledTimes(1);
   });
 
+  test('disables the new conversation button with a tooltip while Atlas is starting', () => {
+    renderHeader({ isBooting: true });
+
+    const button = screen.getByRole('button', { name: 'New conversation' });
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('title', 'Atlas is starting up...');
+  });
+
+  test('enables the new conversation button once Atlas has started', () => {
+    renderHeader();
+
+    const button = screen.getByRole('button', { name: 'New conversation' });
+    expect(button).toBeEnabled();
+    expect(button).toHaveAttribute('title', 'New conversation');
+  });
+
   test('toggles the recent conversations when the user clicks the recent button', async () => {
     renderHeader();
 

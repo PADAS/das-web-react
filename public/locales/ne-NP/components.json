@@ -320,6 +320,7 @@
         "closeButtonLabel": "Atlas बन्द गर्नुहोस्",
         "newConversationButtonLabel": "नयाँ कुराकानी",
         "recentButtonLabel": "हालका",
+        "startingTooltip": "Atlas सुरु हुँदैछ…",
         "title": "Atlas"
       },
       "iframeTitle": "Atlas सँग च्याट",
