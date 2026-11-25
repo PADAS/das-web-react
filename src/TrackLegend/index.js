@@ -135,36 +135,36 @@ const TrackLegend = ({
 
         <div className={styles.settingsButtons}>
           {showTimeOfDaySettings && <button
-            aria-controls={timeOfDaySettingsId}
-            aria-expanded={isTimeOfDayColoringActive}
-            aria-label={t(`timeOfDaySettingsButtonLabel.${isTimeOfDayColoringActive ? 'active' : 'inactive'}`)}
+            aria-controls={isTimeOfDayColoringActive ? timeOfDaySettingsId : undefined}
+            aria-label={t('timeOfDaySettingsButtonLabel')}
+            aria-pressed={isTimeOfDayColoringActive}
             className={`${styles.settingsButton} ${isTimeOfDayColoringActive ? styles.active : ''}`}
             onClick={() => isTimeOfDayColoringActive ? onDeactivateTimeOfDayColoring() : onActivateTimeOfDayColoring()}
-            title={t(`timeOfDaySettingsButtonLabel.${isTimeOfDayColoringActive ? 'active' : 'inactive'}`)}
+            title={t('timeOfDaySettingsButtonLabel')}
             type="button"
           >
             <DayNightIcon aria-hidden="true" />
           </button>}
 
           {showTrackSettings && <button
-            aria-controls={trackSettingsId}
+            aria-controls={isTrackSettingsExpanded ? trackSettingsId : undefined}
             aria-expanded={isTrackSettingsExpanded}
-            aria-label={t(`trackSettingsButtonLabel.${isTrackSettingsExpanded ? 'open' : 'closed'}`)}
-            className={`${styles.settingsButton} ${isTrackSettingsExpanded ? styles.active : ''}`}
+            aria-label={t('trackSettingsButtonLabel')}
+            className={styles.settingsButton}
             onClick={() => isTrackSettingsExpanded ? onCollapseMenu() : onExpandMenu(MENUS.TRACK_SETTINGS)}
-            title={t(`trackSettingsButtonLabel.${isTrackSettingsExpanded ? 'open' : 'closed'}`)}
+            title={t('trackSettingsButtonLabel')}
             type="button"
           >
             <GearIcon aria-hidden="true" />
           </button>}
 
           {hasTracksList && <button
-            aria-controls={tracksListId}
+            aria-controls={isTracksListExpanded ? tracksListId : undefined}
             aria-expanded={isTracksListExpanded}
-            aria-label={t(`tracksListButtonLabel.${isTracksListExpanded ? 'open' : 'closed'}`, { itemsName })}
-            className={`${styles.settingsButton} ${isTracksListExpanded ? styles.active : ''}`}
+            aria-label={t('tracksListButtonLabel', { itemsName })}
+            className={styles.settingsButton}
             onClick={() => isTracksListExpanded ? onCollapseMenu() : onExpandMenu(MENUS.TRACKS_LIST)}
-            title={t(`tracksListButtonLabel.${isTracksListExpanded ? 'open' : 'closed'}`, { itemsName })}
+            title={t('tracksListButtonLabel', { itemsName })}
             type="button"
           >
             {isTracksListExpanded

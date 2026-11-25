@@ -6,6 +6,7 @@ import { BREAKPOINTS, CLUSTER_CLICK_ZOOM_THRESHOLD, LAYER_IDS, SUBJECT_FEATURE_C
 import { calcSidebarPaddingLeft } from '../utils/map';
 import { calcSvgImageIconId } from '../utils/mapImages';
 import { ensureEventIcon, getEventIcon } from '../utils/eventMapIcons';
+import { withOpacity } from '../utils/colors';
 import getWindowLocation from '../utils/getWindowLocation';
 import { selectOtusTabWidth } from '../selectors/otus';
 import store from '../store';
@@ -22,7 +23,7 @@ const CLUSTER_HTML_MARKER_CONTAINER_STYLES = {
   flexDirection: 'row',
   aligntItems: 'center',
   borderRadius: '20px',
-  backgroundColor: 'rgba(255, 255, 255, 0.5)',
+  backgroundColor: withOpacity('var(--er-greyscale-white)', 50),
   padding: '4px 10px',
   cursor: 'pointer',
 };

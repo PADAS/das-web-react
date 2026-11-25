@@ -46,8 +46,17 @@ describe('SideBar - EventsManager - EventOverview - Header - StatusSelect', () =
     expect(getToggle()).toHaveFocus();
   });
 
-  test('opens the menu on the current state with the up arrow', async () => {
-    renderStatusSelect({ state: 'resolved' });
+  test('opens the menu on the first option with the down arrow, whatever the current state', async () => {
+    renderStatusSelect({ isDirty: true, state: 'review' });
+
+    getToggle().focus();
+    await userEvent.keyboard('{ArrowDown}');
+
+    expect(screen.getByRole('menuitem', { name: 'Active' })).toHaveFocus();
+  });
+
+  test('opens the menu on the last option with the up arrow, whatever the current state', async () => {
+    renderStatusSelect({ isDirty: true, state: 'review' });
 
     getToggle().focus();
     await userEvent.keyboard('{ArrowUp}');

@@ -1,20 +1,19 @@
-@use 'sass:color';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
-$button-font-color: colors.$medium-light-gray;
+$button-font-color: var(--er-ui-text-secondary-text);
 
 .form {
   display: flex;
 }
 
 .editable {
-  border-bottom: 2px dashed white;
+  border-bottom: 2px dashed var(--er-ui-background-primary-background);
   cursor: pointer;
   line-height: normal;
 
   &:hover {
     button {
-      background-color: color.adjust(gray, $lightness: -50%);
+      background-color: var(--er-greyscale-0);
     }
   }
 }
@@ -44,7 +43,7 @@ $button-font-color: colors.$medium-light-gray;
 }
 
 .input {
-  background: rgb(255 255 255 / 50%);
+  background: colors.with-opacity(var(--er-ui-background-primary-background), 50%);
   border: none;
   outline: none;
   margin: -0.125rem;

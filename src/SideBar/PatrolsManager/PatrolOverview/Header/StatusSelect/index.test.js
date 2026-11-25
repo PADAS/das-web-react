@@ -133,15 +133,15 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
     expect(screen.getByRole('menuitem', { name: 'Active' })).not.toHaveAttribute('aria-current');
   });
 
-  test('focuses the checked status when the menu opens', async () => {
+  test('focuses the menu, and none of its statuses, when the toggle is clicked', async () => {
     renderStatusSelect({ isDirty: true, state: PAUSED });
 
     await openMenu();
 
-    expect(await screen.findByRole('menuitem', { name: 'Pause' })).toHaveFocus();
+    expect(await screen.findByRole('menu')).toHaveFocus();
   });
 
-  test('opens the menu when ArrowDown is pressed on the toggle', async () => {
+  test('opens the menu on its first status when ArrowDown is pressed on the toggle', async () => {
     renderStatusSelect();
 
     getToggle().focus();
@@ -150,13 +150,13 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
     expect(await screen.findByRole('menuitem', { name: 'Active' })).toHaveFocus();
   });
 
-  test('opens the menu when ArrowUp is pressed on the toggle', async () => {
+  test('opens the menu on its last status when ArrowUp is pressed on the toggle', async () => {
     renderStatusSelect();
 
     getToggle().focus();
     await userEvent.keyboard('{ArrowUp}');
 
-    expect(await screen.findByRole('menuitem', { name: 'Active' })).toHaveFocus();
+    expect(await screen.findByRole('menuitem', { name: 'End' })).toHaveFocus();
   });
 
   test('leaves the menu closed when a key it does not handle is pressed on the toggle', async () => {
@@ -173,6 +173,9 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
 
     await openMenu();
     await screen.findByRole('menu');
+
+    await userEvent.keyboard('{ArrowDown}');
+    expect(screen.getByRole('menuitem', { name: 'Active' })).toHaveFocus();
 
     await userEvent.keyboard('{ArrowDown}');
     expect(screen.getByRole('menuitem', { name: 'Cancel' })).toHaveFocus();
@@ -216,8 +219,7 @@ describe('SideBar - PatrolsManager - PatrolOverview - Header - StatusSelect', ()
 
     await userEvent.keyboard('a');
 
-    expect(screen.getByRole('menu')).toBeInTheDocument();
-    expect(screen.getByRole('menuitem', { name: 'Active' })).toHaveFocus();
+    expect(screen.getByRole('menu')).toHaveFocus();
   });
 
   test('hides the menu and refocuses the toggle when Escape is pressed', async () => {

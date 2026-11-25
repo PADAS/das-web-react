@@ -38,10 +38,7 @@
       },
       "title": "Heure de la journée"
     },
-    "timeOfDaySettingsButtonLabel": {
-      "active": "Désactiver la coloration par heure de la journée",
-      "inactive": "Activer la coloration par heure de la journée"
-    },
+    "timeOfDaySettingsButtonLabel": "Coloration par heure de la journée",
     "trackSettings": {
       "customLengthErrorMessage": "Veuillez entrer une durée de trajectoire entre {{min}} et {{max}}.",
       "customLengthInputLabel": "Durée de la trajectoire en jours",
@@ -50,10 +47,7 @@
       "title": "Paramètres des trajectoires",
       "trackLengthLegend": "Durée de la trajectoire"
     },
-    "trackSettingsButtonLabel": {
-      "closed": "Ouvrir les paramètres des trajectoires",
-      "open": "Fermer les paramètres des trajectoires"
-    },
+    "trackSettingsButtonLabel": "Paramètres des trajectoires",
     "tracksList": {
       "tracksChildItem": {
         "toggleTracksButtonLabel": {
@@ -70,10 +64,7 @@
         }
       }
     },
-    "tracksListButtonLabel": {
-      "closed": "Ouvrir la liste des {{itemsName}}",
-      "open": "Fermer la liste des {{itemsName}}"
-    }
+    "tracksListButtonLabel": "Liste des {{itemsName}}"
   },
   "trackLength": {
     "length": "{{length}} kilomètres",

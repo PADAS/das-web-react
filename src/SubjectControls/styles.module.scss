@@ -1,4 +1,3 @@
-@use '../common/styles/vars/colors';
 @use 'mixins';
 
 .controls {
@@ -26,13 +25,14 @@
 
 
 .hasLabel {
-  background-color: rgba(colors.$secondary-light-gray, .25);
-  border: 0.06rem solid colors.$secondary-medium-light-gray;
-  max-width: 5.75rem;
-  max-height: 2.25rem;
+  background-color: var(--er-ui-background-elevated-component-0);
+  border: 0.06rem solid var(--er-ui-field-outline);
   border-radius: 0.2rem;
-  overflow: hidden;
+  color: var(--er-ui-icons);
   cursor: pointer;
+  max-height: 2.25rem;
+  max-width: 5.75rem;
+  overflow: hidden;
 
   [class*="spinner"] {
     position: relative;

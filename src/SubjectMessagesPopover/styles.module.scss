@@ -1,5 +1,5 @@
 @use '../SubjectControls/mixins';
-@use '../common/styles/vars/colors';
+@use '../common/styles/colors';
 
 .popover {
   height: 22rem;
@@ -12,7 +12,7 @@
   }
 
   [class*='popover-header'] svg {
-    background-color: colors.$transparent-dark-gray;
+    background-color: colors.with-opacity(var(--er-greyscale-0), 5%);
     border-radius: 0.125rem;
   }
 }

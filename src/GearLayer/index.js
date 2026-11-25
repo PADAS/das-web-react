@@ -2,6 +2,7 @@ import { memo, useContext, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import { MapContext } from '../MapContext';
+import { COLOR_TOKENS } from '../utils/colors';
 import { LAYER_IDS, SOURCE_IDS } from '../constants';
 import { safeRemoveMapLayer, safeRemoveMapSource } from '../utils/map';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
@@ -56,7 +57,7 @@ const GearLayer = ({ onGearClick }) => {
         source: sourceId,
         filter: ['==', ['geometry-type'], 'LineString'],
         paint: {
-          'line-color': '#0d6efd',
+          'line-color': COLOR_TOKENS['ui-data-categorical-category-1'],
           'line-opacity': 0.9,
           'line-width': 3,
         },
@@ -87,7 +88,7 @@ const GearLayer = ({ onGearClick }) => {
         source: sourceId,
         filter: ['==', ['geometry-type'], 'Point'],
         paint: {
-          'circle-color': '#0d6efd',
+          'circle-color': COLOR_TOKENS['ui-data-categorical-category-1'],
           'circle-radius': [
             'step',
             ['zoom'],
@@ -107,7 +108,7 @@ const GearLayer = ({ onGearClick }) => {
               8,
             ],
           ],
-          'circle-stroke-color': '#ffffff',
+          'circle-stroke-color': COLOR_TOKENS['greyscale-white'],
           'circle-stroke-width': ['step', ['zoom'], 1.5, 13, 2],
         },
       }, beforeId);

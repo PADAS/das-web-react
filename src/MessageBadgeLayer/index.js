@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import MessageBadgeIcon from '../common/images/icons/map-message-badge-icon.png';
 
 import { addMapImage } from '../utils/map';
+import { COLOR_TOKENS } from '../utils/colors';
 import { extractSubjectFromMessage } from '../utils/messaging';
 import { getBboxParamsFromMap } from '../utils/query';
 import { getMapSubjectFeatureCollectionWithVirtualPositioning } from '../selectors/subjects';
@@ -36,9 +37,9 @@ const MESSAGE_BADGE_LAYOUT = {
 };
 
 const MESSAGE_BADGE_PAINT = {
-  'text-halo-color': 'white',
+  'text-halo-color': COLOR_TOKENS['ui-text-primary-text-reversed'],
   'text-halo-width': 0.2,
-  'text-color': 'white',
+  'text-color': COLOR_TOKENS['ui-text-primary-text-reversed'],
 };
 
 const calcMapMessages = (messages = [], subjectFeatureCollection) => {

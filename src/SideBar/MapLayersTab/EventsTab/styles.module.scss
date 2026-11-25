@@ -3,7 +3,7 @@
   display: flex;
   justify-content: space-between;
   padding: 1rem;
-  border-bottom: 1px solid #d8d9d9;
+  border-bottom: 1px solid var(--er-ui-divider-lines);
 
   > div {
     display: flex;
@@ -11,10 +11,6 @@
     h5 {
       font-weight: 600;
       margin: 0 0 0 1rem;
-    }
-
-    svg {
-      cursor: pointer;
     }
   }
 }

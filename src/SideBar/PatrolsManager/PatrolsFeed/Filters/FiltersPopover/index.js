@@ -26,7 +26,11 @@ const getPatrolTypeValue = (patrolType) => patrolType.id;
 const getTeamLeadLabel = (teamLead) => teamLead.name;
 const getTeamLeadValue = (teamLead) => teamLead.id;
 
-const renderPatrolTypeIcon = (patrolType) => <SvgIcon color="black" iconId={patrolType.icon_id} type="patrols" />;
+const renderPatrolTypeIcon = (patrolType) => <SvgIcon
+  color="var(--er-ui-icons)"
+  iconId={patrolType.icon_id}
+  type="patrols"
+/>;
 
 const renderStatusIcon = (status) => <span className={`${styles.optionDot} ${styles[status.value]}`} />;
 

@@ -1,6 +1,4 @@
-import { http, HttpResponse } from 'msw/http';
 import { Provider } from 'react-redux';
-import { setupServer } from 'msw/node';
 import userEvent from '@testing-library/user-event';
 
 import { activePatrol } from '../../../../__test-helpers/fixtures/patrols';
@@ -9,20 +7,13 @@ import { mockStore } from '../../../../__test-helpers/MockStore';
 import { PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../../../../constants';
 import { render, screen, within } from '../../../../test-utils';
 import { report } from '../../../../__test-helpers/fixtures/reports';
-import { TRACKS_API_URL } from '../../../../ducks/tracks';
 
 import LinksSection from './';
 
-const server = setupServer(
-  http.get(
-    TRACKS_API_URL(activePatrol.patrol_segments[0].leader.id),
-    () => HttpResponse.json({ data: { features: {} } })
-  )
-);
-
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+jest.mock('../../../../utils/tracks', () => ({
+  ...jest.requireActual('../../../../utils/tracks'),
+  fetchTracksIfNecessary: jest.fn(),
+}));
 
 describe('SideBar - EventsManager - EventOverview - LinksSection', () => {
   const incident = { ...report, id: 'incident-id', is_collection: true, serial_number: 20 };

@@ -151,7 +151,7 @@ const Nav = () => {
       </button>
 
       <div className={styles.logoWrapper}>
-        <EarthRangerLogo className={styles.logo} role="img" />
+        <EarthRangerLogo className={styles.logo} />
       </div>
     </div>
 

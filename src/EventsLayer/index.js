@@ -16,6 +16,7 @@ import {
 import { getMapEventSymbolPointsWithVirtualDate } from '../selectors/events';
 import { primeEventIconParams } from '../utils/eventMapIcons';
 import { selectShouldEventsBeClustered } from '../selectors/clusters';
+import { TIME_SLIDER_DEFAULT_LABEL_COLOR, TIME_SLIDER_RECENT_LABEL_COLOR } from '../utils/event-vector-tiles';
 import { MapContext } from '../MapContext';
 import useMapSources from '../hooks/useMapSources';
 import { withMultiLayerHandlerAwareness } from '../utils/map-handlers';
@@ -44,11 +45,11 @@ const EVENTS_LAYER_TEXT_PAINT = {
       ['linear'],
       ['abs', ['get', 'distanceFromVirtualDate']],
       0,
-      'rgba(255, 255, 126, 1)',
+      TIME_SLIDER_RECENT_LABEL_COLOR,
       .3,
-      'rgba(255,255,255,0.7)',
+      TIME_SLIDER_DEFAULT_LABEL_COLOR,
     ],
-    'rgba(255,255,255,0.7)',
+    TIME_SLIDER_DEFAULT_LABEL_COLOR,
   ],
 };
 

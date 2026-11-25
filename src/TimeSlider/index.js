@@ -1,13 +1,11 @@
 import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import Overlay from 'react-bootstrap/Overlay';
-import Popover from 'react-bootstrap/Popover';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CalendarIcon } from '../common/images/icons/calendar.svg';
-import { ReactComponent as CheckIcon } from '../common/images/icons/check-light.svg';
 import { ReactComponent as CrossIcon } from '../common/images/icons/cross.svg';
 import { ReactComponent as PauseIcon } from '../common/images/icons/pause.svg';
 import { ReactComponent as PlayIcon } from '../common/images/icons/play.svg';
@@ -34,8 +32,10 @@ import {
 } from '../utils/analytics';
 import { selectOtusTabWidth } from '../selectors/otus';
 import { useMatchMedia } from '../hooks';
+import useMenuToggle from '../hooks/useMenuToggle';
 
 import DateRangePopover from '../EventFilter/DateRangePopover';
+import Menu from '../Menu';
 
 import * as styles from './styles.module.scss';
 
@@ -63,23 +63,19 @@ const TimeSlider = () => {
   const location = useLocation();
 
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
+  const speedMenuToggle = useMenuToggle();
 
   const eventFilterLowerDateRange = useSelector((state) => state.data.eventFilter.filter.date_range.lower);
   const eventFilterUpperDateRange = useSelector((state) => state.data.eventFilter.filter.date_range.upper);
   const otusTabWidth = useSelector(selectOtusTabWidth);
   const virtualDate = useSelector((state) => state.view.timeSliderState.virtualDate);
 
-  const speedMenuItemOptionRefs = useRef([]);
-
   const dateRangePopoverId = useId();
-  const speedMenuPopoverId = useId();
 
   const [dateRangeButtonAnchor, setDateRangeButtonAnchor] = useState(null);
   const [isDateRangePopoverOpen, setIsDateRangePopoverOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isSpeedMenuOpen, setIsSpeedMenuOpen] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(DEFAULT_PLAYBACK_SPEED);
-  const [speedMenuAnchorEl, setSpeedMenuAnchorEl] = useState();
 
   const sidebarOffsetPixels = calcSidebarPaddingLeft({
     isMediumLayoutOrLarger,
@@ -88,6 +84,8 @@ const TimeSlider = () => {
   }) ?? 0;
 
   const isCompact = sidebarOffsetPixels > 0;
+
+  const hideSpeedMenu = speedMenuToggle.menuProps.onHide;
 
   const debouncedRangeChangeAnalytics = useMemo(() => mapInteractionTracker.debouncedTrack(300), []);
 
@@ -166,73 +164,6 @@ const TimeSlider = () => {
     }
   };
 
-  const onSpeedMenuClose = () => {
-    setIsSpeedMenuOpen(false);
-
-    speedMenuAnchorEl?.focus();
-  };
-
-  const onSpeedMenuKeyDown = (event) => {
-    const currentOptionIndex = speedMenuItemOptionRefs.current.findIndex(
-      (ref) => ref === document.activeElement
-    );
-
-    switch (event.key) {
-    case 'ArrowDown': {
-      event.preventDefault();
-
-      const nextOptionIndex = (currentOptionIndex + 1) % speedMenuItemOptionRefs.current.length;
-      speedMenuItemOptionRefs.current[nextOptionIndex]?.focus();
-
-      break;
-    }
-
-    case 'ArrowUp': {
-      event.preventDefault();
-
-      const previousOptionIndex = (currentOptionIndex - 1 + speedMenuItemOptionRefs.current.length)
-        % speedMenuItemOptionRefs.current.length;
-      speedMenuItemOptionRefs.current[previousOptionIndex]?.focus();
-
-      break;
-    }
-
-    case 'End':
-      event.preventDefault();
-
-      speedMenuItemOptionRefs.current[speedMenuItemOptionRefs.current.length - 1]?.focus();
-
-      break;
-
-    case 'Home':
-      event.preventDefault();
-
-      speedMenuItemOptionRefs.current[0]?.focus();
-
-      break;
-
-    case 'Tab':
-      onSpeedMenuClose();
-
-      break;
-
-    case 'Escape':
-      event.preventDefault();
-
-      onSpeedMenuClose();
-
-      break;
-
-    default:
-    }
-  };
-
-  const onSpeedMenuOptionClick = (speed) => {
-    setPlaybackSpeed(speed);
-
-    onSpeedMenuClose();
-  };
-
   const onChangeSlider = (event) => {
     setVirtualDateFromSliderValue(event.target.value);
     setIsPlaying(false);
@@ -243,22 +174,12 @@ const TimeSlider = () => {
   const hideDateRangePopover = useCallback(() => setIsDateRangePopoverOpen(false), []);
 
   useEffect(() => {
-    if (isSpeedMenuOpen) {
-      // The speed menu is open. Focus the selected speed menu item option.
-      const selectedSpeedMenuItemOptionIndex = PLAYBACK_SPEED_OPTIONS.findIndex(
-        (option) => option.value === playbackSpeed
-      );
-      speedMenuItemOptionRefs.current[selectedSpeedMenuItemOptionIndex]?.focus();
-    }
-  }, [isSpeedMenuOpen, playbackSpeed]);
-
-  useEffect(() => {
+    // The compact slider drops the speed button, so its menu would come back
+    // open when the slider widens again.
     if (isCompact) {
-      // The time slider is in compact mode. Close the speed menu.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsSpeedMenuOpen(false);
+      hideSpeedMenu();
     }
-  }, [isCompact]);
+  }, [hideSpeedMenu, isCompact]);
 
   useEffect(() => {
     // Reset the virtual date to the end of the range when the event filter
@@ -307,61 +228,33 @@ const TimeSlider = () => {
 
     {!isCompact && <>
       <button
-        aria-controls={speedMenuPopoverId}
-        aria-expanded={isSpeedMenuOpen}
-        aria-haspopup="menu"
         aria-label={t('speedButtonLabel')}
         className={styles.speedButton}
-        onClick={() => setIsSpeedMenuOpen((isOpen) => !isOpen)}
-        ref={setSpeedMenuAnchorEl}
         title={t('speedButtonLabel')}
         type="button"
+        {...speedMenuToggle.toggleProps}
       >
         {playbackSpeedOption.label}
       </button>
 
-      <Overlay
-        onHide={() => setIsSpeedMenuOpen(false)}
-        rootClose
-        show={isSpeedMenuOpen}
-        target={speedMenuAnchorEl}
+      <Menu
+        aria-label={t('speedMenuLabel')}
+        className={styles.speedMenu}
+        header={t('speedMenuHeader')}
+        placement="top"
+        {...speedMenuToggle.menuProps}
       >
-        <Popover className={styles.speedMenuPopover} role="presentation">
-          <div aria-hidden="true" className={styles.speedMenuHeader}>{t('speedMenuHeader')}</div>
-
-          <ul
-            aria-label={t('speedMenuLabel')}
-            className={styles.speedMenu}
-            id={speedMenuPopoverId}
-            onKeyDown={onSpeedMenuKeyDown}
-            role="menu"
-          >
-            {PLAYBACK_SPEED_OPTIONS.map((option, index) => <li
-              className={styles.speedMenuItem}
-              key={option.value}
-              role="none"
-            >
-              <button
-                aria-checked={playbackSpeed === option.value}
-                aria-label={t('speedMenuOptionLabel', { speed: option.label })}
-                className={styles.speedMenuItemOption}
-                onClick={() => onSpeedMenuOptionClick(option.value)}
-                ref={(element) => {
-                  speedMenuItemOptionRefs.current[index] = element;
-                }}
-                role="menuitemradio"
-                tabIndex={-1}
-                title={t('speedMenuOptionLabel', { speed: option.label })}
-                type="button"
-              >
-                {playbackSpeed === option.value && <CheckIcon className={styles.checkIcon} />}
-
-                {option.label}
-              </button>
-            </li>)}
-          </ul>
-        </Popover>
-      </Overlay>
+        {PLAYBACK_SPEED_OPTIONS.map((option) => <Menu.Option
+          aria-checked={playbackSpeed === option.value}
+          aria-label={t('speedMenuOptionLabel', { speed: option.label })}
+          key={option.value}
+          onClick={() => setPlaybackSpeed(option.value)}
+          role="menuitemradio"
+          title={t('speedMenuOptionLabel', { speed: option.label })}
+        >
+          {option.label}
+        </Menu.Option>)}
+      </Menu>
     </>}
 
     <time className={styles.virtualDateWrapper} dateTime={currentDate.toISOString()}>

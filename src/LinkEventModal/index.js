@@ -192,7 +192,7 @@ const LinkEventModal = ({
           }))}
 
           {linkTargets.hasNextPage && <li className={styles.loadingMoreItem} key="loading-more">
-            <MoonLoader aria-hidden size={LOADER_SIZE} />
+            <MoonLoader aria-hidden color="var(--er-ui-cta-primary)" size={LOADER_SIZE} />
 
             <span className="sr-only">{t('loadingMoreLabel')}</span>
           </li>}

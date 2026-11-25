@@ -2,6 +2,7 @@ import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
 import { renderHook } from '../../../test-utils';
+import { COLOR_TOKENS } from '../../../utils/colors';
 import { createMapMock } from '../../../__test-helpers/mocks';
 import { epsg3857, epsg5367 } from '../../../__test-helpers/fixtures/location';
 import { GPS_FORMATS } from '../../../utils/location';
@@ -115,7 +116,7 @@ describe('useCrsBoundingBoxLayer', () => {
     expect(map.addLayer).toHaveBeenCalledWith({
       id: 'coordinate-reference-system-bbox-layer',
       paint: {
-        'line-color': '#006cd9',
+        'line-color': COLOR_TOKENS['ui-cta-primary'],
         'line-width': 4,
       },
       source: 'coordinate-reference-system-bbox-source',

@@ -1,5 +1,3 @@
-@use '../common/styles/vars/colors';
-
 .badge {
   align-items: center;
   border-radius: 100%;
@@ -9,18 +7,18 @@
   width: 1rem;
 
   &.gray {
-    background-color: colors.$unknown;
+    background-color: var(--er-ui-status-disabled);
   }
 
   &.green {
-    background-color: colors.$healthy;
+    background-color: var(--er-ui-status-success);
   }
 
   &.red {
-    background-color: colors.$error;
+    background-color: var(--er-ui-status-error-destructive);
   }
 
   &.yellow {
-    background-color: colors.$warning;
+    background-color: var(--er-ui-status-ready);
   }
 }
