@@ -17,7 +17,7 @@ const server = setupServer(
   http.get(CURRENT_USER_API_URL, () => HttpResponse.json({ data: SIGNED_IN_USER })),
 );
 
-describe('Ducks - User', () => {
+describe('ducks - user', () => {
   beforeAll(() => server.listen());
 
   afterEach(() => server.resetHandlers());
@@ -64,7 +64,6 @@ describe('Ducks - User', () => {
       await expect(runFetchCurrentUser({})).rejects.toBeDefined();
 
       expect(console.warn).toHaveBeenCalled();
-      console.warn.mockRestore();
     });
 
     test('rejects with a single warning when the active profile cannot be refreshed', async () => {
@@ -74,7 +73,6 @@ describe('Ducks - User', () => {
       await expect(runFetchCurrentUser({ id: PROFILE.id })).rejects.toBeDefined();
 
       expect(console.warn).toHaveBeenCalledTimes(1);
-      console.warn.mockRestore();
     });
   });
 
@@ -106,7 +104,6 @@ describe('Ducks - User', () => {
       await expect(fetchUserProfile(PROFILE.id, true)(dispatch)).rejects.toBeDefined();
 
       expect(dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: SET_USER_PROFILE }));
-      console.warn.mockRestore();
     });
 
     test('rejects without storing or warning when its read is cancelled', async () => {
@@ -118,7 +115,6 @@ describe('Ducks - User', () => {
 
       expect(dispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: SET_USER_PROFILE }));
       expect(console.warn).not.toHaveBeenCalled();
-      console.warn.mockRestore();
     });
   });
 });

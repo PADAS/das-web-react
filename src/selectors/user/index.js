@@ -25,5 +25,5 @@ export const selectActiveUserPermissions = createSelector(
 
 export const selectIsGeoPermissionRestricted = createSelector(
   [selectActiveUser],
-  (activeUser) => userIsGeoPermissionRestricted(activeUser),
+  userIsGeoPermissionRestricted,
 );

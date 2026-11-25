@@ -103,11 +103,11 @@ const RequestConfigManager = ({
   const addUserProfileHeaderToRequestsIfNecessary = useCallback((config) => {
     const isActingAsProfile = !!activeProfileId && !!signedInUserId && activeProfileId !== signedInUserId;
     // A read of the profile being switched to names it, not the active one.
-    const namesItsOwnProfile = !!config.headers['USER-PROFILE'];
+    const hasOwnProfileHeader = config.headers.has('USER-PROFILE');
 
     // /user/me stays the signed-in account, which the profile switcher lists.
-    if (config.url && !config.url.includes('/user/me') && isActingAsProfile && !namesItsOwnProfile) {
-      config.headers['USER-PROFILE'] = activeProfileId;
+    if (config.url && !config.url.includes('/user/me') && isActingAsProfile && !hasOwnProfileHeader) {
+      config.headers.set('USER-PROFILE', activeProfileId);
     }
   }, [activeProfileId, signedInUserId]);
 

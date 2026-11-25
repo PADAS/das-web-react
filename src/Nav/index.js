@@ -139,6 +139,7 @@ const Nav = () => {
       const pinModal = dispatch(addModal({
         content: ProfilePINModal,
         modalProps: { className: styles.profilePinModal },
+        onClose: () => profileReadAbortControllerRef.current?.abort(),
         onSuccess: async () => {
           await changeProfile(profile);
           dispatch(removeModal(pinModal.id));

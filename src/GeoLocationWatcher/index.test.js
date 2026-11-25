@@ -50,10 +50,6 @@ describe('The GeoLocationWatcher', () => {
     jest.spyOn(toastUtils, 'showToast');
   });
 
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   const renderGeoLocationWatcher = (props) => {
     reduxStore = mockStore(store);
 

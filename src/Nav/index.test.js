@@ -266,6 +266,38 @@ describe('the Nav component', () => {
       expect(toastUtils.showToast).not.toHaveBeenCalled();
     });
 
+    test('cancels the read of an unlocked profile when the user closes the PIN prompt', async () => {
+      jest.spyOn(toastUtils, 'showToast').mockImplementation(() => {});
+      let isProfileReadCancelled, releaseProfileRead;
+      const profileReadGate = new Promise((resolve) => {
+        releaseProfileRead = resolve;
+      });
+      server.use(http.get(`${USER_API_URL}/${anotherPinProfile.id}`, async ({ request }) => {
+        await profileReadGate;
+        isProfileReadCancelled = request.signal.aborted;
+
+        return HttpResponse.json(generateResponse(anotherPinProfile));
+      }));
+      const user = userEvent.setup({ delay: null });
+
+      await user.click(screen.getByRole('menuitemradio', { name: anotherPinProfile.username }));
+
+      const pinInputs = await screen.findAllByRole('input');
+      await user.type(pinInputs[0], anotherPinProfile.pin[0]);
+      await user.type(pinInputs[1], anotherPinProfile.pin[1]);
+      await user.type(pinInputs[2], anotherPinProfile.pin[2]);
+      await user.type(pinInputs[3], anotherPinProfile.pin[3]);
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+
+      releaseProfileRead();
+      await waitFor(() => expect(isProfileReadCancelled).toBe(true));
+
+      expect(screen.queryByText('Enter Your PIN')).not.toBeInTheDocument();
+      expect(store.getState().data.selectedUserProfile).toEqual({});
+      expect(toastUtils.showToast).not.toHaveBeenCalled();
+      expect(reload).not.toHaveBeenCalled();
+    });
+
     test('asks for the PIN of a protected profile before reloading as it', async () => {
       jest.useFakeTimers();
 

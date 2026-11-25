@@ -1,15 +1,17 @@
 import { render, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import axios from 'axios';
+import axios, { AxiosHeaders } from 'axios';
 import { useLocation } from 'react-router';
 
 import RequestConfigManager from './';
 import useNavigate from '../hooks/useNavigate';
+import { CURRENT_USER_API_URL, USER_API_URL } from '../ducks/user';
 import { mockStore } from '../__test-helpers/MockStore';
 import { STATUS_API_URL } from '../ducks/system-status';
 import { recoverAuth } from '../utils/auth-recovery';
 
 jest.mock('axios', () => {
+  const { AxiosHeaders } = jest.requireActual('axios');
   const axiosFn = jest.fn();
   axiosFn.interceptors = {
     request: { use: jest.fn(() => 1), eject: jest.fn() },
@@ -18,7 +20,7 @@ jest.mock('axios', () => {
   axiosFn.defaults = { headers: { common: {} } };
   const CancelToken = { source: () => ({ token: {}, cancel: jest.fn() }) };
   axiosFn.CancelToken = CancelToken;
-  return { __esModule: true, default: axiosFn, CancelToken };
+  return { __esModule: true, AxiosHeaders, CancelToken, default: axiosFn };
 });
 
 jest.mock('react-router', () => ({ __esModule: true, useLocation: jest.fn() }));
@@ -236,33 +238,41 @@ describe('RequestConfigManager', () => {
       axios.defaults.headers.common = {};
     });
 
-    const makeStatusConfig = () => ({ headers: { Authorization: 'Bearer existing.jwt.token' }, url: STATUS_API_URL });
+    const makeConfig = (url, headers = {}) => ({ headers: new AxiosHeaders(headers), url });
+
+    const makeStatusConfig = () => makeConfig(STATUS_API_URL, { Authorization: 'Bearer existing.jwt.token' });
 
     test('keeps the Authorization header on a system status request', () => {
       const { requestHandler } = renderManager();
 
-      expect(requestHandler(makeStatusConfig()).headers.Authorization).toBe('Bearer existing.jwt.token');
+      expect(requestHandler(makeStatusConfig()).headers.get('Authorization')).toBe('Bearer existing.jwt.token');
     });
 
     test('sends the active profile with a system status request', () => {
       const { requestHandler } = renderManager({ selectedUserProfile: { id: 'p1' } });
 
-      expect(requestHandler(makeStatusConfig()).headers)
+      expect(requestHandler(makeStatusConfig()).headers.toJSON())
         .toEqual({ Authorization: 'Bearer existing.jwt.token', 'USER-PROFILE': 'p1' });
     });
 
     test('does not send a profile header when no profile is selected', () => {
       const { requestHandler } = renderManager();
 
-      expect(requestHandler(makeStatusConfig()).headers).not.toHaveProperty('USER-PROFILE');
+      expect(requestHandler(makeStatusConfig()).headers.has('USER-PROFILE')).toBe(false);
+    });
+
+    test('does not send the active profile with the signed-in account request', () => {
+      const { requestHandler } = renderManager({ selectedUserProfile: { id: 'p1' } });
+
+      expect(requestHandler(makeConfig(CURRENT_USER_API_URL)).headers.has('USER-PROFILE')).toBe(false);
     });
 
     test('keeps the profile a request names itself while another profile is active', () => {
       const { requestHandler } = renderManager({ selectedUserProfile: { id: 'p1' } });
 
-      const config = { headers: { 'USER-PROFILE': 'p2' }, url: '/api/v1.0/user/p2' };
+      const config = makeConfig(`${USER_API_URL}/p2`, { 'User-Profile': 'p2' });
 
-      expect(requestHandler(config).headers['USER-PROFILE']).toBe('p2');
+      expect(requestHandler(config).headers.toJSON()).toEqual({ 'User-Profile': 'p2' });
     });
   });
 });
