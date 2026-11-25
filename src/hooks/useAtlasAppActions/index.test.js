@@ -10,7 +10,7 @@ import mapLayerFilterReducer, {
 import patrolFilterReducer, { INITIAL_FILTER_STATE as INITIAL_PATROL_FILTER_STATE } from '../../ducks/patrol-filter';
 import popupReducer from '../../ducks/popup';
 import timeSliderReducer, { clearVirtualDate, setVirtualDate } from '../../ducks/timeslider';
-import tracksReducer, { FETCH_TRACKS_SUCCESS, trackSettingsReducer } from '../../ducks/tracks';
+import tracksReducer, { FETCH_TRACKS_SUCCESS, TRACKS_API_URL, trackSettingsReducer } from '../../ducks/tracks';
 import {
   bounceEventReducer,
   heatmapSubjectIDsReducer,
@@ -51,8 +51,15 @@ jest.mock('../../utils/patrols', () => ({
   patrolStateAllowsTrackDisplay: jest.fn(),
 }));
 
-// The real one reads the app's global store.
-jest.mock('../../utils/tracks', () => ({ fetchTracksIfNecessary: jest.fn() }));
+// fetchTracksIfNecessary reads and writes the app's global store, here the test's.
+let mockAppStore;
+jest.mock('../../store', () => ({
+  __esModule: true,
+  default: {
+    dispatch: (action) => mockAppStore.dispatch(action),
+    getState: () => mockAppStore.getState(),
+  },
+}));
 
 const SUBJECT_ID = '6f1c2d3e-4b5a-4c7d-8e9f-0a1b2c3d4e5f';
 const OTHER_SUBJECT_ID = '0a1b2c3d-4e5f-4a7b-8c9d-0e1f2a3b4c5d';
@@ -91,8 +98,24 @@ const makeTrack = (positions) => ({
       properties: { coordinateProperties: { times: positions.map(([, time]) => iso(time)) } },
       type: 'Feature',
     }],
+    type: 'FeatureCollection',
   },
 });
+
+// A track already in the store, fetched for the window given.
+const makeStoredTrack = (positions, fetchedDateRange) => ({ ...makeTrack(positions), fetchedDateRange, points: {} });
+
+// The track API, which answers each subject's tracks request with its track.
+let mockTracksById = {};
+const mockTrackApi = () => jest.spyOn(axios, 'get').mockImplementation((url) => {
+  const id = Object.keys(mockTracksById).find((subjectId) => url === TRACKS_API_URL(subjectId));
+
+  return id
+    ? Promise.resolve({ data: { data: structuredClone(mockTracksById[id].track) } })
+    : Promise.reject(new Error(`Unexpected request to ${url}`));
+});
+
+const countTrackRequests = () => axios.get.mock.calls.filter(([url]) => url.includes('/tracks/')).length;
 
 const buildStore = ({ data = {}, view = {} } = {}) => {
   const actions = [];
@@ -149,6 +172,7 @@ const buildStore = ({ data = {}, view = {} } = {}) => {
     },
     applyMiddleware(recordActions, thunk)
   );
+  mockAppStore = store;
 
   return { actions, store };
 };
@@ -175,22 +199,22 @@ const simulateTimeSlider = (store) => {
   });
 };
 
-// Mirrors the map, which fetches the tracks of pinned and heatmap subjects.
-const simulateTrackLoading = (store, tracksById) => {
+// Mirrors the map, which asks for the tracks of pinned and heatmap subjects
+// whenever they or the track length change. The API has the tracks given.
+const simulateTrackLoading = (store, tracksById = {}) => {
+  Object.assign(mockTracksById, tracksById);
+
   let requestedKey = '';
 
   return store.subscribe(() => {
-    const { heatmapSubjectIDs, subjectTrackState } = store.getState().view;
-    const ids = [...new Set([...subjectTrackState.pinned, ...heatmapSubjectIDs])].filter((id) => tracksById[id]);
-    const key = ids.join();
+    const { heatmapSubjectIDs, subjectTrackState, trackSettings } = store.getState().view;
+    const ids = [...new Set([...subjectTrackState.pinned, ...heatmapSubjectIDs])];
+    const key = `${ids.join()}|${trackSettings.length}|${trackSettings.origin}`;
 
-    if (key && key !== requestedKey) {
+    if (ids.length && key !== requestedKey) {
       requestedKey = key;
 
-      Promise.resolve().then(() => store.dispatch({
-        payload: Object.fromEntries(ids.map((id) => [id, { ...tracksById[id] }])),
-        type: FETCH_TRACKS_SUCCESS,
-      }));
+      Promise.resolve().then(() => fetchTracksIfNecessary(ids));
     }
   });
 };
@@ -246,6 +270,8 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
   let cleanups, innerWidth, warn;
   beforeEach(() => {
     cleanups = [];
+    mockTracksById = {};
+    mockTrackApi();
     // Wide enough that the Atlas panel keeps its default width.
     innerWidth = window.innerWidth;
     window.innerWidth = 1440;
@@ -842,6 +868,74 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       expect(latest.map.easeTo).toHaveBeenCalledWith(expect.objectContaining({ center: [2, 2] }));
     });
 
+    test('fetches a track the store does not have for the window, and waits for it', async () => {
+      const now = Date.now();
+      const { actions, latest, run, store } = setUp({
+        data: { tracks: { [SUBJECT_ID]: makeStoredTrack([[[9, 9], now - HOUR_MS]], { since: iso(now - DAY_MS) }) } },
+      });
+      cleanups.push(simulateTrackLoading(store, {
+        [SUBJECT_ID]: makeTrack([[[2, 2], now - HOUR_MS], [[1, 1], now - 5 * DAY_MS]]),
+      }));
+
+      await run({ action: 'subject-track', ids: [SUBJECT_ID], since: iso(now - 6.5 * DAY_MS) });
+
+      expect(countTrackRequests()).toBe(1);
+      expect(actions).toContainEqual(expect.objectContaining({ type: FETCH_TRACKS_SUCCESS }));
+      expect(latest.map.cameraForBounds).toHaveBeenCalledWith([[1, 1], [2, 2]], expect.any(Object));
+    });
+
+    describe('when the store already has the track for the window', () => {
+      beforeEach(() => {
+        jest.useFakeTimers({ now: new Date('2026-11-20T12:00:00Z') });
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      const setUpStoredTrack = () => {
+        const now = Date.now();
+        const storedTrack = makeStoredTrack(
+          [[[2, 2], now - HOUR_MS], [[1, 1], now - 3 * DAY_MS]],
+          { since: iso(now - 30 * DAY_MS) }
+        );
+        const setup = setUp({ data: { tracks: { [SUBJECT_ID]: storedTrack } } });
+        cleanups.push(simulateTrackLoading(setup.store));
+
+        return { ...setup, now, storedTrack };
+      };
+
+      test('uses it at once, as the map fetches nothing', async () => {
+        const { actions, latest, now, run, store, storedTrack } = setUpStoredTrack();
+
+        let result;
+        run({ action: 'subject-track', ids: [SUBJECT_ID], since: iso(now - 6.5 * DAY_MS) }).then((value) => {
+          result = value;
+        });
+        await jest.advanceTimersByTimeAsync(10);
+
+        expect(result).toEqual(done(`Pinned the track of subject ${SUBJECT_ID} and moved the map to it.`));
+        expect(countTrackRequests()).toBe(0);
+        expect(actions).not.toContainEqual(expect.objectContaining({ type: FETCH_TRACKS_SUCCESS }));
+        expect(store.getState().data.tracks[SUBJECT_ID]).toBe(storedTrack);
+        expect(latest.map.easeTo).toHaveBeenCalledWith(expect.objectContaining({ center: [2, 2] }));
+      });
+
+      test('uses it at once without a window', async () => {
+        const { latest, run } = setUpStoredTrack();
+
+        let result;
+        run({ action: 'subject-track', ids: [SUBJECT_ID] }).then((value) => {
+          result = value;
+        });
+        await jest.advanceTimersByTimeAsync(10);
+
+        expect(result).toEqual(done(`Pinned the track of subject ${SUBJECT_ID} and moved the map to it.`));
+        expect(countTrackRequests()).toBe(0);
+        expect(latest.map.easeTo).toHaveBeenCalledWith(expect.objectContaining({ center: [2, 2] }));
+      });
+    });
+
     test('warns when no track loads', async () => {
       jest.useFakeTimers();
       try {
@@ -864,20 +958,19 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       const now = Date.now();
       const time = iso(now - 3 * DAY_MS);
       const { latest, run, store } = setUp({ data: { subjectStore: { [SUBJECT_ID]: subject } } });
-      fetchTracksIfNecessary.mockImplementation((ids) => store.dispatch({
-        payload: {
-          [ids[0]]: makeTrack([[[5, 5], now - DAY_MS], [[4, 4], now - 3 * DAY_MS - HOUR_MS], [[3, 3], now - 4 * DAY_MS]]),
-        },
-        type: FETCH_TRACKS_SUCCESS,
-      }));
+      mockTracksById[SUBJECT_ID] = makeTrack([[[5, 5], now - DAY_MS], [[4, 4], now - 3 * DAY_MS - HOUR_MS], [[3, 3], now - 4 * DAY_MS]]);
 
-      await run({ action: 'subject-at-time', id: SUBJECT_ID, time });
+      const result = await run({ action: 'subject-at-time', id: SUBJECT_ID, time });
 
       const state = store.getState();
+      expect(result).toEqual(done(`Showed subject ${SUBJECT_ID} where it was at ${time}.`));
       expect(state.view.popup.type).toBe('subject');
       expect(state.view.timeSliderState).toEqual(expect.objectContaining({ active: true, virtualDate: time }));
       expect(state.data.eventFilter.filter.date_range).toEqual({ lower: iso(now - 4 * DAY_MS), upper: iso(now - 2 * DAY_MS) });
-      expect(fetchTracksIfNecessary).toHaveBeenCalledWith([SUBJECT_ID]);
+      expect(axios.get).toHaveBeenCalledWith(
+        TRACKS_API_URL(SUBJECT_ID),
+        expect.objectContaining({ params: { since: iso(now - 4 * DAY_MS), until: iso(now - 2 * DAY_MS) } })
+      );
       expect(latest.jumpToLocation).not.toHaveBeenCalled();
       expect(latest.map.easeTo).toHaveBeenCalledTimes(1);
       expect(latest.map.easeTo).toHaveBeenCalledWith({
@@ -885,6 +978,56 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
         padding: { bottom: 0, left: 806, right: 90, top: 300 },
         zoom: 14,
       });
+    });
+
+    test('finds the position in a track the store already has for the window, at once and without fetching', async () => {
+      jest.useFakeTimers({ now: new Date('2026-11-20T12:00:00Z') });
+      try {
+        const now = Date.now();
+        const time = iso(now - 3 * DAY_MS);
+        const storedTrack = makeStoredTrack(
+          [[[5, 5], now - DAY_MS], [[4, 4], now - 3 * DAY_MS - HOUR_MS], [[3, 3], now - 4 * DAY_MS]],
+          { since: iso(now - 10 * DAY_MS) }
+        );
+        const { actions, latest, run, store } = setUp({
+          data: { subjectStore: { [SUBJECT_ID]: subject }, tracks: { [SUBJECT_ID]: storedTrack } },
+        });
+
+        let result;
+        run({ action: 'subject-at-time', id: SUBJECT_ID, time }).then((value) => {
+          result = value;
+        });
+        // Only the time slider's own reset is waited for.
+        await jest.advanceTimersByTimeAsync(100);
+
+        expect(result).toEqual(done(`Showed subject ${SUBJECT_ID} where it was at ${time}.`));
+        expect(countTrackRequests()).toBe(0);
+        expect(actions).not.toContainEqual(expect.objectContaining({ type: FETCH_TRACKS_SUCCESS }));
+        expect(store.getState().data.tracks[SUBJECT_ID]).toBe(storedTrack);
+        expect(latest.map.easeTo).toHaveBeenCalledWith(expect.objectContaining({ center: [4, 4] }));
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    test('does not wait for a track the subject does not have', async () => {
+      jest.useFakeTimers();
+      try {
+        const { latest, run } = setUp({ data: { subjectStore: { [SUBJECT_ID]: { ...subject, tracks_available: false } } } });
+        const time = iso(Date.now() - DAY_MS);
+
+        let result;
+        run({ action: 'subject-at-time', id: SUBJECT_ID, time }).then((value) => {
+          result = value;
+        });
+        await jest.advanceTimersByTimeAsync(100);
+
+        expect(result).toEqual(done(`Set the time slider to ${time}, but subject ${SUBJECT_ID} has no position at or before it.`));
+        expect(countTrackRequests()).toBe(0);
+        expect(latest.map.easeTo).not.toHaveBeenCalled();
+      } finally {
+        jest.useRealTimers();
+      }
     });
 
     test('is skipped when subjects are disabled', async () => {
@@ -907,6 +1050,49 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       expect(store.getState().view.showReportHeatmap).toBe(false);
       expect(store.getState().view.heatmapSubjectIDs).toEqual([SUBJECT_ID, OTHER_SUBJECT_ID]);
       expect(latest.jumpToLocation).toHaveBeenCalledWith([[1, 1]]);
+    });
+
+    test('uses tracks the store already has for the window at once, as the map fetches nothing', async () => {
+      jest.useFakeTimers({ now: new Date('2026-11-20T12:00:00Z') });
+      try {
+        const now = Date.now();
+        const fetchedDateRange = { since: iso(now - 30 * DAY_MS) };
+        const storedTracks = {
+          [OTHER_SUBJECT_ID]: makeStoredTrack([[[3, 3], now - 2 * HOUR_MS]], fetchedDateRange),
+          [SUBJECT_ID]: makeStoredTrack([[[1, 1], now - HOUR_MS]], fetchedDateRange),
+        };
+        const { actions, latest, run, store } = setUp({ data: { tracks: storedTracks } });
+        cleanups.push(simulateTrackLoading(store));
+
+        let result;
+        run({ action: 'subject-heatmap', ids: [SUBJECT_ID, OTHER_SUBJECT_ID], since: iso(now - 6.5 * DAY_MS) })
+          .then((value) => {
+            result = value;
+          });
+        await jest.advanceTimersByTimeAsync(10);
+
+        expect(result).toEqual(done('Turned on the heatmap of 2 subjects and moved the map to it.'));
+        expect(countTrackRequests()).toBe(0);
+        expect(actions).not.toContainEqual(expect.objectContaining({ type: FETCH_TRACKS_SUCCESS }));
+        expect(latest.jumpToLocation).toHaveBeenCalledWith([[1, 1], [3, 3]]);
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    test('fetches the tracks of a window the store does not cover, and waits for them', async () => {
+      const now = Date.now();
+      const { latest, run, store } = setUp({
+        data: { tracks: { [SUBJECT_ID]: makeStoredTrack([[[9, 9], now - HOUR_MS]], { since: iso(now - DAY_MS) }) } },
+      });
+      cleanups.push(simulateTrackLoading(store, {
+        [SUBJECT_ID]: makeTrack([[[1, 1], now - HOUR_MS], [[2, 2], now - 5 * DAY_MS]]),
+      }));
+
+      await run({ action: 'subject-heatmap', ids: [SUBJECT_ID], since: iso(now - 6.5 * DAY_MS) });
+
+      expect(countTrackRequests()).toBe(1);
+      expect(latest.jumpToLocation).toHaveBeenCalledWith([[1, 1], [2, 2]]);
     });
   });
 
@@ -1205,6 +1391,180 @@ describe('hooks - useAtlasAppActions - runAtlasAppAction', () => {
       expect(result).toEqual(done(
         `Asked the user to leave the open record, which has unsaved edits, to open event ${EVENT_ID}.`
       ));
+    });
+
+    describe('with a point to centre the map on', () => {
+      test('opens the record, then centres the map there at the zoom of a record link', async () => {
+        const calls = [];
+        const cameraHistory = {
+          begin: jest.fn(() => {
+            calls.push('begin');
+
+            return 'session';
+          }),
+          move: jest.fn(async (session, performMove) => {
+            calls.push(['move', session]);
+            performMove();
+          }),
+        };
+        const { latest, run } = setUp(undefined, { cameraHistory });
+        latest.navigate.mockImplementation((path) => {
+          calls.push(['navigate', path]);
+          latest.location = { pathname: path, search: '' };
+        });
+        latest.jumpToLocation.mockImplementation((coordinates, zoom) => calls.push(['jump', coordinates, zoom]));
+
+        const result = await run({ action: 'open-record', er_type: 'patrol', id: PATROL_ID, lnglat: [36.8, -1.3] });
+
+        expect(calls).toEqual([
+          'begin',
+          ['navigate', `/patrols/${PATROL_ID}`],
+          ['move', 'session'],
+          ['jump', [36.8, -1.3], 16],
+        ]);
+        expect(result).toEqual(done(`Opened patrol ${PATROL_ID} and moved the map to 36.8, -1.3.`));
+      });
+
+      test('waits for the record\'s route before moving the map, as the jump padding depends on it', async () => {
+        jest.useFakeTimers();
+        try {
+          const { latest, run } = setUp();
+          latest.navigate.mockImplementation((path) => {
+            setTimeout(() => {
+              latest.location = { pathname: path, search: '' };
+            }, 200);
+          });
+
+          const finished = run({ action: 'open-record', er_type: 'event', id: EVENT_ID, lnglat: [36.8, -1.3] });
+          await jest.advanceTimersByTimeAsync(100);
+
+          expect(latest.jumpToLocation).not.toHaveBeenCalled();
+
+          await jest.advanceTimersByTimeAsync(200);
+          await finished;
+
+          expect(latest.jumpToLocation).toHaveBeenCalledWith([36.8, -1.3], 16);
+        } finally {
+          jest.useRealTimers();
+        }
+      });
+
+      test('does not move the map while the user is asked to leave unsaved edits', async () => {
+        const cameraHistory = { begin: jest.fn(), move: jest.fn() };
+        const { latest, run } = setUp(undefined, { cameraHistory, isNavigationBlocked: true });
+
+        const result = await run({ action: 'open-record', er_type: 'event', id: EVENT_ID, lnglat: [36.8, -1.3] });
+
+        expect(latest.navigate).toHaveBeenCalledWith(`/events/${EVENT_ID}`);
+        expect(cameraHistory.begin).not.toHaveBeenCalled();
+        expect(cameraHistory.move).not.toHaveBeenCalled();
+        expect(latest.jumpToLocation).not.toHaveBeenCalled();
+        expect(result).toEqual(done(
+          `Asked the user to leave the open record, which has unsaved edits, to open event ${EVENT_ID}; the map did not move.`
+        ));
+      });
+    });
+  });
+
+  describe('when the call is cancelled', () => {
+    const STOPPED = failed('Stopped, the call was cancelled.');
+
+    const runWithSignal = (context, message, controller) => runAtlasAppAction(message, { ...context, signal: controller.signal });
+
+    test('does nothing once cancelled before it starts', async () => {
+      const controller = new AbortController();
+      controller.abort();
+      const { actions, context, latest } = setUp();
+
+      const result = await runWithSignal(context, { action: 'jump-to', coordinates: [1, 2] }, controller);
+
+      expect(result).toEqual(STOPPED);
+      expect(latest.jumpToLocation).not.toHaveBeenCalled();
+      expect(actions).toEqual([]);
+      expect(warn).toHaveBeenCalledWith('[atlas-tools] jump-to: stopped, the call was cancelled');
+    });
+
+    test('does not navigate after a load it was waiting for', async () => {
+      let finishLoading;
+      fetchPatrol.mockImplementation(() => () => new Promise((resolve) => {
+        finishLoading = () => resolve({ data: { data: { id: PATROL_ID } } });
+      }));
+      const controller = new AbortController();
+      const cameraHistory = { begin: jest.fn(() => 'session'), move: jest.fn() };
+      const { context, latest } = setUp(undefined, { cameraHistory });
+
+      const finished = runWithSignal(context, { action: 'open-patrol', id: PATROL_ID }, controller);
+      await Promise.resolve();
+      controller.abort();
+      finishLoading();
+
+      expect(await finished).toEqual(STOPPED);
+      expect(latest.navigate).not.toHaveBeenCalled();
+      expect(cameraHistory.begin).not.toHaveBeenCalled();
+      expect(latest.jumpToLocation).not.toHaveBeenCalled();
+    });
+
+    test('does not move the camera or bounce after a load it was waiting for', async () => {
+      let finishLoading;
+      fetchEvent.mockImplementation(() => () => new Promise((resolve) => {
+        finishLoading = () => resolve({ data: { data: { geojson: { geometry: { coordinates: [1, 2], type: 'Point' } }, id: EVENT_ID } } });
+      }));
+      const controller = new AbortController();
+      const { context, latest, store } = setUp();
+
+      const finished = runWithSignal(context, { action: 'open-event', id: EVENT_ID }, controller);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(latest.navigate).toHaveBeenCalled();
+      controller.abort();
+      finishLoading();
+
+      expect(await finished).toEqual(STOPPED);
+      expect(latest.jumpToLocation).not.toHaveBeenCalled();
+      expect(store.getState().view.bounceEventIDs).toBe('');
+    });
+
+    test('does not move the camera once the tracks it was waiting for arrive', async () => {
+      const now = Date.now();
+      const controller = new AbortController();
+      const { context, latest, store } = setUp();
+      let finishLoading;
+      axios.get.mockImplementation(() => new Promise((resolve) => {
+        finishLoading = () => resolve({ data: { data: makeTrack([[[2, 2], now - HOUR_MS]]).track } });
+      }));
+      cleanups.push(simulateTrackLoading(store));
+
+      const finished = runWithSignal(context, { action: 'subject-track', ids: [SUBJECT_ID] }, controller);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      controller.abort();
+      finishLoading();
+
+      expect(await finished).toEqual(STOPPED);
+      expect(latest.jumpToLocation).not.toHaveBeenCalled();
+      expect(latest.map.easeTo).not.toHaveBeenCalled();
+    });
+
+    test('does not set the time slider\'s date or move the camera after waiting for the slider', async () => {
+      jest.useFakeTimers();
+      try {
+        const controller = new AbortController();
+        const { actions, context, latest } = setUp({ data: { subjectStore: { [SUBJECT_ID]: subject } } });
+        // Without the slider's reset, the call waits for it until it gives up.
+        cleanups.pop()();
+        const time = iso(Date.now() - 3 * DAY_MS);
+
+        const finished = runWithSignal(context, { action: 'subject-at-time', id: SUBJECT_ID, time }, controller);
+        await jest.advanceTimersByTimeAsync(100);
+        expect(actions).toContainEqual(expect.objectContaining({ type: 'SET_ACTIVE_STATE' }));
+        controller.abort();
+        await jest.advanceTimersByTimeAsync(10_000);
+
+        expect(await finished).toEqual(STOPPED);
+        expect(actions).not.toContainEqual(setVirtualDate(time));
+        expect(countTrackRequests()).toBe(0);
+        expect(latest.map.easeTo).not.toHaveBeenCalled();
+      } finally {
+        jest.useRealTimers();
+      }
     });
   });
 

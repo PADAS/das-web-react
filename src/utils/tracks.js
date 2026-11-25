@@ -234,41 +234,57 @@ export const trackHasDataWithinTimeRange = (trackData, since = null, until = nul
   return true;
 };
 
+// The window fetchTracksIfNecessary fetches tracks for, in the given state.
+export const calcTrackFetchDateRange = (state, optionalDateBoundaries) => {
+  const { data: { eventFilter }, view: { trackSettings, timeSliderState } } = state;
+  const { active: timeSliderActive } = timeSliderState;
+
+  let dateRange;
+
+  const { length, origin: trackLengthOrigin } = trackSettings;
+  const { lower: eventFilterSince, upper: eventFilterUntil } = eventFilter.filter.date_range;
+
+  if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.EVENT_FILTER) {
+    dateRange = removeNullAndUndefinedValuesFromObject({ since: eventFilterSince, until: eventFilterUntil });
+  } else if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH) {
+    dateRange = removeNullAndUndefinedValuesFromObject({
+      since: timeSliderActive ? eventFilterSince : startOfDay(subDays(new Date(), length)),
+      // The map never draws past the filter's end, so fetching beyond it is
+      // wasted. The virtual date moves with the handle, so it would refetch.
+      until: timeSliderActive ? eventFilterUntil : undefined,
+    });
+  }
+
+  /* use optional date boundaries to further expand the lower and upper limits of the track request, if necessary, to have maximum necessary data coverage */
+  if (optionalDateBoundaries) {
+    if (!!optionalDateBoundaries.since && !!dateRange.since) {
+      dateRange.since = new Date(Math.min(new Date(optionalDateBoundaries.since).getTime(), new Date(dateRange.since).getTime())).toISOString();
+    }
+
+    if (!!optionalDateBoundaries.until && !!dateRange.until) {
+      dateRange.until = new Date(Math.max(new Date(optionalDateBoundaries.until).getTime(), new Date(dateRange.until).getTime())).toISOString();
+    }
+  }
+
+  return dateRange;
+};
+
+// Whether fetchTracksIfNecessary would fetch the track, rather than keep the
+// stored one, which already covers the window.
+export const isTrackFetchNeeded = (state, id, dateRange = calcTrackFetchDateRange(state)) => {
+  const trackData = state.data.tracks[id];
+
+  return !trackData || !trackHasDataWithinTimeRange(trackData, dateRange.since, dateRange.until);
+};
+
 const trackFetchState = {};
 export const fetchTracksIfNecessary = (ids, config) => {
   const optionalDateBoundaries = config?.optionalDateBoundaries;
-  const { data: { tracks, eventFilter }, view: { trackSettings, timeSliderState } } = store.getState();
-
-
-  const { active: timeSliderActive } = timeSliderState;
+  const state = store.getState();
+  const { data: { tracks } } = state;
 
   const results = ids.map((id) => {
-    let dateRange;
-
-    const { length, origin: trackLengthOrigin } = trackSettings;
-    const { lower: eventFilterSince, upper: eventFilterUntil } = eventFilter.filter.date_range;
-
-    if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.EVENT_FILTER) {
-      dateRange = removeNullAndUndefinedValuesFromObject({ since: eventFilterSince, until: eventFilterUntil });
-    } else if (trackLengthOrigin === TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH) {
-      dateRange = removeNullAndUndefinedValuesFromObject({
-        since: timeSliderActive ? eventFilterSince : startOfDay(subDays(new Date(), length)),
-        // The map never draws past the filter's end, so fetching beyond it is
-        // wasted. The virtual date moves with the handle, so it would refetch.
-        until: timeSliderActive ? eventFilterUntil : undefined,
-      });
-    }
-
-    /* use optional date boundaries to further expand the lower and upper limits of the track request, if necessary, to have maximum necessary data coverage */
-    if (optionalDateBoundaries) {
-      if (!!optionalDateBoundaries.since && !!dateRange.since) {
-        dateRange.since = new Date(Math.min(new Date(optionalDateBoundaries.since).getTime(), new Date(dateRange.since).getTime())).toISOString();
-      }
-
-      if (!!optionalDateBoundaries.until && !!dateRange.until) {
-        dateRange.until = new Date(Math.max(new Date(optionalDateBoundaries.until).getTime(), new Date(dateRange.until).getTime())).toISOString();
-      }
-    }
+    const dateRange = calcTrackFetchDateRange(state, optionalDateBoundaries);
 
     const trackData = tracks[id];
 
@@ -320,8 +336,7 @@ export const fetchTracksIfNecessary = (ids, config) => {
       return ongoingRequest.request;
     };
 
-    if (!trackData
-      || !trackHasDataWithinTimeRange(trackData, dateRange.since, dateRange.until)) {
+    if (isTrackFetchNeeded(state, id, dateRange)) {
       return handleFetch();
     }
     return trackData;

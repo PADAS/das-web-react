@@ -10,7 +10,7 @@ import {
   SIDEBAR_WIDTH_PIXELS,
   VERTICAL_NAV_RAIL_WIDTH_PIXELS,
 } from '../../constants';
-import { ATLAS_TOOLS } from '../../utils/atlas-tools/validate';
+import { ATLAS_TOOL_NAMES, ATLAS_TOOLS, ATLAS_TOOLS_VERSION } from '../../utils/atlas-tools/validate';
 import { calcMaxOtusTabWidth, clampOtusTabWidth } from '../../utils/otus';
 import { clearAuth } from '../../ducks/auth';
 import { selectOtusTabWidth } from '../../selectors/otus';
@@ -37,6 +37,9 @@ export const OTUS_MESSAGE_TYPES = {
 };
 // Longer than the 8 seconds Otus itself waits for the token.
 export const OTUS_READY_TIMEOUT_MS = 10_000;
+
+// The tools this client offers, so Atlas need not list them before connecting.
+const ATLAS_TOOLS_SUMMARY = { names: ATLAS_TOOL_NAMES, version: ATLAS_TOOLS_VERSION };
 
 const isJsonRpcId = (id) => typeof id === 'string' || (typeof id === 'number' && Number.isFinite(id));
 
@@ -185,7 +188,7 @@ const OtusTab = ({ isActive, url }) => {
     const targetOrigin = otusOrigin;
     let reply;
     if (data.method === 'tools/list') {
-      reply = { result: { tools: ATLAS_TOOLS } };
+      reply = { result: { _meta: { contractVersion: ATLAS_TOOLS_VERSION }, tools: ATLAS_TOOLS } };
     } else if (data.method === 'tools/call') {
       reply = await callToolForFrame(data.params);
     } else {
@@ -217,6 +220,7 @@ const OtusTab = ({ isActive, url }) => {
         if (atlasToken?.token) {
           iframeRef.current?.contentWindow?.postMessage(
             {
+              atlas_tools: ATLAS_TOOLS_SUMMARY,
               // This build's version, so Atlas only offers to drive what this client can do.
               client_version: CLIENT_BUILD_VERSION,
               expires_at: atlasToken.expiresAt,

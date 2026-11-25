@@ -10,15 +10,20 @@ import useWebMcpTools from './useWebMcpTools';
 export const ATLAS_STEP_TIMEOUT_MS = 15_000;
 export const JSON_RPC_ERROR_CODES = { INVALID_PARAMS: -32602, METHOD_NOT_FOUND: -32601 };
 
+const CANCELLED_TEXT = 'Cancelled, Atlas tools are no longer available.';
 const SUPERSEDED_TEXT = 'Skipped, superseded by a newer reply.';
 const TIMEOUT_TEXT = `Moved on, the call did not finish within ${ATLAS_STEP_TIMEOUT_MS / 1000} s.`;
 
 const AtlasToolsContext = createContext(null);
 
+const isOfOlderBatch = (call, batch) => call.batch !== undefined && call.batch !== batch;
+
 /* Runs the tools Atlas (and, with WebMCP, any browser agent) calls, one at a
    time in the order they arrive, since tools await routes and data. A call
    with a batch (one Atlas reply) makes its batch the current one, and the
-   waiting calls of an older batch are dropped; a call without one never is. */
+   calls of an older batch are dropped, the running one included; a call
+   without one never is. A call given up on (dropped, or out of time) is
+   aborted, so it changes nothing more in the app. */
 const AtlasToolsProvider = ({ children }) => {
   const cameraHistory = useAtlasCameraHistory();
   const runAtlasAppAction = useAtlasAppActions(cameraHistory);
@@ -30,46 +35,64 @@ const AtlasToolsProvider = ({ children }) => {
 
   const currentBatchRef = useRef(null);
   const isRunningRef = useRef(false);
+  const isUnmountedRef = useRef(false);
+  const runningCallRef = useRef(null);
   const waitingCallsRef = useRef([]);
 
-  const runWithTimeout = useCallback(async ({ name, params }) => {
+  // Resolves to the call's result, or to the result it was stopped with.
+  const runCall = useCallback(({ batch, name, params }) => new Promise((resolve) => {
+    const controller = new AbortController();
+    let isFinished = false;
     let timeoutId;
-    const timeout = new Promise((resolve) => {
-      timeoutId = setTimeout(() => {
-        console.warn(`[atlas-tools] ${name}: moving on after ${ATLAS_STEP_TIMEOUT_MS} ms without finishing`);
 
-        resolve(toolErrorResult(TIMEOUT_TEXT));
-      }, ATLAS_STEP_TIMEOUT_MS);
-    });
+    // The first of the result, the timeout and a stop wins.
+    const finish = (result) => {
+      if (isFinished) return;
 
-    const run = (async () => {
+      isFinished = true;
+      clearTimeout(timeoutId);
+      if (runningCallRef.current?.controller === controller) runningCallRef.current = null;
+      resolve(result);
+    };
+
+    const stop = (result) => {
+      controller.abort();
+      finish(result);
+    };
+
+    runningCallRef.current = { batch, controller, name, stop };
+
+    timeoutId = setTimeout(() => {
+      console.warn(`[atlas-tools] ${name}: moving on after ${ATLAS_STEP_TIMEOUT_MS} ms without finishing`);
+
+      stop(toolErrorResult(TIMEOUT_TEXT));
+    }, ATLAS_STEP_TIMEOUT_MS);
+
+    (async () => {
       try {
-        return await runAtlasAppActionRef.current({ action: name, ...params });
+        finish(await runAtlasAppActionRef.current({ action: name, ...params }, { signal: controller.signal }));
       } catch (error) {
         console.warn(`[atlas-tools] ${name}: failed`, error);
 
-        return toolErrorResult(`Failed: ${error?.message ?? String(error)}`);
+        finish(toolErrorResult(`Failed: ${error?.message ?? String(error)}`));
       }
     })();
-
-    try {
-      return await Promise.race([run, timeout]);
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  }, []);
+  }), []);
 
   const runWaitingCalls = useCallback(async () => {
     if (isRunningRef.current) return;
 
     isRunningRef.current = true;
-    while (waitingCallsRef.current.length) {
-      const call = waitingCallsRef.current.shift();
+    try {
+      while (waitingCallsRef.current.length && !isUnmountedRef.current) {
+        const call = waitingCallsRef.current.shift();
 
-      call.resolve(await runWithTimeout(call));
+        call.resolve(await runCall(call));
+      }
+    } finally {
+      isRunningRef.current = false;
     }
-    isRunningRef.current = false;
-  }, [runWithTimeout]);
+  }, [runCall]);
 
   // Rejects an invalid call with a JSON-RPC error, and otherwise resolves to
   // the MCP result of the call.
@@ -79,17 +102,25 @@ const AtlasToolsProvider = ({ children }) => {
       return Promise.reject({ code: JSON_RPC_ERROR_CODES.INVALID_PARAMS, message: validation.message });
     }
 
+    if (isUnmountedRef.current) return Promise.resolve(toolErrorResult(CANCELLED_TEXT));
+
     if (batch !== undefined && batch !== currentBatchRef.current) {
       currentBatchRef.current = batch;
 
       waitingCallsRef.current = waitingCallsRef.current.filter((call) => {
-        if (call.batch === undefined || call.batch === batch) return true;
+        if (!isOfOlderBatch(call, batch)) return true;
 
         console.warn(`[atlas-tools] ${call.name}: skipped, a newer Atlas reply arrived`);
         call.resolve(toolErrorResult(SUPERSEDED_TEXT));
 
         return false;
       });
+
+      const runningCall = runningCallRef.current;
+      if (runningCall && isOfOlderBatch(runningCall, batch)) {
+        console.warn(`[atlas-tools] ${runningCall.name}: stopped, a newer Atlas reply arrived`);
+        runningCall.stop(toolErrorResult(SUPERSEDED_TEXT));
+      }
     }
 
     return new Promise((resolve) => {
@@ -98,6 +129,21 @@ const AtlasToolsProvider = ({ children }) => {
       runWaitingCalls();
     });
   }, [runWaitingCalls]);
+
+  // Nothing is left waiting on tools that went away with the provider.
+  useEffect(() => {
+    isUnmountedRef.current = false;
+
+    return () => {
+      isUnmountedRef.current = true;
+
+      const waitingCalls = waitingCallsRef.current;
+      waitingCallsRef.current = [];
+      waitingCalls.forEach((call) => call.resolve(toolErrorResult(CANCELLED_TEXT)));
+
+      runningCallRef.current?.stop(toolErrorResult(CANCELLED_TEXT));
+    };
+  }, []);
 
   useWebMcpTools(callTool);
 

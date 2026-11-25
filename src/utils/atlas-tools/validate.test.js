@@ -1,5 +1,5 @@
 import toolsDocument from './tools.json';
-import { ATLAS_TOOL_NAMES, ATLAS_TOOLS, validateToolCall } from './validate';
+import { ATLAS_TOOL_NAMES, ATLAS_TOOLS, ATLAS_TOOLS_VERSION, validateToolCall } from './validate';
 
 const UUID = '6f1c2d3e-4b5a-4c7d-8e9f-0a1b2c3d4e5f';
 const OTHER_UUID = '0a1b2c3d-4e5f-4a7b-8c9d-0e1f2a3b4c5d';
@@ -34,6 +34,10 @@ describe('utils - atlas-tools - validate', () => {
         name: tool.name,
       })));
       expect(ATLAS_TOOLS).toHaveLength(16);
+    });
+
+    test('gives the version of the contract', () => {
+      expect(ATLAS_TOOLS_VERSION).toBe(toolsDocument.version);
     });
 
     test('names every tool', () => {
@@ -183,6 +187,47 @@ describe('utils - atlas-tools - validate', () => {
       });
 
       test.each([
+        ['an offset without a colon', '2026-11-01T03:00+0300', '2026-11-01T00:00:00.000Z'],
+        ['a negative offset', '2026-10-31T21:30:00-02:30', '2026-11-01T00:00:00.000Z'],
+        ['a fraction of a second', '2026-11-01T00:00:00.123456Z', '2026-11-01T00:00:00.123Z'],
+        ['the last minute of a leap day', '2028-02-29T23:59:59Z', '2028-02-29T23:59:59.000Z'],
+        ['a day that an offset moves to the next month', '2026-11-30T23:00:00-03:00', '2026-12-01T02:00:00.000Z'],
+      ])('accepts %s', (_, since, sinceUtc) => {
+        expect(validateToolCall('events-filter', { since })).toEqual(valid({ since: sinceUtc }));
+      });
+
+      test.each([
+        ['the 30th of February', '2026-02-30T00:00:00Z'],
+        ['the 29th of February outside a leap year', '2026-02-29T00:00:00Z'],
+        ['the 31st of a 30-day month', '2026-11-31T00:00:00+03:00'],
+        ['month 13', '2026-13-01T00:00:00Z'],
+        ['month 0', '2026-00-10T00:00:00Z'],
+        ['day 0', '2026-11-00T00:00:00Z'],
+        ['hour 24', '2026-11-01T24:00:00Z'],
+        ['hour 24 with an offset', '2026-11-01T24:00:00+03:00'],
+        ['minute 60', '2026-11-01T00:60:00Z'],
+        ['second 60', '2026-11-01T00:00:60Z'],
+        ['an offset of 24 hours', '2026-11-01T00:00:00+24:00'],
+        ['an offset minute of 60', '2026-11-01T00:00:00+03:60'],
+      ])('rejects a time that is not a real instant: %s', (_, since) => {
+        expect(validateToolCall('events-filter', { since })).toEqual({
+          message: 'Invalid arguments for events-filter: since is not a valid time',
+          ok: false,
+        });
+      });
+
+      test('lower-cases the ids, and drops the ones that differ only in case', () => {
+        expect(validate({
+          event_types: [UUID.toUpperCase(), UUID, OTHER_UUID.toUpperCase()],
+          reported_by: [OTHER_UUID.toUpperCase()],
+        }).params).toEqual({ event_types: [UUID, OTHER_UUID], reported_by: [OTHER_UUID] });
+      });
+
+      test('leaves the case of the text alone', () => {
+        expect(validate({ text: UUID.toUpperCase() }).params.text).toBe(UUID.toUpperCase());
+      });
+
+      test.each([
         ['a time without an offset', { since: '2026-11-01T00:00:00' }],
         ['a date without a time', { since: '2026-11-01' }],
         ['an impossible date', { since: '2026-13-45T00:00:00Z' }],
@@ -239,6 +284,13 @@ describe('utils - atlas-tools - validate', () => {
         }));
       });
 
+      test('lower-cases the ids', () => {
+        expect(validateToolCall('patrols-filter', {
+          leaders: [UUID.toUpperCase()],
+          patrol_types: [OTHER_UUID.toUpperCase()],
+        }).params).toEqual({ leaders: [UUID], patrol_types: [OTHER_UUID] });
+      });
+
       test('removes duplicate statuses', () => {
         expect(validateToolCall('patrols-filter', { status: ['done', 'done'] }).params.status).toEqual(['done']);
       });
@@ -260,8 +312,8 @@ describe('utils - atlas-tools - validate', () => {
         expect(validateToolCall(name, { id: UUID })).toEqual(valid({ id: UUID }));
       });
 
-      test('accepts an uppercase uuid', () => {
-        expect(validateToolCall(name, { id: UUID.toUpperCase() })).toEqual(valid({ id: UUID.toUpperCase() }));
+      test('accepts an uppercase uuid, in lower case', () => {
+        expect(validateToolCall(name, { id: UUID.toUpperCase() })).toEqual(valid({ id: UUID }));
       });
 
       test.each([
@@ -276,6 +328,10 @@ describe('utils - atlas-tools - validate', () => {
     describe('subject-popup', () => {
       test('returns the id and track flag', () => {
         expect(validateToolCall('subject-popup', { id: UUID, track: true })).toEqual(valid({ id: UUID, track: true }));
+      });
+
+      test('lower-cases the id', () => {
+        expect(validateToolCall('subject-popup', { id: UUID.toUpperCase() })).toEqual(valid({ id: UUID }));
       });
 
       test('rejects a track flag that is not a boolean', () => {
@@ -297,6 +353,10 @@ describe('utils - atlas-tools - validate', () => {
 
       test('removes duplicate ids', () => {
         expect(validateToolCall(name, { ids: [UUID, UUID] }).params.ids).toEqual([UUID]);
+      });
+
+      test('lower-cases the ids, and drops the ones that differ only in case', () => {
+        expect(validateToolCall(name, { ids: [UUID.toUpperCase(), UUID] }).params.ids).toEqual([UUID]);
       });
 
       test('accepts the largest number of ids', () => {
@@ -325,6 +385,7 @@ describe('utils - atlas-tools - validate', () => {
         ['a null time', { id: UUID, time: null }],
         ['a time without an offset', { id: UUID, time: '2026-11-03T14:00' }],
         ['a time that is not a real instant', { id: UUID, time: '2026-13-03T14:00Z' }],
+        ['a time on a day the month does not have', { id: UUID, time: '2026-02-30T14:00Z' }],
         ['a missing id', { time: UNTIL }],
       ])('rejects %s', (_, args) => {
         expect(validateToolCall('subject-at-time', args)).toEqual(INVALID);
@@ -355,6 +416,10 @@ describe('utils - atlas-tools - validate', () => {
 
       test('removes duplicate ids', () => {
         expect(validateToolCall('subjects-visibility', { only: [UUID, UUID] }).params.only).toEqual([UUID]);
+      });
+
+      test.each(['only', 'hide', 'show'])('lower-cases the %s ids', (mode) => {
+        expect(validateToolCall('subjects-visibility', { [mode]: [UUID.toUpperCase()] })).toEqual(valid({ [mode]: [UUID] }));
       });
 
       test.each([
@@ -399,6 +464,24 @@ describe('utils - atlas-tools - validate', () => {
         expect(validateToolCall('jump-to', { coordinates: [1, 1] })).toEqual(valid({ coordinates: [1, 1] }));
       });
 
+      test.each([
+        [-180, -90],
+        [180, 90],
+      ])('accepts the bounds [%s, %s]', (longitude, latitude) => {
+        expect(validateToolCall('jump-to', { coordinates: [longitude, latitude] })).toEqual(valid());
+      });
+
+      test('accepts a latitude-sized longitude above 90, checking each by its position', () => {
+        expect(validateToolCall('jump-to', { coordinates: [120, 45] })).toEqual(valid({ coordinates: [120, 45] }));
+      });
+
+      test('names the coordinate out of range', () => {
+        expect(validateToolCall('jump-to', { coordinates: [0, 120] })).toEqual({
+          message: 'Invalid arguments for jump-to: coordinates[1] must be a latitude in -90..90',
+          ok: false,
+        });
+      });
+
       test.each([0, 22])('accepts the zoom bound %s', (zoom) => {
         expect(validateToolCall('jump-to', { coordinates: [0, 0], zoom })).toEqual(valid());
       });
@@ -415,6 +498,7 @@ describe('utils - atlas-tools - validate', () => {
         ['a longitude below -180', { coordinates: [-180.1, 0] }],
         ['a latitude above 90', { coordinates: [0, 90.1] }],
         ['a latitude below -90', { coordinates: [0, -90.1] }],
+        ['a longitude and latitude swapped past 90', { coordinates: [-1.3, 136.8] }],
         ['a zoom below 0', { coordinates: [0, 0], zoom: -1 }],
         ['a zoom above 22', { coordinates: [0, 0], zoom: 22.1 }],
         ['a string zoom', { coordinates: [0, 0], zoom: '10' }],
@@ -435,6 +519,21 @@ describe('utils - atlas-tools - validate', () => {
         expect(validateToolCall('fit-bounds', { bbox: [1, 2, 1, 2] })).toEqual(valid({ bbox: [1, 2, 1, 2] }));
       });
 
+      test('accepts the whole world', () => {
+        expect(validateToolCall('fit-bounds', { bbox: [-180, -90, 180, 90] })).toEqual(valid());
+      });
+
+      test('accepts longitudes past 90, checking each value by its position', () => {
+        expect(validateToolCall('fit-bounds', { bbox: [100, -5, 150, 5] })).toEqual(valid());
+      });
+
+      test('names the value out of range', () => {
+        expect(validateToolCall('fit-bounds', { bbox: [-10, -5, 10, 91] })).toEqual({
+          message: 'Invalid arguments for fit-bounds: bbox[3] must be a latitude in -90..90',
+          ok: false,
+        });
+      });
+
       test.each([
         ['a missing bbox', {}],
         ['a bbox that is not an array', { bbox: '-10,-5,10,5' }],
@@ -446,6 +545,7 @@ describe('utils - atlas-tools - validate', () => {
         ['an east out of range', { bbox: [-10, -5, 181, 5] }],
         ['a south out of range', { bbox: [-10, -91, 10, 5] }],
         ['a north out of range', { bbox: [-10, -5, 10, 91] }],
+        ['an infinite value', { bbox: [-10, -5, Infinity, 5] }],
         ['a west greater than east', { bbox: [10, -5, -10, 5] }],
         ['a south greater than north', { bbox: [-10, 5, 10, -5] }],
       ])('rejects %s', (_, args) => {
@@ -458,8 +558,17 @@ describe('utils - atlas-tools - validate', () => {
         expect(validateToolCall('open-record', { er_type: erType, id: UUID })).toEqual(valid({ er_type: erType, id: UUID }));
       });
 
-      test('accepts an uppercase uuid', () => {
-        expect(validateToolCall('open-record', { er_type: 'event', id: UUID.toUpperCase() })).toEqual(valid());
+      test('accepts an uppercase uuid, in lower case', () => {
+        expect(validateToolCall('open-record', { er_type: 'event', id: UUID.toUpperCase() })).toEqual(valid({ er_type: 'event', id: UUID }));
+      });
+
+      test('returns the point to centre the map on', () => {
+        expect(validateToolCall('open-record', { er_type: 'event', id: UUID, lnglat: [36.8, -1.3] }))
+          .toEqual(valid({ er_type: 'event', id: UUID, lnglat: [36.8, -1.3] }));
+      });
+
+      test('keeps a point whose longitude and latitude are the same', () => {
+        expect(validateToolCall('open-record', { er_type: 'event', id: UUID, lnglat: [1, 1] }).params.lnglat).toEqual([1, 1]);
       });
 
       test.each([
@@ -470,6 +579,13 @@ describe('utils - atlas-tools - validate', () => {
         ['an id that is not a uuid', { er_type: 'event', id: 'abc' }],
         ['an id with a path', { er_type: 'event', id: `${UUID}/../settings` }],
         ['an id with surrounding text', { er_type: 'event', id: ` ${UUID}` }],
+        ['a point that is not an array', { er_type: 'event', id: UUID, lnglat: '36.8,-1.3' }],
+        ['a point with one value', { er_type: 'event', id: UUID, lnglat: [36.8] }],
+        ['a point with three values', { er_type: 'event', id: UUID, lnglat: [36.8, -1.3, 0] }],
+        ['a point with a string value', { er_type: 'event', id: UUID, lnglat: ['36.8', -1.3] }],
+        ['a longitude out of range', { er_type: 'event', id: UUID, lnglat: [180.1, 0] }],
+        ['a latitude out of range', { er_type: 'event', id: UUID, lnglat: [0, -90.1] }],
+        ['a NaN value', { er_type: 'event', id: UUID, lnglat: [NaN, 0] }],
       ])('rejects %s', (_, args) => {
         expect(validateToolCall('open-record', args)).toEqual(INVALID);
       });

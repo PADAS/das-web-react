@@ -17,8 +17,11 @@ const SUBJECT_ID = '6f1c2d3e-4b5a-4c7d-8e9f-0a1b2c3d4e5f';
 const done = (text) => ({ content: [{ text, type: 'text' }], isError: false });
 const failed = (text) => ({ content: [{ text, type: 'text' }], isError: true });
 
+const CANCELLED = failed('Cancelled, Atlas tools are no longer available.');
 const SUPERSEDED = failed('Skipped, superseded by a newer reply.');
 const TIMED_OUT = failed('Moved on, the call did not finish within 15 s.');
+
+const WITH_SIGNAL = { signal: expect.any(AbortSignal) };
 
 describe('AtlasTools', () => {
   let cameraHistory, runAtlasAppAction, warn;
@@ -34,7 +37,13 @@ describe('AtlasTools', () => {
     warn.mockRestore();
   });
 
-  const renderAtlasTools = () => renderHook(() => useAtlasTools(), { wrapper: AtlasToolsProvider }).result.current;
+  const renderAtlasToolsHook = () => renderHook(() => useAtlasTools(), { wrapper: AtlasToolsProvider });
+
+  const renderAtlasTools = () => renderAtlasToolsHook().result.current;
+
+  const getSignal = (index) => runAtlasAppAction.mock.calls[index][1].signal;
+
+  const getRunActions = () => runAtlasAppAction.mock.calls.map(([{ action }]) => action);
 
   // Each deferred run resolves when its finish is called, once it has started.
   const deferRuns = (count) => {
@@ -73,7 +82,7 @@ describe('AtlasTools', () => {
       action: 'subject-track',
       ids: [SUBJECT_ID],
       since: '2026-10-31T21:00:00.000Z',
-    });
+    }, WITH_SIGNAL);
     expect(result).toEqual(done('Ran subject-track.'));
   });
 
@@ -109,6 +118,31 @@ describe('AtlasTools', () => {
     expect(results).toEqual([failed('Failed: boom'), done('Ran report-heatmap.')]);
   });
 
+  test('resolves a call that throws before returning a promise to an error result, and keeps going', async () => {
+    runAtlasAppAction.mockImplementationOnce(() => {
+      throw new Error('boom');
+    });
+    const { callTool } = renderAtlasTools();
+
+    const results = await Promise.all([
+      callTool('report-heatmap', { on: true }),
+      callTool('report-heatmap', { on: false }),
+    ]);
+
+    expect(results).toEqual([failed('Failed: boom'), done('Ran report-heatmap.')]);
+  });
+
+  test('gives each call its own signal, not aborted once it finishes', async () => {
+    const { callTool } = renderAtlasTools();
+
+    await callTool('report-heatmap', { on: true });
+    await callTool('report-heatmap', { on: false });
+
+    expect(getSignal(0)).not.toBe(getSignal(1));
+    expect(getSignal(0).aborted).toBe(false);
+    expect(getSignal(1).aborted).toBe(false);
+  });
+
   test('runs calls one at a time, in the order they arrive', async () => {
     const [finishFirst] = deferRuns(1);
     const { callTool } = renderAtlasTools();
@@ -123,7 +157,7 @@ describe('AtlasTools', () => {
     await flush();
 
     expect(runAtlasAppAction).toHaveBeenCalledTimes(2);
-    expect(runAtlasAppAction).toHaveBeenLastCalledWith({ action: 'jump-to', coordinates: [1, 2] });
+    expect(runAtlasAppAction).toHaveBeenLastCalledWith({ action: 'jump-to', coordinates: [1, 2] }, WITH_SIGNAL);
     await expect(first).resolves.toEqual(done('Ran report-heatmap.'));
     await expect(second).resolves.toEqual(done('Ran jump-to.'));
   });
@@ -147,23 +181,77 @@ describe('AtlasTools', () => {
 
   describe('batches', () => {
     test('drops the waiting calls of an older batch once a newer batch arrives', async () => {
-      const [finishFirst] = deferRuns(1);
+      deferRuns(1);
       const { callTool } = renderAtlasTools();
 
-      const running = callTool('report-heatmap', { on: true }, { batch: 'reply-1' });
+      callTool('report-heatmap', { on: true }, { batch: 'reply-1' });
       const waiting = callTool('jump-to', { coordinates: [1, 2] }, { batch: 'reply-1' });
       await flush();
       const newer = callTool('report-heatmap', { on: false }, { batch: 'reply-2' });
 
       await expect(waiting).resolves.toEqual(SUPERSEDED);
       expect(warn).toHaveBeenCalledWith('[atlas-tools] jump-to: skipped, a newer Atlas reply arrived');
+      await expect(newer).resolves.toEqual(done('Ran report-heatmap.'));
+      expect(getRunActions()).toEqual(['report-heatmap', 'report-heatmap']);
+    });
 
+    test('stops the running call of an older batch at once, aborting its signal, and runs the newer one', async () => {
+      const [finishFirst] = deferRuns(1);
+      const { callTool } = renderAtlasTools();
+
+      const running = callTool('subject-popup', { id: SUBJECT_ID }, { batch: 'reply-1' });
+      await flush();
+      const newer = callTool('jump-to', { coordinates: [1, 2] }, { batch: 'reply-2' });
+
+      await expect(running).resolves.toEqual(SUPERSEDED);
+      expect(getSignal(0).aborted).toBe(true);
+      expect(warn).toHaveBeenCalledWith('[atlas-tools] subject-popup: stopped, a newer Atlas reply arrived');
+      await expect(newer).resolves.toEqual(done('Ran jump-to.'));
+      expect(getSignal(1).aborted).toBe(false);
+
+      // Its late result changes nothing.
+      await finishFirst();
+
+      await expect(running).resolves.toEqual(SUPERSEDED);
+    });
+
+    test('does not stop the running call of the same batch', async () => {
+      const [finishFirst] = deferRuns(1);
+      const { callTool } = renderAtlasTools();
+
+      const running = callTool('report-heatmap', { on: true }, { batch: 'reply-1' });
+      await flush();
+      callTool('jump-to', { coordinates: [1, 2] }, { batch: 'reply-1' });
       await finishFirst();
 
       await expect(running).resolves.toEqual(done('Ran report-heatmap.'));
-      await expect(newer).resolves.toEqual(done('Ran report-heatmap.'));
-      expect(runAtlasAppAction).toHaveBeenCalledTimes(2);
-      expect(runAtlasAppAction).not.toHaveBeenCalledWith(expect.objectContaining({ action: 'jump-to' }));
+      expect(getSignal(0).aborted).toBe(false);
+    });
+
+    test('never stops a running call without a batch', async () => {
+      const [finishFirst] = deferRuns(1);
+      const { callTool } = renderAtlasTools();
+
+      const running = callTool('report-heatmap', { on: true });
+      await flush();
+      callTool('jump-to', { coordinates: [1, 2] }, { batch: 'reply-2' });
+      await finishFirst();
+
+      await expect(running).resolves.toEqual(done('Ran report-heatmap.'));
+      expect(getSignal(0).aborted).toBe(false);
+    });
+
+    test('does not let a call without a batch stop the running call of one', async () => {
+      const [finishFirst] = deferRuns(1);
+      const { callTool } = renderAtlasTools();
+
+      const running = callTool('report-heatmap', { on: true }, { batch: 'reply-1' });
+      await flush();
+      callTool('jump-to', { coordinates: [1, 2] });
+      await finishFirst();
+
+      await expect(running).resolves.toEqual(done('Ran report-heatmap.'));
+      expect(getSignal(0).aborted).toBe(false);
     });
 
     test('keeps the waiting calls of the same batch', async () => {
@@ -204,18 +292,22 @@ describe('AtlasTools', () => {
       await expect(waiting).resolves.toEqual(done('Ran jump-to.'));
     });
 
-    test('runs the calls of the newer batch in order after the one running', async () => {
+    test('runs the calls of the newer batch in order after the one running without a batch', async () => {
       const [finishFirst] = deferRuns(1);
       const { callTool } = renderAtlasTools();
 
-      callTool('report-heatmap', { on: true }, { batch: 'reply-1' });
+      callTool('report-heatmap', { on: true });
       await flush();
       callTool('jump-to', { coordinates: [1, 2] }, { batch: 'reply-2' });
       callTool('fit-bounds', { bbox: [1, 2, 3, 4] }, { batch: 'reply-2' });
+      await flush();
+
+      expect(getRunActions()).toEqual(['report-heatmap']);
+
       await finishFirst();
       await flush();
 
-      expect(runAtlasAppAction.mock.calls.map(([{ action }]) => action)).toEqual(['report-heatmap', 'jump-to', 'fit-bounds']);
+      expect(getRunActions()).toEqual(['report-heatmap', 'jump-to', 'fit-bounds']);
     });
   });
 
@@ -244,8 +336,60 @@ describe('AtlasTools', () => {
 
       await expect(stuck).resolves.toEqual(TIMED_OUT);
       await expect(next).resolves.toEqual(done('Ran report-heatmap.'));
-      expect(runAtlasAppAction).toHaveBeenLastCalledWith({ action: 'report-heatmap', on: false });
+      expect(runAtlasAppAction).toHaveBeenLastCalledWith({ action: 'report-heatmap', on: false }, WITH_SIGNAL);
       expect(warn).toHaveBeenCalledWith(expect.stringContaining('report-heatmap'));
+    });
+
+    test('aborts its signal once it runs out of time, and only then', async () => {
+      const { callTool } = renderAtlasTools();
+
+      callTool('report-heatmap', { on: true });
+      await advanceTimersBy(ATLAS_STEP_TIMEOUT_MS - 1);
+
+      expect(getSignal(0).aborted).toBe(false);
+
+      await advanceTimersBy(1);
+
+      expect(getSignal(0).aborted).toBe(true);
+    });
+  });
+
+  describe('once unmounted', () => {
+    test('aborts the running call, and resolves it and every waiting call as cancelled', async () => {
+      deferRuns(1);
+      const { result, unmount } = renderAtlasToolsHook();
+      const { callTool } = result.current;
+
+      const running = callTool('report-heatmap', { on: true }, { batch: 'reply-1' });
+      const waiting = callTool('jump-to', { coordinates: [1, 2] }, { batch: 'reply-1' });
+      const unbatched = callTool('fit-bounds', { bbox: [1, 2, 3, 4] });
+      await flush();
+
+      unmount();
+
+      await expect(running).resolves.toEqual(CANCELLED);
+      await expect(waiting).resolves.toEqual(CANCELLED);
+      await expect(unbatched).resolves.toEqual(CANCELLED);
+      expect(getSignal(0).aborted).toBe(true);
+      await flush();
+      expect(getRunActions()).toEqual(['report-heatmap']);
+    });
+
+    test('resolves a later call as cancelled without running it', async () => {
+      const { result, unmount } = renderAtlasToolsHook();
+      const { callTool } = result.current;
+      unmount();
+
+      await expect(callTool('report-heatmap', { on: true })).resolves.toEqual(CANCELLED);
+      expect(runAtlasAppAction).not.toHaveBeenCalled();
+    });
+
+    test('still rejects a later invalid call as invalid', async () => {
+      const { result, unmount } = renderAtlasToolsHook();
+      const { callTool } = result.current;
+      unmount();
+
+      await expect(callTool('report-heatmap', {})).rejects.toEqual(expect.objectContaining({ code: -32602 }));
     });
   });
 });

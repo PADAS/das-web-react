@@ -1,5 +1,5 @@
 {
-  "$comment": "The EarthRanger tools Atlas (and, with WebMCP, any browser agent) may call. The contract between das-web-react and otus: das-web-react owns this file, and otus keeps a copy (agents/otus/skills/show_in_app/tools.json) with a test that every step to_view.py writes validates against it. Checks JSON Schema cannot say (a time that is not a real instant, such as month 13; since after until; west > east or south > north) are in validate.js, which also drops duplicate list items and normalizes times to UTC. Change the two together.",
+  "$comment": "The EarthRanger tools Atlas (and, with WebMCP, any browser agent) may call. The contract between das-web-react and otus: das-web-react owns this file, and otus keeps a copy (agents/otus/skills/show_in_app/tools.json) with a test that every step to_view.py writes validates against it. Checks JSON Schema cannot say, or says only in a dialect some consumers do not read (longitude and latitude ranges by position; a time that is not a real instant, such as month 13; since after until; west > east or south > north) are in validate.js, which also lower-cases ids, drops duplicate list items and normalizes times to UTC. Change the two together.",
   "version": 1,
   "tools": [
     {
@@ -557,20 +557,10 @@
             "type": "array",
             "minItems": 2,
             "maxItems": 2,
-            "description": "[longitude, latitude].",
-            "items": [
-              {
-                "type": "number",
-                "minimum": -180,
-                "maximum": 180
-              },
-              {
-                "type": "number",
-                "minimum": -90,
-                "maximum": 90
-              }
-            ],
-            "additionalItems": false
+            "description": "[longitude, latitude]: longitude -180..180, latitude -90..90.",
+            "items": {
+              "type": "number"
+            }
           },
           "zoom": {
             "type": "number",
@@ -600,30 +590,10 @@
             "type": "array",
             "minItems": 4,
             "maxItems": 4,
-            "description": "[west, south, east, north] in degrees, west <= east and south <= north.",
-            "items": [
-              {
-                "type": "number",
-                "minimum": -180,
-                "maximum": 180
-              },
-              {
-                "type": "number",
-                "minimum": -90,
-                "maximum": 90
-              },
-              {
-                "type": "number",
-                "minimum": -180,
-                "maximum": 180
-              },
-              {
-                "type": "number",
-                "minimum": -90,
-                "maximum": 90
-              }
-            ],
-            "additionalItems": false
+            "description": "[west, south, east, north] in degrees: longitudes -180..180, latitudes -90..90, west <= east and south <= north.",
+            "items": {
+              "type": "number"
+            }
           }
         },
         "additionalProperties": false,
@@ -653,6 +623,15 @@
           "id": {
             "type": "string",
             "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+          },
+          "lnglat": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 2,
+            "maxItems": 2,
+            "description": "[longitude, latitude] to centre the map on, as the record link's ?lnglat= does."
           }
         },
         "additionalProperties": false,

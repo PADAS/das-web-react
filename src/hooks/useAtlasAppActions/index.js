@@ -18,7 +18,7 @@ import {
 import { addPropsToGeoJsonByKey, calcSidebarPaddingLeft } from '../../utils/map';
 import { fetchEvent } from '../../ducks/events';
 import { fetchPatrol, updatePatrolTrackState } from '../../ducks/patrols';
-import { fetchTracksIfNecessary } from '../../utils/tracks';
+import { fetchTracksIfNecessary, isTrackFetchNeeded } from '../../utils/tracks';
 import {
   getCoordinatesForCollection,
   getCoordinatesForEvent,
@@ -55,6 +55,7 @@ import { updatePatrolFilter } from '../../ducks/patrol-filter';
 import { useMatchMedia } from '..';
 import { usePatrolsPermissions } from '../usePermissions';
 import useJumpToLocation, { MAP_CONTROLS_PADDING_PIXELS } from '../useJumpToLocation';
+import { RECORD_LINK_ZOOM } from '../useAtlasCameraHistory';
 import useNavigate from '../useNavigate';
 
 import { MapContext } from '../../MapContext';
@@ -137,11 +138,47 @@ const findSubjectPositionAt = (trackData, time) => {
 // Without a history (as in tests of other parts), a move is just made.
 const NO_CAMERA_HISTORY = { begin: () => null, move: async (_session, performMove) => performMove() };
 
-const createActionRunner = ({ getLatest, store }) => {
-  const { dispatch } = store;
+// Thrown at the first side effect a cancelled call would still have made.
+class StepAbortedError extends Error {}
+
+const createActionRunner = ({ getLatest, signal, store }) => {
+  // A call the queue gave up on (timed out or superseded) may still be
+  // awaiting, so it checks before each change to the app that it is still on.
+  const checkNotAborted = () => {
+    if (signal?.aborted) throw new StepAbortedError();
+  };
+
+  const dispatch = (action) => {
+    checkNotAborted();
+
+    return store.dispatch(action);
+  };
+  const guardedStore = { ...store, dispatch };
   const getState = () => store.getState();
 
-  const cameraHistory = () => getLatest().cameraHistory ?? NO_CAMERA_HISTORY;
+  const cameraHistory = () => {
+    const history = getLatest().cameraHistory ?? NO_CAMERA_HISTORY;
+
+    return {
+      begin: () => {
+        checkNotAborted();
+
+        return history.begin();
+      },
+      move: (...args) => {
+        checkNotAborted();
+
+        return history.move(...args);
+      },
+    };
+  };
+
+  const navigate = (...args) => {
+    checkNotAborted();
+    getLatest().navigate(...args);
+  };
+
+  const waitForRoute = (path) => waitUntil(() => getLatest().location.pathname === path, { timeoutMs: ROUTE_CHANGE_TIMEOUT_MS });
 
   const navigateTo = async (action, path, navigationData) => {
     if (getLatest().isNavigationBlocked) {
@@ -150,10 +187,10 @@ const createActionRunner = ({ getLatest, store }) => {
       return false;
     }
 
-    getLatest().navigate(path, undefined, navigationData);
+    navigate(path, undefined, navigationData);
 
     // The jump padding depends on the route, so the jump waits for it.
-    await waitUntil(() => getLatest().location.pathname === path, { timeoutMs: ROUTE_CHANGE_TIMEOUT_MS });
+    await waitForRoute(path);
 
     return true;
   };
@@ -187,10 +224,10 @@ const createActionRunner = ({ getLatest, store }) => {
     map.easeTo({ center: coordinates, padding: calcFramingPadding(), zoom });
   };
 
-  // With the tracks from before the request, only newly fetched ones count.
-  const waitForTracks = (ids, { every = true, previousTracks = null } = {}) => {
-    const isLoaded = (id) => !!getState().data.tracks[id]
-      && (!previousTracks || getState().data.tracks[id] !== previousTracks[id]);
+  // A track counts once it covers the window the map fetches tracks for. One
+  // stored that already does is used at once, as no fetch starts for it.
+  const waitForTracks = (ids, { every = true } = {}) => {
+    const isLoaded = (id) => !isTrackFetchNeeded(getState(), id);
 
     return waitUntil(
       () => every ? ids.every(isLoaded) : ids.some(isLoaded),
@@ -202,20 +239,18 @@ const createActionRunner = ({ getLatest, store }) => {
   // in the past can only be drawn by the time slider, so it moves the event
   // filter's range, which the slider and the track envelope follow.
   const applyTrackWindow = async ({ since, until }) => {
-    if (!since) return false;
+    if (!since) return;
 
     if (!until || Date.now() - Date.parse(until) <= HOUR_MS) {
       dispatch(setTrackLengthOrigin(TRACK_LENGTH_ORIGINS.CUSTOM_LENGTH));
       dispatch(setTrackLength(Math.max(1, Math.ceil((Date.now() - Date.parse(since)) / DAY_MS))));
     } else {
-      await setTimeSliderAt(store, {
+      await setTimeSliderAt(guardedStore, {
         dateRange: { lower: since, upper: until },
         origin: TRACK_LENGTH_ORIGINS.EVENT_FILTER,
         virtualDate: until,
       });
     }
-
-    return true;
   };
 
   const fetchSubject = async (id) => {
@@ -445,12 +480,11 @@ const createActionRunner = ({ getLatest, store }) => {
     'subject-track': async ({ action, ids, since, until }) => {
       if (!isEnabled(getState(), SYSTEM_CONFIG_FLAGS.SUBJECTS)) return skip(action, 'subjects are disabled');
 
-      const previousTracks = getState().data.tracks;
-      const isWindowChanged = await applyTrackWindow({ since, until });
+      await applyTrackWindow({ since, until });
       dispatch(showSubjectsFromAtlas(...ids));
       dispatch(pinSubjectTracks(...ids));
 
-      await waitForTracks(ids, { previousTracks: isWindowChanged ? previousTracks : null });
+      await waitForTracks(ids);
       const isMoved = await jumpToTracks(action, ids, { frameSingleSubject: true, since, until });
 
       return isMoved
@@ -470,7 +504,7 @@ const createActionRunner = ({ getLatest, store }) => {
       const momentTime = Math.min(Date.parse(time), now);
       const moment = new Date(momentTime).toISOString();
 
-      await setTimeSliderAt(store, {
+      await setTimeSliderAt(guardedStore, {
         dateRange: {
           lower: new Date(momentTime - DAY_MS).toISOString(),
           upper: new Date(Math.min(now, momentTime + DAY_MS)).toISOString(),
@@ -478,9 +512,12 @@ const createActionRunner = ({ getLatest, store }) => {
         virtualDate: moment,
       });
 
-      const previousTracks = getState().data.tracks;
-      if (subject.tracks_available) fetchTracksIfNecessary([id]);
-      const isTrackLoaded = await waitForTracks([id], { previousTracks });
+      let isTrackLoaded = false;
+      if (subject.tracks_available) {
+        checkNotAborted();
+        fetchTracksIfNecessary([id]);
+        isTrackLoaded = await waitForTracks([id]);
+      }
 
       // Re-fired once the track is in, so the popup lands on its position.
       dispatch(setVirtualDate(new Date(momentTime - 1).toISOString()));
@@ -501,13 +538,12 @@ const createActionRunner = ({ getLatest, store }) => {
     'subject-heatmap': async ({ action, ids, since, until }) => {
       if (!isEnabled(getState(), SYSTEM_CONFIG_FLAGS.SUBJECTS)) return skip(action, 'subjects are disabled');
 
-      const previousTracks = getState().data.tracks;
-      const isWindowChanged = await applyTrackWindow({ since, until });
+      await applyTrackWindow({ since, until });
       // The map turns the report heatmap off while a subject heatmap is on.
       dispatch(setReportHeatmapVisibility(false));
       dispatch(updateHeatmapSubjects(ids));
 
-      await waitForTracks(ids, { every: false, previousTracks: isWindowChanged ? previousTracks : null });
+      await waitForTracks(ids, { every: false });
       const isMoved = await jumpToTracks(action, ids, { since, until });
 
       return isMoved
@@ -623,16 +659,27 @@ const createActionRunner = ({ getLatest, store }) => {
       return `Fitted the map to ${bounds.join(', ')}.`;
     },
 
-    // As a link to the record would: unsaved edits ask the user before leaving.
-    'open-record': ({ er_type: erType, id }) => {
-      const tabKey = erType === 'event' ? TAB_KEYS.EVENTS : TAB_KEYS.PATROLS;
+    // As a link to the record would: unsaved edits ask the user before
+    // leaving, and a link's ?lnglat= centres the map once it opens.
+    'open-record': async ({ er_type: erType, id, lnglat }) => {
+      const path = `/${erType === 'event' ? TAB_KEYS.EVENTS : TAB_KEYS.PATROLS}/${id}`;
       const isNavigationBlocked = getLatest().isNavigationBlocked;
+      const cameraSession = lnglat && !isNavigationBlocked ? cameraHistory().begin() : null;
 
-      getLatest().navigate(`/${tabKey}/${id}`);
+      navigate(path);
 
-      return isNavigationBlocked
-        ? `Asked the user to leave the open record, which has unsaved edits, to open ${erType} ${id}.`
-        : `Opened ${erType} ${id}.`;
+      if (isNavigationBlocked) {
+        const asked = `Asked the user to leave the open record, which has unsaved edits, to open ${erType} ${id}`;
+
+        return lnglat ? `${asked}; the map did not move.` : `${asked}.`;
+      }
+
+      if (!lnglat) return `Opened ${erType} ${id}.`;
+
+      await waitForRoute(path);
+      await cameraHistory().move(cameraSession, () => jumpTo(lnglat, RECORD_LINK_ZOOM));
+
+      return `Opened ${erType} ${id} and moved the map to ${lnglat[0]}, ${lnglat[1]}.`;
     },
   };
 
@@ -645,6 +692,12 @@ const createActionRunner = ({ getLatest, store }) => {
 
       return typeof outcome === 'string' ? toolResult(outcome) : outcome;
     } catch (error) {
+      if (error instanceof StepAbortedError) {
+        warn(action, 'stopped, the call was cancelled');
+
+        return toolErrorResult('Stopped, the call was cancelled.');
+      }
+
       warn(action, `failed (${error?.message ?? error})`);
 
       return toolErrorResult(`Failed: ${error?.message ?? String(error)}`);
@@ -653,12 +706,13 @@ const createActionRunner = ({ getLatest, store }) => {
 };
 
 // Exported for tests: runs one validated call, given as its tool name in
-// action and its arguments, and resolves to its MCP result.
+// action and its arguments, and resolves to its MCP result. Once the context's
+// signal aborts, the call makes no further change to the app.
 export const runAtlasAppAction = (message, context) => createActionRunner(context)(message);
 
 // Runs validated Atlas tool calls with the app's own action creators and
-// hooks. The caller runs them one at a time, in the order they arrive, and
-// shares its camera history with them.
+// hooks. The caller runs them one at a time, in the order they arrive, shares
+// its camera history with them, and may pass a signal to cancel one.
 const useAtlasAppActions = (cameraHistory) => {
   const isMediumLayoutOrLarger = useMatchMedia(BREAKPOINTS.screenIsMediumLayoutOrLarger);
   const jumpToLocation = useJumpToLocation();
@@ -686,7 +740,7 @@ const useAtlasAppActions = (cameraHistory) => {
   });
 
   return useCallback(
-    (message) => runAtlasAppAction(message, { getLatest: () => latestRef.current, store }),
+    (message, { signal } = {}) => runAtlasAppAction(message, { getLatest: () => latestRef.current, signal, store }),
     [store]
   );
 };

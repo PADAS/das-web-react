@@ -9,7 +9,8 @@ import {
   VERTICAL_NAV_RAIL_WIDTH_PIXELS,
 } from '../../constants';
 import { act, fireEvent, render, screen } from '../../test-utils';
-import { ATLAS_TOOLS } from '../../utils/atlas-tools/validate';
+import { ATLAS_TOOL_NAMES, ATLAS_TOOLS } from '../../utils/atlas-tools/validate';
+import toolsDocument from '../../utils/atlas-tools/tools.json';
 import { clearAuth } from '../../ducks/auth';
 import { fetchAtlasToken } from '../../ducks/atlas-token';
 import { mockStore } from '../../__test-helpers/MockStore';
@@ -127,6 +128,7 @@ describe('SideBar - OtusTab', () => {
 
   const connectMessage = (atlasToken = ATLAS_TOKEN) => [
     {
+      atlas_tools: { names: ATLAS_TOOL_NAMES, version: toolsDocument.version },
       client_version: CLIENT_BUILD_VERSION,
       expires_at: atlasToken.expiresAt,
       site_url: DAS_HOST,
@@ -308,6 +310,35 @@ describe('SideBar - OtusTab', () => {
 
     expect(postMessage).toHaveBeenCalledTimes(1);
     expect(postMessage).toHaveBeenCalledWith(...connectMessage());
+  });
+
+  test('tells the frame on connecting which version of the tools contract it has, and every tool\'s name', async () => {
+    renderOtusTab();
+    const postMessage = mockFramePostMessage();
+
+    await dispatchReadyMessage();
+
+    expect(postMessage.mock.calls[0][0].atlas_tools).toEqual({
+      names: [
+        'events-filter',
+        'patrols-filter',
+        'open-event',
+        'open-patrol',
+        'subject-popup',
+        'subject-track',
+        'subject-at-time',
+        'subject-heatmap',
+        'report-heatmap',
+        'subjects-visibility',
+        'show-feature',
+        'show-analyzer',
+        'layers-search',
+        'jump-to',
+        'fit-bounds',
+        'open-record',
+      ],
+      version: 1,
+    });
   });
 
   test('does not post to the frame while the Atlas token request runs', async () => {
@@ -652,7 +683,12 @@ describe('SideBar - OtusTab', () => {
       await flushReplies();
 
       expect(postMessage).toHaveBeenCalledWith(
-        { type: 'otus:mcp', jsonrpc: '2.0', id: 'list-1', result: { tools: ATLAS_TOOLS } },
+        {
+          type: 'otus:mcp',
+          jsonrpc: '2.0',
+          id: 'list-1',
+          result: { _meta: { contractVersion: toolsDocument.version }, tools: ATLAS_TOOLS },
+        },
         OTUS_URL
       );
       expect(postMessage.mock.calls[0][0].result.tools).toHaveLength(16);
