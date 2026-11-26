@@ -1,7 +1,13 @@
+import isEqual from 'react-fast-compare';
+
 import { DEFAULT_EVENT_SORT, EVENT_STATE_CHOICES, REACT_APP_DEFAULT_EVENT_FILTER_FROM_DAYS } from '../../constants';
 import { generateOptionalStorageConfig } from '../../reducers/storage-config';
 import { generateDaysAgoDate } from '../../utils/datetime';
-import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from '../global-date-range';
+import globalDateRangeReducerWithDefaultConfig, {
+  RESET_DATE_RANGE,
+  UPDATE_DATE_RANGE,
+  withDefaultDateRangePersistence,
+} from '../global-date-range';
 import globallyResettableReducer from '../../reducers/global-resettable';
 
 const defaultDateRange = {
@@ -30,7 +36,10 @@ export const INITIAL_FILTER_STATE = {
   },
 };
 
-export const persistenceConfig = generateOptionalStorageConfig(EVENT_FILTER_STORAGE_KEY, INITIAL_FILTER_STATE);
+export const persistenceConfig = withDefaultDateRangePersistence(
+  generateOptionalStorageConfig(EVENT_FILTER_STORAGE_KEY, INITIAL_FILTER_STATE),
+  INITIAL_FILTER_STATE
+);
 
 const dateRangeReducer = globalDateRangeReducerWithDefaultConfig(defaultDateRange);
 
@@ -45,21 +54,19 @@ export const updateEventFilter = update => (dispatch) => {
   });
 };
 
-export const setDefaultDateRange = (lower, upper) => {
+// A restored custom range stays; only one still at the default moves with it.
+export const setDefaultDateRange = (lower, upper) => (dispatch, getState) => {
+  const isAtDefaultDateRange = isEqual(
+    getState().data.eventFilter.filter.date_range,
+    INITIAL_FILTER_STATE.filter.date_range
+  );
+
   INITIAL_FILTER_STATE.filter.date_range.lower = lower;
   INITIAL_FILTER_STATE.filter.date_range.upper = upper;
 
-  return {
-    type: UPDATE_EVENT_FILTER,
-    payload: {
-      filter: {
-        date_range: {
-          lower,
-          upper,
-        },
-      },
-    },
-  };
+  if (isAtDefaultDateRange) {
+    dispatch({ payload: { filter: { date_range: { lower, upper } } }, type: UPDATE_EVENT_FILTER });
+  }
 };
 
 // REDUCER

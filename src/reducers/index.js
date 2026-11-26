@@ -20,7 +20,7 @@ import {
 } from '../ducks/patrols';
 import patrolTypesReducer from '../ducks/patrol-types';
 import patrolFilterReducer, { persistenceConfig as patrolFilterPersistenceConfig } from '../ducks/patrol-filter';
-import mapsReducer, { homeMapReducer } from '../ducks/maps';
+import { homeMapReducer, mapsReducer } from '../ducks/maps';
 import mapPositionReducer, { persistenceConfig as mapPositionPersistenceConfig } from '../ducks/map-position';
 import tracksReducer, { trackSettingsReducer } from '../ducks/tracks';
 import mapSubjectReducer, { subjectGroupsReducer, subjectStoreReducer } from '../ducks/subjects';

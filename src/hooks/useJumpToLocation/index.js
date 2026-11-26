@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import omit from 'lodash/omit';
 import { useLocation as useRouterLocation } from 'react-router';
 import { useStore } from 'react-redux';
 
@@ -14,6 +15,7 @@ const DEFAULT_LOCATION_JUMP_PADDING = {
   bottom: 12,
   right: 12,
 };
+const FLIGHT_SPEED = 4;
 const MAP_CONTROLS_PADDING_PIXELS = 90;
 const MIN_UNPADDED_MAP_WIDTH_PIXELS = 150;
 
@@ -62,6 +64,16 @@ const useJumpToLocation = () => {
       });
       const mapBoundaries = [[west, south], [east, north]];
       map.fitBounds(mapBoundaries, { linear: true, speed: 200, padding, ...options });
+    } else if (options.isFlight) {
+      // Over 3D terrain an ease holds the camera's height above sea level, so
+      // only a flight lands at its zoom above the ground wherever it starts.
+      map.flyTo({
+        center: isArrayCoords ? coords[0] : coords,
+        padding,
+        speed: FLIGHT_SPEED,
+        zoom,
+        ...omit(options, 'isFlight'),
+      });
     } else {
       map.easeTo({ center: isArrayCoords ? coords[0] : coords, zoom, padding, speed: 200, ...options });
     }

@@ -1,9 +1,8 @@
 import { CLEAR_AUTH } from '../auth';
 import { DEFAULT_SHOW_TRACK_DAYS, REACT_APP_OTUS_URL, SYSTEM_CONFIG_FLAGS } from '../../constants';
 import { endOfToday, generateDaysAgoDate } from '../../utils/datetime';
-import { EVENT_FILTER_STORAGE_KEY, setDefaultDateRange as setDefaultEventDateRange } from '../event-filter';
 import { getIsValidWebUrl } from '../../utils/string';
-import { getKeyIsRestorable } from '../../reducers/storage-config';
+import { setDefaultDateRange as setDefaultEventDateRange } from '../event-filter';
 import { setDefaultDateRange as setDefaultPatrolDateRange } from '../patrol-filter';
 import { setSitenameDimension } from '../../utils/analytics';
 
@@ -63,21 +62,13 @@ export const setSystemConfigFromSystemStatus = (systemStatus, { includeUserConfi
   });
 
   if (systemStatus[SYSTEM_CONFIG_FLAGS.DEFAULT_EVENT_FILTER_FROM_DAYS]) {
-    const eventFilterSavedLocally = getKeyIsRestorable(EVENT_FILTER_STORAGE_KEY);
-    if (!eventFilterSavedLocally) {
-      // If the default event filter from days is set and the event filter is
-      // not saved locally, set the default event date range from the system
-      // config flag.
-      dispatch(setDefaultEventDateRange(
-        generateDaysAgoDate(systemStatus[SYSTEM_CONFIG_FLAGS.DEFAULT_EVENT_FILTER_FROM_DAYS]).toISOString(),
-        null
-      ));
-    }
+    dispatch(setDefaultEventDateRange(
+      generateDaysAgoDate(systemStatus[SYSTEM_CONFIG_FLAGS.DEFAULT_EVENT_FILTER_FROM_DAYS]).toISOString(),
+      null
+    ));
   }
 
   if (systemStatus[SYSTEM_CONFIG_FLAGS.DEFAULT_PATROL_FILTER_FROM_DAYS]) {
-    // If the default patrol filter from days is set, set the default patrol
-    // date range from the system config flag.
     dispatch(setDefaultPatrolDateRange(
       generateDaysAgoDate(systemStatus[SYSTEM_CONFIG_FLAGS.DEFAULT_PATROL_FILTER_FROM_DAYS]).toISOString(),
       endOfToday().toISOString()

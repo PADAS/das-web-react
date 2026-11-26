@@ -1,7 +1,11 @@
 import isEqual from 'react-fast-compare';
 
 import { endOfToday, generateDaysAgoDate } from '../../utils/datetime';
-import globalDateRangeReducerWithDefaultConfig, { RESET_DATE_RANGE, UPDATE_DATE_RANGE } from '../global-date-range';
+import globalDateRangeReducerWithDefaultConfig, {
+  RESET_DATE_RANGE,
+  UPDATE_DATE_RANGE,
+  withDefaultDateRangePersistence,
+} from '../global-date-range';
 import { REACT_APP_DEFAULT_PATROL_FILTER_FROM_DAYS } from '../../constants';
 import { generateOptionalStorageConfig } from '../../reducers/storage-config';
 
@@ -33,11 +37,9 @@ export const patrolFilterMigrations = {
     : state,
 };
 
-export const persistenceConfig = generateOptionalStorageConfig(
-  PATROL_FILTER_STORAGE_KEY,
-  INITIAL_FILTER_STATE,
-  0,
-  patrolFilterMigrations
+export const persistenceConfig = withDefaultDateRangePersistence(
+  generateOptionalStorageConfig(PATROL_FILTER_STORAGE_KEY, INITIAL_FILTER_STATE, 0, patrolFilterMigrations),
+  INITIAL_FILTER_STATE
 );
 
 const dateRangeReducer = globalDateRangeReducerWithDefaultConfig(defaultDateRange);
@@ -50,21 +52,19 @@ export const updatePatrolFilter = (update) => (dispatch) => {
   dispatch({ type: UPDATE_PATROL_FILTER, payload: update });
 };
 
-export const setDefaultDateRange = (lower, upper) => {
+// A restored custom range stays; only one still at the default moves with it.
+export const setDefaultDateRange = (lower, upper) => (dispatch, getState) => {
+  const isAtDefaultDateRange = isEqual(
+    getState().data.patrolFilter.filter.date_range,
+    INITIAL_FILTER_STATE.filter.date_range
+  );
+
   INITIAL_FILTER_STATE.filter.date_range.lower = lower;
   INITIAL_FILTER_STATE.filter.date_range.upper = upper;
 
-  return {
-    type: UPDATE_PATROL_FILTER,
-    payload: {
-      filter: {
-        date_range: {
-          lower,
-          upper,
-        },
-      },
-    },
-  };
+  if (isAtDefaultDateRange) {
+    dispatch({ payload: { filter: { date_range: { lower, upper } } }, type: UPDATE_PATROL_FILTER });
+  }
 };
 
 // REDUCER

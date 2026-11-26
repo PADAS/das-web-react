@@ -24,7 +24,7 @@
     margin: 0;
     outline: none;
 
-    &:has([aria-current="true"]) .item .itemBtn {
+    &:has([aria-current="true"], [role="menuitemcheckbox"], [role="menuitemradio"]) .item .itemBtn {
       padding-left: 1.75rem;
 
       &[aria-current="true"] {

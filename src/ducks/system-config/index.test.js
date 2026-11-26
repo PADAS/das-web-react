@@ -277,7 +277,7 @@ describe('Ducks - System config', () => {
     }));
   });
 
-  test('setSystemConfigFromSystemStatus sets the default event date range if the event filter is not saved locally', async () => {
+  test('setSystemConfigFromSystemStatus sets the default event date range', async () => {
     const systemStatus = {
       [SYSTEM_CONFIG_FLAGS.ALERTS]: true,
       [SYSTEM_CONFIG_FLAGS.ANALYZERS]: true,
@@ -302,7 +302,7 @@ describe('Ducks - System config', () => {
     expect(setDefaultEventDateRange).toHaveBeenCalledTimes(1);
   });
 
-  test('setSystemConfigFromSystemStatus does not set the default event date range if the event filter is saved locally', async () => {
+  test('setSystemConfigFromSystemStatus sets the default event date range for a restored event filter', async () => {
     getKeyIsRestorable.mockImplementation(() => true);
 
     const systemStatus = {
@@ -325,8 +325,8 @@ describe('Ducks - System config', () => {
 
     setSystemConfigFromSystemStatus(systemStatus)(dispatch);
 
-    expect(dispatch).toHaveBeenCalledTimes(1);
-    expect(setDefaultEventDateRange).not.toHaveBeenCalled();
+    expect(dispatch).toHaveBeenCalledTimes(2);
+    expect(setDefaultEventDateRange).toHaveBeenCalledTimes(1);
   });
 
   test('setSystemConfigFromSystemStatus sets the default patrol date range', async () => {

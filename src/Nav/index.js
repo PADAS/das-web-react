@@ -11,6 +11,7 @@ import { APP_ROUTES } from '../constants/routes';
 import { BREAKPOINTS, MAX_ZOOM, REACT_APP_ROUTE_PREFIX } from '../constants';
 import { clearAuth } from '../ducks/auth';
 import { clearUserProfile, fetchCurrentUser, fetchCurrentUserProfiles, fetchUserProfile } from '../ducks/user';
+import { getQuickLinkTitle } from '../utils/quick-links';
 import getWindowLocation from '../utils/getWindowLocation';
 import { GLOBAL_MENU_DRAWER_ID } from '../Drawer';
 import { MAIN_TOOLBAR_CATEGORY, trackEventFactory } from '../utils/analytics';
@@ -119,16 +120,26 @@ const Nav = () => {
   };
 
   const onCurrentLocationClick = (userLocation) => {
-    jumpToLocation([userLocation.coords.longitude, userLocation.coords.latitude], CURRENT_LOCATION_ZOOM);
+    jumpToLocation(
+      [userLocation.coords.longitude, userLocation.coords.latitude],
+      CURRENT_LOCATION_ZOOM,
+      { isFlight: true }
+    );
 
     mainToolbarTracker.track('Click \'My Current Location\'');
+  };
+
+  const onHomeMapClick = (clickedMap) => {
+    jumpToLocation(clickedMap.center, clickedMap.zoom);
+
+    mainToolbarTracker.track('Jump to Home Area', `Home Area:${getQuickLinkTitle(clickedMap)}`);
   };
 
   const onHomeMapSelect = (chosenMap) => {
     dispatch(setHomeMap(chosenMap));
     jumpToLocation(chosenMap.center, chosenMap.zoom);
 
-    mainToolbarTracker.track('Change Home Area', `Home Area:${chosenMap.title}`);
+    mainToolbarTracker.track('Change Home Area', `Home Area:${getQuickLinkTitle(chosenMap)}`);
   };
 
   const onProfileClick = (profile) => {
@@ -174,6 +185,8 @@ const Nav = () => {
       <div className={styles.logoWrapper}>
         <EarthRangerLogo className={styles.logo} />
       </div>
+
+      {!isMediumLayoutOrLarger && <SystemStatus />}
     </div>
 
     {!!maps.length && <div className={styles.centerControls}>
@@ -181,12 +194,13 @@ const Nav = () => {
         maps={maps}
         onCurrentLocationClick={onCurrentLocationClick}
         onMapSelect={onHomeMapSelect}
+        onSelectedMapClick={onHomeMapClick}
         selectedMap={homeMap}
       />
     </div>}
 
     <div className={styles.rightControls}>
-      <SystemStatus />
+      {isMediumLayoutOrLarger && <SystemStatus />}
 
       {hasMessagesReadPermission && <MessageMenu />}
 

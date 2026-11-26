@@ -35,16 +35,16 @@ describe('useJumpToLocation', () => {
     jest.restoreAllMocks();
   });
 
-  const TestComponent = ({ coordinates, zoom }) => {
+  const TestComponent = ({ coordinates, options, zoom }) => {
     const jumpToLocation = useJumpToLocation();
-    useEffect(() => { jumpToLocation(coordinates, zoom); }, [jumpToLocation, coordinates, zoom]);
+    useEffect(() => { jumpToLocation(coordinates, zoom, options); }, [jumpToLocation, coordinates, options, zoom]);
     return null;
   };
 
-  const renderTestComponent = (coords, zoom = 15) => render(
+  const renderTestComponent = (coords, zoom = 15, options) => render(
     <Provider store={mockStore({ view: { userPreferences: {} } })}>
       <MapContext.Provider value={map}>
-        <TestComponent coordinates={coords} zoom={zoom} />
+        <TestComponent coordinates={coords} options={options} zoom={zoom} />
       </MapContext.Provider>
     </Provider>
   );
@@ -80,6 +80,22 @@ describe('useJumpToLocation', () => {
         zoom: 12,
       });
     });
+  });
+
+  test('flies to the coordinates instead of easing when asked for a flight', async () => {
+    renderTestComponent([-104.19557197413907, 20.75709101172957], 20, { isFlight: true, offset: [0, 10] });
+
+    await waitFor(() => {
+      expect(map.flyTo).toHaveBeenCalledTimes(1);
+      expect(map.flyTo).toHaveBeenCalledWith({
+        center: [-104.19557197413907, 20.75709101172957],
+        offset: [0, 10],
+        padding: { top: 12, right: 90, bottom: 12, left: 12 },
+        speed: 4,
+        zoom: 20,
+      });
+    });
+    expect(map.easeTo).not.toHaveBeenCalled();
   });
 
   test('fits multi-dimensional coordinates into map boundaries', async () => {
