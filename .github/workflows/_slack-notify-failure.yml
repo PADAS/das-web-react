@@ -207,7 +207,7 @@ jobs:
       # job to a green check while posting nothing, and the alerting would be dead
       # with no signal until an outage went unnoticed.
       - name: Post to Slack
-        uses: slackapi/slack-github-action@v4.0.0
+        uses: slackapi/slack-github-action@v4.1.0
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: incoming-webhook
