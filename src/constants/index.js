@@ -162,6 +162,7 @@ export const LAYER_IDS = {
   PATROL_SYMBOLS: 'patrol_symbols',
   SECOND_STATIC_SENSOR_PREFIX: 'icons-layer-',
   SKY_LAYER: 'sky',
+  SPATIAL_FEATURE_LABELS: 'spatial-features-labels',
   STATIC_SENSOR: 'static_sensor',
   SUBJECT_SYMBOLS: 'subject-symbol-layer',
   TOPMOST_STYLE_LAYER: 'feature-separation-layer',
@@ -199,6 +200,7 @@ export const DEFAULT_SHOW_NAMES_IN_MAP_CONFIG = {
   [LAYER_IDS.STATIC_SENSOR]: { key: 'stationary_subjects', enabled: false },
   [LAYER_IDS.EVENT_SYMBOLS]: { key: 'reports', enabled: true },
   [LAYER_IDS.PATROL_SYMBOLS]: { key: 'patrols', enabled: true },
+  [LAYER_IDS.SPATIAL_FEATURE_LABELS]: { key: 'features', enabled: false },
 };
 
 export const SYSTEM_CONFIG_FLAGS = {

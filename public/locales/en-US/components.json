@@ -433,6 +433,7 @@
             "legend": "Map markers",
             "markerNamesAllCheckboxLabel": "All",
             "markerNamesCheckboxLabel": {
+              "features": "Features",
               "patrols": "Patrols",
               "reports": "Events",
               "stationary_subjects": "Stationary Subjects",

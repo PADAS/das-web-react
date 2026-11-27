@@ -428,6 +428,7 @@
             "legend": "नक्सामा राखिने चिन्ह",
             "markerNamesAllCheckboxLabel": "सबै",
             "markerNamesCheckboxLabel": {
+              "features": "विशेषताहरु",
               "patrols": "गस्तीहरु",
               "reports": "घटनाहरु",
               "stationary_subjects": "स्थीर विषयहरु",

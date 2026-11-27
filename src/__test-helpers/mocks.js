@@ -2,6 +2,11 @@ import isString from 'lodash/isString';
 
 const mapControls = ['boxZoom', 'scrollZoom', 'dragPan', 'dragRotate', 'touchZoomRotate', 'touchZoomRotate', 'doubleClickZoom', 'keyboard'];
 
+const getTargetLayerIds = (target) => {
+  if (isString(target)) return [target];
+  return Array.isArray(target) ? target : [];
+};
+
 export const createMapMock = (override = {}) => {
   let boundEvents = [];
 
@@ -37,21 +42,22 @@ export const createMapMock = (override = {}) => {
       renderWorldCopies: jest.fn(),
     },
     on: jest.fn((name, ...rest) => {
-      const layerId = isString(rest[0]) ? rest[0] : '';
-      const callback = layerId ? rest[1] : rest[0];
+      const layerIds = getTargetLayerIds(rest[0]);
+      const callback = layerIds.length ? rest[1] : rest[0];
 
-      const eventId = `${name}-${layerId}`;
-
-      boundEvents.push({ callback: callback, id: eventId });
+      (layerIds.length ? layerIds : ['']).forEach((layerId) => {
+        boundEvents.push({ callback: callback, id: `${name}-${layerId}` });
+      });
     }),
     once: jest.fn(),
     off: jest.fn((name, ...rest) => {
-      const layerId = isString(rest[0]) ? rest[0] : '';
-      const callback = layerId ? rest[1] : rest[0];
+      const layerIds = getTargetLayerIds(rest[0]);
+      const callback = layerIds.length ? rest[1] : rest[0];
+      const eventIds = (layerIds.length ? layerIds : ['']).map((layerId) => `${name}-${layerId}`);
 
-      const eventId = `${name}-${layerId}`;
-
-      boundEvents = boundEvents.filter((boundEvent) => boundEvent.id !== eventId || boundEvent.callback !== callback);
+      boundEvents = boundEvents.filter(
+        (boundEvent) => !eventIds.includes(boundEvent.id) || boundEvent.callback !== callback
+      );
     }),
     setLayerZoomRange: jest.fn(),
     getLayer: jest.fn(),

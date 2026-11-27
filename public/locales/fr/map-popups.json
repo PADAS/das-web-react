@@ -16,6 +16,13 @@
       "low_speed": "Alerte de vitesse minimale"
     }
   },
+  "featureSymbolPopup": {
+    "attributesErrorMessage": "Impossible de charger les attributs de l'entité.",
+    "attributesLoadingLabel": "Chargement des attributs…",
+    "attributesRegionLabel": "Attributs de l'entité",
+    "falseValueLabel": "Non",
+    "trueValueLabel": "Oui"
+  },
   "layerSelectorPopup": {
     "searchBarPlaceholder": "Recherche",
     "unsavedChangesLabel": "Modifications non enregistrées"

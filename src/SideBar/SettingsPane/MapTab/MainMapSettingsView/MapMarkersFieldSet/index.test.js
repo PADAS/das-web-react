@@ -61,7 +61,56 @@ describe('SideBar - SettingsPane - MapTab - MainMapSettingsView - MapMarkersFiel
     expect(toggleMapNamesState).toHaveBeenCalledWith({
       event_symbols: { key: 'reports', enabled: true },
       patrol_symbols: { key: 'patrols', enabled: true },
+      'spatial-features-labels': { key: 'features', enabled: true },
       static_sensor: { key: 'stationary_subjects', enabled: true },
+      'subject-symbol-layer': { key: 'subjects', enabled: true },
+    });
+  });
+
+  test('shows the marker names all checkbox as indeterminate if only the features names are unchecked', () => {
+    renderMapMarkersFieldSet(undefined, {
+      view: {
+        ...store.view,
+        showMapNames: {
+          ...DEFAULT_SHOW_NAMES_IN_MAP_CONFIG,
+          static_sensor: { key: 'stationary_subjects', enabled: true },
+        },
+      },
+    });
+
+    const markerNamesGroup = screen.getByRole('group', { name: 'Show names on map markers for' });
+
+    expect(within(markerNamesGroup).getByRole('checkbox', { name: 'All' })).not.toBeChecked();
+    expect(within(markerNamesGroup).getByRole('checkbox', { name: 'All' })).toHaveAttribute('aria-checked', 'mixed');
+  });
+
+  test('shows the marker names features checkbox unchecked by default', () => {
+    renderMapMarkersFieldSet();
+
+    expect(
+      within(
+        screen.getByRole('group', { name: 'Show names on map markers for' })
+      ).getByRole('checkbox', { name: 'Features' })
+    ).not.toBeChecked();
+  });
+
+  test('updates the marker names features setting when user interacts with its checkbox', async () => {
+    renderMapMarkersFieldSet();
+
+    expect(toggleMapNamesState).not.toHaveBeenCalled();
+
+    await userEvent.click(
+      within(
+        screen.getByRole('group', { name: 'Show names on map markers for' })
+      ).getByRole('checkbox', { name: 'Features' })
+    );
+
+    expect(toggleMapNamesState).toHaveBeenCalledTimes(1);
+    expect(toggleMapNamesState).toHaveBeenCalledWith({
+      event_symbols: { key: 'reports', enabled: true },
+      patrol_symbols: { key: 'patrols', enabled: true },
+      'spatial-features-labels': { key: 'features', enabled: true },
+      static_sensor: { key: 'stationary_subjects', enabled: false },
       'subject-symbol-layer': { key: 'subjects', enabled: true },
     });
   });
@@ -81,6 +130,7 @@ describe('SideBar - SettingsPane - MapTab - MainMapSettingsView - MapMarkersFiel
     expect(toggleMapNamesState).toHaveBeenCalledWith({
       event_symbols: { key: 'reports', enabled: true },
       patrol_symbols: { key: 'patrols', enabled: true },
+      'spatial-features-labels': { key: 'features', enabled: false },
       static_sensor: { key: 'stationary_subjects', enabled: false },
       'subject-symbol-layer': { key: 'subjects', enabled: false },
     });
@@ -101,6 +151,7 @@ describe('SideBar - SettingsPane - MapTab - MainMapSettingsView - MapMarkersFiel
     expect(toggleMapNamesState).toHaveBeenCalledWith({
       event_symbols: { key: 'reports', enabled: true },
       patrol_symbols: { key: 'patrols', enabled: true },
+      'spatial-features-labels': { key: 'features', enabled: false },
       static_sensor: { key: 'stationary_subjects', enabled: true },
       'subject-symbol-layer': { key: 'subjects', enabled: true },
     });
@@ -121,6 +172,7 @@ describe('SideBar - SettingsPane - MapTab - MainMapSettingsView - MapMarkersFiel
     expect(toggleMapNamesState).toHaveBeenCalledWith({
       event_symbols: { key: 'reports', enabled: false },
       patrol_symbols: { key: 'patrols', enabled: true },
+      'spatial-features-labels': { key: 'features', enabled: false },
       static_sensor: { key: 'stationary_subjects', enabled: false },
       'subject-symbol-layer': { key: 'subjects', enabled: true },
     });
@@ -141,6 +193,7 @@ describe('SideBar - SettingsPane - MapTab - MainMapSettingsView - MapMarkersFiel
     expect(toggleMapNamesState).toHaveBeenCalledWith({
       event_symbols: { key: 'reports', enabled: true },
       patrol_symbols: { key: 'patrols', enabled: false },
+      'spatial-features-labels': { key: 'features', enabled: false },
       static_sensor: { key: 'stationary_subjects', enabled: false },
       'subject-symbol-layer': { key: 'subjects', enabled: true },
     });

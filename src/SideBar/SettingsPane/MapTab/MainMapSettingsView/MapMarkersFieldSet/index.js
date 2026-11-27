@@ -33,6 +33,7 @@ const MapMarkersFieldSet = () => {
       [LAYER_IDS.STATIC_SENSOR]: { key: 'stationary_subjects', enabled: !isMarkerNamesFullyChecked },
       [LAYER_IDS.EVENT_SYMBOLS]: { key: 'reports', enabled: !isMarkerNamesFullyChecked },
       [LAYER_IDS.PATROL_SYMBOLS]: { key: 'patrols', enabled: !isMarkerNamesFullyChecked },
+      [LAYER_IDS.SPATIAL_FEATURE_LABELS]: { key: 'features', enabled: !isMarkerNamesFullyChecked },
     }));
 
     mapInteractionTracker.track(`${isMarkerNamesFullyChecked ? 'Uncheck' : 'Check' } 'Show Names' checkbox`);

@@ -67,8 +67,10 @@ import SleepDetector from '../SleepDetector';
 import ClustersLayer from '../ClustersLayer';
 import SpatialFeaturesLayer, {
   SYMBOLS_LAYER_ID,
+  LINES_HIT_LAYER_ID,
   LINES_LAYER_ID,
   POLYGONS_LAYER_ID,
+  POLYGONS_OUTLINE_HIT_LAYER_ID,
   POLYGONS_OUTLINE_LAYER_ID,
 } from '../SpatialFeaturesLayer';
 
@@ -94,6 +96,8 @@ const mapInteractionTracker = trackEventFactory(MAP_INTERACTION_CATEGORY);
 
 const CLUSTER_APPROX_WIDTH = 40;
 const CLUSTER_APPROX_HEIGHT = 25;
+
+const FEATURE_LINE_GEOMETRY_TYPES = ['LineString', 'MultiLineString', 'Polygon', 'MultiPolygon'];
 
 export const MAP_DATA_FETCH_DEBOUNCE_MS = 100;
 /* Showing history makes the subjects query scan observations instead of reading cached
@@ -419,12 +423,22 @@ const Map = ({ children, inert = false, onMapLoad, socket }) => {
     showPopup('timepoint', { geometry, properties, coordinates: geometry.coordinates });
   });
 
-  const onFeatureSymbolClick = useMemo(() => withLocationPickerState((feature) => {
+  const onFeatureClick = useMemo(() => withLocationPickerState((feature, event) => {
     const { geometry, properties } = feature;
 
     if (geometry.type === 'Point') {
-      showPopup('feature-symbol', { geometry, properties, coordinates: geometry.coordinates });
+      showPopup('feature-symbol', { coordinates: geometry.coordinates, geometryType: geometry.type, properties });
       mapInteractionTracker.track('Click Map Feature Symbol Icon', `Feature ID :${properties.id}`);
+    }
+
+    // A line or border opens its popup where it was clicked.
+    if (FEATURE_LINE_GEOMETRY_TYPES.includes(geometry.type)) {
+      showPopup('feature-symbol', {
+        coordinates: [event.lngLat.lng, event.lngLat.lat],
+        geometryType: geometry.type,
+        properties,
+      });
+      mapInteractionTracker.track('Click Map Feature Line', `Feature ID :${properties.id}`);
     }
   }), [showPopup, withLocationPickerState]);
 
@@ -469,7 +483,14 @@ const Map = ({ children, inert = false, onMapLoad, socket }) => {
   // Helper function to check if a feature should keep the popup open
   const doesFeatureOpenPopup = useCallback(
     (feature) => feature.layer.id.includes(LAYER_IDS.TRACK_TIMEPOINTS)
-       || [SYMBOLS_LAYER_ID, LINES_LAYER_ID, POLYGONS_LAYER_ID, POLYGONS_OUTLINE_LAYER_ID].includes(feature.layer.id)
+       || [
+         SYMBOLS_LAYER_ID,
+         LINES_HIT_LAYER_ID,
+         LINES_LAYER_ID,
+         POLYGONS_LAYER_ID,
+         POLYGONS_OUTLINE_HIT_LAYER_ID,
+         POLYGONS_OUTLINE_LAYER_ID,
+       ].includes(feature.layer.id)
        || feature.layer.id === LAYER_IDS.GEAR_LINE_HIT
        || feature.layer.id === LAYER_IDS.GEAR_POINT,
     []
@@ -775,7 +796,7 @@ const Map = ({ children, inert = false, onMapLoad, socket }) => {
       {patrolTracksVisible && <PatrolTracks onPointClick={onTimepointClick} />}
 
       {spatialFeaturesEnabled && <SpatialFeaturesLayer
-        onFeatureClick={onFeatureSymbolClick}
+        onFeatureClick={onFeatureClick}
       />}
 
       {analyzersEnabled && <AnalyzerLayer

@@ -433,6 +433,7 @@
             "legend": "Alama za ramani",
             "markerNamesAllCheckboxLabel": "Yote",
             "markerNamesCheckboxLabel": {
+              "features": "Vipengele",
               "patrols": "Doria",
               "reports": "Matukio",
               "stationary_subjects": "Mada zisizotembea",

@@ -428,6 +428,7 @@
             "legend": "Marcadores del mapa",
             "markerNamesAllCheckboxLabel": "Todos",
             "markerNamesCheckboxLabel": {
+              "features": "Funcionalidades",
               "patrols": "Patrullas",
               "reports": "Eventos",
               "stationary_subjects": "Sujetos estacionarios",

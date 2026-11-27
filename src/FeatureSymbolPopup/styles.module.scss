@@ -1,0 +1,71 @@
+@use '../common/styles/key-value-list';
+
+.title {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.375rem;
+  justify-content: center;
+
+  .titleIcon {
+    margin-top: calc((1lh - 1rem) / 2);
+  }
+
+  .titleText {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    text-align: left;
+  }
+}
+
+.attributes {
+  margin-top: 0.5rem;
+  max-height: 9rem;
+  overflow-y: auto;
+
+  &:focus-visible {
+    outline: 2px solid var(--er-ui-cta-primary);
+  }
+}
+
+.attributesList {
+  @include key-value-list.rows('.attribute');
+
+  .attribute {
+    column-gap: 0.5rem;
+
+    &.structured {
+      flex-wrap: wrap;
+
+      dd {
+        flex-basis: 100%;
+        font-family: monospace;
+        text-align: left;
+      }
+    }
+  }
+
+  dt {
+    max-width: 50%;
+    overflow-wrap: anywhere;
+    text-align: left;
+  }
+
+  dd {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    text-align: right;
+    white-space: pre-wrap;
+  }
+}
+
+.attributesLoader {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.attributesError {
+  color: var(--er-ui-text-secondary-text);
+  margin: 0.5rem 0 0;
+}
