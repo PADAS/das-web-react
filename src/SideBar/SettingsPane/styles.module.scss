@@ -39,6 +39,13 @@
 
   &.alertsTab {
     padding: 0;
+
+    .alertsFrame {
+      border: none;
+      display: block;
+      height: 100%;
+      width: 100%;
+    }
   }
 
   h3 {

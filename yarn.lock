@@ -7971,11 +7971,11 @@ __metadata:
     eslint-plugin-react-hooks: "npm:^7.1.1"
     geodesy: "npm:^2.4.0"
     globals: "npm:^17.14.0"
-    humanize-duration: "npm:^3.35.1"
-    i18next: "npm:^27.2.7"
+    humanize-duration: "npm:^3.36.0"
+    i18next: "npm:^27.2.9"
     i18next-browser-languagedetector: "npm:^8.3.1"
     i18next-chained-backend: "npm:^5.1.1"
-    i18next-http-backend: "npm:^4.1.1"
+    i18next-http-backend: "npm:^4.1.2"
     i18next-localstorage-backend: "npm:^4.3.3"
     jest: "npm:^30.5.2"
     jest-environment-jsdom: "npm:^30.5.2"
@@ -8002,7 +8002,7 @@ __metadata:
     react-infinite-scroller: "npm:^1.2.6"
     react-pin-field: "npm:^4.0.2"
     react-redux: "npm:^9.3.1"
-    react-router: "npm:^8.5.2"
+    react-router: "npm:^8.5.3"
     react-select: "npm:^5.10.2"
     react-spinners: "npm:^0.17.1"
     react-to-print: "npm:^3.3.0"
@@ -9489,10 +9489,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"humanize-duration@npm:^3.35.1":
-  version: 3.35.1
-  resolution: "humanize-duration@npm:3.35.1"
-  checksum: 10c0/22622d3ddce54c0801912ae227a23e498fd7cd348a055abe0317c96f6aaa0e79908816ca9b65bfdd1e6685e20db5961948ed223b8fbb258ef749321e7fe1faea
+"humanize-duration@npm:^3.36.0":
+  version: 3.36.0
+  resolution: "humanize-duration@npm:3.36.0"
+  checksum: 10c0/b978ffacab4d7952f243795e68e1397452b77798f2b3e98bde7c5aa3a690d375a9bdf19c0b61bc9301aa71d43188cf8c7f7ebc7b9d4d4014f53413b953040709
   languageName: node
   linkType: hard
 
@@ -9514,10 +9514,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"i18next-http-backend@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "i18next-http-backend@npm:4.1.1"
-  checksum: 10c0/0bd58156d1cb0eec28328eff4dc48310b4a20285206fd3e9242ee59a032cf53dafcb6d28cf1b73c1d8a1fc8ef21ff96a6cc5b6d2e06e3ef36e50a11a3ad20ea1
+"i18next-http-backend@npm:^4.1.2":
+  version: 4.1.2
+  resolution: "i18next-http-backend@npm:4.1.2"
+  checksum: 10c0/a7323c3661d1b7fe2831f6d1fb2d6ec0bc5a16dfb2ee949fcdcca1a86b6304cbc425af79cae567ff83f90a5d02aff733932f6dcf936ba6bc1a2a2858fa19e2c5
   languageName: node
   linkType: hard
 
@@ -9530,15 +9530,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"i18next@npm:^27.2.7":
-  version: 27.2.7
-  resolution: "i18next@npm:27.2.7"
+"i18next@npm:^27.2.9":
+  version: 27.2.9
+  resolution: "i18next@npm:27.2.9"
   peerDependencies:
     typescript: ^5 || ^6 || ^7
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10c0/a6b3348db290dc74070f8862d927aaa63b0b192d470fed27ec170e5487c7b2a37e70eaa7e0e2ae0d4f2cf2df2e5c608db657165a2ed4b47f793aef646c519126
+  checksum: 10c0/cfc18ce50ceebb9d55444facdc725ca71449e03426ff1bbf60ac148aaed42c330401201c041eeaa155d5eecd08e50279b5c28eb2d498826a6326d4ea89c88ee4
   languageName: node
   linkType: hard
 
@@ -12135,9 +12135,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router@npm:^8.5.2":
-  version: 8.5.2
-  resolution: "react-router@npm:8.5.2"
+"react-router@npm:^8.5.3":
+  version: 8.5.3
+  resolution: "react-router@npm:8.5.3"
   dependencies:
     "@remix-run/route-pattern": "npm:^0.22.1"
     cookie-es: "npm:^3.1.1"
@@ -12153,7 +12153,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 10c0/4ff6e74255ca0372cd29698874534d21c4be3c4ca8853707f7176d9fb6284339112896db9a87ae79a6346aa6f8afeb608534de675320c2cd6c674b3ee0bdbf09
+  checksum: 10c0/3941806b91d3c1d983b4943f07919bb6baa7f30108c11140ebe7bf31f72ed6a16f9d0682de007cec4f326d32d2567b1c27152e8d1ba7bd0b4f585223b07bae2e
   languageName: node
   linkType: hard
 
