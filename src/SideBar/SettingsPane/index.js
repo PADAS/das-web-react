@@ -55,9 +55,9 @@ const SettingsPane = () => {
       title={t('alertsTabTitle')}
     >
       <iframe
+        className={styles.alertsFrame}
         data-testid="settings-alertsIframe"
         src={ALERTS_URL}
-        style={{ width: '100%', height: '100vh' }}
         title={t('alertsFrameTitle')}
       />
     </Tab>}

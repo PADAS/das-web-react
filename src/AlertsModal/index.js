@@ -21,7 +21,7 @@ const AlertsModal = ({ title }) => {
       <Modal.Title>{title}</Modal.Title>
     </Modal.Header>
 
-    <Modal.Body>
+    <Modal.Body className={styles.body}>
       <iframe
         className={styles.alerts}
         onLoad={() => setLoadState(false)}

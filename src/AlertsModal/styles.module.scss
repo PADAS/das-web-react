@@ -1,11 +1,19 @@
-.alerts {
-  border: none;
-  height: 90%;
-  outline: none;
-  width: 100%;
-}
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 0;
 
-.message {
-  font-style: italic;
-  margin: 0 1rem;
+  .alerts {
+    border: none;
+    display: block;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+  }
+
+  .message {
+    font-style: italic;
+    margin: 0 1rem;
+  }
 }
