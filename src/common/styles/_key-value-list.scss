@@ -1,0 +1,14 @@
+// Rows of a bold key on the left and its value on the right.
+@mixin rows($row-selector) {
+  margin: 0;
+  padding: 0;
+
+  #{$row-selector} {
+    display: flex;
+    justify-content: space-between;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--er-ui-field-outline);
+    }
+  }
+}

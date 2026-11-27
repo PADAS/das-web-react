@@ -1,8 +1,8 @@
 @use '../common/styles/buttons';
+@use '../common/styles/key-value-list';
 
 .additionalProperties {
-  margin: 0;
-  padding: 0;
+  @include key-value-list.rows('li');
 
   &.disabled {
     opacity: 0.6;
@@ -10,13 +10,6 @@
   }
 
   li {
-    display: flex;
-    justify-content: space-between;
-
-    &:not(:last-child) {
-      border-bottom: 1px solid var(--er-ui-field-outline);
-    }
-
     strong {
       text-align: left;
     }

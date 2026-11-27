@@ -213,7 +213,7 @@ They come in three levels:
 
 **UI**
 - **Map Layers → Features** (`/layers`): the featureset → type → feature tree, with visibility at every level. Jumping to a feature shows it and opens its popup.
-- **Map**: clicking a point opens the **feature popup**, whose Add button creates an event or patrol there. Lines and polygons open nothing.
+- **Map**: features can be labelled with their names, from Settings → Map. Clicking a point, a line or a polygon's border opens the **feature popup** there, with the feature's attributes and an Add button that creates an event or patrol at that spot; a polygon's fill opens nothing, and a point wins over a line beneath it.
 
 **Key files**
 - `ducks/features.js`: the featureset summary.

@@ -11,6 +11,7 @@ import { trackEventFactory, MAP_LAYERS_CATEGORY } from '../../../utils/analytics
 
 import { ReactComponent as GeofenceIcon } from '../../../common/images/icons/geofence-analyzer-icon.svg';
 import { ReactComponent as ProximityIcon } from '../../../common/images/icons/proximity-analyzer-icon.svg';
+import FeatureGeometryIcon from '../../../FeatureGeometryIcon';
 import LocationJumpButton from '../../../LocationJumpButton';
 import { SYMBOLS_LAYER_ID, POLYGONS_LAYER_ID, LINES_LAYER_ID } from '../../../SpatialFeaturesLayer';
 
@@ -66,7 +67,11 @@ const FeatureListItem = memo((props) => {
 
       const centerPoint = center(bboxPolygon(props.bounds), { properties: { id: props.id, name: props.name } });
       dispatch(
-        showPopup('feature-symbol', { ...centerPoint, coordinates: centerPoint.geometry.coordinates })
+        showPopup('feature-symbol', {
+          coordinates: centerPoint.geometry.coordinates,
+          geometryType: props.geometry_type,
+          properties: centerPoint.properties,
+        })
       );
     }, 200);
 
@@ -80,7 +85,15 @@ const FeatureListItem = memo((props) => {
   };
 
   return <span className={styles.featureTitle} onMouseEnter={() => onMouseOverFeature(true)} onMouseLeave={() => onMouseOverFeature(false)}>
-    {(props.analyzer_type && iconForCategory(props.analyzer_type))} {props.name}<LocationJumpButton bypassLocationValidation={true} onClick={onJumpButtonClick} />
+    {(props.analyzer_type && iconForCategory(props.analyzer_type))}
+
+    <span className={styles.featureName}>
+      <FeatureGeometryIcon geometryType={props.geometry_type} />
+
+      {props.name}
+    </span>
+
+    <LocationJumpButton bypassLocationValidation={true} onClick={onJumpButtonClick} />
   </span>;
 
 });

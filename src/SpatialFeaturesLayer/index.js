@@ -2,7 +2,14 @@ import { memo, useContext, useMemo, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { MapContext } from '../MapContext';
 import { addMapImage, buildGeoSpanFilter } from '../utils/map';
-import { API_URL, DEFAULT_SYMBOL_LAYOUT, DEFAULT_SYMBOL_PAINT, SYSTEM_CONFIG_FLAGS } from '../constants';
+import {
+  API_URL,
+  DEFAULT_SYMBOL_LAYOUT,
+  DEFAULT_SYMBOL_PAINT,
+  LAYER_IDS,
+  SYMBOL_TEXT_SIZE_EXPRESSION,
+  SYSTEM_CONFIG_FLAGS,
+} from '../constants';
 import { COLOR_TOKENS, withOpacity } from '../utils/colors';
 
 import MarkerImage from '../common/images/icons/mapbox-blue-marker-icon.png';
@@ -13,12 +20,18 @@ const SPATIAL_FEATURES_SOURCE = 'spatial-features-source';
 const VECTOR_TILE_URL = `${API_URL}spatialfeatures/tiles/{z}/{x}/{y}.pbf`;
 
 export const SYMBOLS_LAYER_ID = 'spatial-features-symbols';
-// const SYMBOLS_LABELS_LAYER_ID = 'spatial-features-point-labels';
+export const SYMBOLS_LABELS_LAYER_ID = 'spatial-features-point-labels';
 export const LINES_LAYER_ID = 'spatial-features-lines';
-// const LINES_LABELS_LAYER_ID = 'spatial-features-line-labels';
+export const LINES_HIT_LAYER_ID = 'spatial-features-lines-hit';
+export const LINES_LABELS_LAYER_ID = 'spatial-features-line-labels';
 export const POLYGONS_LAYER_ID = 'spatial-features-polygons';
-// const POLYGONS_LABELS_LAYER_ID = 'spatial-features-polygon-labels';
+export const POLYGONS_LABELS_LAYER_ID = 'spatial-features-polygon-labels';
 export const POLYGONS_OUTLINE_LAYER_ID = 'spatial-features-polygons-outlines';
+export const POLYGONS_OUTLINE_HIT_LAYER_ID = 'spatial-features-polygons-outlines-hit';
+
+const HIT_LAYER_IDS = [LINES_HIT_LAYER_ID, POLYGONS_OUTLINE_HIT_LAYER_ID];
+const LABELS_LAYER_IDS = [SYMBOLS_LABELS_LAYER_ID, LINES_LABELS_LAYER_ID, POLYGONS_LABELS_LAYER_ID];
+const POINTER_LAYER_IDS = [SYMBOLS_LAYER_ID, ...HIT_LAYER_IDS];
 
 const BEFORE_LAYER_ID = 'feature-separation-layer';
 
@@ -61,19 +74,51 @@ const LINE_LAYERS_PAINT = {
   ]
 };
 
+// Wide enough to click a hairline border without hunting for it.
+const HIT_LAYER_PAINT = {
+  'line-opacity': 0,
+  'line-width': 10,
+};
 
+const LABELS_LAYOUT = {
+  'text-field': ['get', 'name'],
+  'text-font': DEFAULT_SYMBOL_LAYOUT['text-font'],
+  'text-size': SYMBOL_TEXT_SIZE_EXPRESSION,
+};
+
+const LABELS_PAINT = {
+  'text-color': COLOR_TOKENS['ui-text-primary-text'],
+  'text-halo-blur': 1,
+  'text-halo-color': COLOR_TOKENS['ui-background-primary-background'],
+  'text-halo-width': 1,
+};
 
 const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   const map = useContext(MapContext);
   const geoSpan = useSelector(state => state.view.systemConfig[SYSTEM_CONFIG_FLAGS.GEO_SPAN]);
   const mapFeatureHighlightIDs = useSelector(state => state.view.mapFeatureHighlightIDs || []);
   const hiddenFeatureIDs = useSelector(state => state.data.mapLayerFilter?.hiddenFeatureIDs ?? []);
+  const isShowingFeatureNames = useSelector(
+    (state) => !!state.view.showMapNames[LAYER_IDS.SPATIAL_FEATURE_LABELS]?.enabled
+  );
 
   const symbolLayerFilter = useMemo(() => ['all', ['==', ['geometry-type'], 'Point'], ['!', ['in', ['get', 'id'], ['literal', hiddenFeatureIDs]]]], [hiddenFeatureIDs]);
   const lineLayerFilter = useMemo(() => ['all', ['==', ['geometry-type'], 'LineString'], ['!', ['in', ['get', 'id'], ['literal', hiddenFeatureIDs]]]], [hiddenFeatureIDs]);
   const polygonLayerFilter = useMemo(() => ['all', ['==', ['geometry-type'], 'Polygon'], ['!', ['in', ['get', 'id'], ['literal', hiddenFeatureIDs]]]], [hiddenFeatureIDs]);
 
+  const labelsVisibility = isShowingFeatureNames ? 'visible' : 'none';
+
   const onSymbolClick = useCallback((event) => onFeatureClick(event.features[0], event), [onFeatureClick]);
+
+  // Whatever is drawn above a line takes its click, except the feature names.
+  const onLineClick = useCallback((event) => {
+    const topmostFeature = map.queryRenderedFeatures(event.point)
+      .find((feature) => !LABELS_LAYER_IDS.includes(feature.layer?.id));
+
+    if (HIT_LAYER_IDS.includes(topmostFeature?.layer?.id)) {
+      onFeatureClick(event.features[0], event);
+    }
+  }, [map, onFeatureClick]);
 
   const onMouseEnter = useCallback(() => {
     map.getCanvas().style.cursor = 'pointer';
@@ -174,31 +219,50 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
       }, POLYGONS_OUTLINE_LAYER_ID);
     }
 
-    /* // Add separate label layers for each geometry type
+    if (!map.getLayer(LINES_HIT_LAYER_ID)) {
+      map.addLayer({
+        id: LINES_HIT_LAYER_ID,
+        type: 'line',
+        source: SPATIAL_FEATURES_SOURCE,
+        'source-layer': 'spatial_features',
+        paint: HIT_LAYER_PAINT,
+        filter: lineLayerFilter
+      }, SYMBOLS_LAYER_ID);
+    }
+
+    if (!map.getLayer(POLYGONS_OUTLINE_HIT_LAYER_ID)) {
+      map.addLayer({
+        id: POLYGONS_OUTLINE_HIT_LAYER_ID,
+        type: 'line',
+        source: SPATIAL_FEATURES_SOURCE,
+        'source-layer': 'spatial_features',
+        paint: HIT_LAYER_PAINT,
+        filter: polygonLayerFilter
+      }, SYMBOLS_LAYER_ID);
+    }
+
+    if (!map.getLayer(POLYGONS_LABELS_LAYER_ID)) {
+      map.addLayer({
+        id: POLYGONS_LABELS_LAYER_ID,
+        type: 'symbol',
+        source: SPATIAL_FEATURES_SOURCE,
+        'source-layer': 'spatial_features',
+        layout: { ...LABELS_LAYOUT, visibility: labelsVisibility },
+        paint: LABELS_PAINT,
+        filter: polygonLayerFilter
+      }, BEFORE_LAYER_ID);
+    }
+
     if (!map.getLayer(LINES_LABELS_LAYER_ID)) {
       map.addLayer({
         id: LINES_LABELS_LAYER_ID,
         type: 'symbol',
         source: SPATIAL_FEATURES_SOURCE,
         'source-layer': 'spatial_features',
-        layout: {
-          'text-field': ['coalesce', ['get', 'title'], ['get', 'name'], ''],
-          'text-size': 14,
-          'symbol-placement': 'line', // Along the line
-          'text-anchor': 'center',
-          'text-max-angle': 45,
-          'text-letter-spacing': 0.05,
-          'text-allow-overlap': true,
-          'text-ignore-placement': true,
-        },
-        paint: {
-          ...DEFAULT_SYMBOL_PAINT,
-          'text-halo-color': COLOR_TOKENS['greyscale-white'],
-          'text-halo-width': 1,
-          'text-halo-blur': 1,
-        },
+        layout: { ...LABELS_LAYOUT, 'symbol-placement': 'line', visibility: labelsVisibility },
+        paint: LABELS_PAINT,
         filter: lineLayerFilter
-      });
+      }, BEFORE_LAYER_ID);
     }
 
     if (!map.getLayer(SYMBOLS_LABELS_LAYER_ID)) {
@@ -208,63 +272,23 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
         source: SPATIAL_FEATURES_SOURCE,
         'source-layer': 'spatial_features',
         layout: {
-          'text-field': ['coalesce', ['get', 'title'], ['get', 'name'], ''],
-          'text-size': 14,
-          'symbol-placement': 'point',
-          'text-anchor': 'bottom',
-          'text-offset': [0, 1.5], // Below the point symbol
-          'text-allow-overlap': true,
-          'text-ignore-placement': true,
+          ...LABELS_LAYOUT,
+          'text-anchor': DEFAULT_SYMBOL_LAYOUT['text-anchor'],
+          'text-offset': DEFAULT_SYMBOL_LAYOUT['text-offset'],
+          visibility: labelsVisibility,
         },
-        paint: {
-          ...DEFAULT_SYMBOL_PAINT,
-          'text-halo-color': COLOR_TOKENS['greyscale-white'],
-          'text-halo-width': 1,
-          'text-halo-blur': 1,
-        },
-        filter: ['all',
-          ['==', ['geometry-type'], 'Point'],
-          ['!', ['in', ['get', 'id'], ['literal', hiddenFeatureIDs]]]
-        ]
-      });
+        paint: LABELS_PAINT,
+        filter: symbolLayerFilter
+      }, BEFORE_LAYER_ID);
     }
-
-    // Add labels for polygon features
-    if (!map.getLayer(POLYGONS_LABELS_LAYER_ID)) {
-      map.addLayer({
-        id: POLYGONS_LABELS_LAYER_ID,
-        type: 'symbol',
-        source: SPATIAL_FEATURES_SOURCE,
-        'source-layer': 'spatial_features',
-        layout: {
-          'text-field': ['coalesce', ['get', 'title'], ['get', 'name'], ''],
-          'text-size': 14,
-          'symbol-placement': 'point', // Center of polygon
-          'text-anchor': 'center',
-          'text-allow-overlap': true,
-          'text-ignore-placement': true,
-        },
-        paint: {
-          ...DEFAULT_SYMBOL_PAINT,
-          'text-halo-color': COLOR_TOKENS['greyscale-white'],
-          'text-halo-width': 1,
-          'text-halo-blur': 1,
-        },
-        filter: ['all',
-          ['==', ['geometry-type'], 'Polygon'],
-          ['!', ['in', ['get', 'id'], ['literal', hiddenFeatureIDs]]]
-        ]
-      });
-    } */
 
     const layerIds = [
       SYMBOLS_LAYER_ID,
       LINES_LAYER_ID,
       POLYGONS_OUTLINE_LAYER_ID,
       POLYGONS_LAYER_ID,
-      /* LINES_LABELS_LAYER_ID,
-        SYMBOLS_LABELS_LAYER_ID,
-        POLYGONS_LABELS_LAYER_ID */
+      ...HIT_LAYER_IDS,
+      ...LABELS_LAYER_IDS,
     ];
 
     return () => {
@@ -276,28 +300,34 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
 
       map.removeSource(SPATIAL_FEATURES_SOURCE);
     };
-    /*
-      # disable exhaustive dependencies here, since
-      # the filters are just used as an initializing state, not as a lifecycle dependency. 
-      # this will help us support possible in-memory retention/rehydration in the future (via saved app state).
-    */
+    // These values only seed the layers; the effects below keep them current.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map]);
 
-  // Only points open a popup, so only the symbols take clicks.
+  // Polygons open a popup from their border only, never from their fill.
   useEffect(() => {
     if (map) {
       map.on('click', SYMBOLS_LAYER_ID, onSymbolClick);
-      map.on('mouseenter', SYMBOLS_LAYER_ID, onMouseEnter);
-      map.on('mouseleave', SYMBOLS_LAYER_ID, onMouseLeave);
+      map.on('click', HIT_LAYER_IDS, onLineClick);
+      map.on('mouseenter', POINTER_LAYER_IDS, onMouseEnter);
+      map.on('mouseleave', POINTER_LAYER_IDS, onMouseLeave);
 
       return () => {
         map.off('click', SYMBOLS_LAYER_ID, onSymbolClick);
-        map.off('mouseenter', SYMBOLS_LAYER_ID, onMouseEnter);
-        map.off('mouseleave', SYMBOLS_LAYER_ID, onMouseLeave);
+        map.off('click', HIT_LAYER_IDS, onLineClick);
+        map.off('mouseenter', POINTER_LAYER_IDS, onMouseEnter);
+        map.off('mouseleave', POINTER_LAYER_IDS, onMouseLeave);
       };
     }
-  }, [map, onMouseEnter, onMouseLeave, onSymbolClick]);
+  }, [map, onLineClick, onMouseEnter, onMouseLeave, onSymbolClick]);
+
+  useEffect(() => {
+    LABELS_LAYER_IDS.forEach((layerId) => {
+      if (map?.getLayer?.(layerId)) {
+        map.setLayoutProperty(layerId, 'visibility', labelsVisibility);
+      }
+    });
+  }, [labelsVisibility, map]);
 
   /* highlight spatial features based on the values in mapFeatureHighlightIDs */
   useEffect(() => {
@@ -330,7 +360,7 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   useEffect(() => {
     const symbolLayers = [
       map?.getLayer?.(SYMBOLS_LAYER_ID),
-      // map?.getLayer?.(SYMBOLS_LABELS_LAYER_ID),
+      map?.getLayer?.(SYMBOLS_LABELS_LAYER_ID),
     ].filter(Boolean);
 
     if (symbolLayers.length) {
@@ -344,7 +374,8 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
   useEffect(() => {
     const lineLayers = [
       map?.getLayer?.(LINES_LAYER_ID),
-      // map?.getLayer?.(LINES_LABELS_LAYER_ID)
+      map?.getLayer?.(LINES_HIT_LAYER_ID),
+      map?.getLayer?.(LINES_LABELS_LAYER_ID),
     ].filter(Boolean);
 
     if (lineLayers.length) {
@@ -359,7 +390,8 @@ const SpatialFeaturesLayer = ({ onFeatureClick }) => {
     const polygonLayers = [
       map?.getLayer?.(POLYGONS_LAYER_ID),
       map?.getLayer?.(POLYGONS_OUTLINE_LAYER_ID),
-      // map?.getLayer?.(POLYGONS_LABELS_LAYER_ID),
+      map?.getLayer?.(POLYGONS_OUTLINE_HIT_LAYER_ID),
+      map?.getLayer?.(POLYGONS_LABELS_LAYER_ID),
     ].filter(Boolean);
 
     if (polygonLayers.length) {

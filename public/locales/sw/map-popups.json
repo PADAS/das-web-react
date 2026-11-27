@@ -16,6 +16,13 @@
       "low_speed": "Kasi ya Chini"
     }
   },
+  "featureSymbolPopup": {
+    "attributesErrorMessage": "Imeshindwa kupakia sifa za kipengele.",
+    "attributesLoadingLabel": "Inapakia sifa…",
+    "attributesRegionLabel": "Sifa za kipengele",
+    "falseValueLabel": "Hapana",
+    "trueValueLabel": "Ndiyo"
+  },
   "layerSelectorPopup": {
     "searchBarPlaceholder": "Tafuta",
     "unsavedChangesLabel": "Mabadiliko ambayo hayajahifadhiwa"

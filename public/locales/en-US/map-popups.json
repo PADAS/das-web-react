@@ -16,6 +16,13 @@
       "low_speed": "Low speed"
     }
   },
+  "featureSymbolPopup": {
+    "attributesErrorMessage": "Could not load the feature's attributes.",
+    "attributesLoadingLabel": "Loading attributes…",
+    "attributesRegionLabel": "Feature attributes",
+    "falseValueLabel": "No",
+    "trueValueLabel": "Yes"
+  },
   "layerSelectorPopup": {
     "searchBarPlaceholder": "Search",
     "unsavedChangesLabel": "Unsaved changes"

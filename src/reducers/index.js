@@ -56,7 +56,7 @@ import modalsReducer from '../ducks/modals';
 import drawerReducer from '../ducks/drawer';
 import eulaReducer from '../ducks/eula';
 import eventSchemaReducer from '../ducks/event-schemas';
-import featuresReducer from '../ducks/features';
+import featuresReducer, { featureStoreReducer } from '../ducks/features';
 import userLocationReducer from '../ducks/location';
 import socketActivityReducer from '../ducks/realtime';
 import userNotificationReducer from '../ducks/user-notifications';
@@ -106,6 +106,7 @@ const rootReducer = combineReducers({
     eventCategories: eventCategoriesReducer,
     eventTypes: eventTypesReducer,
     featureSets: persistReducer(featureSetsPersistenceConfig, featuresReducer),
+    featureStore: featureStoreReducer,
     gear: gearReducer,
     mapLayerFilter: persistReducer(
       mapLayerFilterPersistenceConfig,

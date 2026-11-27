@@ -1,4 +1,5 @@
 import { Provider } from 'react-redux';
+import ReactGA4 from 'react-ga4';
 import { useTranslation } from 'react-i18next';
 
 import { clearEventData, fetchMapEvents } from '../ducks/events';
@@ -19,12 +20,17 @@ import { updatePatrolTrackState } from '../ducks/patrols';
 
 import { createMapMock } from '../__test-helpers/mocks';
 import { MapContext } from '../MapContext';
-import { SYMBOLS_LAYER_ID as SPATIAL_FEATURES_SYMBOLS_LAYER_ID } from '../SpatialFeaturesLayer';
+import {
+  LINES_HIT_LAYER_ID as SPATIAL_FEATURES_LINES_HIT_LAYER_ID,
+  POLYGONS_OUTLINE_HIT_LAYER_ID as SPATIAL_FEATURES_POLYGONS_OUTLINE_HIT_LAYER_ID,
+  SYMBOLS_LAYER_ID as SPATIAL_FEATURES_SYMBOLS_LAYER_ID,
+} from '../SpatialFeaturesLayer';
 import MapDrawingToolsContextProvider from '../MapDrawingTools/ContextProvider';
 import { mockedSocket } from '../__test-helpers/MockSocketContext';
 import { mockStore } from '../__test-helpers/MockStore';
 import { INITIAL_GEAR_STATE } from '../ducks/gear';
 import { LAYER_IDS, PERMISSION_KEYS, PERMISSIONS, SYSTEM_CONFIG_FLAGS } from '../constants';
+import { MAP_INTERACTION_CATEGORY } from '../utils/analytics';
 
 import Map, { MAP_DATA_FETCH_DEBOUNCE_MS, TIME_SLIDER_HISTORY_MAP_DATA_FETCH_DEBOUNCE_MS } from './';
 
@@ -573,14 +579,16 @@ describe('Map', () => {
       mockLoadedMap = null;
     });
 
-    test('opens the feature popup', () => {
+    test('opens the feature popup with the geometry type of the point, not its geometry', () => {
       renderMap({ onMapLoad: jest.fn() });
 
       map.__test__.fireHandlers('click', SPATIAL_FEATURES_SYMBOLS_LAYER_ID, { features: [featurePoint] });
 
-      expect(showPopupMock).toHaveBeenCalledWith('feature-symbol', expect.objectContaining({
+      expect(showPopupMock).toHaveBeenCalledWith('feature-symbol', {
         coordinates: featurePoint.geometry.coordinates,
-      }));
+        geometryType: 'Point',
+        properties: featurePoint.properties,
+      });
     });
 
     test('does not open the feature popup while the user is picking a location', () => {
@@ -588,6 +596,101 @@ describe('Map', () => {
       renderMap({ onMapLoad: jest.fn() });
 
       map.__test__.fireHandlers('click', SPATIAL_FEATURES_SYMBOLS_LAYER_ID, { features: [featurePoint] });
+
+      expect(showPopupMock).not.toHaveBeenCalledWith('feature-symbol', expect.anything());
+    });
+  });
+
+  describe('clicking a spatial feature line or polygon border', () => {
+    const clickLngLat = { lat: 20.75, lng: -103.45 };
+    const featureLine = {
+      geometry: { coordinates: [[-103.4, 20.7], [-103.5, 20.8]], type: 'LineString' },
+      properties: { id: 'feature-line', name: 'Fence' },
+    };
+    const featurePolygon = {
+      geometry: { coordinates: [[[-103.4, 20.7], [-103.5, 20.8], [-103.4, 20.8], [-103.4, 20.7]]], type: 'Polygon' },
+      properties: { id: 'feature-polygon', name: 'Boundary' },
+    };
+
+    const clickHitLayer = (layerId, feature) => map.__test__.fireHandlers('click', layerId, {
+      features: [feature],
+      lngLat: clickLngLat,
+      point: { x: 100, y: 100 },
+    });
+
+    beforeEach(() => {
+      mockLoadedMap = map;
+      map.queryRenderedFeatures.mockImplementation((point, options) => (
+        options ? [] : [{ layer: { id: SPATIAL_FEATURES_LINES_HIT_LAYER_ID } }]
+      ));
+      store.view.systemConfig = { [SYSTEM_CONFIG_FLAGS.SPATIAL_FEATURES]: true };
+    });
+
+    afterEach(() => {
+      mockLoadedMap = null;
+    });
+
+    test('opens the feature popup of a line where it was clicked', () => {
+      renderMap({ onMapLoad: jest.fn() });
+
+      clickHitLayer(SPATIAL_FEATURES_LINES_HIT_LAYER_ID, featureLine);
+
+      expect(showPopupMock).toHaveBeenCalledWith('feature-symbol', {
+        coordinates: [clickLngLat.lng, clickLngLat.lat],
+        geometryType: 'LineString',
+        properties: featureLine.properties,
+      });
+    });
+
+    test('opens the feature popup of a polygon where its border was clicked', () => {
+      renderMap({ onMapLoad: jest.fn() });
+
+      clickHitLayer(SPATIAL_FEATURES_POLYGONS_OUTLINE_HIT_LAYER_ID, featurePolygon);
+
+      expect(showPopupMock).toHaveBeenCalledWith('feature-symbol', expect.objectContaining({
+        coordinates: [clickLngLat.lng, clickLngLat.lat],
+        properties: featurePolygon.properties,
+      }));
+    });
+
+    test.each([
+      ['MultiLineString', SPATIAL_FEATURES_LINES_HIT_LAYER_ID, [[[-103.4, 20.7], [-103.5, 20.8]]]],
+      [
+        'MultiPolygon',
+        SPATIAL_FEATURES_POLYGONS_OUTLINE_HIT_LAYER_ID,
+        [[[[-103.4, 20.7], [-103.5, 20.8], [-103.4, 20.8], [-103.4, 20.7]]]],
+      ],
+    ])('opens the feature popup of a %s where it was clicked', (geometryType, layerId, coordinates) => {
+      const feature = { geometry: { coordinates, type: geometryType }, properties: { id: 'feature-multi' } };
+      renderMap({ onMapLoad: jest.fn() });
+
+      clickHitLayer(layerId, feature);
+
+      expect(showPopupMock).toHaveBeenCalledWith('feature-symbol', {
+        coordinates: [clickLngLat.lng, clickLngLat.lat],
+        geometryType,
+        properties: feature.properties,
+      });
+    });
+
+    test('tracks the click on a feature line', () => {
+      jest.spyOn(ReactGA4, 'event').mockImplementation(() => {});
+      renderMap({ onMapLoad: jest.fn() });
+
+      clickHitLayer(SPATIAL_FEATURES_LINES_HIT_LAYER_ID, featureLine);
+
+      expect(ReactGA4.event).toHaveBeenCalledWith({
+        action: 'Click Map Feature Line',
+        category: MAP_INTERACTION_CATEGORY,
+        label: 'Feature ID :feature-line',
+      });
+    });
+
+    test('does not open the feature popup of a line while the user is picking a location', () => {
+      store.view.mapLocationSelection.isPickingLocation = true;
+      renderMap({ onMapLoad: jest.fn() });
+
+      clickHitLayer(SPATIAL_FEATURES_LINES_HIT_LAYER_ID, featureLine);
 
       expect(showPopupMock).not.toHaveBeenCalledWith('feature-symbol', expect.anything());
     });
@@ -916,6 +1019,42 @@ describe('Map', () => {
           return [
             {
               layer: { id: 'spatial-features-lines' },
+              properties: { id: 'feature-2' },
+            }
+          ];
+        }
+        return [];
+      });
+
+      await waitFor(() => {
+        map.__test__.fireHandlers('click', {
+          point: { x: 100, y: 100 },
+          originalEvent: { stopPropagation: jest.fn() },
+        });
+      });
+
+      expect(hidePopupMock).not.toHaveBeenCalled();
+    });
+
+    test('does not hide popup when clicking near a spatial feature line, within its hit area', async () => {
+      store.view.popup = {
+        id: 'existing-popup-id',
+        type: 'feature-symbol',
+        data: {
+          coordinates: [0.5, 0.5],
+          geometry: { coordinates: [[0, 0], [1, 1]] },
+          properties: { id: 'feature-2' },
+        },
+      };
+      store.data.mapLayerFilter = { hiddenFeatureIDs: [] };
+
+      renderMap();
+
+      map.queryRenderedFeatures.mockImplementation((point, options) => {
+        if (!options || !options.layers) {
+          return [
+            {
+              layer: { id: SPATIAL_FEATURES_LINES_HIT_LAYER_ID },
               properties: { id: 'feature-2' },
             }
           ];

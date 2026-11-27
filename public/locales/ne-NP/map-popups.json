@@ -16,6 +16,13 @@
             "low_speed": "कम गति"
         }
     },
+    "featureSymbolPopup": {
+        "attributesErrorMessage": "फिचरका विशेषताहरू लोड गर्न सकिएन।",
+        "attributesLoadingLabel": "विशेषताहरू लोड हुँदै…",
+        "attributesRegionLabel": "फिचरका विशेषताहरू",
+        "falseValueLabel": "होइन",
+        "trueValueLabel": "हो"
+    },
     "layerSelectorPopup": {
         "searchBarPlaceholder": "खोज्नुहोस्",
         "unsavedChangesLabel": "बचत नगरिएका परिवर्तनहरू"

@@ -1,4 +1,9 @@
+import { persistReducer, REHYDRATE } from 'redux-persist';
+
+import { generateStorageConfig } from '../../reducers/storage-config';
+import { LAYER_IDS } from '../../constants';
 import {
+  displayMapNamesReducer,
   INITIAL_MAP_CLUSTER_STATE,
   mapClusterConfigReducer,
   SET_MAP_CLUSTER_DATA,
@@ -63,6 +68,36 @@ describe('Ducks - Map UI', () => {
       };
 
       expect(mapClusterConfigReducer(INITIAL_MAP_CLUSTER_STATE, action)).toEqual(expectedState);
+    });
+  });
+
+  describe('displayMapNamesReducer', () => {
+    test('keeps the default of a marker names option missing from an older persisted state', () => {
+      const persistedDisplayMapNamesReducer = persistReducer(
+        generateStorageConfig('mapLabelPreferences'),
+        displayMapNamesReducer
+      );
+
+      const initialState = persistedDisplayMapNamesReducer(undefined, { type: '@@INIT' });
+      const state = persistedDisplayMapNamesReducer(initialState, {
+        key: 'mapLabelPreferences',
+        payload: {
+          [LAYER_IDS.EVENT_SYMBOLS]: { key: 'reports', enabled: false },
+          [LAYER_IDS.PATROL_SYMBOLS]: { key: 'patrols', enabled: true },
+          [LAYER_IDS.STATIC_SENSOR]: { key: 'stationary_subjects', enabled: true },
+          [LAYER_IDS.SUBJECT_SYMBOLS]: { key: 'subjects', enabled: false },
+          _persist: { rehydrated: true, version: -1 },
+        },
+        type: REHYDRATE,
+      });
+
+      expect(state).toEqual(expect.objectContaining({
+        [LAYER_IDS.EVENT_SYMBOLS]: { key: 'reports', enabled: false },
+        [LAYER_IDS.PATROL_SYMBOLS]: { key: 'patrols', enabled: true },
+        'spatial-features-labels': { key: 'features', enabled: false },
+        [LAYER_IDS.STATIC_SENSOR]: { key: 'stationary_subjects', enabled: true },
+        [LAYER_IDS.SUBJECT_SYMBOLS]: { key: 'subjects', enabled: false },
+      }));
     });
   });
 });

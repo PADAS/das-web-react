@@ -16,6 +16,13 @@
             "low_speed": "Baixa velocidade"
         }
     },
+    "featureSymbolPopup": {
+        "attributesErrorMessage": "Não foi possível carregar os atributos do elemento.",
+        "attributesLoadingLabel": "Carregando atributos…",
+        "attributesRegionLabel": "Atributos do elemento",
+        "falseValueLabel": "Não",
+        "trueValueLabel": "Sim"
+    },
     "layerSelectorPopup": {
         "searchBarPlaceholder": "Buscar",
         "unsavedChangesLabel": "Alterações não salvas"

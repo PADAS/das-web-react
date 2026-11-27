@@ -310,7 +310,7 @@
       "clearAllMapLayersButton": "Tout Désélectionner",
       "clearAllMapLayersButtonLabel": "Effacer toutes les couches de la carte",
       "eventsTabTitle": "Événements",
-      "featuresTabTitle": "Calques",
+      "featuresTabTitle": "Entités",
       "subjectsTabTitle": "Appareils Suivis"
     },
     "otusLink": "Atlas",
@@ -428,6 +428,7 @@
             "legend": "Repères",
             "markerNamesAllCheckboxLabel": "Tout sélectionner",
             "markerNamesCheckboxLabel": {
+              "features": "Entités",
               "patrols": "Patrouilles",
               "reports": "Événements",
               "stationary_subjects": "Appareils fixes",
